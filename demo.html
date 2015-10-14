@@ -5,21 +5,30 @@
   <title>Climate Widget Demo</title>
   <style>
     #widget {
-      height: 300px;
-      width: 400px;
+      height: 400px;
+      width: 600px;
     }
   </style>
 </head>
 <body>
   <!--
-    The following select is merely to demonstrate a way of specifying
-    the information that Climate Widget needs to launch. This is by no
-    means intended to be more than a demonstration.
+    The following select is merely for demonstration purposes -- it
+    lets the user choose a county.  This select element just gives two
+    county options, but the climate_widget_graph() function will work
+    for any county fips code.  A list of all county fips codes is
+    available for reference in the file 'fips_codes.csv'.
   -->
   <select id="county">
     <option value="37021" selected="selected">Buncombe County, NC</option>
     <option value="37089">Henderson County, NC</option>
   </select>
+  <!--
+    The following select is merely for demonstration purposes -- it
+    lets the user choose a variable.  This select element just gives two
+    variable options, but the climate_widget_graph() function will work
+    with any of the 9 variable names listed in the comments
+    at the top of the file climate-widget-graph.js.
+  -->
   <select id="variable">
     <option value="US_Counties_cooling_degree_day_cmip5" selected="selected">Cooling Degree Days</option>
     <option value="US_Counties_days_tmax_abv_cmip5">Max Temperature</option>
@@ -29,13 +38,14 @@
   <!--
     The div the widget will be called on. Multiple of these could be
     declared (so that there are multiple graphs) at a time, or this
-    DOM element could be generated programatically from JS.
+    DOM element could be generated programatically from JS.  Note that
+    the size of the graph is determined by the size of this div, which
+    in turn is specified in the '#widget' CSS rule above.
   -->
   <div id="widget"></div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-  <script src="jquery.climate-widget.min.js"></script>
+  <script src="climate-widget-graph.js"></script>
   <script type="text/javascript">
     function configureAndLaunchGraph() {
       var selectedCounty = $('#county').val();
@@ -44,9 +54,10 @@
       // This is the only code that's required to configure
       // and deploy the Climate Widget. How the variables are
       // determined doesn't matter to the widget.
-      $('#widget').climateWidget({
-        'fips': selectedCounty,
-        'variable': selectedVariable
+      climate_widget_graph({
+        'div' : "div#widget",        // jquery-style selector for the dom element that you want the graph to appear in
+        'fips': selectedCounty,      // 5-character fips code for county (as a string)
+        'variable': selectedVariable // name of variable to display; see climate-widget-graph.js for list of variables
       });
 
     }
