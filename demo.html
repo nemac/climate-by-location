@@ -44,16 +44,21 @@
   -->
   <div id="widget"></div>
 
+  <!-- you must include jquery before including climate-widget-graph.js -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+  <!-- include climate-widget-graph.js before calling climate_widget_graph() -->
   <script src="climate-widget-graph.js"></script>
+
   <script type="text/javascript">
     function configureAndLaunchGraph() {
       var selectedCounty = $('#county').val();
       var selectedVariable = $('#variable').val();
 
-      // This is the only code that's required to configure
-      // and deploy the Climate Widget. How the variables are
-      // determined doesn't matter to the widget.
+      // This is the only code that's required to create a climate widget graph.
+      // How the variables are determined doesn't matter to the widget.  Note that
+      // it's possible to create more than one graph at a time in the same page by
+      // simply calling this function multiple times with different divs.
       climate_widget_graph({
         'div' : "div#widget",        // jquery-style selector for the dom element that you want the graph to appear in
         'fips': selectedCounty,      // 5-character fips code for county (as a string)
