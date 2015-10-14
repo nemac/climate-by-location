@@ -1,0 +1,55 @@
+<!doctype html>
+<html class="no-js" lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <title>Climate Widget Demo</title>
+  <style>
+    #widget {
+      height: 300px;
+      width: 400px;
+    }
+  </style>
+</head>
+<body>
+  <!--
+    The following select is merely to demonstrate a way of specifying
+    the information that Climate Widget needs to launch. This is by no
+    means intended to be more than a demonstration.
+  -->
+  <select id="county">
+    <option value="37021" selected="selected">Buncombe County, NC</option>
+    <option value="37089">Henderson County, NC</option>
+  </select>
+  <select id="variable">
+    <option value="US_Counties_cooling_degree_day_cmip5" selected="selected">Cooling Degree Days</option>
+    <option value="US_Counties_days_tmax_abv_cmip5">Max Temperature</option>
+  </select>
+  <button onclick="configureAndLaunchGraph()">Show Graph</button>
+
+  <!--
+    The div the widget will be called on. Multiple of these could be
+    declared (so that there are multiple graphs) at a time, or this
+    DOM element could be generated programatically from JS.
+  -->
+  <div id="widget"></div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+  <script src="jquery.climate-widget.min.js"></script>
+  <script type="text/javascript">
+    function configureAndLaunchGraph() {
+      var selectedCounty = $('#county').val();
+      var selectedVariable = $('#variable').val();
+
+      // This is the only code that's required to configure
+      // and deploy the Climate Widget. How the variables are
+      // determined doesn't matter to the widget.
+      $('#widget').climateWidget({
+        'fips': selectedCounty,
+        'variable': selectedVariable
+      });
+
+    }
+  </script>
+</body>
+</html>
