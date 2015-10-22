@@ -1,37 +1,34 @@
 // This file defines a single function, `climate_widget_graph`, which
 // creates a Climate Widget data graph.  It takes a single argument
 // which should be a JavaScript object with three properties:
-// 
+//
 //     climate_widget_graph({
 //         'variable': VARIABLE_NAME,
 //         'fips'    : COUNTY_FIPS_CODE,
 //         'div'     : DIV
 //     });
-// 
+//
 // VARIABLE_NAME should be one of the following:
-// 
-//     US_Counties_cooling_degree_day_cmip5
-//     US_Counties_heating_degree_day_cmip5
-//     US_Counties_days_prcp_abv_cmip5
-//     US_Counties_days_tmax_abv_cmip5
-//     US_Counties_days_tmin_blw_cmip5
-//     US_Counties_growing_degree_day_cmip5
-//     US_Counties_growing_season_lngth_cmip5
-//     US_Counties_longest_run_prcp_blw_cmip5
-//     US_Counties_longest_run_tmax_abv_cmip5
-// 
+//
+//    US_Counties_cooling_degree_day_cmip5
+//    US_Counties_days_tmax_abv_35_cmip5
+//    US_Counties_days_tmin_blw_0_cmip5
+//    US_Counties_growing_season_lngth_cmip5
+//    US_Counties_heating_degree_day_cmip5
+//    US_Counties_longest_run_prcp_blw_cmip5
+//
 // COUNTY_FIPS_CODE should be the 5-digit fips code of a US county, as a
 // string.  (Note that 4-digit fips codes should be left-padded with a 0
 // to make 5 digits.)
-// 
+//
 // DIV should be the div where you want the graph to appear; it can be
 // either (a) a selector string, (b) a DOM element, or (c) a JQuery
 // object.
-// 
+//
 // For example, the following will populate the div whose id is
 // "climateWidgetGraph" with a graph showing the variable
 // "US_Counties_longest_run_prcp_blw_cmip5" for Buncombe county NC:
-// 
+//
 //     climate_widget_graph({
 //         'variable': "US_Counties_longest_run_prcp_blw_cmip5",
 //         'fips'    : "37021",
@@ -55,25 +52,22 @@ var climate_widget_graph;
 
     var yrange = {
         "US_Counties_cooling_degree_day_cmip5":   { min:   0, max: 3800 },
-        "US_Counties_heating_degree_day_cmip5":   { min:   0, max: 5300 },
-        "US_Counties_days_prcp_abv_cmip5":        { min:   0, max:   10 },
-        "US_Counties_days_tmax_abv_cmip5":        { min:   0, max:  200 },
-        "US_Counties_days_tmin_blw_cmip5":        { min:   0, max:  130 },
-        "US_Counties_growing_degree_day_cmip5":   { min:   0, max: 4500 },
+        "US_Counties_days_tmax_abv_35_cmip5":     { min:   0, max:  200 },
+        "US_Counties_days_tmin_blw_0_cmip5":      { min:   0, max:  130 },
         "US_Counties_growing_season_lngth_cmip5": { min: 200, max:  370 },
-        "US_Counties_longest_run_prcp_blw_cmip5": { min: 330, max:  370 },
-        "US_Counties_longest_run_tmax_abv_cmip5": { min:   0, max:  100 }
+        "US_Counties_heating_degree_day_cmip5":   { min:   0, max: 5300 },
+        "US_Counties_longest_run_prcp_blw_cmip5": { min:   0, max:  200 }
     };
 
     function string_to_data(s) {
         // Takes a multiline string of the form
-        // 
+        //
         //   name1,name2,name3,...
         //   1921,1.3,33.5,2.5,...
         //   1922,1.3,33.5,2.5,...
-        //   
+        //
         // and returns a structure like this:
-        // 
+        //
         //   {
         //     names: ["name1","name2","name3",...],
         //     values: [[1921,1.3,33.5,2.5,...],

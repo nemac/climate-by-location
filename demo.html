@@ -20,6 +20,7 @@
   -->
   <select id="county">
     <option value="37021" selected="selected">Buncombe County, NC</option>
+    <option value="06071">San Bernadino County, CA</option>
     <option value="37089">Henderson County, NC</option>
   </select>
   <!--
@@ -31,7 +32,11 @@
   -->
   <select id="variable">
     <option value="US_Counties_cooling_degree_day_cmip5" selected="selected">Cooling Degree Days</option>
-    <option value="US_Counties_days_tmax_abv_cmip5">Max Temperature</option>
+    <option value="US_Counties_days_tmax_abv_35_cmip5">Days with Maximum Temperature Above 95° F</option>
+    <option value="US_Counties_days_tmin_blw_0_cmip5">Days with Minimum Temperature Below 32° F</option>
+    <option value="US_Counties_growing_season_lngth_cmip5">Growing Season Length</option>
+    <option value="US_Counties_heating_degree_day_cmip5">Heating Degree Days</option>
+    <option value="US_Counties_longest_run_prcp_blw_cmip5">Consecutive Days of Precipitation Below 3mm</option>
   </select>
   <button onclick="configureAndLaunchGraph()">Show Graph</button>
 
