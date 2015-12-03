@@ -83,7 +83,7 @@ var yrange = {
     },
     "pr":  {
         "absolute": { min:  1, max:   7 },
-        "anomaly":  { min:  -3, max:   3 }
+        "anomaly":  { min:  -2.25, max:   2.25 }
     }
 };
 
