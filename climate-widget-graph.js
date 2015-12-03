@@ -3,9 +3,11 @@
 // which should be a JavaScript object with three properties:
 //
 //     climate_widget_graph({
-//         'variable': VARIABLE_NAME,
-//         'fips'    : COUNTY_FIPS_CODE,
-//         'div'     : DIV
+//         'variable'     : VARIABLE_NAME,
+//         'scenario'     : SCENARIO_NAME,
+//         'presentation' : PRESENTATION_NAME,
+//         'fips'         : COUNTY_FIPS_CODE,
+//         'div'          : DIV
 //     });
 //
 // VARIABLE_NAME should be one of the following:
@@ -16,6 +18,24 @@
 //    US_Counties_growing_season_lngth_cmip5
 //    US_Counties_heating_degree_day_cmip5
 //    US_Counties_longest_run_prcp_blw_cmip5
+//
+// SCENARIO_NAME should be one of the following:
+//
+//    rcp45
+//    rcp85
+//    both
+//
+//  note:
+//  "both" displays rcp45 and rcp85 simultaneously
+//
+// PRESENTATION should be one of the following:
+//
+//    absolute
+//    anomaly
+//
+//  note:
+//  "absolute" will display the raw underlying values
+//  "anomaly" will present the data as a deviance from a derived baseline
 //
 // COUNTY_FIPS_CODE should be the 5-digit fips code of a US county, as a
 // string.  (Note that 4-digit fips codes should be left-padded with a 0
@@ -49,6 +69,15 @@ var climate_widget_graph;
         rcp45: true,
         rcp26: false
     };
+
+    function translateRcps(str) {
+      return {
+        rcp85: str === 'rcp85' || str === 'both',
+        rcp60: false,
+        rcp45: str === 'rcp45' || str === 'both',
+        rcp26: false
+      };
+    }
 
     var yrange = {
         "US_Counties_cooling_degree_day_cmip5":   { min:   0, max: 3800 },
@@ -196,6 +225,8 @@ var climate_widget_graph;
 
     climate_widget_graph = function(options) {
         var data_dir = options.data_dir ? options.data_dir : "http://climate-widget.nemac.org/data/county-data/10dayrolling/";
+        if (options.scenario) include_rcp = translateRcps(options.scenario);
+        console.log(options.presentation);
         get_proj_and_hist_data(options.variable, data_dir, options.fips, function(proj_data, hist_data) {
             var gmugl = make_mugl(proj_data, hist_data, yrange[options.variable]);
             $('.errorDisplayDetails').remove();

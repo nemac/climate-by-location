@@ -3,51 +3,88 @@
 <head>
   <meta charset="utf-8">
   <title>Climate Widget Demo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+
   <style>
     #widget {
       height: 400px;
       width: 600px;
+      background-color: #eee;
     }
   </style>
 </head>
 <body>
-  <!--
-    The following select is merely for demonstration purposes -- it
-    lets the user choose a county.  This select element just gives two
-    county options, but the climate_widget_graph() function will work
-    for any county fips code.  A list of all county fips codes is
-    available for reference in the file 'fips_codes.csv'.
-  -->
-  <select id="county">
-    <option value="37021" selected="selected">Buncombe County, NC</option>
-    <option value="06071">San Bernadino County, CA</option>
-    <option value="37089">Henderson County, NC</option>
-  </select>
-  <!--
-    The following select is merely for demonstration purposes -- it
-    lets the user choose a variable.  This select element just gives two
-    variable options, but the climate_widget_graph() function will work
-    with any of the 9 variable names listed in the comments
-    at the top of the file climate-widget-graph.js.
-  -->
-  <select id="variable">
-    <option value="US_Counties_cooling_degree_day_cmip5" selected="selected">Cooling Degree Days</option>
-    <option value="US_Counties_days_tmax_abv_35_cmip5">Days with Maximum Temperature Above 95° F</option>
-    <option value="US_Counties_days_tmin_blw_0_cmip5">Days with Minimum Temperature Below 32° F</option>
-    <option value="US_Counties_growing_season_lngth_cmip5">Growing Season Length</option>
-    <option value="US_Counties_heating_degree_day_cmip5">Heating Degree Days</option>
-    <option value="US_Counties_longest_run_prcp_blw_cmip5">Consecutive Days of Precipitation Below 3mm</option>
-  </select>
-  <button onclick="configureAndLaunchGraph()">Show Graph</button>
+  <div class="container">
+    <h1>Annual timeseries</h1>
 
-  <!--
-    The div the widget will be called on. Multiple of these could be
-    declared (so that there are multiple graphs) at a time, or this
-    DOM element could be generated programatically from JS.  Note that
-    the size of the graph is determined by the size of this div, which
-    in turn is specified in the '#widget' CSS rule above.
-  -->
-  <div id="widget"></div>
+    <div class="row">
+      <div class="four columns">
+        <form onsubmit="return false;">
+          <div class="row">
+            <label for="county">County</label>
+            <!--
+              The following select is merely for demonstration purposes -- it
+              lets the user choose a county.  This select element just gives two
+              county options, but the climate_widget_graph() function will work
+              for any county fips code.  A list of all county fips codes is
+              available for reference in the file 'fips_codes.csv'.
+            -->
+            <select id="county" class="u-full-width">
+              <option value="37021" selected="selected">Buncombe County, NC</option>
+              <option value="06071">San Bernadino County, CA</option>
+              <option value="37089">Henderson County, NC</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="variable">Variable</label>
+            <!--
+              The following select is merely for demonstration purposes -- it
+              lets the user choose a variable.  This select element just gives two
+              variable options, but the climate_widget_graph() function will work
+              with any of the 9 variable names listed in the comments
+              at the top of the file climate-widget-graph.js.
+            -->
+            <select id="variable" class="u-full-width">
+              <option value="US_Counties_cooling_degree_day_cmip5" selected="selected">Cooling Degree Days</option>
+              <option value="US_Counties_days_tmax_abv_35_cmip5">Days with Maximum Temperature Above 95° F</option>
+              <option value="US_Counties_days_tmin_blw_0_cmip5">Days with Minimum Temperature Below 32° F</option>
+              <option value="US_Counties_growing_season_lngth_cmip5">Growing Season Length</option>
+              <option value="US_Counties_heating_degree_day_cmip5">Heating Degree Days</option>
+              <option value="US_Counties_longest_run_prcp_blw_cmip5">Consecutive Days of Precipitation Below 3mm</option>
+            </select>
+          </div>
+          <div class="row">
+            <div class="six columns">
+              <label for="variable">Scenario</label>
+              <select id="scenario" class="u-full-width">
+                <option value="both">RCP 8.5 and 4.5</option>
+                <option value="rcp85">RCP 8.5</option>
+                <option value="rcp45">RCP 4.5</option>
+              </select>
+            </div>
+            <div class="six columns">
+              <label for="presentation">Presentation</label>
+              <select id="presentation" class="u-full-width">
+                <option value="absolute">Absolute</option>
+                <option value="anomaly">Anomaly</option>
+              </select>
+            </div>
+          </div>
+          <button class="button-primary u-full-width" onclick="configureAndLaunchGraph()">Show Graph</button>
+        </form>
+      </div>
+      <div class="eight columns">
+        <!--
+          The div the widget will be called on. Multiple of these could be
+          declared (so that there are multiple graphs) at a time, or this
+          DOM element could be generated programatically from JS.  Note that
+          the size of the graph is determined by the size of this div, which
+          in turn is specified in the '#widget' CSS rule above.
+        -->
+        <div id="widget"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- you must include jquery before including climate-widget-graph.js -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -59,15 +96,19 @@
     function configureAndLaunchGraph() {
       var selectedCounty = $('#county').val();
       var selectedVariable = $('#variable').val();
+      var selectedScenario = $('#scenario').val();
+      var selectedPresentation = $('#presentation').val();
 
       // This is the only code that's required to create a climate widget graph.
       // How the variables are determined doesn't matter to the widget.  Note that
       // it's possible to create more than one graph at a time in the same page by
       // simply calling this function multiple times with different divs.
       climate_widget_graph({
-        'div' : "div#widget",        // jquery-style selector for the dom element that you want the graph to appear in
-        'fips': selectedCounty,      // 5-character fips code for county (as a string)
-        'variable': selectedVariable // name of variable to display; see climate-widget-graph.js for list of variables
+        'div' : "div#widget",                 // jquery-style selector for the dom element that you want the graph to appear in
+        'fips': selectedCounty,               // 5-character fips code for county (as a string)
+        'variable': selectedVariable,         // name of variable to display; see climate-widget-graph.js for list of variables
+        'scenario': selectedScenario,         // name of scenario to display; both, rcp45, or rcp85
+        'presentation': selectedPresentation  // name of presentation; absolute or anomaly with respect to a baseline value
       });
 
     }
