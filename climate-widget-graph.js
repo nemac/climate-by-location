@@ -77,8 +77,14 @@ function translateRcps(str) {
 }
 
 var yrange = {
-    "tasmax":                                 { min:  15, max:   30 },
-    "pr":                                     { min:   0, max:  100 }
+    "tasmax": {
+        "absolute": { min:  15,  max:   30 },
+        "anomaly":  { min:  -8,  max:    8 }
+    },
+    "pr":  {
+        "absolute": { min:  15, max:   30 },
+        "anomaly":  { min:  -8, max:   8 }
+    }
 };
 
 function string_to_data(s) {
@@ -112,6 +118,34 @@ function string_to_data(s) {
         names: names,
         values: values
     };
+}
+
+function average(data, first_year, last_year) {
+    //    [[1921,1.3,33.5,2.5,...],
+    //     [1922,1.3,33.5,2.5,...],
+    //     ...]
+    var sum = 0;
+    var n = 0;
+    data.forEach(function(row) {
+        if (row[0] >= first_year && row[0] <= last_year) {
+            sum += row[1];
+            ++n;
+        }
+    });
+    return sum/n;
+}
+
+
+function anomalies(data, ref) {
+    var anomalies = data.map(function(row) {
+        var arow = [ row[0] ];
+        var i;
+        for (i=1; i<row.length; ++i) {
+            arow[i] = row[i] - ref;
+        }
+        return arow;
+    });
+    return anomalies;
 }
 
 function get_data(variable, data_dir, suffix, fips, success) {
@@ -199,6 +233,12 @@ function bar_plot(year_name, var_name, bar_color, line_color) {
 
 function make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, options) {
 
+    if (options.presentation === "anomaly") {
+        var avg = average(hist_obs_data.values, 1960, 1989);
+        hist_obs_data.values = anomalies(hist_obs_data.values, avg);
+        hist_mod_data.values = anomalies(hist_mod_data.values, avg);
+        proj_mod_data.values = anomalies(proj_mod_data.values, avg);
+    }
     var data = [{
         variables: hist_obs_data.names.map(function(name) { return { id: name }; }),
         values: hist_obs_data.values
@@ -256,8 +296,8 @@ function make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, options)
         data: data,
         plots: plots
     });
-    this_mugl.verticalaxis.min = yrange.min;
-    this_mugl.verticalaxis.max = yrange.max;
+    this_mugl.verticalaxis.min = yrange[options.presentation].min;
+    this_mugl.verticalaxis.max = yrange[options.presentation].max;
     return this_mugl;
 }
 
