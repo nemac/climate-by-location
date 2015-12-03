@@ -223,18 +223,38 @@ function bar_plot(year_name, var_name, bar_color, line_color) {
         verticalaxis:   { temp: var_name },
         style: "bar",
         options: {
+            fillcolor: bar_color,
             barwidth: 1,
             baroffset: 0.5,
-            fillcolor: bar_color,
             linecolor: line_color
         }
     };
 }
 
+
+
+function bar_plot_based_at(year_name, var_name, ref) {
+    // (colors are hard-coded in this one, but not for any good reason)
+    return {
+        horizontalaxis: { year: year_name },
+        verticalaxis:   { temp: var_name },
+        style: "bar",
+        options: {
+            barbase: ref,
+            fillcolor: [ {"value": "0xCD6760", "min": ref},
+                         {"value": "0x6194C8", "max": ref} ],
+            barwidth: 1,
+            baroffset: 0.5,
+            linecolor: "#000000"
+        }
+    };
+}
+
+
 function make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, options) {
 
+    var avg = average(hist_obs_data.values, 1960, 1989);
     if (options.presentation === "anomaly") {
-        var avg = average(hist_obs_data.values, 1960, 1989);
         hist_obs_data.values = anomalies(hist_obs_data.values, avg);
         hist_mod_data.values = anomalies(hist_mod_data.values, avg);
         proj_mod_data.values = anomalies(proj_mod_data.values, avg);
@@ -258,8 +278,6 @@ function make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, options)
 
     var plots = [];
 
-    plots.push(bar_plot("hist_obs_year", "hist_obs_tasmax", "#00cc00", "#000000"));
-
     plots.push(band_plot("hist_mod_year", "hist_mod_min", "hist_mod_max", "#cccccc", 0.7));
     plots.push(band_plot("hist_mod_year", "hist_mod_p10", "hist_mod_p90", "#999999", 0.5));
 
@@ -272,6 +290,11 @@ function make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, options)
         plots.push(band_plot("proj_mod_year", "proj_mod_rcp85p10", "proj_mod_rcp85p90", "#990000", 0.3));
     }
 
+    if (options.presentation === "anomaly") {
+        plots.push(bar_plot_based_at("hist_obs_year", "hist_obs_tasmax", 0));
+    } else {
+        plots.push(bar_plot_based_at("hist_obs_year", "hist_obs_tasmax", avg));
+    }
 
     plots.push(line_plot("hist_mod_year", "hist_mod_median",      "#000000"));
     if (options.scenario === "rcp45" || options.scenario === "both") {
