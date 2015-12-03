@@ -45,12 +45,8 @@
               at the top of the file climate-widget-graph.js.
             -->
             <select id="variable" class="u-full-width">
-              <option value="US_Counties_cooling_degree_day_cmip5" selected="selected">Cooling Degree Days</option>
-              <option value="US_Counties_days_tmax_abv_35_cmip5">Days with Maximum Temperature Above 95° F</option>
-              <option value="US_Counties_days_tmin_blw_0_cmip5">Days with Minimum Temperature Below 32° F</option>
-              <option value="US_Counties_growing_season_lngth_cmip5">Growing Season Length</option>
-              <option value="US_Counties_heating_degree_day_cmip5">Heating Degree Days</option>
-              <option value="US_Counties_longest_run_prcp_blw_cmip5">Consecutive Days of Precipitation Below 3mm</option>
+              <option value="tasmax" selected="selected">Max Daily Temp</option>
+              <option value="pr">Daily Precipitation</option>
             </select>
           </div>
           <div class="row">
@@ -88,6 +84,7 @@
 
   <!-- you must include jquery before including climate-widget-graph.js -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="multigraph-nojq-min-5.1.1.js"></script>
 
   <!-- include climate-widget-graph.js before calling climate_widget_graph() -->
   <script src="climate-widget-graph.js"></script>
