@@ -6,10 +6,14 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
 
   <style>
+    h1 {
+      font-size: 3.95rem;
+    }
+
     #widget {
+      margin-top: 5px;
       height: 400px;
       width: 600px;
-      background-color: #eee;
     }
   </style>
 </head>
@@ -31,8 +35,10 @@
             -->
             <select id="county" class="u-full-width">
               <option value="37021" selected="selected">Buncombe County, NC</option>
+              <!--
               <option value="06071">San Bernadino County, CA</option>
               <option value="37089">Henderson County, NC</option>
+              -->
             </select>
           </div>
           <div class="row">
@@ -45,8 +51,8 @@
               at the top of the file climate-widget-graph.js.
             -->
             <select id="variable" class="u-full-width">
-              <option value="tasmax" selected="selected">Max Daily Temp</option>
-              <option value="pr">Daily Precipitation</option>
+              <option value="tasmax" selected="selected">Mean Daily Maximum Temperature</option>
+              <option value="pr">Mean Daily Average Precipitation</option>
             </select>
           </div>
           <div class="row">
@@ -84,7 +90,8 @@
 
   <!-- you must include jquery before including climate-widget-graph.js -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <script src="multigraph-nojq-min-5.1.1.js"></script>
+  <!--<script src="multigraph-nojq-min-5.1.1.js"></script>-->
+  <script src="multigraph-nojq-min-retina.js"></script>
 
   <!-- include climate-widget-graph.js before calling climate_widget_graph() -->
   <script src="climate-widget-graph.js"></script>
