@@ -78,12 +78,12 @@ function translateRcps(str) {
 
 var yrange = {
     "tasmax": {
-        "absolute": { min:  15,  max:   30 },
+        "absolute": { min:  15,  max:   27 },
         "anomaly":  { min:  -8,  max:    8 }
     },
     "pr":  {
-        "absolute": { min:  15, max:   30 },
-        "anomaly":  { min:  -8, max:   8 }
+        "absolute": { min:  1, max:   7 },
+        "anomaly":  { min:  -3, max:   3 }
     }
 };
 
@@ -134,7 +134,6 @@ function average(data, first_year, last_year) {
     });
     return sum/n;
 }
-
 
 function anomalies(data, ref) {
     var anomalies = data.map(function(row) {
@@ -231,8 +230,6 @@ function bar_plot(year_name, var_name, bar_color, line_color) {
     };
 }
 
-
-
 function bar_plot_based_at(year_name, var_name, ref) {
     // (colors are hard-coded in this one, but not for any good reason)
     return {
@@ -290,10 +287,12 @@ function make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, options)
         plots.push(band_plot("proj_mod_year", "proj_mod_rcp85p10", "proj_mod_rcp85p90", "#990000", 0.3));
     }
 
+    var hist_obs_name = "hist_obs_" + options.variable;
+
     if (options.presentation === "anomaly") {
-        plots.push(bar_plot_based_at("hist_obs_year", "hist_obs_tasmax", 0));
+        plots.push(bar_plot_based_at("hist_obs_year", hist_obs_name, 0));
     } else {
-        plots.push(bar_plot_based_at("hist_obs_year", "hist_obs_tasmax", avg));
+        plots.push(bar_plot_based_at("hist_obs_year", hist_obs_name, avg));
     }
 
     plots.push(line_plot("hist_mod_year", "hist_mod_median",      "#000000"));
@@ -303,7 +302,7 @@ function make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, options)
     if (options.scenario === "rcp85" || options.scenario === "both") {
         plots.push(line_plot("proj_mod_year", "proj_mod_rcp85median", "#cc0000"));
     }
-    
+
 //    if (include_rcp["rcp85"]) { plots.push(band_plot("year", "rcp85_min", "rcp85_max", "#ffcccc", 1.0)); }
 //    if (include_rcp["rcp60"]) { plots.push(band_plot("year", "rcp60_min", "rcp60_max", "#ffccff", 0.5)); }
 //    if (include_rcp["rcp45"]) { plots.push(band_plot("year", "rcp45_min", "rcp45_max", "#ccccff", 0.5)); }
@@ -315,12 +314,19 @@ function make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, options)
 //    if (include_rcp["rcp45"]) { plots.push(line_plot("year", "rcp45_mean", "#0000ff")); }
 //    if (include_rcp["rcp26"]) { plots.push(line_plot("year", "rcp26_mean", "#00ff00")); }
 
+    // window style
     var this_mugl = $.extend({}, mugl, {
         data: data,
-        plots: plots
+        plots: plots,
+        "window": {
+          "border": 0,
+          "padding": 0,
+          "margin": 0
+        }
     });
     this_mugl.verticalaxis.min = yrange[options.presentation].min;
     this_mugl.verticalaxis.max = yrange[options.presentation].max;
+
     return this_mugl;
 }
 
@@ -328,24 +334,26 @@ climate_widget_graph = function(options) {
     //var data_dir = options.data_dir ? options.data_dir : "http://climate-widget.nemac.org/data/county-data/10dayrolling/";
     //if (options.scenario) include_rcp = translateRcps(options.scenario);
     //console.log(options.presentation);
-    $.when.apply($, [
-        $.ajax({
-            url: 'data/02-B/37021/US_Counties_gmo_averages_annual/tasmax.csv',
-            dataType: 'text'
-        }),
-        $.ajax({
-            url: 'data/02-B/37021/US_Counties_hist_averages_annual/stats/tasmax.csv',
-            dataType: 'text'
-        }),
-        $.ajax({
-            url: 'data/02-B/37021/US_Counties_rcp_averages_annual/stats/tasmax.csv',
-            dataType: 'text'
-        })
-    ]).done(function(data1,data2,data3) {
+
+    // TODO generalize the following later
+    var reqUrlPrefixes = [
+      'data/02-B/37021/US_Counties_gmo_averages_annual/',
+      'data/02-B/37021/US_Counties_hist_averages_annual/stats/',
+      'data/02-B/37021/US_Counties_rcp_averages_annual/stats/'
+    ];
+
+    var reqs = reqUrlPrefixes.map(function(req) {
+      return $.ajax({
+        url: req + options.variable + '.csv',
+        dataType: 'text'
+      });
+    });
+
+    $.when.apply($, reqs).done(function(data1,data2,data3) {
         hist_obs_data = string_to_data( data1[0] );
         hist_mod_data = string_to_data( data2[0] );
         proj_mod_data = string_to_data( data3[0] );
-        var gmugl = make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange["tasmax"], options);
+        var gmugl = make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange[options.variable], options);
         //console.log(JSON.stringify(gmugl));
         //var gmugl = make_mugl(proj_data, hist_data, yrange[options.variable]);
         $('.errorDisplayDetails').remove();
