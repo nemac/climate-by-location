@@ -181,7 +181,7 @@ var mugl = {
     horizontalaxis: {
         id: "year",
         min: 1950,
-        max: 2100,
+        max: 2099,
         title: false,
         labels: {
             label: [
@@ -253,7 +253,8 @@ function bar_plot_based_at(year_name, var_name, ref) {
                          {"value": "0x6194C8", "max": ref} ],
             barwidth: 1,
             baroffset: 0.5,
-            linecolor: "#000000"
+            linecolor: "#000000",
++            hidelines: 999
         }
     };
 }
