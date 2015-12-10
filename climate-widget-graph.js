@@ -254,7 +254,7 @@ function bar_plot_based_at(year_name, var_name, ref) {
             barwidth: 1,
             baroffset: 0.5,
             linecolor: "#000000",
-+            hidelines: 999
+            hidelines: 999
         }
     };
 }
