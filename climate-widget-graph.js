@@ -337,9 +337,9 @@ climate_widget_graph = function(options) {
 
     // TODO generalize the following later
     var reqUrlPrefixes = [
-      'data/02-B/37021/US_Counties_gmo_averages_annual/',
-      'data/02-B/37021/US_Counties_hist_averages_annual/stats/',
-      'data/02-B/37021/US_Counties_rcp_averages_annual/stats/'
+      'data/02-B/37021/hist-obs/',
+      'data/02-B/37021/hist-mod/stats/',
+      'data/02-B/37021/proj-mod/stats/'
     ];
 
     var reqs = reqUrlPrefixes.map(function(req) {
