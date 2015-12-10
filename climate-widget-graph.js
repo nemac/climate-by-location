@@ -83,7 +83,7 @@ var yrange = {
     },
     "pr":  {
         "absolute": { min:  1, max:   7 },
-        "anomaly":  { min:  -2.25, max:   2.25 }
+        "anomaly":  { min:  0, max:   200 }
     }
 };
 
@@ -146,6 +146,17 @@ function anomalies(data, ref) {
     });
     return anomalies;
 }
+function percent_anomalies(data, ref) {
+    var anomalies = data.map(function(row) {
+        var arow = [ row[0] ];
+        var i;
+        for (i=1; i<row.length; ++i) {
+            arow[i] = 100 * row[i] / ref;
+        }
+        return arow;
+    });
+    return anomalies;
+}
 
 function get_data(variable, data_dir, suffix, fips, success) {
     $.ajax({
@@ -170,7 +181,7 @@ var mugl = {
     horizontalaxis: {
         id: "year",
         min: 1950,
-        max: 2100,
+        max: 2099,
         title: false,
         labels: {
             label: [
@@ -242,7 +253,8 @@ function bar_plot_based_at(year_name, var_name, ref) {
                          {"value": "0x6194C8", "max": ref} ],
             barwidth: 1,
             baroffset: 0.5,
-            linecolor: "#000000"
+            linecolor: "#000000",
++            hidelines: 999
         }
     };
 }
@@ -252,9 +264,15 @@ function make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, options)
 
     var avg = average(hist_obs_data.values, 1960, 1989);
     if (options.presentation === "anomaly") {
-        hist_obs_data.values = anomalies(hist_obs_data.values, avg);
-        hist_mod_data.values = anomalies(hist_mod_data.values, avg);
-        proj_mod_data.values = anomalies(proj_mod_data.values, avg);
+        if (options.variable === "pr") {
+            hist_obs_data.values = percent_anomalies(hist_obs_data.values, avg);
+            hist_mod_data.values = percent_anomalies(hist_mod_data.values, avg);
+            proj_mod_data.values = percent_anomalies(proj_mod_data.values, avg);
+        } else {
+            hist_obs_data.values = anomalies(hist_obs_data.values, avg);
+            hist_mod_data.values = anomalies(hist_mod_data.values, avg);
+            proj_mod_data.values = anomalies(proj_mod_data.values, avg);
+        }
     }
     var data = [{
         variables: hist_obs_data.names.map(function(name) { return { id: name }; }),
@@ -290,7 +308,11 @@ function make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, options)
     var hist_obs_name = "hist_obs_" + options.variable;
 
     if (options.presentation === "anomaly") {
-        plots.push(bar_plot_based_at("hist_obs_year", hist_obs_name, 0));
+        if (options.variable === "pr") {
+            plots.push(bar_plot_based_at("hist_obs_year", hist_obs_name, 100));
+        } else {
+            plots.push(bar_plot_based_at("hist_obs_year", hist_obs_name, 0));
+        }
     } else {
         plots.push(bar_plot_based_at("hist_obs_year", hist_obs_name, avg));
     }
