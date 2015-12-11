@@ -76,16 +76,121 @@ function translateRcps(str) {
     };
 }
 
-var yrange = {
-    "tasmax": {
-        "absolute": { min:  15,  max:   27 },
-        "anomaly":  { min:  -8,  max:    8 }
-    },
-    "pr":  {
-        "absolute": { min:  1, max:   7 },
-        "anomaly":  { min:  0, max:   200 }
-    }
-};
+var variables = [
+
+    { selected: true,
+      id:       "tasmax",
+      title:    "Mean Daily Maximum Temperature",
+      absolute: { min:  15,  max:   27 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "pr",
+      title:    "Mean Daily Average Precipitation",
+      absolute: { min:  1, max:   7 },
+      anomaly:  { min:  0, max:   200 } },
+
+    { id:       "cooling_degree_day_18.3",
+      title:    "Cooling Degree Days",
+      absolute: { min:  0,   max:  1000 },
+      anomaly:  { min:  -8,  max:     8 } },
+
+    { id:       "days_prcp_abv_101.5",
+      title:    "Days with Precipitation Above 101.5",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "days_prcp_abv_25.3",
+      title:    "Days with Precipitation Above 25.3",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "days_prcp_abv_50.7",
+      title:    "Days with Precipitation Above 50.7",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "days_prcp_abv_76.1",
+      title:    "Days with Precipitation Above 76.1",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "days_tmax_abv_32.2",
+      title:    "Days with Maximum Temperature Above 32.2",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "days_tmax_abv_35.0",
+      title:    "Days with Maximum Temperature Above 35.0",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "days_tmax_abv_37.7",
+      title:    "Days with Maximum Temperature Above 37.7",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "days_tmin_blw_0.0",
+      title:    "Days with Minimum Temperature Below 0",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "days_tmin_blw_-12.2",
+      title:    "Days with Minimum Temperature Below -12.1",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "days_tmin_blw_-17.7",
+      title:    "Days with Minimum Temperature Below -17.7",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "growing_degree_day_15.5",
+      title:    "Growing Degree Days",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "growing_season_lngth_0.0",
+      title:    "Growing Season Length",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "heating_degree_day_18.3",
+      title:    "Heating Degree Days",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "longest_run_prcp_blw_76.1",
+      title:    "Longest Run with Precipitation Below 76.1",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "longest_run_tmax_abv_32.2",
+      title:    "Longest Run with Maximum Temperature Above 32.2",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "longest_run_tmax_abv_35.0",
+      title:    "Longest Run with Maximum Temperature Above 35.0",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } },
+
+    { id:       "longest_run_tmax_abv_37.7",
+      title:    "Longest Run with Maximum Temperature Above 37.7",
+      absolute: { min:  0,   max:  100 },
+      anomaly:  { min:  -8,  max:    8 } }
+
+];
+
+yrange = variables.reduce(function(m,v) { m[v.id] = v; return m; }, {});
+
+$(document).ready(function() {
+    $(variables.map(function(v) {
+        return ('<option value="' + v.id + '"'
+                + (v.selected ? ' selected="selected"' : '')
+                + '>'  + v.title + '</option>');
+    }).join("")).appendTo($("select#variable"));
+});
+
 
 function string_to_data(s) {
     // Takes a multiline string of the form
@@ -190,7 +295,7 @@ var mugl = {
         }
     },
     verticalaxis: {
-        id: "temp",
+        id: "y",
         min: 0,
         max: 2000,
         title: false,
@@ -205,7 +310,7 @@ var mugl = {
 function band_plot(year_name, min_name, max_name, fill_color, fill_opacity) {
     return {
         horizontalaxis: { year: year_name },
-        verticalaxis:   { temp: [min_name, max_name ] },
+        verticalaxis:   { y: [min_name, max_name ] },
         style: "band",
         options: {
             fillcolor: fill_color,
@@ -218,7 +323,7 @@ function band_plot(year_name, min_name, max_name, fill_color, fill_opacity) {
 function line_plot(year_name, var_name, line_color) {
     return {
         horizontalaxis: { year: year_name },
-        verticalaxis:   { temp: var_name },
+        verticalaxis:   { y: var_name },
         style: "line",
         options: {
             linecolor: line_color,
@@ -230,7 +335,7 @@ function line_plot(year_name, var_name, line_color) {
 function bar_plot(year_name, var_name, bar_color, line_color) {
     return {
         horizontalaxis: { year: year_name },
-        verticalaxis:   { temp: var_name },
+        verticalaxis:   { y: var_name },
         style: "bar",
         options: {
             fillcolor: bar_color,
@@ -245,7 +350,7 @@ function bar_plot_based_at(year_name, var_name, ref) {
     // (colors are hard-coded in this one, but not for any good reason)
     return {
         horizontalaxis: { year: year_name },
-        verticalaxis:   { temp: var_name },
+        verticalaxis:   { y: var_name },
         style: "bar",
         options: {
             barbase: ref,
@@ -305,7 +410,8 @@ function make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, options)
         plots.push(band_plot("proj_mod_year", "proj_mod_rcp85p10", "proj_mod_rcp85p90", "#990000", 0.3));
     }
 
-    var hist_obs_name = "hist_obs_" + options.variable;
+    //var hist_obs_name = "hist_obs_" + options.variable;
+    var hist_obs_name = "hist_obs_y";
 
     if (options.presentation === "anomaly") {
         if (options.variable === "pr") {
@@ -373,9 +479,12 @@ climate_widget_graph = function(options) {
 
     $.when.apply($, reqs).done(function(data1,data2,data3) {
         hist_obs_data = string_to_data( data1[0] );
+hist_obs_data.names[1] = "y";
+//console.log(hist_obs_data);
         hist_mod_data = string_to_data( data2[0] );
         proj_mod_data = string_to_data( data3[0] );
         var gmugl = make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange[options.variable], options);
+//console.log(JSON.stringify(gmugl));
         //console.log(JSON.stringify(gmugl));
         //var gmugl = make_mugl(proj_data, hist_data, yrange[options.variable]);
         $('.errorDisplayDetails').remove();
