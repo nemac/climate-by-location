@@ -181,7 +181,23 @@ var variables = [
 */
 ];
 
+// monthly/seasonal variables:
+var ms_variables = [
+    { selected: true,
+      id:       "tasmax",
+      title:    "Mean Daily Maximum Temperature",
+      absolute: { min:  0,  max:   35 },
+      anomaly:  { min:  0,  max:   35 } },
+
+    { id:       "pr",
+      title:    "Mean Daily Average Precipitation",
+      absolute: { min:  1, max:   7 },
+      anomaly:  { min:  0, max:   200 } }
+];
+
+
 yrange = variables.reduce(function(m,v) { m[v.id] = v; return m; }, {});
+ms_yrange = ms_variables.reduce(function(m,v) { m[v.id] = v; return m; }, {});
 
 $(document).ready(function() {
     $(variables.map(function(v) {
@@ -189,6 +205,7 @@ $(document).ready(function() {
                 + (v.selected ? ' selected="selected"' : '')
                 + '>'  + v.title + '</option>');
     }).join("")).appendTo($("select#variable"));
+    configureAndLaunchGraph();
 });
 
 
@@ -284,7 +301,7 @@ function get_proj_and_hist_data(variable, data_dir, fips, success) {
 var mugl = {
     legend: false,
     horizontalaxis: {
-        id: "year",
+        id: "x",
         min: 1950,
         max: 2099,
         title: false,
@@ -307,10 +324,10 @@ var mugl = {
     }
 };
 
-function band_plot(year_name, min_name, max_name, fill_color, fill_opacity) {
+function band_plot(x, y0, y1, fill_color, fill_opacity) {
     return {
-        horizontalaxis: { year: year_name },
-        verticalaxis:   { y: [min_name, max_name ] },
+        horizontalaxis: { x: x },
+        verticalaxis:   { y: [y0, y1 ] },
         style: "band",
         options: {
             fillcolor: fill_color,
@@ -320,22 +337,23 @@ function band_plot(year_name, min_name, max_name, fill_color, fill_opacity) {
     };
 }
 
-function line_plot(year_name, var_name, line_color) {
+function line_plot(x, y, line_color, dashed) {
     return {
-        horizontalaxis: { year: year_name },
-        verticalaxis:   { y: var_name },
+        horizontalaxis: { x: x },
+        verticalaxis:   { y: y },
         style: "line",
         options: {
             linecolor: line_color,
+            linestroke: dashed ? "dashed" : "solid",
             linewidth: 2
         }
     };
 }
 
-function bar_plot(year_name, var_name, bar_color, line_color) {
+function bar_plot(x, y, bar_color, line_color) {
     return {
-        horizontalaxis: { year: year_name },
-        verticalaxis:   { y: var_name },
+        horizontalaxis: { x: x },
+        verticalaxis:   { y: y },
         style: "bar",
         options: {
             fillcolor: bar_color,
@@ -346,11 +364,26 @@ function bar_plot(year_name, var_name, bar_color, line_color) {
     };
 }
 
-function bar_plot_based_at(year_name, var_name, ref) {
+function range_bar_plot(x, y0, y1, bar_color, line_color, baroffset, fillopacity) {
+    return {
+        horizontalaxis: { x: x },
+        verticalaxis:   { y: [y0,y1] },
+        style: "rangebar",
+        options: {
+            fillcolor: bar_color,
+            fillopacity: fillopacity,
+            barwidth: 0.5,
+            baroffset: baroffset,
+            linecolor: line_color
+        }
+    };
+}
+
+function bar_plot_based_at(x, y, ref) {
     // (colors are hard-coded in this one, but not for any good reason)
     return {
-        horizontalaxis: { year: year_name },
-        verticalaxis:   { y: var_name },
+        horizontalaxis: { x: x },
+        verticalaxis:   { y: y },
         style: "bar",
         options: {
             barbase: ref,
@@ -365,7 +398,7 @@ function bar_plot_based_at(year_name, var_name, ref) {
 }
 
 
-function make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, options) {
+function make_annual_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, options) {
 
     var avg = average(hist_obs_data.values, 1960, 1989);
     if (options.presentation === "anomaly") {
@@ -458,38 +491,274 @@ function make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, options)
     return this_mugl;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function make_monthly_mugl(hist_obs_data, proj_mod_data, yrange, options) {
+
+// hist_obs:
+//month,mean30,max,median,min,p10,p90
+//1,7.038,14.478,7.276,0.650,4.789,11.219
+//2,8.973,15.572,9.877,3.502,6.993,12.166
+//3,13.880,18.031,13.806,5.189,10.953,16.392
+//4,19.072,22.037,18.867,14.860,16.904,21.308
+//5,22.948,26.940,23.167,20.050,21.310,24.890
+//6,26.316,30.676,26.560,23.347,24.706,27.921
+//7,27.793,31.057,27.846,25.071,26.484,29.370
+//8,27.287,30.689,27.453,24.474,26.150,29.013
+//9,24.086,28.160,24.059,21.741,22.755,25.864
+//10,19.230,22.589,19.305,15.648,17.636,21.055
+//11,13.858,18.187,13.713,9.964,11.599,16.405
+//12,8.943,14.673,8.996,3.508,6.193,11.568
+
+// proj_mod:
+//month,2025rcp45_max,2025rcp45_median,2025rcp45_min,2025rcp45_p10,2025rcp45_p90,2025rcp85_max...
+//1,10.097,8.619,7.609,7.885,9.687,9.986,8.729,7.353,7.951,9.617,10.422,9.294,7.891,8.291,10.2...
+//2,12.073,10.480,9.170,9.503,11.155,11.904,10.546,9.123,9.669,11.301,13.285,11.195,9.399,10.1...
+//3,15.941,14.607,13.508,14.137,15.332,15.821,14.569,13.495,13.766,15.394,16.319,15.256,14.334...
+//4,21.163,20.346,19.429,19.704,20.974,21.231,20.238,19.256,19.777,20.989,22.238,20.924,19.708...
+//5,25.717,24.464,23.587,23.993,25.201,25.945,24.620,23.806,24.111,25.337,26.116,25.400,24.766...
+//6,28.597,27.812,27.092,27.383,28.369,28.756,27.902,27.228,27.410,28.552,29.298,28.788,27.962...
+//7,30.353,29.570,28.705,28.949,30.074,30.499,29.727,28.793,29.160,30.211,31.136,30.507,29.714...
+//8,29.659,29.089,28.209,28.480,29.537,30.159,29.161,28.274,28.711,29.780,30.431,29.960,28.971...
+//9,26.915,25.928,25.334,25.500,26.628,27.600,26.249,25.233,25.583,26.698,27.447,26.900,25.794...
+//10,21.630,20.803,20.095,20.342,21.394,22.098,21.025,20.300,20.660,21.754,22.242,21.604,20.63...
+//11,16.058,15.133,14.174,14.450,15.644,15.934,15.068,13.879,14.381,15.671,16.544,15.651,14.80...
+//12,11.294,10.056,8.706,9.480,10.807,11.237,10.181,8.662,9.351,10.685,11.790,10.711,9.785,10....
+
+    var data = [{
+        variables: hist_obs_data.names.map(function(name) { return { id: name }; }),
+        values: hist_obs_data.values,
+        repeat: { period: 12 }
+    }, {
+        variables: proj_mod_data.names.map(function(name) { return { id: name }; }),
+        values: proj_mod_data.values,
+        repeat: { period: 12 }
+    }];
+    var prefixes = ["hist_obs_", "proj_mod_"];
+    data.forEach(function(d,i) {
+        d.variables.forEach(function(v) {
+            v.id = prefixes[i] + v.id;
+        });
+    });
+
+    var plots = [];
+
+    plots.push(line_plot("hist_obs_month", "hist_obs_median",              "#000000"));
+    plots.push(line_plot("hist_obs_month", "hist_obs_p10",                 "#000000", true));
+    plots.push(line_plot("hist_obs_month", "hist_obs_p90",                 "#000000", true));
+
+    var prefix = "proj_mod_" + options.timeperiod;
+
+    if (options.scenario === "rcp45" || options.scenario === "both") {
+        plots.push(band_plot("proj_mod_month", prefix+"rcp45_p10", prefix+"rcp45_p90", "#000099", 0.3));
+    }
+    if (options.scenario === "rcp85" || options.scenario === "both") {
+        plots.push(band_plot("proj_mod_month", prefix+"rcp85_p10", prefix+"rcp85_p90", "#990000", 0.3));
+    }
+
+
+    if (options.scenario === "rcp45" || options.scenario === "both") {
+        plots.push(line_plot("proj_mod_month", prefix+"rcp45_median", "#0000cc"));
+    }
+    if (options.scenario === "rcp85" || options.scenario === "both") {
+        plots.push(line_plot("proj_mod_month", prefix+"rcp85_median", "#cc0000"));
+    }
+
+    var this_mugl = {
+        window: {
+            border: 0,
+            padding: 0,
+            margin: 0
+        },
+        legend: false,
+        horizontalaxis: {
+            id: "x",
+            min: -2,
+            max: 12,
+            title: false,
+            labels: {
+                label: [ { format: ["Dec","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"],
+                           spacing: [1] } ]
+            }
+        },
+        verticalaxis: {
+            id: "y",
+            min: yrange[options.presentation].min,
+            max: yrange[options.presentation].max,
+            title: false,
+            labels: {
+                label: [
+                    { format: "%1d",
+                      spacing: [10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1],
+                      densityfactor: 0.5  } ]
+            }
+        },
+        data: data,
+        plots: plots
+    };
+    return this_mugl;
+}
+
+function make_seasonal_mugl(hist_obs_data, proj_mod_data, yrange, options) {
+
+    // proj_mod:
+    // month,2025rcp45_max,2025rcp45_median,2025rcp45_min,2025rcp45_p10,2025rcp45_p90,2025rcp85_max...
+    // 1,10.870,9.725,8.698,9.206,10.365,10.713,9.795,8.539,9.140,10.390,11.594,10.308,9.468,9.908,...
+    // 4,20.730,19.818,19.140,19.495,20.265,20.699,19.812,19.055,19.454,20.413,21.320,20.502,19.820...
+    // 7,29.448,28.844,28.151,28.328,29.282,29.734,28.973,28.222,28.458,29.570,30.249,29.784,28.909...
+    // 10,21.335,20.559,20.157,20.214,21.122,21.639,20.692,20.096,20.381,21.312,22.023,21.398,20.66...
+    
+    // hist_obs:
+    // month,mean30,max,median,min,p10,p90
+    // 1,8.348,12.128,8.665,5.444,6.688,10.646
+    // 4,18.629,20.366,18.697,15.793,17.119,19.893
+    // 7,27.141,29.467,27.262,25.093,26.244,28.377
+    // 10,19.060,21.666,19.002,16.873,17.910,20.348
+
+    // The incoming data has month values 1,4,7,10.  Here we replace these
+    // with the values 0,1,2,3:
+    hist_obs_data.values.forEach(function(v) {
+        v[0] = Math.floor(v[0]/3);
+    });
+    proj_mod_data.values.forEach(function(v) {
+        v[0] = Math.floor(v[0]/3);
+    });
+    
+    
+    var data = [{
+        variables: hist_obs_data.names.map(function(name) { return { id: name }; }),
+        values: hist_obs_data.values,
+        repeat: { period: 4 }
+    }, {
+        variables: proj_mod_data.names.map(function(name) { return { id: name }; }),
+        values: proj_mod_data.values,
+        repeat: { period: 4 }
+    }];
+    var prefixes = ["hist_obs_", "proj_mod_"];
+    data.forEach(function(d,i) {
+        d.variables.forEach(function(v) {
+            v.id = prefixes[i] + v.id;
+        });
+    });
+
+    var plots = [];
+
+    plots.push(range_bar_plot("hist_obs_month", "hist_obs_p10", "hist_obs_p90",  "#cccccc", "#cccccc", 0.5, 0.7));
+
+    var prefix = "proj_mod_" + options.timeperiod;
+
+    if (options.scenario === "rcp45" || options.scenario === "both") {
+        plots.push(range_bar_plot("proj_mod_month", prefix+"rcp45_p10", prefix+"rcp45_p90", "#000099", "#000099", 0.25, 0.4));
+    }
+    if (options.scenario === "rcp85" || options.scenario === "both") {
+        plots.push(range_bar_plot("proj_mod_month", prefix+"rcp85_p10", prefix+"rcp85_p90", "#990000", "#990000", 0.0, 0.4));
+    }
+
+
+    plots.push(range_bar_plot("hist_obs_month", "hist_obs_median", "hist_obs_median",  "#000000", "#000000", 0.5, 1.0));
+    if (options.scenario === "rcp45" || options.scenario === "both") {
+        plots.push(range_bar_plot("proj_mod_month", prefix+"rcp45_median", prefix+"rcp45_median", "#0000ff", "#0000ff", 0.25, 1.0));
+    }
+    if (options.scenario === "rcp85" || options.scenario === "both") {
+        plots.push(range_bar_plot("proj_mod_month", prefix+"rcp85_median", prefix+"rcp85_median", "#ff0000", "#ff0000", 0.0, 1.0));
+    }
+
+    var this_mugl = {
+        window: {
+            border: 0,
+            padding: 0,
+            margin: 0
+        },
+        legend: false,
+        horizontalaxis: {
+            id: "x",
+            min: -0.5,
+            max: 3.5,
+            title: false,
+            labels: {
+                label: [ { format: ["Winter", "Spring", "Summer", /* or */ "Fall"],
+                           /*        all you have to do is call... */
+                           spacing: [1] } ]
+            }
+        },
+        verticalaxis: {
+            id: "y",
+            min: yrange[options.presentation].min,
+            max: yrange[options.presentation].max,
+            title: false,
+            labels: {
+                label: [
+                    { format: "%1d",
+                      spacing: [10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1],
+                      densityfactor: 0.5  } ]
+            }
+        },
+        data: data,
+        plots: plots
+    };
+    return this_mugl;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 climate_widget_graph = function(options) {
     //var data_dir = options.data_dir ? options.data_dir : "http://climate-widget.nemac.org/data/county-data/10dayrolling/";
     //if (options.scenario) include_rcp = translateRcps(options.scenario);
     //console.log(options.presentation);
 
-    // TODO generalize the following later
-    var reqUrlPrefixes = [
-      'data/02-B/37021/hist-obs/',
-      'data/02-B/37021/hist-mod/stats/',
-      'data/02-B/37021/proj-mod/stats/'
-    ];
+    function dataReq(dir, element) {
+        var url = dir + '/' + element + '.csv';
+        return $.ajax({url: url, dataType: 'text'});
+    }
 
-    var reqs = reqUrlPrefixes.map(function(req) {
-      return $.ajax({
-        url: req + options.variable + '.csv',
-        dataType: 'text'
-      });
-    });
+    if (options.frequency === "annual") {
 
-    $.when.apply($, reqs).done(function(data1,data2,data3) {
-        hist_obs_data = string_to_data( data1[0] );
-hist_obs_data.names[1] = "y";
-//console.log(hist_obs_data);
-        hist_mod_data = string_to_data( data2[0] );
-        proj_mod_data = string_to_data( data3[0] );
-        var gmugl = make_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange[options.variable], options);
-//console.log(JSON.stringify(gmugl));
-        //console.log(JSON.stringify(gmugl));
-        //var gmugl = make_mugl(proj_data, hist_data, yrange[options.variable]);
-        $('.errorDisplayDetails').remove();
-        $(options.div).empty();
-        $(options.div).append("<div class='graph' style='width: 100%; height: 100%;'></div>");
-        $(options.div).find('div.graph').multigraph({muglString: gmugl});
-    });
+        $.when.apply($, [
+            dataReq('data/02-final/37021/annual/hist-obs', options.variable),
+            dataReq('data/02-final/37021/annual/hist-mod/stats', options.variable),
+            dataReq('data/02-final/37021/annual/proj-mod/stats', options.variable),
+        ]).done(function(hist_obs,hist_mod,proj_mod) {
+            $(options.div).empty();
+            hist_obs_data = string_to_data( hist_obs[0] );
+            hist_obs_data.names[1] = "y";
+            hist_mod_data = string_to_data( hist_mod[0] );
+            proj_mod_data = string_to_data( proj_mod[0] );
+            var gmugl = make_annual_mugl(hist_obs_data, hist_mod_data, proj_mod_data,
+                                         yrange[options.variable], options);
+            $('.errorDisplayDetails').remove();
+            $(options.div).append("<div class='graph' style='width: 100%; height: 100%;'></div>");
+            $(options.div).find('div.graph').multigraph({muglString: gmugl});
+        });
+
+    } else if (options.frequency === "monthly") {
+
+        $.when.apply($, [
+            dataReq('data/02-final/37021/monthly/hist-obs/stats', options.variable),
+            dataReq('data/02-final/37021/monthly/proj-mod/stats', options.variable),
+        ]).done(function(hist_obs,proj_mod) {
+            $(options.div).empty();
+            hist_obs_data = string_to_data( hist_obs[0] );
+            proj_mod_data = string_to_data( proj_mod[0] );
+            var gmugl = make_monthly_mugl(hist_obs_data, proj_mod_data,
+                                         ms_yrange[options.variable], options);
+            $('.errorDisplayDetails').remove();
+            $(options.div).append("<div class='graph' style='width: 100%; height: 100%;'></div>");
+            $(options.div).find('div.graph').multigraph({muglString: gmugl});
+        });
+
+    } else if (options.frequency === "seasonal") {
+        $.when.apply($, [
+            dataReq('data/02-final/37021/seasonal/hist-obs/stats', options.variable),
+            dataReq('data/02-final/37021/seasonal/proj-mod/stats', options.variable),
+        ]).done(function(hist_obs,proj_mod) {
+            $(options.div).empty();
+            hist_obs_data = string_to_data( hist_obs[0] );
+            proj_mod_data = string_to_data( proj_mod[0] );
+            var gmugl = make_seasonal_mugl(hist_obs_data, proj_mod_data,
+                                           ms_yrange[options.variable], options);
+            $('.errorDisplayDetails').remove();
+            $(options.div).append("<div class='graph' style='width: 100%; height: 100%;'></div>");
+            $(options.div).find('div.graph').multigraph({muglString: gmugl});
+        });
+    }
 };
