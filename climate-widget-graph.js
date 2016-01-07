@@ -60,6 +60,19 @@
 // fill that div.  It is the responsibility of the caller to make
 // sure that the div has a size before calling `climate_widget_graph`.
 
+var colors = {
+  reds: {
+    line: '#f5442d',
+    innerBand: '#f65642',
+    outerBand: '#f76956'
+  },
+  blues: {
+    line: '#0058cf',
+    innerBand: '#1968d3',
+    outerBand: '#3279d8'
+  }
+}
+
 var include_rcp = {
     rcp85: true,
     rcp60: false,
@@ -435,12 +448,12 @@ function make_annual_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, o
     plots.push(band_plot("hist_mod_year", "hist_mod_p10", "hist_mod_p90", "#999999", 0.5));
 
     if (options.scenario === "rcp45" || options.scenario === "both") {
-        plots.push(band_plot("proj_mod_year", "proj_mod_rcp45min", "proj_mod_rcp45max", "#0000cc", 0.3));
-        plots.push(band_plot("proj_mod_year", "proj_mod_rcp45p10", "proj_mod_rcp45p90", "#000099", 0.3));
+        plots.push(band_plot("proj_mod_year", "proj_mod_rcp45min", "proj_mod_rcp45max", colors.blues.outerBand, 0.3));
+        plots.push(band_plot("proj_mod_year", "proj_mod_rcp45p10", "proj_mod_rcp45p90", colors.blues.innerBand, 0.3));
     }
     if (options.scenario === "rcp85" || options.scenario === "both") {
-        plots.push(band_plot("proj_mod_year", "proj_mod_rcp85min", "proj_mod_rcp85max", "#cc0000", 0.3));
-        plots.push(band_plot("proj_mod_year", "proj_mod_rcp85p10", "proj_mod_rcp85p90", "#990000", 0.3));
+        plots.push(band_plot("proj_mod_year", "proj_mod_rcp85min", "proj_mod_rcp85max", colors.reds.outerBand, 0.3));
+        plots.push(band_plot("proj_mod_year", "proj_mod_rcp85p10", "proj_mod_rcp85p90", colors.reds.innerBand, 0.3));
     }
 
     //var hist_obs_name = "hist_obs_" + options.variable;
@@ -458,10 +471,10 @@ function make_annual_mugl(hist_obs_data, hist_mod_data, proj_mod_data, yrange, o
 
     plots.push(line_plot("hist_mod_year", "hist_mod_median",      "#000000"));
     if (options.scenario === "rcp45" || options.scenario === "both") {
-        plots.push(line_plot("proj_mod_year", "proj_mod_rcp45median", "#0000cc"));
+        plots.push(line_plot("proj_mod_year", "proj_mod_rcp45median", colors.blues.line));
     }
     if (options.scenario === "rcp85" || options.scenario === "both") {
-        plots.push(line_plot("proj_mod_year", "proj_mod_rcp85median", "#cc0000"));
+        plots.push(line_plot("proj_mod_year", "proj_mod_rcp85median", colors.reds.line));
     }
 
 //    if (include_rcp["rcp85"]) { plots.push(band_plot("year", "rcp85_min", "rcp85_max", "#ffcccc", 1.0)); }
@@ -550,18 +563,18 @@ function make_monthly_mugl(hist_obs_data, proj_mod_data, yrange, options) {
     var prefix = "proj_mod_" + options.timeperiod;
 
     if (options.scenario === "rcp45" || options.scenario === "both") {
-        plots.push(band_plot("proj_mod_month", prefix+"rcp45_p10", prefix+"rcp45_p90", "#000099", 0.3));
+        plots.push(band_plot("proj_mod_month", prefix+"rcp45_p10", prefix+"rcp45_p90", colors.blues.innerBand, 0.3));
     }
     if (options.scenario === "rcp85" || options.scenario === "both") {
-        plots.push(band_plot("proj_mod_month", prefix+"rcp85_p10", prefix+"rcp85_p90", "#990000", 0.3));
+        plots.push(band_plot("proj_mod_month", prefix+"rcp85_p10", prefix+"rcp85_p90", colors.reds.innerBand, 0.3));
     }
 
 
     if (options.scenario === "rcp45" || options.scenario === "both") {
-        plots.push(line_plot("proj_mod_month", prefix+"rcp45_median", "#0000cc"));
+        plots.push(line_plot("proj_mod_month", prefix+"rcp45_median", colors.blues.outerBand));
     }
     if (options.scenario === "rcp85" || options.scenario === "both") {
-        plots.push(line_plot("proj_mod_month", prefix+"rcp85_median", "#cc0000"));
+        plots.push(line_plot("proj_mod_month", prefix+"rcp85_median", colors.reds.line));
     }
 
     var this_mugl = {
@@ -607,7 +620,7 @@ function make_seasonal_mugl(hist_obs_data, proj_mod_data, yrange, options) {
     // 4,20.730,19.818,19.140,19.495,20.265,20.699,19.812,19.055,19.454,20.413,21.320,20.502,19.820...
     // 7,29.448,28.844,28.151,28.328,29.282,29.734,28.973,28.222,28.458,29.570,30.249,29.784,28.909...
     // 10,21.335,20.559,20.157,20.214,21.122,21.639,20.692,20.096,20.381,21.312,22.023,21.398,20.66...
-    
+
     // hist_obs:
     // month,mean30,max,median,min,p10,p90
     // 1,8.348,12.128,8.665,5.444,6.688,10.646
@@ -623,8 +636,8 @@ function make_seasonal_mugl(hist_obs_data, proj_mod_data, yrange, options) {
     proj_mod_data.values.forEach(function(v) {
         v[0] = Math.floor(v[0]/3);
     });
-    
-    
+
+
     var data = [{
         variables: hist_obs_data.names.map(function(name) { return { id: name }; }),
         values: hist_obs_data.values,
@@ -648,10 +661,10 @@ function make_seasonal_mugl(hist_obs_data, proj_mod_data, yrange, options) {
     var prefix = "proj_mod_" + options.timeperiod;
 
     if (options.scenario === "rcp45" || options.scenario === "both") {
-        plots.push(range_bar_plot("proj_mod_month", prefix+"rcp45_p10", prefix+"rcp45_p90", "#000099", "#000099", 0.25, 0.4));
+        plots.push(range_bar_plot("proj_mod_month", prefix+"rcp45_p10", prefix+"rcp45_p90", colors.blues.innerBand, colors.blues.innerBand, 0.25, 0.4));
     }
     if (options.scenario === "rcp85" || options.scenario === "both") {
-        plots.push(range_bar_plot("proj_mod_month", prefix+"rcp85_p10", prefix+"rcp85_p90", "#990000", "#990000", 0.0, 0.4));
+        plots.push(range_bar_plot("proj_mod_month", prefix+"rcp85_p10", prefix+"rcp85_p90", colors.reds.innerBand, colors.reds.innerBand, 0.0, 0.4));
     }
 
 
@@ -660,7 +673,7 @@ function make_seasonal_mugl(hist_obs_data, proj_mod_data, yrange, options) {
         plots.push(range_bar_plot("proj_mod_month", prefix+"rcp45_median", prefix+"rcp45_median", "#0000ff", "#0000ff", 0.25, 1.0));
     }
     if (options.scenario === "rcp85" || options.scenario === "both") {
-        plots.push(range_bar_plot("proj_mod_month", prefix+"rcp85_median", prefix+"rcp85_median", "#ff0000", "#ff0000", 0.0, 1.0));
+        plots.push(range_bar_plot("proj_mod_month", prefix+"rcp85_median", prefix+"rcp85_median", colors.reds.line, colors.reds.line, 0.0, 1.0));
     }
 
     var this_mugl = {
