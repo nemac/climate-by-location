@@ -97,6 +97,11 @@ var variables = [
       absolute: { min:  15,  max:   27 },
       anomaly:  { min:  -8,  max:    8 } },
 
+    { id:       "tasmin",
+      title:    "Mean Daily Minimum Temperature",
+      absolute: { min:  -20,  max:   20 },
+      anomaly:  { min:  -8,   max:    8 } },
+
     { id:       "pr",
       title:    "Mean Daily Average Precipitation",
       absolute: { min:  1, max:   7 },
@@ -200,6 +205,11 @@ var ms_variables = [
       id:       "tasmax",
       title:    "Mean Daily Maximum Temperature",
       absolute: { min:  0,  max:   35 },
+      anomaly:  { min:  0,  max:   35 } },
+
+    { id:       "tasmin",
+      title:    "Mean Daily Minimum Temperature",
+      absolute: { min:  -20,  max:   20 },
       anomaly:  { min:  0,  max:   35 } },
 
     { id:       "pr",
