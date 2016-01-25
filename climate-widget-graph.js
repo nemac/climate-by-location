@@ -567,8 +567,9 @@ function make_monthly_mugl(hist_obs_data, proj_mod_data, yrange, options) {
     var plots = [];
 
     plots.push(line_plot("hist_obs_month", "hist_obs_median",              "#000000"));
-    plots.push(line_plot("hist_obs_month", "hist_obs_p10",                 "#000000", true));
-    plots.push(line_plot("hist_obs_month", "hist_obs_p90",                 "#000000", true));
+    // Hiding historical range for now
+    //plots.push(line_plot("hist_obs_month", "hist_obs_p10",                 "#000000", true));
+    //plots.push(line_plot("hist_obs_month", "hist_obs_p90",                 "#000000", true));
 
     var prefix = "proj_mod_" + options.timeperiod;
 
@@ -666,7 +667,8 @@ function make_seasonal_mugl(hist_obs_data, proj_mod_data, yrange, options) {
 
     var plots = [];
 
-    plots.push(range_bar_plot("hist_obs_month", "hist_obs_p10", "hist_obs_p90",  "#cccccc", "#cccccc", 0.5, 0.7));
+    // Hiding historical range for now
+    //plots.push(range_bar_plot("hist_obs_month", "hist_obs_p10", "hist_obs_p90",  "#cccccc", "#cccccc", 0.5, 0.7));
 
     var prefix = "proj_mod_" + options.timeperiod;
 
