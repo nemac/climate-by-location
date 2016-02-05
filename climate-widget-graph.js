@@ -739,9 +739,9 @@ climate_widget_graph = function(options) {
     if (options.frequency === "annual") {
 
         $.when.apply($, [
-            dataReq('data/02-final/37021/annual/hist-obs', options.variable),
-            dataReq('data/02-final/37021/annual/hist-mod/stats', options.variable),
-            dataReq('data/02-final/37021/annual/proj-mod/stats', options.variable),
+            dataReq('data/02-final/' + options.fips + '/annual/hist-obs', options.variable),
+            dataReq('data/02-final/' + options.fips + '/annual/hist-mod/stats', options.variable),
+            dataReq('data/02-final/' + options.fips + '/annual/proj-mod/stats', options.variable),
         ]).done(function(hist_obs,hist_mod,proj_mod) {
             $(options.div).empty();
             hist_obs_data = string_to_data( hist_obs[0] );
@@ -758,8 +758,8 @@ climate_widget_graph = function(options) {
     } else if (options.frequency === "monthly") {
 
         $.when.apply($, [
-            dataReq('data/02-final/37021/monthly/hist-obs/stats', options.variable),
-            dataReq('data/02-final/37021/monthly/proj-mod/stats', options.variable),
+            dataReq('data/02-final/' + options.fips + '/monthly/hist-obs/stats', options.variable),
+            dataReq('data/02-final/' + options.fips + '/monthly/proj-mod/stats', options.variable),
         ]).done(function(hist_obs,proj_mod) {
             $(options.div).empty();
             hist_obs_data = string_to_data( hist_obs[0] );
@@ -773,8 +773,8 @@ climate_widget_graph = function(options) {
 
     } else if (options.frequency === "seasonal") {
         $.when.apply($, [
-            dataReq('data/02-final/37021/seasonal/hist-obs/stats', options.variable),
-            dataReq('data/02-final/37021/seasonal/proj-mod/stats', options.variable),
+            dataReq('data/02-final/' + options.fips + '/seasonal/hist-obs/stats', options.variable),
+            dataReq('data/02-final/' + options.fips + '/seasonal/proj-mod/stats', options.variable),
         ]).done(function(hist_obs,proj_mod) {
             $(options.div).empty();
             hist_obs_data = string_to_data( hist_obs[0] );
