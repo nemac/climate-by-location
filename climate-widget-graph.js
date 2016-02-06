@@ -275,6 +275,26 @@ function line_plot(x_axis, x, y_axis, y, line_color, dashed) {
     return obj;
 }
 
+function range_bar_plot(x_axis, x, y_axis, y0, y1, bar_color, line_color, baroffset, fillopacity) {
+    var obj = {
+        horizontalaxis: {}, // populated below
+        verticalaxis:   {}, // populated below
+        style: "rangebar",
+        options: {
+            fillcolor: bar_color,
+            fillopacity: fillopacity,
+            barwidth: 0.5,
+            baroffset: baroffset,
+            linecolor: line_color
+        }
+    };
+    // must use [] notation here since keys are variables:
+    obj.horizontalaxis[x_axis] = x;
+    obj.verticalaxis[y_axis] = [y0, y1 ];
+    return obj;
+}
+
+
 var mugl = {
     legend: false,
     window: {
@@ -370,6 +390,39 @@ var mugl = {
         line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_2075_rcp45_med", colors.blues.outerBand),
         line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_2075_rcp85_med", colors.reds.line),
 
+        //
+        // seasonal plots
+        //
+        // Hiding historical range for now
+        //range_bar_plot("x_seasonal", "seasonal_hist_obs_x", "y", "seasonal_hist_obs_p10", "seasonal_hist_obs_p90",  "#cccccc", "#cccccc", 0.5, 0.7);
+        range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                       "y", "seasonal_proj_mod_2025_rcp45_p10", "seasonal_proj_mod_2025_rcp45_p90", colors.blues.innerBand, colors.blues.innerBand, 0.25, 0.4),
+        range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                       "y", "seasonal_proj_mod_2025_rcp85_p10", "seasonal_proj_mod_2025_rcp85_p90", colors.blues.innerBand, colors.blues.innerBand, 0.25, 0.4),
+        range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                       "y", "seasonal_proj_mod_2050_rcp45_p10", "seasonal_proj_mod_2050_rcp45_p90", colors.blues.innerBand, colors.blues.innerBand, 0.25, 0.4),
+        range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                       "y", "seasonal_proj_mod_2050_rcp85_p10", "seasonal_proj_mod_2050_rcp85_p90", colors.blues.innerBand, colors.blues.innerBand, 0.25, 0.4),
+        range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                       "y", "seasonal_proj_mod_2075_rcp45_p10", "seasonal_proj_mod_2075_rcp45_p90", colors.blues.innerBand, colors.blues.innerBand, 0.25, 0.4),
+        range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                       "y", "seasonal_proj_mod_2075_rcp85_p10", "seasonal_proj_mod_2075_rcp85_p90", colors.blues.innerBand, colors.blues.innerBand, 0.25, 0.4),
+
+        range_bar_plot("x_seasonal", "seasonal_hist_obs_x",
+                       "y", "seasonal_hist_obs_med", "seasonal_hist_obs_med",  "#000000", "#000000", 0.5, 1.0),
+
+        range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                       "y", "seasonal_proj_mod_2025_rcp45_med", "seasonal_proj_mod_2025_rcp45_med", "#0000ff", "#0000ff", 0.25, 1.0),
+        range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                       "y", "seasonal_proj_mod_2025_rcp85_med", "seasonal_proj_mod_2025_rcp85_med", "#0000ff", "#0000ff", 0.25, 1.0),
+        range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                       "y", "seasonal_proj_mod_2050_rcp45_med", "seasonal_proj_mod_2050_rcp45_med", "#0000ff", "#0000ff", 0.25, 1.0),
+        range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                       "y", "seasonal_proj_mod_2050_rcp85_med", "seasonal_proj_mod_2050_rcp85_med", "#0000ff", "#0000ff", 0.25, 1.0),
+        range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                       "y", "seasonal_proj_mod_2075_rcp45_med", "seasonal_proj_mod_2075_rcp45_med", "#0000ff", "#0000ff", 0.25, 1.0),
+        range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                       "y", "seasonal_proj_mod_2075_rcp85_med", "seasonal_proj_mod_2075_rcp85_med", "#0000ff", "#0000ff", 0.25, 1.0)
     ],
     data: [{
         variables: [{id: "annual_hist_obs_x"},
@@ -440,6 +493,50 @@ var mugl = {
                     {id: "monthly_proj_mod_2075_rcp85_p90"}],
         values: [[-9999,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
         repeat: { period: 12 }
+    },{
+        variables: [{id: "seasonal_hist_obs_x"},
+                    {id: "seasonal_hist_obs_mean30"},
+                    {id: "seasonal_hist_obs_max"},
+                    {id: "seasonal_hist_obs_med"},
+                    {id: "seasonal_hist_obs_min"},
+                    {id: "seasonal_hist_obs_p10"},
+                    {id: "seasonal_hist_obs_p90"}],
+        values: [[-9999,0,0,0,0,0,0]],
+        repeat: { period: 4 }
+    }, {
+        variables: [{id: "seasonal_proj_mod_x"},
+                    {id: "seasonal_proj_mod_2025_rcp45_max"},
+                    {id: "seasonal_proj_mod_2025_rcp45_med"},
+                    {id: "seasonal_proj_mod_2025_rcp45_min"},
+                    {id: "seasonal_proj_mod_2025_rcp45_p10"},
+                    {id: "seasonal_proj_mod_2025_rcp45_p90"},
+                    {id: "seasonal_proj_mod_2025_rcp85_max"},
+                    {id: "seasonal_proj_mod_2025_rcp85_med"},
+                    {id: "seasonal_proj_mod_2025_rcp85_min"},
+                    {id: "seasonal_proj_mod_2025_rcp85_p10"},
+                    {id: "seasonal_proj_mod_2025_rcp85_p90"},
+                    {id: "seasonal_proj_mod_2050_rcp45_max"},
+                    {id: "seasonal_proj_mod_2050_rcp45_med"},
+                    {id: "seasonal_proj_mod_2050_rcp45_min"},
+                    {id: "seasonal_proj_mod_2050_rcp45_p10"},
+                    {id: "seasonal_proj_mod_2050_rcp45_p90"},
+                    {id: "seasonal_proj_mod_2050_rcp85_max"},
+                    {id: "seasonal_proj_mod_2050_rcp85_med"},
+                    {id: "seasonal_proj_mod_2050_rcp85_min"},
+                    {id: "seasonal_proj_mod_2050_rcp85_p10"},
+                    {id: "seasonal_proj_mod_2050_rcp85_p90"},
+                    {id: "seasonal_proj_mod_2075_rcp45_max"},
+                    {id: "seasonal_proj_mod_2075_rcp45_med"},
+                    {id: "seasonal_proj_mod_2075_rcp45_min"},
+                    {id: "seasonal_proj_mod_2075_rcp45_p10"},
+                    {id: "seasonal_proj_mod_2075_rcp45_p90"},
+                    {id: "seasonal_proj_mod_2075_rcp85_max"},
+                    {id: "seasonal_proj_mod_2075_rcp85_med"},
+                    {id: "seasonal_proj_mod_2075_rcp85_min"},
+                    {id: "seasonal_proj_mod_2075_rcp85_p10"},
+                    {id: "seasonal_proj_mod_2075_rcp85_p90"}],
+        values: [[-9999,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
+        repeat: { period: 4 }
     }]
 };
 
@@ -502,36 +599,63 @@ var climate_widget_graph = function(orig_options) {
                 obj.plots.annual_proj_mod_rcp45_med.visible(obj.options.scenario === "rcp45" || obj.options.scenario === "both");
                 obj.plots.annual_proj_mod_rcp85_med.visible(obj.options.scenario === "rcp85" || obj.options.scenario === "both");
             } else if (obj.options.frequency === "monthly") {
-                obj.plots.monthly_proj_mod_2025_rcp45_p10.visible(obj.options.timeperiod === "2025" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2025_rcp85_p10.visible(obj.options.timeperiod === "2025" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2025_rcp45_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2025_rcp85_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2050_rcp45_p10.visible(obj.options.timeperiod === "2050" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2050_rcp85_p10.visible(obj.options.timeperiod === "2050" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2050_rcp45_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2050_rcp85_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2075_rcp45_p10.visible(obj.options.timeperiod === "2075" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2075_rcp85_p10.visible(obj.options.timeperiod === "2075" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2075_rcp45_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2075_rcp85_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
+                obj.plots.monthly_proj_mod_2025_rcp45_p1090.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2025_rcp85_p1090.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2025_rcp45_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2025_rcp85_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2050_rcp45_p1090.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2050_rcp85_p1090.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2050_rcp45_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2050_rcp85_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2075_rcp45_p1090.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2075_rcp85_p1090.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2075_rcp45_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2075_rcp85_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+            } else if (obj.options.frequencey === "seasonal") {
+                obj.plots.seasonal_proj_mod_2025_rcp45_p1090.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2025_rcp85_p1090.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2050_rcp45_p1090.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2050_rcp85_p1090.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2075_rcp45_p1090.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2075_rcp85_p1090.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2025_rcp45_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2025_rcp85_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2050_rcp45_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2050_rcp85_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2075_rcp45_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2075_rcp85_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
             }
+
         }
 
         // if timeperiod changed, set which plots are visible
         if (obj.options.timeperiod != old_options.timeperiod) {
             if (obj.options.frequency === "monthly") {
-                obj.plots.monthly_proj_mod_2025_rcp45_p10.visible(obj.options.timeperiod === "2025" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2025_rcp85_p10.visible(obj.options.timeperiod === "2025" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2025_rcp45_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2025_rcp85_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2050_rcp45_p10.visible(obj.options.timeperiod === "2050" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2050_rcp85_p10.visible(obj.options.timeperiod === "2050" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2050_rcp45_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2050_rcp85_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2075_rcp45_p10.visible(obj.options.timeperiod === "2075" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2075_rcp85_p10.visible(obj.options.timeperiod === "2075" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2075_rcp45_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2075_rcp85_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
+                obj.plots.monthly_proj_mod_2025_rcp45_p1090.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2025_rcp85_p1090.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2025_rcp45_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2025_rcp85_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2050_rcp45_p1090.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2050_rcp85_p1090.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2050_rcp45_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2050_rcp85_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2075_rcp45_p1090.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2075_rcp85_p1090.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2075_rcp45_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2075_rcp85_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+            } else if (obj.options.frequencey === "seasonal") {
+                obj.plots.seasonal_proj_mod_2025_rcp45_p1090.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2025_rcp85_p1090.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2050_rcp45_p1090.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2050_rcp85_p1090.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2075_rcp45_p1090.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2075_rcp85_p1090.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2025_rcp45_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2025_rcp85_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2050_rcp45_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2050_rcp85_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2075_rcp45_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2075_rcp85_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
             }
         }
 
@@ -547,18 +671,32 @@ var climate_widget_graph = function(orig_options) {
                 obj.axes.x_seasonal.visible(false);
 
                 obj.plots.monthly_hist_obs_med.visible(false);
-                obj.plots.monthly_proj_mod_2025_rcp45_p10.visible(false);
-                obj.plots.monthly_proj_mod_2025_rcp85_p10.visible(false);
+                obj.plots.monthly_proj_mod_2025_rcp45_p1090.visible(false);
+                obj.plots.monthly_proj_mod_2025_rcp85_p1090.visible(false);
                 obj.plots.monthly_proj_mod_2025_rcp45_med.visible(false);
                 obj.plots.monthly_proj_mod_2025_rcp85_med.visible(false);
-                obj.plots.monthly_proj_mod_2050_rcp45_p10.visible(false);
-                obj.plots.monthly_proj_mod_2050_rcp85_p10.visible(false);
+                obj.plots.monthly_proj_mod_2050_rcp45_p1090.visible(false);
+                obj.plots.monthly_proj_mod_2050_rcp85_p1090.visible(false);
                 obj.plots.monthly_proj_mod_2050_rcp45_med.visible(false);
                 obj.plots.monthly_proj_mod_2050_rcp85_med.visible(false);
-                obj.plots.monthly_proj_mod_2075_rcp45_p10.visible(false);
-                obj.plots.monthly_proj_mod_2075_rcp85_p10.visible(false);
+                obj.plots.monthly_proj_mod_2075_rcp45_p1090.visible(false);
+                obj.plots.monthly_proj_mod_2075_rcp85_p1090.visible(false);
                 obj.plots.monthly_proj_mod_2075_rcp45_med.visible(false);
                 obj.plots.monthly_proj_mod_2075_rcp85_med.visible(false);
+
+                obj.plots.seasonal_proj_mod_2025_rcp45_p1090.visible(false);
+                obj.plots.seasonal_proj_mod_2025_rcp85_p1090.visible(false);
+                obj.plots.seasonal_proj_mod_2050_rcp45_p1090.visible(false);
+                obj.plots.seasonal_proj_mod_2050_rcp85_p1090.visible(false);
+                obj.plots.seasonal_proj_mod_2075_rcp45_p1090.visible(false);
+                obj.plots.seasonal_proj_mod_2075_rcp85_p1090.visible(false);
+                obj.plots.seasonal_hist_obs_med.visible(false);
+                obj.plots.seasonal_proj_mod_2025_rcp45_med.visible(false);
+                obj.plots.seasonal_proj_mod_2025_rcp85_med.visible(false);
+                obj.plots.seasonal_proj_mod_2050_rcp45_med.visible(false);
+                obj.plots.seasonal_proj_mod_2050_rcp85_med.visible(false);
+                obj.plots.seasonal_proj_mod_2075_rcp45_med.visible(false);
+                obj.plots.seasonal_proj_mod_2075_rcp85_med.visible(false);
 
                 $.when.apply($, [
                     dataReq('data/02-final/' + obj.options.fips + '/annual/hist-obs',       obj.options.variable),
@@ -658,21 +796,34 @@ var climate_widget_graph = function(orig_options) {
                 obj.plots.annual_proj_mod_rcp45_med.visible(false);
                 obj.plots.annual_proj_mod_rcp85_med.visible(false);
 
+                obj.plots.seasonal_proj_mod_2025_rcp45_p1090.visible(false);
+                obj.plots.seasonal_proj_mod_2025_rcp85_p1090.visible(false);
+                obj.plots.seasonal_proj_mod_2050_rcp45_p1090.visible(false);
+                obj.plots.seasonal_proj_mod_2050_rcp85_p1090.visible(false);
+                obj.plots.seasonal_proj_mod_2075_rcp45_p1090.visible(false);
+                obj.plots.seasonal_proj_mod_2075_rcp85_p1090.visible(false);
+                obj.plots.seasonal_hist_obs_med.visible(false);
+                obj.plots.seasonal_proj_mod_2025_rcp45_med.visible(false);
+                obj.plots.seasonal_proj_mod_2025_rcp85_med.visible(false);
+                obj.plots.seasonal_proj_mod_2050_rcp45_med.visible(false);
+                obj.plots.seasonal_proj_mod_2050_rcp85_med.visible(false);
+                obj.plots.seasonal_proj_mod_2075_rcp45_med.visible(false);
+                obj.plots.seasonal_proj_mod_2075_rcp85_med.visible(false);
 
 
                 obj.plots.monthly_hist_obs_med.visible(true);
-                obj.plots.monthly_proj_mod_2025_rcp45_p10.visible(obj.options.timeperiod === "2025" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2025_rcp85_p10.visible(obj.options.timeperiod === "2025" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2025_rcp45_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2025_rcp85_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2050_rcp45_p10.visible(obj.options.timeperiod === "2050" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2050_rcp85_p10.visible(obj.options.timeperiod === "2050" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2050_rcp45_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2050_rcp85_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2075_rcp45_p10.visible(obj.options.timeperiod === "2075" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2075_rcp85_p10.visible(obj.options.timeperiod === "2075" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2075_rcp45_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario == "rcp45" || obj.options.scenario == "both"));
-                obj.plots.monthly_proj_mod_2075_rcp85_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario == "rcp85" || obj.options.scenario == "both"));
+                obj.plots.monthly_proj_mod_2025_rcp45_p1090.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2025_rcp85_p1090.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2025_rcp45_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2025_rcp85_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2050_rcp45_p1090.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2050_rcp85_p1090.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2050_rcp45_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2050_rcp85_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2075_rcp45_p1090.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2075_rcp85_p1090.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2075_rcp45_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.monthly_proj_mod_2075_rcp85_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
 
                 $.when.apply($, [
                     dataReq('data/02-final/' + obj.options.fips + '/monthly/hist-obs/stats', obj.options.variable),
@@ -741,18 +892,84 @@ var climate_widget_graph = function(orig_options) {
                 obj.plots.annual_proj_mod_rcp45_med.visible(false);
                 obj.plots.annual_proj_mod_rcp85_med.visible(false);
                 obj.plots.monthly_hist_obs_med.visible(false);
-                obj.plots.monthly_proj_mod_2025_rcp45_p10.visible(false);
-                obj.plots.monthly_proj_mod_2025_rcp85_p10.visible(false);
+                obj.plots.monthly_proj_mod_2025_rcp45_p1090.visible(false);
+                obj.plots.monthly_proj_mod_2025_rcp85_p1090.visible(false);
                 obj.plots.monthly_proj_mod_2025_rcp45_med.visible(false);
                 obj.plots.monthly_proj_mod_2025_rcp85_med.visible(false);
-                obj.plots.monthly_proj_mod_2050_rcp45_p10.visible(false);
-                obj.plots.monthly_proj_mod_2050_rcp85_p10.visible(false);
+                obj.plots.monthly_proj_mod_2050_rcp45_p1090.visible(false);
+                obj.plots.monthly_proj_mod_2050_rcp85_p1090.visible(false);
                 obj.plots.monthly_proj_mod_2050_rcp45_med.visible(false);
                 obj.plots.monthly_proj_mod_2050_rcp85_med.visible(false);
-                obj.plots.monthly_proj_mod_2075_rcp45_p10.visible(false);
-                obj.plots.monthly_proj_mod_2075_rcp85_p10.visible(false);
+                obj.plots.monthly_proj_mod_2075_rcp45_p1090.visible(false);
+                obj.plots.monthly_proj_mod_2075_rcp85_p1090.visible(false);
                 obj.plots.monthly_proj_mod_2075_rcp45_med.visible(false);
                 obj.plots.monthly_proj_mod_2075_rcp85_med.visible(false);
+
+                obj.plots.seasonal_proj_mod_2025_rcp45_p1090.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2025_rcp85_p1090.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2050_rcp45_p1090.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2050_rcp85_p1090.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2075_rcp45_p1090.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2075_rcp85_p1090.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_hist_obs_med.visible(true);
+                obj.plots.seasonal_proj_mod_2025_rcp45_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2025_rcp85_med.visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2050_rcp45_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2050_rcp85_med.visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2075_rcp45_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
+                obj.plots.seasonal_proj_mod_2075_rcp85_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+
+
+                $.when.apply($, [
+                    dataReq('data/02-final/' + obj.options.fips + '/seasonal/hist-obs/stats', obj.options.variable),
+                    dataReq('data/02-final/' + obj.options.fips + '/seasonal/proj-mod/stats', obj.options.variable)
+                ]).done(function(hist_obs,proj_mod) {
+                    var hist_obs_data = string_to_data( hist_obs[0] );
+                    var proj_mod_data = string_to_data( proj_mod[0] );
+
+                    obj.data.seasonal_hist_obs.array(convertArray([obj.data.seasonal_hist_obs.columns().at(starti()),
+                                                                  obj.data.seasonal_hist_obs.columns().at(nexti()),
+                                                                  obj.data.seasonal_hist_obs.columns().at(nexti()),
+                                                                  obj.data.seasonal_hist_obs.columns().at(nexti()),
+                                                                  obj.data.seasonal_hist_obs.columns().at(nexti()),
+                                                                  obj.data.seasonal_hist_obs.columns().at(nexti()),
+                                                                  obj.data.seasonal_hist_obs.columns().at(nexti())],
+                                                                 hist_obs_data));
+                    obj.data.seasonal_proj_mod.array(convertArray([obj.data.seasonal_proj_mod.columns().at(starti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
+                                                                  obj.data.seasonal_proj_mod.columns().at(nexti())],
+                                                                 proj_mod_data));
+                    obj.m.render();
+                });
+
 
             }
 
@@ -779,21 +996,35 @@ var climate_widget_graph = function(orig_options) {
             annual_proj_mod_rcp45_med    : m.graphs().at(0).plots().at(nexti()),
             annual_proj_mod_rcp85_med    : m.graphs().at(0).plots().at(nexti()),
 
-            monthly_hist_obs_med            : m.graphs().at(0).plots().at(nexti()),
-            //monthly_hist_obs_p10          : m.graphs().at(0).plots().at(nexti()),
-            //monthly_hist_obs_p90          : m.graphs().at(0).plots().at(nexti()),
-            monthly_proj_mod_2025_rcp45_p10 : m.graphs().at(0).plots().at(nexti()),
-            monthly_proj_mod_2025_rcp85_p10 : m.graphs().at(0).plots().at(nexti()),
-            monthly_proj_mod_2025_rcp45_med : m.graphs().at(0).plots().at(nexti()),
-            monthly_proj_mod_2025_rcp85_med : m.graphs().at(0).plots().at(nexti()),
-            monthly_proj_mod_2050_rcp45_p10 : m.graphs().at(0).plots().at(nexti()),
-            monthly_proj_mod_2050_rcp85_p10 : m.graphs().at(0).plots().at(nexti()),
-            monthly_proj_mod_2050_rcp45_med : m.graphs().at(0).plots().at(nexti()),
-            monthly_proj_mod_2050_rcp85_med : m.graphs().at(0).plots().at(nexti()),
-            monthly_proj_mod_2075_rcp45_p10 : m.graphs().at(0).plots().at(nexti()),
-            monthly_proj_mod_2075_rcp85_p10 : m.graphs().at(0).plots().at(nexti()),
-            monthly_proj_mod_2075_rcp45_med : m.graphs().at(0).plots().at(nexti()),
-            monthly_proj_mod_2075_rcp85_med : m.graphs().at(0).plots().at(nexti())
+            monthly_hist_obs_med              : m.graphs().at(0).plots().at(nexti()),
+            //monthly_hist_obs_p10            : m.graphs().at(0).plots().at(nexti()),
+            //monthly_hist_obs_p90            : m.graphs().at(0).plots().at(nexti()),
+            monthly_proj_mod_2025_rcp45_p1090 : m.graphs().at(0).plots().at(nexti()),
+            monthly_proj_mod_2025_rcp85_p1090 : m.graphs().at(0).plots().at(nexti()),
+            monthly_proj_mod_2025_rcp45_med   : m.graphs().at(0).plots().at(nexti()),
+            monthly_proj_mod_2025_rcp85_med   : m.graphs().at(0).plots().at(nexti()),
+            monthly_proj_mod_2050_rcp45_p1090 : m.graphs().at(0).plots().at(nexti()),
+            monthly_proj_mod_2050_rcp85_p1090 : m.graphs().at(0).plots().at(nexti()),
+            monthly_proj_mod_2050_rcp45_med   : m.graphs().at(0).plots().at(nexti()),
+            monthly_proj_mod_2050_rcp85_med   : m.graphs().at(0).plots().at(nexti()),
+            monthly_proj_mod_2075_rcp45_p1090 : m.graphs().at(0).plots().at(nexti()),
+            monthly_proj_mod_2075_rcp85_p1090 : m.graphs().at(0).plots().at(nexti()),
+            monthly_proj_mod_2075_rcp45_med   : m.graphs().at(0).plots().at(nexti()),
+            monthly_proj_mod_2075_rcp85_med   : m.graphs().at(0).plots().at(nexti()),
+
+            seasonal_proj_mod_2025_rcp45_p1090  : m.graphs().at(0).plots().at(nexti()),
+            seasonal_proj_mod_2025_rcp85_p1090  : m.graphs().at(0).plots().at(nexti()),
+            seasonal_proj_mod_2050_rcp45_p1090  : m.graphs().at(0).plots().at(nexti()),
+            seasonal_proj_mod_2050_rcp85_p1090  : m.graphs().at(0).plots().at(nexti()),
+            seasonal_proj_mod_2075_rcp45_p1090  : m.graphs().at(0).plots().at(nexti()),
+            seasonal_proj_mod_2075_rcp85_p1090  : m.graphs().at(0).plots().at(nexti()),
+            seasonal_hist_obs_med               : m.graphs().at(0).plots().at(nexti()),
+            seasonal_proj_mod_2025_rcp45_med    : m.graphs().at(0).plots().at(nexti()),
+            seasonal_proj_mod_2025_rcp85_med    : m.graphs().at(0).plots().at(nexti()),
+            seasonal_proj_mod_2050_rcp45_med    : m.graphs().at(0).plots().at(nexti()),
+            seasonal_proj_mod_2050_rcp85_med    : m.graphs().at(0).plots().at(nexti()),
+            seasonal_proj_mod_2075_rcp45_med    : m.graphs().at(0).plots().at(nexti()),
+            seasonal_proj_mod_2075_rcp85_med    : m.graphs().at(0).plots().at(nexti())
 
         };
         obj.data = {
@@ -801,7 +1032,9 @@ var climate_widget_graph = function(orig_options) {
             annual_hist_mod  : m.graphs().at(0).data().at(nexti()),
             annual_proj_mod  : m.graphs().at(0).data().at(nexti()),
             monthly_hist_obs : m.graphs().at(0).data().at(nexti()),
-            monthly_proj_mod : m.graphs().at(0).data().at(nexti())
+            monthly_proj_mod : m.graphs().at(0).data().at(nexti()),
+            seasonal_hist_obs : m.graphs().at(0).data().at(nexti()),
+            seasonal_proj_mod : m.graphs().at(0).data().at(nexti())
         };
         obj.update(obj.orig_options);
     });
@@ -1014,21 +1247,6 @@ var climate_widget_graph = function(orig_options) {
 /////            fillcolor: bar_color,
 /////            barwidth: 1,
 /////            baroffset: 0.5,
-/////            linecolor: line_color
-/////        }
-/////    };
-/////}
-/////
-/////function range_bar_plot(x, y0, y1, bar_color, line_color, baroffset, fillopacity) {
-/////    return {
-/////        horizontalaxis: { x: x },
-/////        verticalaxis:   { y: [y0,y1] },
-/////        style: "rangebar",
-/////        options: {
-/////            fillcolor: bar_color,
-/////            fillopacity: fillopacity,
-/////            barwidth: 0.5,
-/////            baroffset: baroffset,
 /////            linecolor: line_color
 /////        }
 /////    };
