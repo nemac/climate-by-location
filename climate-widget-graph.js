@@ -133,6 +133,16 @@ var _i = 0;
 var starti = function(v) { _i = v||0; return _i; };
 var nexti = function() { return ++_i; };
 
+// The following function takes a jermaine attr_list instance and returns
+// a plain JS array containing all its values
+function attr_list_array(attr_list) {
+    var a = [], i;
+    for (i=0; i<attr_list.size(); ++i) {
+        a.push(attr_list.at(i));
+    }
+    return a;
+}
+
 function string_to_data(s) {
     // Takes a multiline string of the form
     //
@@ -720,30 +730,9 @@ var climate_widget_graph = function(orig_options) {
                         }
                     }
 
-                    obj.data.annual_hist_obs.array(convertArray([obj.data.annual_hist_obs.columns().at(starti(0)),
-                                                                 obj.data.annual_hist_obs.columns().at(nexti())],
-                                                                hist_obs_data));
-
-                    obj.data.annual_hist_mod.array(convertArray([obj.data.annual_hist_mod.columns().at(starti(0)),
-                                                                 obj.data.annual_hist_mod.columns().at(nexti()),
-                                                                 obj.data.annual_hist_mod.columns().at(nexti()),
-                                                                 obj.data.annual_hist_mod.columns().at(nexti()),
-                                                                 obj.data.annual_hist_mod.columns().at(nexti()),
-                                                                 obj.data.annual_hist_mod.columns().at(nexti())],
-                                                                hist_mod_data));
-
-                    obj.data.annual_proj_mod.array(convertArray([obj.data.annual_proj_mod.columns().at(starti(0)),
-                                                                 obj.data.annual_proj_mod.columns().at(nexti()),
-                                                                 obj.data.annual_proj_mod.columns().at(nexti()),
-                                                                 obj.data.annual_proj_mod.columns().at(nexti()),
-                                                                 obj.data.annual_proj_mod.columns().at(nexti()),
-                                                                 obj.data.annual_proj_mod.columns().at(nexti()),
-                                                                 obj.data.annual_proj_mod.columns().at(nexti()),
-                                                                 obj.data.annual_proj_mod.columns().at(nexti()),
-                                                                 obj.data.annual_proj_mod.columns().at(nexti()),
-                                                                 obj.data.annual_proj_mod.columns().at(nexti()),
-                                                                 obj.data.annual_proj_mod.columns().at(nexti())],
-                                                                proj_mod_data));
+                    obj.data.annual_hist_obs.array(convertArray(attr_list_array(obj.data.annual_hist_obs.columns()), hist_obs_data));
+                    obj.data.annual_hist_mod.array(convertArray(attr_list_array(obj.data.annual_hist_mod.columns()), hist_mod_data));
+                    obj.data.annual_proj_mod.array(convertArray(attr_list_array(obj.data.annual_proj_mod.columns()), proj_mod_data));
 
                     obj.plots.annual_hist_mod_minmax.visible(true);
                     obj.plots.annual_hist_mod_p1090.visible(true);
@@ -831,47 +820,8 @@ var climate_widget_graph = function(orig_options) {
                 ]).done(function(hist_obs,proj_mod) {
                     var hist_obs_data = string_to_data( hist_obs[0] );
                     var proj_mod_data = string_to_data( proj_mod[0] );
-
-                    obj.data.monthly_hist_obs.array(convertArray([obj.data.monthly_hist_obs.columns().at(starti()),
-                                                                  obj.data.monthly_hist_obs.columns().at(nexti()),
-                                                                  obj.data.monthly_hist_obs.columns().at(nexti()),
-                                                                  obj.data.monthly_hist_obs.columns().at(nexti()),
-                                                                  obj.data.monthly_hist_obs.columns().at(nexti()),
-                                                                  obj.data.monthly_hist_obs.columns().at(nexti()),
-                                                                  obj.data.monthly_hist_obs.columns().at(nexti())],
-                                                                 hist_obs_data));
-                    obj.data.monthly_proj_mod.array(convertArray([obj.data.monthly_proj_mod.columns().at(starti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti()),
-                                                                  obj.data.monthly_proj_mod.columns().at(nexti())],
-                                                                 proj_mod_data));
+                    obj.data.monthly_hist_obs.array(convertArray(attr_list_array(obj.data.monthly_hist_obs.columns()), hist_obs_data));
+                    obj.data.monthly_proj_mod.array(convertArray(attr_list_array(obj.data.monthly_proj_mod.columns()), proj_mod_data));
                     obj.m.render();
                 });
 
@@ -919,63 +869,17 @@ var climate_widget_graph = function(orig_options) {
                 obj.plots.seasonal_proj_mod_2075_rcp45_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
                 obj.plots.seasonal_proj_mod_2075_rcp85_med.visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
 
-
                 $.when.apply($, [
                     dataReq('data/02-final/' + obj.options.fips + '/seasonal/hist-obs/stats', obj.options.variable),
                     dataReq('data/02-final/' + obj.options.fips + '/seasonal/proj-mod/stats', obj.options.variable)
                 ]).done(function(hist_obs,proj_mod) {
                     var hist_obs_data = string_to_data( hist_obs[0] );
                     var proj_mod_data = string_to_data( proj_mod[0] );
-
-                    // The incoming data has month values 1,4,7,10.  Here we replace these
-                    // with the values 0,1,2,3:
-                    hist_obs_data.forEach(function(v) {
-                        v[0] = Math.floor(v[0]/3);
-                    });
-                    proj_mod_data.forEach(function(v) {
-                        v[0] = Math.floor(v[0]/3);
-                    });
-
-                    obj.data.seasonal_hist_obs.array(convertArray([obj.data.seasonal_hist_obs.columns().at(starti()),
-                                                                  obj.data.seasonal_hist_obs.columns().at(nexti()),
-                                                                  obj.data.seasonal_hist_obs.columns().at(nexti()),
-                                                                  obj.data.seasonal_hist_obs.columns().at(nexti()),
-                                                                  obj.data.seasonal_hist_obs.columns().at(nexti()),
-                                                                  obj.data.seasonal_hist_obs.columns().at(nexti()),
-                                                                  obj.data.seasonal_hist_obs.columns().at(nexti())],
-                                                                 hist_obs_data));
-                    obj.data.seasonal_proj_mod.array(convertArray([obj.data.seasonal_proj_mod.columns().at(starti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti()),
-                                                                  obj.data.seasonal_proj_mod.columns().at(nexti())],
-                                                                 proj_mod_data));
+                    // The incoming data has month values 1,4,7,10.  Here we replace these with the values 0,1,2,3:
+                    hist_obs_data.forEach(function(v) { v[0] = Math.floor(v[0]/3); });
+                    proj_mod_data.forEach(function(v) { v[0] = Math.floor(v[0]/3); });
+                    obj.data.seasonal_hist_obs.array(convertArray(attr_list_array(obj.data.seasonal_hist_obs.columns()), hist_obs_data));
+                    obj.data.seasonal_proj_mod.array(convertArray(attr_list_array(obj.data.seasonal_proj_mod.columns()), proj_mod_data));
                     obj.m.render();
                 });
 
