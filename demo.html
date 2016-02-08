@@ -15,6 +15,33 @@
       height: 400px;
       width: 600px;
     }
+    #download-panel {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+      background-color: rgba(255,255,255,0.8);
+    }
+    .hidden {
+      display: none;
+    }
+    #download-panel .download-inner {
+      margin: auto;
+      position: relative;
+      top: 70px;
+      width: 700px;
+      height: 300px;
+      border: 2px solid black;
+      background-color: rgba(255,255,255,1.0);
+      padding: 30px;
+    }
+    #download-panel .download-inner li {
+      margin-left: 50px;
+    }
+    .center {
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -102,6 +129,14 @@
       </div>
     </div>
   </div>
+ <div class="center"><button id="download-button">Download Data</button></div>
+  <div id="download-panel" class="hidden">
+    <div class="download-inner">
+      <p>Use the following links to download this graph's data:</p>
+      <ul></ul>
+      <div class="center"><button id="download-dismiss-button">Dismiss</button></div>
+    </div>
+  </div>
 
   <!-- you must include jquery before including climate-widget-graph.js -->
   <script src="vendor/jquery.min.js"></script>
@@ -126,13 +161,10 @@
       var selectedScenario = $('#scenario').val();
       var selectedPresentation = $('#presentation').val();
 
-      // This is the only code that's required to create a climate widget graph.
-      // How the variables are determined doesn't matter to the widget.  Note that
-      // it's possible to create more than one graph at a time in the same page by
-      // simply calling this function multiple times with different divs.
       cwg = climate_widget_graph({
         'div'           :  "div#widget",         // jquery-style selector for the dom element that you want the graph to appear in
-        'dataprefix'    : 'data/02-final',
+        //'dataprefix'    : 'data/02-final',
+        'dataprefix'    : 'http://climate-widget-data.nemac.org/data',
         'frequency'     :  selectedFrequency,    // time frequency of graph to display ("annual", "monthly", or "seasonal")
         'timeperiod'    :  selectedTimePeriod,   // time period center for monthly/seasonal graphs ("2025", "2050", or "2075")
         'fips'          :  selectedCounty,       // 5-character fips code for county (as a string)
@@ -142,7 +174,7 @@
       });
 
     }
-  $('#frequency').change(function() {
+    $('#frequency').change(function() {
       var freq = $('#frequency').val();
       if (freq === "annual") {
           $('#pagetitle').text("Annual timeseries");
@@ -190,6 +222,29 @@
                   + '>'  + v.title + '</option>');
       }).join("")).appendTo($("select#variable"));
       configureAndLaunchGraph();
+
+    $('#download-button').click(function() {
+      if (cwg) {
+        var $ul = $('#download-panel').find('ul')
+        $ul.empty();
+        var dataurls = cwg.dataurls();
+        if (dataurls.hist_obs) {
+          $ul.append($("<li>Historical Observed: <a href='"+dataurls.hist_obs+"'>"+dataurls.hist_obs+"</a></li>"));
+        }
+        if (dataurls.hist_mod) {
+          $ul.append($("<li>Historical Model: <a href='"+dataurls.hist_mod+"'>"+dataurls.hist_mod+"</a></li>"));
+        }
+        if (dataurls.proj_mod) {
+          $ul.append($("<li>Projected Model: <a href='"+dataurls.proj_mod+"'>"+dataurls.proj_mod+"</a></li>"));
+        }
+        $('#download-panel').removeClass("hidden");
+      }
+    });
+    $('#download-dismiss-button').click(function() {
+      $('#download-panel').addClass("hidden");
+    });
+
+
   });
 
   </script>
