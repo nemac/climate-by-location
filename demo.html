@@ -131,13 +131,14 @@
       // it's possible to create more than one graph at a time in the same page by
       // simply calling this function multiple times with different divs.
       cwg = climate_widget_graph({
-        'div'          : "div#widget",         // jquery-style selector for the dom element that you want the graph to appear in
-        'frequency'    : selectedFrequency,    // time frequency of graph to display ("annual", "monthly", or "seasonal")
-        'timeperiod'   : selectedTimePeriod,   // time period center for monthly/seasonal graphs ("2025", "2050", or "2075")
-        'fips'         : selectedCounty,       // 5-character fips code for county (as a string)
-        'variable'     : selectedVariable,     // name of variable to display; see climate-widget-graph.js for list of variables
-        'scenario'     : selectedScenario,     // name of scenario to display; both, rcp45, or rcp85
-        'presentation' : selectedPresentation  // name of presentation; absolute or anomaly with respect to a baseline value
+        'div'           :  "div#widget",         // jquery-style selector for the dom element that you want the graph to appear in
+        'dataprefix'    : 'data/02-final',
+        'frequency'     :  selectedFrequency,    // time frequency of graph to display ("annual", "monthly", or "seasonal")
+        'timeperiod'    :  selectedTimePeriod,   // time period center for monthly/seasonal graphs ("2025", "2050", or "2075")
+        'fips'          :  selectedCounty,       // 5-character fips code for county (as a string)
+        'variable'      :  selectedVariable,     // name of variable to display; see climate-widget-graph.js for list of variables
+        'scenario'      :  selectedScenario,     // name of scenario to display; both, rcp45, or rcp85
+        'presentation'  :  selectedPresentation  // name of presentation; absolute or anomaly with respect to a baseline value
       });
 
     }

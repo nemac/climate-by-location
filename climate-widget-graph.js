@@ -690,6 +690,12 @@ var climate_widget_graph = function(orig_options) {
         options: {},
         $div: $(orig_options.div)
     };
+    if (!obj.orig_options.dataprefix) {
+        throw new Error("climate_widget_graph: property 'dataprefix' is missing");
+    }
+    if (obj.orig_options.dataprefix.endsWith("/")) {
+        obj.orig_options.dataprefix = obj.orig_options.dataprefix.replace(/\/$/, "");
+    }
     obj.$div.empty();
     $('.errorDisplayDetails').remove();
     obj.$div.append("<div class='graph' style='width: 100%; height: 100%;'></div>");
@@ -765,9 +771,9 @@ var climate_widget_graph = function(orig_options) {
                 each_plot(obj.plots.seasonal, function(plot) { plot.visible(false); });
 
                 $.when.apply($, [
-                    dataReq('data/02-final/' + obj.options.fips + '/annual/hist-obs',       obj.options.variable),
-                    dataReq('data/02-final/' + obj.options.fips + '/annual/hist-mod/stats', obj.options.variable),
-                    dataReq('data/02-final/' + obj.options.fips + '/annual/proj-mod/stats', obj.options.variable),
+                    dataReq(obj.options.dataprefix + '/' + obj.options.fips + '/annual/hist-obs',       obj.options.variable),
+                    dataReq(obj.options.dataprefix + '/' + obj.options.fips + '/annual/hist-mod/stats', obj.options.variable),
+                    dataReq(obj.options.dataprefix + '/' + obj.options.fips + '/annual/proj-mod/stats', obj.options.variable),
                 ]).done(function(hist_obs,hist_mod,proj_mod) {
                     var hist_obs_data = string_to_data( hist_obs[0] );
                     var hist_mod_data = string_to_data( hist_mod[0] );
@@ -843,8 +849,8 @@ var climate_widget_graph = function(orig_options) {
                 });
                 
                 $.when.apply($, [
-                    dataReq('data/02-final/' + obj.options.fips + '/monthly/hist-obs/stats', obj.options.variable),
-                    dataReq('data/02-final/' + obj.options.fips + '/monthly/proj-mod/stats', obj.options.variable),
+                    dataReq(obj.options.dataprefix + '/' + obj.options.fips + '/monthly/hist-obs/stats', obj.options.variable),
+                    dataReq(obj.options.dataprefix + '/' + obj.options.fips + '/monthly/proj-mod/stats', obj.options.variable),
                 ]).done(function(hist_obs,proj_mod) {
                     var hist_obs_data = string_to_data( hist_obs[0] );
                     var proj_mod_data = string_to_data( proj_mod[0] );
@@ -870,8 +876,8 @@ var climate_widget_graph = function(orig_options) {
                 });
 
                 $.when.apply($, [
-                    dataReq('data/02-final/' + obj.options.fips + '/seasonal/hist-obs/stats', obj.options.variable),
-                    dataReq('data/02-final/' + obj.options.fips + '/seasonal/proj-mod/stats', obj.options.variable)
+                    dataReq(obj.options.dataprefix + '/' + obj.options.fips + '/seasonal/hist-obs/stats', obj.options.variable),
+                    dataReq(obj.options.dataprefix + '/' + obj.options.fips + '/seasonal/proj-mod/stats', obj.options.variable)
                 ]).done(function(hist_obs,proj_mod) {
                     var hist_obs_data = string_to_data( hist_obs[0] );
                     var proj_mod_data = string_to_data( proj_mod[0] );
