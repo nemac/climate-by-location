@@ -899,44 +899,44 @@ var climate_widget_graph = function(orig_options) {
         };
 
         obj.plots = {};
-        set_in(obj.plots, ["annual","hist_mod","minmax"],                  m.graphs().at(0).plots().at(starti()));
-        set_in(obj.plots, ["annual","hist_mod","p1090"],                   m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["annual","proj_mod","minmax","rcp45"],          m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["annual","proj_mod","p1090","rcp45"],           m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["annual","proj_mod","minmax","rcp85"],          m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["annual","proj_mod","p1090","rcp85"],           m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["annual","hist_obs"],                           m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["annual","hist_mod","med"],                     m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["annual","proj_mod","med","rcp45"],             m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["annual","proj_mod","med","rcp85"],             m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["annual",  "hist_mod", "minmax"                 ], m.graphs().at(0).plots().at(starti()));
+        set_in(obj.plots, ["annual",  "hist_mod", "p1090"                  ], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["annual",  "proj_mod", "minmax", "rcp45"        ], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["annual",  "proj_mod", "p1090",  "rcp45"        ], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["annual",  "proj_mod", "minmax", "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["annual",  "proj_mod", "p1090",  "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["annual",  "hist_obs"                           ], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["annual",  "hist_mod", "med"                    ], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["annual",  "proj_mod", "med",    "rcp45"        ], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["annual",  "proj_mod", "med",    "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
+ 
+        set_in(obj.plots, ["monthly", "hist_obs", "med"                    ], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["monthly", "proj_mod", "p1090",  "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["monthly", "proj_mod", "p1090",  "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["monthly", "proj_mod", "med",    "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["monthly", "proj_mod", "med",    "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["monthly", "proj_mod", "p1090",  "rcp45", "2050"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["monthly", "proj_mod", "p1090",  "rcp85", "2050"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["monthly", "proj_mod", "med",    "rcp45", "2050"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["monthly", "proj_mod", "med",    "rcp85", "2050"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["monthly", "proj_mod", "p1090",  "rcp45", "2075"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["monthly", "proj_mod", "p1090",  "rcp85", "2075"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["monthly", "proj_mod", "med",    "rcp45", "2075"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["monthly", "proj_mod", "med",    "rcp85", "2075"], m.graphs().at(0).plots().at(nexti()));
 
-        set_in(obj.plots, ["monthly","hist_obs","med"],                    m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["monthly","proj_mod","p1090","rcp45","2025"],   m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["monthly","proj_mod","p1090","rcp85","2025"],   m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["monthly","proj_mod","med","rcp45","2025"],     m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["monthly","proj_mod","med","rcp85","2025"],     m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["monthly","proj_mod","p1090","rcp45","2050"],   m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["monthly","proj_mod","p1090","rcp85","2050"],   m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["monthly","proj_mod","med","rcp45","2050"],     m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["monthly","proj_mod","med","rcp85","2050"],     m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["monthly","proj_mod","p1090","rcp45","2075"],   m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["monthly","proj_mod","p1090","rcp85","2075"],   m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["monthly","proj_mod","med","rcp45","2075"],     m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["monthly","proj_mod","med","rcp85","2075"],     m.graphs().at(0).plots().at(nexti()));
-
-        set_in(obj.plots, ["seasonal","proj_mod","p1090","rcp45","2025"],  m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["seasonal","proj_mod","p1090","rcp85","2025"],  m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["seasonal","proj_mod","p1090","rcp45","2050"],  m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["seasonal","proj_mod","p1090","rcp85","2050"],  m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["seasonal","proj_mod","p1090","rcp45","2075"],  m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["seasonal","proj_mod","p1090","rcp85","2075"],  m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["seasonal","hist_obs","med"],                   m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["seasonal","proj_mod","med","rcp45","2025"],    m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["seasonal","proj_mod","med","rcp85","2025"],    m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["seasonal","proj_mod","med","rcp45","2050"],    m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["seasonal","proj_mod","med","rcp85","2050"],    m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["seasonal","proj_mod","med","rcp45","2075"],    m.graphs().at(0).plots().at(nexti()));
-        set_in(obj.plots, ["seasonal","proj_mod","med","rcp85","2075"],    m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["seasonal","proj_mod", "p1090",  "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["seasonal","proj_mod", "p1090",  "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["seasonal","proj_mod", "p1090",  "rcp45", "2050"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["seasonal","proj_mod", "p1090",  "rcp85", "2050"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["seasonal","proj_mod", "p1090",  "rcp45", "2075"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["seasonal","proj_mod", "p1090",  "rcp85", "2075"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["seasonal","hist_obs", "med"                    ], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["seasonal","proj_mod", "med",    "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["seasonal","proj_mod", "med",    "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["seasonal","proj_mod", "med",    "rcp45", "2050"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["seasonal","proj_mod", "med",    "rcp85", "2050"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["seasonal","proj_mod", "med",    "rcp45", "2075"], m.graphs().at(0).plots().at(nexti()));
+        set_in(obj.plots, ["seasonal","proj_mod", "med",    "rcp85", "2075"], m.graphs().at(0).plots().at(nexti()));
 
         obj.data = {
             annual_hist_obs  : m.graphs().at(0).data().at(starti()),
