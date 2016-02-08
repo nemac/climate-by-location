@@ -736,31 +736,17 @@ var climate_widget_graph = function(orig_options) {
         // if timeperiod changed, set which plots are visible
         if (obj.options.timeperiod != old_options.timeperiod) {
             if (obj.options.frequency === "monthly") {
-                obj.plots.monthly.proj_mod.p1090.rcp45["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.p1090.rcp85["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.med.rcp45["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.med.rcp85["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.p1090.rcp45["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.p1090.rcp85["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.med.rcp45["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.med.rcp85["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.p1090.rcp45["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.p1090.rcp85["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.med.rcp45["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.med.rcp85["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                each_keys(obj.plots.monthly.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
+                    obj.plots.monthly.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
+                        obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")
+                    );
+                });
             } else if (obj.options.frequency === "seasonal") {
-                obj.plots.seasonal.proj_mod.p1090.rcp45["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.p1090.rcp85["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.p1090.rcp45["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.p1090.rcp85["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.p1090.rcp45["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.p1090.rcp85["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.med.rcp45["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.med.rcp85["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.med.rcp45["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.med.rcp85["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.med.rcp45["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.med.rcp85["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                each_keys(obj.plots.seasonal.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
+                    obj.plots.seasonal.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
+                        obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")
+                    );
+                });
             }
         }
 
@@ -804,34 +790,35 @@ var climate_widget_graph = function(orig_options) {
                     obj.data.annual_hist_mod.array(convertArray(attr_list_array(obj.data.annual_hist_mod.columns()), hist_mod_data));
                     obj.data.annual_proj_mod.array(convertArray(attr_list_array(obj.data.annual_proj_mod.columns()), proj_mod_data));
 
-                    obj.plots.annual.hist_mod.minmax.visible(true);
-                    obj.plots.annual.hist_mod.p1090.visible(true);
-                    obj.plots.annual.proj_mod.minmax.rcp45.visible(obj.options.scenario === "rcp45" || obj.options.scenario === "both");
-                    obj.plots.annual.proj_mod.p1090.rcp45.visible(obj.options.scenario === "rcp45" || obj.options.scenario === "both");
-                    obj.plots.annual.proj_mod.minmax.rcp85.visible(obj.options.scenario === "rcp85" || obj.options.scenario === "both");
-                    obj.plots.annual.proj_mod.p1090.rcp85.visible(obj.options.scenario === "rcp85" || obj.options.scenario === "both");
                     obj.plots.annual.hist_obs.visible(true);
-                    obj.plots.annual.hist_mod.med.visible(true);
-                    obj.plots.annual.proj_mod.med.rcp45.visible(obj.options.scenario === "rcp45" || obj.options.scenario === "both");
-                    obj.plots.annual.proj_mod.med.rcp85.visible(obj.options.scenario === "rcp85" || obj.options.scenario === "both");
+                    each_plot(obj.plots.annual.hist_mod, function(plot) { plot.visible(true); });
+                    each_keys(obj.plots.annual.proj_mod, ["stat", "scenario"], function(k) {
+                        obj.plots.annual.proj_mod[k.stat][k.scenario].visible(obj.options.scenario === k.scenario || obj.options.scenario === "both");
+                    });
 
-                    var ref = avg;
-                    if (obj.options.presentation === "anomaly") {
-                        if (obj.options.variable === "pr") {
-                            ref = 100;
-                        } else {
-                            ref = 0;
+                    {
+                        // Set the base level for the annual hist_obs bar plot --- this is the y-level
+                        // at which the bars are based ("barbase" plot option), as well as the level
+                        // that determines the colors of the bars ("min"/"max" property of the "fillcolor"
+                        // option -- above this level is red, below it is green).
+                        var ref = avg;
+                        if (obj.options.presentation === "anomaly") {
+                            if (obj.options.variable === "pr") {
+                                ref = 100;
+                            } else {
+                                ref = 0;
+                            }
                         }
-                    }
-                    var number_val = new window.multigraph.core.NumberValue(ref);
-                    obj.plots.annual.hist_obs.renderer().options().barbase().at(0).value(number_val);
-                    var j;
-                    for (j=1; j<obj.plots.annual.hist_obs.renderer().options().fillcolor().size(); ++j) {
-                        if (obj.plots.annual.hist_obs.renderer().options().fillcolor().at(j).min()) {
-                            obj.plots.annual.hist_obs.renderer().options().fillcolor().at(j).min(number_val);
-                        }
-                        if (obj.plots.annual.hist_obs.renderer().options().fillcolor().at(j).max()) {
-                            obj.plots.annual.hist_obs.renderer().options().fillcolor().at(j).max(number_val);
+                        var number_val = new window.multigraph.core.NumberValue(ref);
+                        obj.plots.annual.hist_obs.renderer().options().barbase().at(0).value(number_val);
+                        var j;
+                        for (j=1; j<obj.plots.annual.hist_obs.renderer().options().fillcolor().size(); ++j) {
+                            if (obj.plots.annual.hist_obs.renderer().options().fillcolor().at(j).min()) {
+                                obj.plots.annual.hist_obs.renderer().options().fillcolor().at(j).min(number_val);
+                            }
+                            if (obj.plots.annual.hist_obs.renderer().options().fillcolor().at(j).max()) {
+                                obj.plots.annual.hist_obs.renderer().options().fillcolor().at(j).max(number_val);
+                            }
                         }
                     }
 
@@ -848,19 +835,13 @@ var climate_widget_graph = function(orig_options) {
                 each_plot(obj.plots.seasonal, function(plot) { plot.visible(false); });
 
                 obj.plots.monthly.hist_obs.med.visible(true);
-                obj.plots.monthly.proj_mod.p1090.rcp45["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.p1090.rcp85["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.med.rcp45["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.med.rcp85["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.p1090.rcp45["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.p1090.rcp85["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.med.rcp45["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.med.rcp85["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.p1090.rcp45["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.p1090.rcp85["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.med.rcp45["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.monthly.proj_mod.med.rcp85["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
 
+                each_keys(obj.plots.monthly.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
+                    obj.plots.monthly.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
+                        obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")
+                    );
+                });
+                
                 $.when.apply($, [
                     dataReq('data/02-final/' + obj.options.fips + '/monthly/hist-obs/stats', obj.options.variable),
                     dataReq('data/02-final/' + obj.options.fips + '/monthly/proj-mod/stats', obj.options.variable),
@@ -881,19 +862,12 @@ var climate_widget_graph = function(orig_options) {
                 each_plot(obj.plots.annual, function(plot) { plot.visible(false); });
                 each_plot(obj.plots.monthly, function(plot) { plot.visible(false); });
 
-                obj.plots.seasonal.proj_mod.p1090.rcp45["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.p1090.rcp85["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.p1090.rcp45["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.p1090.rcp85["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.p1090.rcp45["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.p1090.rcp85["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
                 obj.plots.seasonal.hist_obs.med.visible(true);
-                obj.plots.seasonal.proj_mod.med.rcp45["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.med.rcp85["2025"].visible(obj.options.timeperiod === "2025" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.med.rcp45["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.med.rcp85["2050"].visible(obj.options.timeperiod === "2050" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.med.rcp45["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp45" || obj.options.scenario === "both"));
-                obj.plots.seasonal.proj_mod.med.rcp85["2075"].visible(obj.options.timeperiod === "2075" && (obj.options.scenario === "rcp85" || obj.options.scenario === "both"));
+                each_keys(obj.plots.seasonal.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
+                    obj.plots.seasonal.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
+                        obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")
+                    );
+                });
 
                 $.when.apply($, [
                     dataReq('data/02-final/' + obj.options.fips + '/seasonal/hist-obs/stats', obj.options.variable),
@@ -923,10 +897,6 @@ var climate_widget_graph = function(orig_options) {
             x_seasonal : m.graphs().at(0).axes().at(nexti()),
             y          : m.graphs().at(0).axes().at(nexti())
         };
-//       annual     hist_mod  minmax  rcp45     2025
-//       monthly    hist_obs  p1090   rcp85     2050
-//       seasonal   proj_mod  med               2075
-// plots[frequency][regime  ][stat][  scenario][center]
 
         obj.plots = {};
         set_in(obj.plots, ["annual","hist_mod","minmax"],                  m.graphs().at(0).plots().at(starti()));
