@@ -261,6 +261,10 @@ function each_keys(obj, levels, f, k) {
     });
 }
 
+function dataurl(prefix, fips, dir, variable) {
+    return prefix + "/" + fips + "/" + dir + "/" + fips + "-" + dir.replace(/\//g,"-") + "-" + variable + ".csv";
+}
+
 function string_to_data(s) {
     // Takes a multiline string of the form
     //
@@ -678,11 +682,6 @@ function changed(prop, obj, delta) {
     return ((prop in delta) && (delta[prop] !== obj[prop]));
 }
 
-function dataReq(dir, element) {
-    var url = dir + '/' + element + '.csv';
-    return $.ajax({url: url, dataType: 'text'});
-}
-
 var climate_widget_graph = function(orig_options) {
     var convertArray = window.multigraph.core.ArrayData.stringArrayToDataValuesArray;
     var obj = {
@@ -771,9 +770,9 @@ var climate_widget_graph = function(orig_options) {
                 each_plot(obj.plots.seasonal, function(plot) { plot.visible(false); });
 
                 obj.data_urls = {
-                    hist_obs: obj.options.dataprefix + '/' + obj.options.fips + '/annual/hist-obs/'       + obj.options.variable + '.csv',
-                    hist_mod: obj.options.dataprefix + '/' + obj.options.fips + '/annual/hist-mod/stats/' + obj.options.variable + '.csv',
-                    proj_mod: obj.options.dataprefix + '/' + obj.options.fips + '/annual/proj-mod/stats/' + obj.options.variable + '.csv'
+                    hist_obs: dataurl(obj.options.dataprefix, obj.options.fips, 'annual/hist-obs',         obj.options.variable),
+                    hist_mod: dataurl(obj.options.dataprefix, obj.options.fips, 'annual/hist-mod/stats', obj.options.variable),
+                    proj_mod: dataurl(obj.options.dataprefix, obj.options.fips, 'annual/proj-mod/stats', obj.options.variable)
                 };
                 $.when.apply($, [
                     $.ajax({url: obj.data_urls.hist_obs, dataType: 'text'}),
@@ -854,8 +853,8 @@ var climate_widget_graph = function(orig_options) {
                 });
                 
                 obj.data_urls = {
-                    hist_obs: obj.options.dataprefix + '/' + obj.options.fips + '/monthly/hist-obs/stats/'+ obj.options.variable + '.csv',
-                    proj_mod: obj.options.dataprefix + '/' + obj.options.fips + '/monthly/proj-mod/stats/' + obj.options.variable + '.csv'
+                    hist_obs: dataurl(obj.options.dataprefix, obj.options.fips, 'monthly/hist-obs/stats', obj.options.variable),
+                    proj_mod: dataurl(obj.options.dataprefix, obj.options.fips, 'monthly/proj-mod/stats', obj.options.variable)
                 };
                 $.when.apply($, [
                     $.ajax({url: obj.data_urls.hist_obs, dataType: 'text'}),
@@ -885,8 +884,8 @@ var climate_widget_graph = function(orig_options) {
                 });
 
                 obj.data_urls = {
-                    hist_obs: obj.options.dataprefix + '/' + obj.options.fips + '/seasonal/hist-obs/stats/'+ obj.options.variable + '.csv',
-                    proj_mod: obj.options.dataprefix + '/' + obj.options.fips + '/seasonal/proj-mod/stats/' + obj.options.variable + '.csv'
+                    hist_obs: dataurl(obj.options.dataprefix, obj.options.fips, 'seasonal/hist-obs/stats', obj.options.variable),
+                    proj_mod: dataurl(obj.options.dataprefix, obj.options.fips, 'seasonal/proj-mod/stats', obj.options.variable)
                 };
                 $.when.apply($, [
                     $.ajax({url: obj.data_urls.hist_obs, dataType: 'text'}),
