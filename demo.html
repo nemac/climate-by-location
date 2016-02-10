@@ -42,6 +42,10 @@
       text-align: center;
     }
   </style>
+  <script src="vendor/jquery.min.js"></script>
+  <script src="multigraph-nojq-min.js"></script>
+  <script src="climate-widget-graph.js"></script>
+  <script src="demo.js"></script>
 </head>
 <body>
   <div class="container">
@@ -68,31 +72,13 @@
           </div>
           <div class="row">
             <label for="county">County</label>
-            <!--
-              The following select is merely for demonstration purposes -- it
-              lets the user choose a county.  This select element just gives two
-              county options, but the climate_widget_graph() function will work
-              for any county fips code.  A list of all county fips codes is
-              available for reference in the file 'fips_codes.csv'.
-            -->
             <select id="county" class="u-full-width">
               <option value="37021" selected="selected">Buncombe County, NC</option>
               <option value="41003">Benton County, OR</option>
-              <!--
-              <option value="06071">San Bernadino County, CA</option>
-              <option value="37089">Henderson County, NC</option>
-              -->
             </select>
           </div>
           <div class="row">
             <label for="variable">Variable</label>
-            <!--
-              The following select is merely for demonstration purposes -- it
-              lets the user choose a variable.  This select element just gives two
-              variable options, but the climate_widget_graph() function will work
-              with any of the 9 variable names listed in the comments
-              at the top of the file climate-widget-graph.js.
-            -->
             <select id="variable" class="u-full-width">
             </select>
           </div>
@@ -117,13 +103,6 @@
         </form>
       </div>
       <div class="eight columns">
-        <!--
-          The div the widget will be called on. Multiple of these could be
-          declared (so that there are multiple graphs) at a time, or this
-          DOM element could be generated programatically from JS.  Note that
-          the size of the graph is determined by the size of this div, which
-          in turn is specified in the '#widget' CSS rule above.
-        -->
         <div id="widget"></div>
       </div>
     </div>
@@ -136,132 +115,5 @@
       <div class="center"><button id="download-dismiss-button">Dismiss</button></div>
     </div>
   </div>
-
-  <!-- you must include jquery before including climate-widget-graph.js -->
-  <script src="vendor/jquery.min.js"></script>
-  <!--<script src="multigraph-nojq-min-5.1.1.js"></script>-->
-  <script src="multigraph-nojq-min.js"></script>
-
-  <!-- include climate-widget-graph.js before calling climate_widget_graph() -->
-  <script src="climate-widget-graph.js"></script>
-
-  <script type="text/javascript">
-    var cwg = undefined;
-    function cwgupdate(options) {
-      if (cwg) {
-        cwg.update(options);
-      }
-    }
-    function configureAndLaunchGraph() {
-      var selectedFrequency = $('#frequency').val();
-      var selectedTimePeriod = $('#timeperiod').val();
-      var selectedCounty = $('#county').val();
-      var selectedVariable = $('#variable').val();
-      var selectedScenario = $('#scenario').val();
-      var selectedPresentation = $('#presentation').val();
-
-      cwg = climate_widget_graph({
-        'div'           :  "div#widget",         // jquery-style selector for the dom element that you want the graph to appear in
-        'dataprefix'    : 'http://climate-widget-data.nemac.org/data',
-        'font'          : 'Roboto',
-        'frequency'     :  selectedFrequency,    // time frequency of graph to display ("annual", "monthly", or "seasonal")
-        'timeperiod'    :  selectedTimePeriod,   // time period center for monthly/seasonal graphs ("2025", "2050", or "2075")
-        'fips'          :  selectedCounty,       // 5-character fips code for county (as a string)
-        'variable'      :  selectedVariable,     // name of variable to display; see climate-widget-graph.js for list of variables
-        'scenario'      :  selectedScenario,     // name of scenario to display; both, rcp45, or rcp85
-        'presentation'  :  selectedPresentation  // name of presentation; absolute or anomaly with respect to a baseline value
-      });
-
-    }
-    $('#frequency').change(function() {
-      var freq = $('#frequency').val();
-      if (freq === "annual") {
-          $('#pagetitle').text("Annual timeseries");
-      }
-      if (freq === "monthly") {
-          $('#pagetitle').text("Monthly timeseries");
-      }
-      if (freq === "seasonal") {
-          $('#pagetitle').text("Seasonal timeseries");
-      }
-      populate_variables($('#frequency').val());
-      cwgupdate({
-        frequency: freq,
-        variable: $('#variable').val()
-      });
-  });
-  $('#timeperiod').change(function() {
-     cwgupdate({
-       timeperiod: $('#timeperiod').val()
-     });
-  });
-  $('#county').change(function() {
-     cwgupdate({
-       fips: $('#county').val()
-     });
-  });
-  $('#variable').change(function() {
-     cwgupdate({
-       variable: $('#variable').val()
-     });
-  });
-  $('#scenario').change(function() {
-     cwgupdate({
-       scenario: $('#scenario').val()
-     });
-  });
-  $('#presentation').change(function() {
-     cwgupdate({
-       presentation: $('#presentation').val()
-     });
-  });
-
-    function populate_variables(frequency) {
-      var variables = climate_widget_variables(frequency);
-      $("select#variable").empty();
-      $(variables.map(function(v) {
-            return ('<option value="' + v.id + '"'
-                    + (v.selected ? ' selected="selected"' : '')
-                    + '>'  + v.title + '</option>');
-        }).join("")).appendTo($("select#variable"));
-    }
-
-  $(document).ready(function() {
-      populate_variables($('#frequency').val());
-
-      WebFont.load({
-        google: {
-          families: ['Pacifico', 'Roboto']
-        },
-        active: function() {
-          configureAndLaunchGraph();
-        }
-      });
-
-    $('#download-button').click(function() {
-      if (cwg) {
-        var $ul = $('#download-panel').find('ul')
-        $ul.empty();
-        var dataurls = cwg.dataurls();
-        if (dataurls.hist_obs) {
-          $ul.append($("<li><a href='"+dataurls.hist_obs+"'>Observed Data</a></li>"));
-        }
-        if (dataurls.hist_mod) {
-          $ul.append($("<li><a href='"+dataurls.hist_mod+"'>Historical Modeled Data</a></li>"));
-        }
-        if (dataurls.proj_mod) {
-          $ul.append($("<li><a href='"+dataurls.proj_mod+"'>Projected Modeled Data</a></li>"));
-        }
-        $('#download-panel').removeClass("hidden");
-      }
-    });
-    $('#download-dismiss-button').click(function() {
-      $('#download-panel').addClass("hidden");
-    });
-
-
-  });
-
-  </script>
 </body>
 </html>
