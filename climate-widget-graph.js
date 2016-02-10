@@ -12,6 +12,8 @@ function mm_to_inches(mm) {
 
 function identity(x) { return x; }
 
+var defaultUnitSystem = "english";
+
 var variables = [
 
      {
@@ -243,9 +245,12 @@ function variable_config(id) {
     return undefined;
 }
 
-function climate_widget_variables(frequency) {
+function climate_widget_variables(frequency, unitsystem) {
+    unitsystem = unitsystem || defaultUnitSystem;
     return variables.filter(function(v) {
         return frequency in v.ytitles;
+    }).map(function(v) {
+        return { id: v.id , title: v.title[unitsystem] };
     });
 }
 
@@ -849,6 +854,17 @@ var mugl = {
 //        'scenario'     : selectedScenario,     // name of scenario to display: "both", "rcp45", or "rcp85"
 //        'presentation' : selectedPresentation  // name of presentation; "absolute" or "anomaly" (only relevant for annual frequency)
 
+// dataprefix
+// fips
+//
+// unitsystem
+// frequency
+// variable
+// presentation
+// scenario
+// timeperiod
+
+
 function changed(prop, obj, delta) {
     // return true iff delta contains a property named prop, and its value
     // is different from obj[prop] (if delta contains prop, and obj does
@@ -860,7 +876,18 @@ var climate_widget_graph = function(orig_options) {
     var convertArray = window.multigraph.core.ArrayData.stringArrayToDataValuesArray;
     var obj = {
         orig_options: $.extend({}, orig_options),
-        options: {},
+        options: {
+            // default values:
+            unitsystem: defaultUnitSystem,
+            variable: "tasmax",
+            frequency: "annual",
+            scenario: "both",
+            timeperiod: "2025",
+            presentation: "absolute"
+            //font: no default for this one; defaults to canvas's default font
+            //dataprefix:  no default for this one; it's required
+            //fips:  no default for this one; it's required
+        },
         $div: $(orig_options.div)
     };
     if (!obj.orig_options.dataprefix) {
