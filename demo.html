@@ -185,8 +185,10 @@
       if (freq === "seasonal") {
           $('#pagetitle').text("Seasonal timeseries");
       }
+      populate_variables($('#frequency').val());
       cwgupdate({
-        frequency: freq
+        frequency: freq,
+        variable: $('#variable').val()
       });
   });
   $('#timeperiod').change(function() {
@@ -215,12 +217,18 @@
      });
   });
 
-  $(document).ready(function() {
+    function populate_variables(frequency) {
+      var variables = climate_widget_variables(frequency);
+      $("select#variable").empty();
       $(variables.map(function(v) {
-          return ('<option value="' + v.id + '"'
-                  + (v.selected ? ' selected="selected"' : '')
-                  + '>'  + v.title + '</option>');
-      }).join("")).appendTo($("select#variable"));
+            return ('<option value="' + v.id + '"'
+                    + (v.selected ? ' selected="selected"' : '')
+                    + '>'  + v.title + '</option>');
+        }).join("")).appendTo($("select#variable"));
+    }
+
+  $(document).ready(function() {
+      populate_variables($('#frequency').val());
 
       WebFont.load({
         google: {

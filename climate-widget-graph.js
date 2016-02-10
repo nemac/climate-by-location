@@ -1,133 +1,117 @@
  var variables = [
 
-    { selected: true,
-      id:       "tasmax",
-      title:    "Mean Daily Maximum Temperature",
-      absolute: { min:  15,  max:   27 },
-      anomaly:  { min:  -8,  max:    8 } },
+     {
+         id:       "tasmax",
+         title:    "Mean Daily Maximum Temperature",
+         scales: {
+             annual: {
+                 absolute: { min:  15,  max:   27 },
+                 anomaly:  { min:  -8,  max:    8 }
+             },
+             monthly:  { min:  0,  max:   35 },
+             seasonal: { min:  0,  max:   35 }
+         }
+     },
+     
+     {
+         id:       "tasmin",
+         title:    "Mean Daily Minimum Temperature",
+         scales: {
+             annual: {
+                 absolute: { min:  -20,  max:   20 },
+                 anomaly:  { min:  -8,   max:    8 }
+             },
+             monthly:  { min:  -20,  max:   20 },
+             seasonal: { min:  -20,  max:   20 }
+         }
+     },
 
-    { id:       "tasmin",
-      title:    "Mean Daily Minimum Temperature",
-      absolute: { min:  -20,  max:   20 },
-      anomaly:  { min:  -8,   max:    8 } },
 
-    { id:       "pr",
-      title:    "Mean Daily Average Precipitation",
-      absolute: { min:  1, max:   7 },
-      anomaly:  { min:  0, max:   200 } },
-/*
-    { id:       "days_tmax_abv_32.2",
-      title:    "Days with Maximum Temperature Above 32.2",
-      absolute: { min:  0,   max:  100 },
-      anomaly:  { min:  -8,  max:    8 } },
-*/
-    { id:       "days_tmax_abv_35.0",
-      title:    "Days with Maximum Temperature Above 95° F",
-      absolute: { min:  0,  max:  100 },
-      anomaly:  { min:  0,  max:  100 } },
-/*
-    { id:       "days_tmax_abv_37.7",
-      title:    "Days with Maximum Temperature Above 37.7",
-      absolute: { min:  0,   max:  100 },
-      anomaly:  { min:  -8,  max:    8 } },
-*/
-    { id:       "days_tmin_blw_0.0",
-      title:    "Days with Minimum Temperature Below 32° F",
-      absolute: { min:  0,   max:  140 },
-      anomaly:  { min:  -95, max:   30 } },
-/*
-    { id:       "days_tmin_blw_-12.2",
-      title:    "Days with Minimum Temperature Below -12.1",
-      absolute: { min:  0,   max:  100 },
-      anomaly:  { min:  -8,  max:    8 } },
+     {
+         id:       "pr",
+         title:    "Mean Daily Average Precipitation",
+         scales: {
+             annual: {
+                 absolute: { min:  1, max:   7 },
+                 anomaly:  { min:  0, max:   200 }
+             },
+             monthly:  { min:  1, max:   7 },
+             seasonal: { min:  1, max:   7 }
+         }
+     },
 
-    { id:       "days_tmin_blw_-17.7",
-      title:    "Days with Minimum Temperature Below -17.7",
-      absolute: { min:  0,   max:  100 },
-      anomaly:  { min:  -8,  max:    8 } },
-*/
-    { id:       "growing_season_lngth_0.0",
-      title:    "Growing Season Length",
-      absolute: { min: 240,  max:  380 },
-      anomaly:  { min:  -60,  max:  80 } },
 
-    { id:       "heating_degree_day_18.3",
-      title:    "Heating Degree Days",
-      absolute: { min:  1000,   max:  3500 },
-      anomaly:  { min:  -1700,  max:    800 } },
+     {
+         id:       "days_tmax_abv_35.0",
+         title:    "Days with Maximum Temperature Above 95° F",
+         scales: {
+             annual: {
+                 absolute: { min:  0,  max:  100 },
+                 anomaly:  { min:  0,  max:  100 }
+             }
+         }
+     },
 
-    { id:       "cooling_degree_day_18.3",
-      title:    "Cooling Degree Days",
-      absolute: { min:  100,   max:  1600 },
-      anomaly:  { min:  -160,  max:  1300 } },
-/*
-    { id:       "days_prcp_abv_101.5",
-      title:    "Days with Precipitation Above 101.5",
-      absolute: { min:  0,   max:  100 },
-      anomaly:  { min:  -8,  max:    8 } },
-*/
-    { id:       "days_prcp_abv_25.3",
-      title:    "Days of Precipitation Above 1in",
-      absolute: { min:  0,   max:  25 },
-      anomaly:  { min:  -10,  max: 15 } },
-/*
-    { id:       "days_prcp_abv_50.7",
-      title:    "Days with Precipitation Above 50.7",
-      absolute: { min:  0,   max:  100 },
-      anomaly:  { min:  -8,  max:    8 } },
+     {
+         id:       "days_tmin_blw_0.0",
+         title:    "Days with Minimum Temperature Below 32° F",
+         scales: {
+             annual: {
+                 absolute: { min:  0,   max:  140 },
+                 anomaly:  { min:  -95, max:   30 }
+             }
+         }
+     },
 
-    { id:       "days_prcp_abv_76.1",
-      title:    "Days with Precipitation Above 76.1",
-      absolute: { min:  0,   max:  100 },
-      anomaly:  { min:  -8,  max:    8 } },
+     {
+         id:       "heating_degree_day_18.3",
+         title:    "Heating Degree Days",
+         scales: {
+             annual: {
+                 absolute: { min:  1000,   max:  3500 },
+                 anomaly:  { min:  -1700,  max:    800 }
+             }
+         }
+     },
 
-    { id:       "growing_degree_day_15.5",
-      title:    "Growing Degree Days",
-      absolute: { min:  0,   max:  100 },
-      anomaly:  { min:  -8,  max:    8 } },
-*/
-    { id:       "longest_run_prcp_blw_76.1",
-      title:    "Consecutive Days of Precipitation Below 3mm",
-      absolute: { min:  0,   max:  100 },
-      anomaly:  { min:  -8,  max:    8 } },
-/*
-    { id:       "longest_run_tmax_abv_32.2",
-      title:    "Longest Run with Maximum Temperature Above 32.2",
-      absolute: { min:  0,   max:  100 },
-      anomaly:  { min:  -8,  max:    8 } },
+     {
+         id:       "cooling_degree_day_18.3",
+         title:    "Cooling Degree Days",
+         scales: {
+             annual: {
+                 absolute: { min:  100,   max:  1600 },
+                 anomaly:  { min:  -160,  max:  1300 }
+             }
+         }
+     },
 
-    { id:       "longest_run_tmax_abv_35.0",
-      title:    "Longest Run with Maximum Temperature Above 35.0",
-      absolute: { min:  0,   max:  100 },
-      anomaly:  { min:  -8,  max:    8 } },
-
-    { id:       "longest_run_tmax_abv_37.7",
-      title:    "Longest Run with Maximum Temperature Above 37.7",
-      absolute: { min:  0,   max:  100 },
-      anomaly:  { min:  -8,  max:    8 } }
-*/
+     {
+         id:       "days_prcp_abv_25.3",
+         title:    "Days of Precipitation Above 1in",
+         scales: {
+             annual: {
+                 absolute: { min:  0,   max:  25 },
+                 anomaly:  { min:  -10,  max: 15 }
+             }
+         }
+     }
 ];
 
-var ms_variables = [
-    { selected: true,
-      id:       "tasmax",
-      title:    "Mean Daily Maximum Temperature",
-      absolute: { min:  0,  max:   35 },
-      anomaly:  { min:  0,  max:   35 } },
+function variable_config(id) {
+    var i;
+    for (i=0; i<variables.length; ++i) {
+        if (variables[i].id === id) {
+            return variables[i];
+        }
+    }
+    return undefined;
+}
 
-    { id:       "tasmin",
-      title:    "Mean Daily Minimum Temperature",
-      absolute: { min:  -20,  max:   20 },
-      anomaly:  { min:  0,  max:   35 } },
-
-    { id:       "pr",
-      title:    "Mean Daily Average Precipitation",
-      absolute: { min:  1, max:   7 },
-      anomaly:  { min:  0, max:   200 } }
-];
-
-var yrange = variables.reduce(function(m,v) { m[v.id] = v; return m; }, {});
-var ms_yrange = ms_variables.reduce(function(m,v) { m[v.id] = v; return m; }, {});
+function climate_widget_variables(frequency) {
+    return variables.filter(function(v) {
+        return frequency in v.scales;
+    });
+}
 
 var _i = 0;
 var starti = function(v) { _i = v||0; return _i; };
@@ -726,11 +710,11 @@ var climate_widget_graph = function(orig_options) {
         if (obj.options.variable != old_options.variable ||
             obj.options.presentation != old_options.presentation) {
             if (obj.options.frequency === "annual") {
-                obj.axes.y.setDataRange(yrange[obj.options.variable][obj.options.presentation].min,
-                                        yrange[obj.options.variable][obj.options.presentation].max);
+                obj.axes.y.setDataRange(variable_config(obj.options.variable).scales.annual[obj.options.presentation].min,
+                                        variable_config(obj.options.variable).scales.annual[obj.options.presentation].max);
             } else {
-                obj.axes.y.setDataRange(ms_yrange[obj.options.variable][obj.options.presentation].min,
-                                        ms_yrange[obj.options.variable][obj.options.presentation].max);
+                obj.axes.y.setDataRange(variable_config(obj.options.variable).scales[obj.options.frequency].min,
+                                        variable_config(obj.options.variable).scales[obj.options.frequency].max);
             }
         }
 
