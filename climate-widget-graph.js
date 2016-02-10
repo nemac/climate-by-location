@@ -511,6 +511,8 @@ var colors = {
   }
 };
 
+var scaleFactor = 1; //1.10
+
 function band_plot(x_axis, x, y_axis, y0, y1, fill_color, fill_opacity) {
     var obj = {
         visible: false,
@@ -971,7 +973,7 @@ var climate_widget_graph = function(orig_options) {
                         }
                     }
 
-                    var range = scale_range(datas_range([hist_obs_data, hist_mod_data, proj_mod_data]), 1.10);
+                    var range = scale_range(datas_range([hist_obs_data, hist_mod_data, proj_mod_data]), scaleFactor);
                     obj.axes.y.setDataRange(range.min, range.max);
                     obj.axes.y.title().content().string(
                         variable_config(obj.options.variable).ytitles.annual[obj.options.presentation][obj.options.unitsystem]
@@ -1037,7 +1039,7 @@ var climate_widget_graph = function(orig_options) {
                     var convfunc = variable_config(obj.options.variable).dataconverters[obj.options.unitsystem];
                     hist_obs_data = transform_data(hist_obs_data, convfunc);
                     proj_mod_data = transform_data(proj_mod_data, convfunc);
-                    var range = scale_range(datas_range([hist_obs_data, proj_mod_data]), 1.10);
+                    var range = scale_range(datas_range([hist_obs_data, proj_mod_data]), scaleFactor);
                     obj.axes.y.setDataRange(range.min, range.max);
                     obj.axes.y.title().content().string(variable_config(obj.options.variable).ytitles.monthly[obj.options.unitsystem]);
                     obj.data.monthly_hist_obs.array(convertArray(attr_list_array(obj.data.monthly_hist_obs.columns()), hist_obs_data));
@@ -1075,7 +1077,7 @@ var climate_widget_graph = function(orig_options) {
                     var convfunc = variable_config(obj.options.variable).dataconverters[obj.options.unitsystem];
                     hist_obs_data = transform_data(hist_obs_data, convfunc);
                     proj_mod_data = transform_data(proj_mod_data, convfunc);
-                    var range = scale_range(datas_range([hist_obs_data, proj_mod_data]), 1.10);
+                    var range = scale_range(datas_range([hist_obs_data, proj_mod_data]), scaleFactor);
                     obj.axes.y.setDataRange(range.min, range.max);
                     obj.axes.y.title().content().string(variable_config(obj.options.variable).ytitles.seasonal[obj.options.unitsystem]);
                     obj.data.seasonal_hist_obs.array(convertArray(attr_list_array(obj.data.seasonal_hist_obs.columns()), hist_obs_data));
