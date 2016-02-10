@@ -31,7 +31,6 @@
       position: relative;
       top: 70px;
       width: 700px;
-      height: 300px;
       border: 2px solid black;
       background-color: rgba(255,255,255,1.0);
       padding: 30px;
@@ -238,13 +237,13 @@
         $ul.empty();
         var dataurls = cwg.dataurls();
         if (dataurls.hist_obs) {
-          $ul.append($("<li>Historical Observed: <a href='"+dataurls.hist_obs+"'>"+dataurls.hist_obs+"</a></li>"));
+          $ul.append($("<li><a href='"+dataurls.hist_obs+"'>Observed Data</a></li>"));
         }
         if (dataurls.hist_mod) {
-          $ul.append($("<li>Historical Model: <a href='"+dataurls.hist_mod+"'>"+dataurls.hist_mod+"</a></li>"));
+          $ul.append($("<li><a href='"+dataurls.hist_mod+"'>Historical Modeled Data</a></li>"));
         }
         if (dataurls.proj_mod) {
-          $ul.append($("<li>Projected Model: <a href='"+dataurls.proj_mod+"'>"+dataurls.proj_mod+"</a></li>"));
+          $ul.append($("<li><a href='"+dataurls.proj_mod+"'>Projected Modeled Data</a></li>"));
         }
         $('#download-panel').removeClass("hidden");
       }
