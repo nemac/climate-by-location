@@ -85,10 +85,9 @@ all of the following properties:
 The `climate_widget.graph()` function returns an object which
 represents the graph just created.  This object has a single property
 named `update` which is a function that can be used to modify the
-graph.  The `update()` function takes an OPTIONS object with exactly
-the same properities described above for `climate_widget.graph()`, and
-has the effect of updating the graph according to the new values.
-
+graph.  The `update()` function takes an OPTIONS object with
+the same properities described above for `climate_widget.graph()`, except
+that the `div` setting cannot be changed once a graph has been created.
 
 ### `climate_widget.variables(FREQUENCY)`
 
