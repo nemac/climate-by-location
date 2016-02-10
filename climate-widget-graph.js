@@ -1,97 +1,233 @@
- var variables = [
+function celsius_to_fahrenheit(c) {
+    return c * 9/5 + 32.0;
+}
+
+function cdd_to_fdd(cdd) {
+    return cdd * 9/5;
+}
+
+function mm_to_inches(mm) {
+    return mm / 25.4;
+}
+
+function identity(x) { return x; }
+
+var variables = [
 
      {
          id:       "tasmax",
-         title:    "Mean Daily Maximum Temperature",
-         scales: {
+         title: {
+             english: "Mean Daily Maximum Temperature",
+             metric: "Mean Daily Maximum Temperature"
+         },
+         dataconverters: {
+             metric: identity,
+             english: celsius_to_fahrenheit
+         },
+         ytitles: {
              annual: {
-                 absolute: { min:  15,  max:   27 },
-                 anomaly:  { min:  -8,  max:    8 }
+                 absolute: {
+                     english: "y-tasmax-annual-absolute-english",
+                     metric:  "y-tasmax-annual-absolute-metric"
+                 },
+                 anomaly:  {
+                     english: "y-tasmax-annual-anomaly-english",
+                     metric:  "y-tasmax-annual-anomaly-metric"
+                 }
              },
-             monthly:  { min:  0,  max:   35 },
-             seasonal: { min:  0,  max:   35 }
+             monthly:  {
+                 english: "y-tasmax-monthly-english",
+                 metric:  "y-tasmax-monthly-metric"
+             },
+             seasonal: {
+                 english: "y-tasmax-seasonal-english",
+                 metric:  "y-tasmax-seasonal-metric"
+             }
          }
      },
      
      {
          id:       "tasmin",
-         title:    "Mean Daily Minimum Temperature",
-         scales: {
+         title: {
+             english: "Mean Daily Minimum Temperature",
+             metric: "Mean Daily Minimum Temperature"
+         },
+         dataconverters: {
+             metric: identity,
+             english: celsius_to_fahrenheit
+         },
+         ytitles: {
              annual: {
-                 absolute: { min:  -20,  max:   20 },
-                 anomaly:  { min:  -8,   max:    8 }
+                 absolute: {
+                     english: "y-tasmin-annual-absolute-english",
+                     metric:  "y-tasmin-annual-absolute-metric"
+                 },
+                 anomaly:  {
+                     english: "y-tasmin-annual-anomaly-english",
+                     metric:  "y-tasmin-annual-anomaly-metric"
+                 }
              },
-             monthly:  { min:  -20,  max:   20 },
-             seasonal: { min:  -20,  max:   20 }
+             monthly:  {
+                 english: "y-tasmin-monthly-english",
+                 metric:  "y-tasmin-monthly-metric"
+             },
+             seasonal: {
+                 english: "y-tasmin-seasonal-english",
+                 metric:  "y-tasmin-seasonal-metric"
+             }
          }
      },
 
 
      {
          id:       "pr",
-         title:    "Mean Daily Average Precipitation",
-         scales: {
+         title: {
+             english: "Mean Daily Average Precipitation",
+             metric: "Mean Daily Average Precipitation"
+         },
+         dataconverters: {
+             metric: identity,
+             english: mm_to_inches
+         },
+         ytitles: {
              annual: {
-                 absolute: { min:  1, max:   7 },
-                 anomaly:  { min:  0, max:   200 }
+                 absolute: {
+                     english: "y-pr-annual-absolute-english",
+                     metric:  "y-pr-annual-absolute-metric"
+                 },
+                 anomaly:  {
+                     english: "y-pr-annual-anomaly-english",
+                     metric:  "y-pr-annual-anomaly-metric"
+                 }
              },
-             monthly:  { min:  1, max:   7 },
-             seasonal: { min:  1, max:   7 }
+             monthly:  {
+                 english: "y-pr-monthly-english",
+                 metric:  "y-pr-monthly-metric"
+             },
+             seasonal: {
+                 english: "y-pr-seasonal-english",
+                 metric:  "y-pr-seasonal-metric"
+             }
          }
      },
 
 
      {
          id:       "days_tmax_abv_35.0",
-         title:    "Days with Maximum Temperature Above 95° F",
-         scales: {
+         title: {
+             english: "Days with Maximum Temperature Above 95° F",
+             metric: "Days with Maximum Temperature Above 35° C"
+         },
+         dataconverters: {
+             metric: identity,
+             english: identity
+         },
+         ytitles: {
              annual: {
-                 absolute: { min:  0,  max:  100 },
-                 anomaly:  { min:  0,  max:  100 }
+                 absolute: {
+                     english: "y-days_tmax_abv_35.0-absolute-english",
+                     metric:  "y-days_tmax_abv_35.0-absolute-metric"
+                 },
+                 anomaly:  {
+                     english: "y-days_tmax_abv_35.0-anomaly-english",
+                     metric:  "y-days_tmax_abv_35.0-anomaly-metric"
+                 }
              }
          }
      },
 
      {
          id:       "days_tmin_blw_0.0",
-         title:    "Days with Minimum Temperature Below 32° F",
-         scales: {
+         title: {
+             english: "Days with Minimum Temperature Below 32° F",
+             metric: "Days with Minimum Temperature Below 0° C"
+         },
+         dataconverters: {
+             metric: identity,
+             english: identity
+         },
+         ytitles: {
              annual: {
-                 absolute: { min:  0,   max:  140 },
-                 anomaly:  { min:  -95, max:   30 }
+                 absolute: {
+                     english: "y-days_tmin_blw_0.0-absolute-english",
+                     metric:  "y-days_tmin_blw_0.0-absolute-metric"
+                 },
+                 anomaly:  {
+                     english: "y-days_tmin_blw_0.0-anomaly-english",
+                     metric:  "y-days_tmin_blw_0.0-anomaly-metric"
+                 }
              }
          }
      },
 
      {
          id:       "heating_degree_day_18.3",
-         title:    "Heating Degree Days",
-         scales: {
+         title: {
+             english: "Heating Degree Days",
+             metric: "Heating Degree Days"
+         },
+         dataconverters: {
+             metric: identity,
+             english: cdd_to_fdd
+         },
+         ytitles: {
              annual: {
-                 absolute: { min:  1000,   max:  3500 },
-                 anomaly:  { min:  -1700,  max:    800 }
+                 absolute: {
+                     english: "y-heating_degree_day_18.3-absolute-english",
+                     metric:  "y-heating_degree_day_18.3-absolute-metric"
+                 },
+                 anomaly:  {
+                     english: "y-heating_degree_day_18.3-anomaly-english",
+                     metric:  "y-heating_degree_day_18.3-anomaly-metric"
+                 }
              }
          }
      },
 
      {
          id:       "cooling_degree_day_18.3",
-         title:    "Cooling Degree Days",
-         scales: {
+         title: {
+             english: "Cooling Degree Days",
+             metric: "Cooling Degree Days"
+         },
+         dataconverters: {
+             metric: identity,
+             english: cdd_to_fdd
+         },
+         ytitles: {
              annual: {
-                 absolute: { min:  100,   max:  1600 },
-                 anomaly:  { min:  -160,  max:  1300 }
+                 absolute: {
+                     english: "y-cooling_degree_day_18.3-absolute-english",
+                     metric:  "y-cooling_degree_day_18.3-absolute-metric"
+                 },
+                 anomaly:  {
+                     english: "y-cooling_degree_day_18.3-anomaly-english",
+                     metric:  "y-cooling_degree_day_18.3-anomaly-metric"
+                 }
              }
          }
      },
 
      {
          id:       "days_prcp_abv_25.3",
-         title:    "Days of Precipitation Above 1in",
-         scales: {
+         title: {
+             english: "Days of Precipitation Above 1in",
+             metric: "Days of Precipitation Above 25.3mm"
+         },
+         dataconverters: {
+             metric: identity,
+             english: identity
+         },
+         ytitles: {
              annual: {
-                 absolute: { min:  0,   max:  25 },
-                 anomaly:  { min:  -10,  max: 15 }
+                 absolute: {
+                     english: "y-days_prcp_abv_25.3-absolute-english",
+                     metric:  "y-days_prcp_abv_25.3-absolute-metric"
+                 },
+                 anomaly:  {
+                     english: "y-days_prcp_abv_25.3-anomaly-english",
+                     metric:  "y-days_prcp_abv_25.3-anomaly-metric"
+                 }
              }
          }
      }
@@ -109,11 +245,29 @@ function variable_config(id) {
 
 function climate_widget_variables(frequency) {
     return variables.filter(function(v) {
-        return frequency in v.scales;
+        return frequency in v.ytitles;
     });
 }
 
+function transform_data(data, f) {
+    // Takes a 2D data array, and modifies it in-place by replacing each y value
+    // with the result of passing that y value to the function f.  The "y" values
+    // consist of all values on every row EXCEPT for the 1st column.
+    var i, j;
+    for (i=0; i<data.length; ++i) {
+        for (j=1; j<data[i].length; ++j) {
+            data[i][j] = f(data[i][j]);
+        }
+    }
+    return data;
+}
+
 function datas_range(datas) {
+    // Takes an array of data arrays, and returns a JS object giving the min and max
+    // values present in all the data.  Each element of the incoming datas array
+    // is a 2D array whose first column is an x value, and all the remaining columns
+    // are "y" columns.  This function returns the min and max of all the y column
+    // in all the data arrays.
     var min = datas[0][0][1];
     var max = datas[0][0][1];
     datas.forEach(function(data) {
@@ -128,6 +282,8 @@ function datas_range(datas) {
 }
 
 function scale_range(range, factor) {
+    // Take an object of the form returned by datas_range() above, and scale its
+    // min and max values by a factor, returning a new object of the same form.
     var r = (range.max - range.min)/2;
     var c = (range.max + range.min)/2;
     return {
@@ -442,7 +598,7 @@ var mugl = {
         margin:  0
     },
     plotarea: {
-       marginleft: 45
+       marginleft: 55
     },
     horizontalaxis: [{
         id: "x_annual",
@@ -482,11 +638,13 @@ var mugl = {
         id: "y",
         min: 0,
         max: 2000,
-        title: { text: "Degrees Celsius", angle: 90, anchor: [0,-1], position: [-30,0] },
+        title: { text: " ", angle: 90, anchor: [0,-1], position: [-40,0] },
         visible: true,
         labels: {
             label: [
-                { format: "%1d", spacing: [10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1] }
+                { format: "%1d",  spacing: [10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1] },
+                { format: "%.1f", spacing: [0.5, 0.2, 0.1] },
+                { format: "%.2f", spacing: [0.05, 0.02, 0.01] }
             ]
         }
     },
@@ -729,20 +887,6 @@ var climate_widget_graph = function(orig_options) {
             }
         }
 
-/*
-        // if variable or presentation changed, set y axis data range
-        if (obj.options.variable != old_options.variable ||
-            obj.options.presentation != old_options.presentation) {
-            if (obj.options.frequency === "annual") {
-                obj.axes.y.setDataRange(variable_config(obj.options.variable).scales.annual[obj.options.presentation].min,
-                                        variable_config(obj.options.variable).scales.annual[obj.options.presentation].max);
-            } else {
-                obj.axes.y.setDataRange(variable_config(obj.options.variable).scales[obj.options.frequency].min,
-                                        variable_config(obj.options.variable).scales[obj.options.frequency].max);
-            }
-        }
-*/
-
         // if scenario changed, set which plots are visible
         if (obj.options.scenario != old_options.scenario) {
             if (obj.options.frequency === "annual") {
@@ -809,6 +953,11 @@ var climate_widget_graph = function(orig_options) {
                     var hist_mod_data = string_to_data( hist_mod[0] );
                     var proj_mod_data = string_to_data( proj_mod[0] );
 
+                    var convfunc = variable_config(obj.options.variable).dataconverters[obj.options.unitsystem];
+                    hist_obs_data = transform_data(hist_obs_data, convfunc);
+                    hist_mod_data = transform_data(hist_mod_data, convfunc);
+                    proj_mod_data = transform_data(proj_mod_data, convfunc);
+
                     var avg = average(hist_obs_data, 1960, 1989);
                     if (obj.options.presentation === "anomaly") {
                         if (obj.options.variable === "pr") {
@@ -824,6 +973,9 @@ var climate_widget_graph = function(orig_options) {
 
                     var range = scale_range(datas_range([hist_obs_data, hist_mod_data, proj_mod_data]), 1.10);
                     obj.axes.y.setDataRange(range.min, range.max);
+                    obj.axes.y.title().content().string(
+                        variable_config(obj.options.variable).ytitles.annual[obj.options.presentation][obj.options.unitsystem]
+                    );
 
                     obj.data.annual_hist_obs.array(convertArray(attr_list_array(obj.data.annual_hist_obs.columns()), hist_obs_data));
                     obj.data.annual_hist_mod.array(convertArray(attr_list_array(obj.data.annual_hist_mod.columns()), hist_mod_data));
@@ -882,8 +1034,12 @@ var climate_widget_graph = function(orig_options) {
                 ]).done(function(hist_obs,proj_mod) {
                     var hist_obs_data = string_to_data( hist_obs[0] );
                     var proj_mod_data = string_to_data( proj_mod[0] );
+                    var convfunc = variable_config(obj.options.variable).dataconverters[obj.options.unitsystem];
+                    hist_obs_data = transform_data(hist_obs_data, convfunc);
+                    proj_mod_data = transform_data(proj_mod_data, convfunc);
                     var range = scale_range(datas_range([hist_obs_data, proj_mod_data]), 1.10);
                     obj.axes.y.setDataRange(range.min, range.max);
+                    obj.axes.y.title().content().string(variable_config(obj.options.variable).ytitles.monthly[obj.options.unitsystem]);
                     obj.data.monthly_hist_obs.array(convertArray(attr_list_array(obj.data.monthly_hist_obs.columns()), hist_obs_data));
                     obj.data.monthly_proj_mod.array(convertArray(attr_list_array(obj.data.monthly_proj_mod.columns()), proj_mod_data));
                     obj.plots.monthly.hist_obs.med.visible(true);
@@ -916,8 +1072,12 @@ var climate_widget_graph = function(orig_options) {
                     // The incoming data has month values 1,4,7,10.  Here we replace these with the values 0,1,2,3:
                     hist_obs_data.forEach(function(v) { v[0] = Math.floor(v[0]/3); });
                     proj_mod_data.forEach(function(v) { v[0] = Math.floor(v[0]/3); });
+                    var convfunc = variable_config(obj.options.variable).dataconverters[obj.options.unitsystem];
+                    hist_obs_data = transform_data(hist_obs_data, convfunc);
+                    proj_mod_data = transform_data(proj_mod_data, convfunc);
                     var range = scale_range(datas_range([hist_obs_data, proj_mod_data]), 1.10);
                     obj.axes.y.setDataRange(range.min, range.max);
+                    obj.axes.y.title().content().string(variable_config(obj.options.variable).ytitles.seasonal[obj.options.unitsystem]);
                     obj.data.seasonal_hist_obs.array(convertArray(attr_list_array(obj.data.seasonal_hist_obs.columns()), hist_obs_data));
                     obj.data.seasonal_proj_mod.array(convertArray(attr_list_array(obj.data.seasonal_proj_mod.columns()), proj_mod_data));
                     obj.plots.seasonal.hist_obs.med.visible(true);
@@ -937,6 +1097,8 @@ var climate_widget_graph = function(orig_options) {
     };
     obj.$graphdiv.multigraph('done', function(m) {
         obj.m = m;
+//xyzzy
+//window.mg = m;
         obj.axes = {
             x_annual   : m.graphs().at(0).axes().at(starti()),
             x_monthly  : m.graphs().at(0).axes().at(nexti()),
