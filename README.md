@@ -10,11 +10,10 @@ been loaded in your page before including any of the `<script>` tags below.
 
 ## Installation
 
-To use this library, include the following two script tags in your HTML file (after
+To use this library, include the following two script tag in your HTML file (after
 loading jQuery):
 
 ```html
-<script src="multigraph-nojq-min.js"></script>
 <script src="climate-widget-graph.js"></script>
 ```
 
