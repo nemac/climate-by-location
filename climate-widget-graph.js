@@ -113,6 +113,29 @@ function climate_widget_variables(frequency) {
     });
 }
 
+function datas_range(datas) {
+    var min = datas[0][0][1];
+    var max = datas[0][0][1];
+    datas.forEach(function(data) {
+        data.forEach(function(row) {
+            row.slice(1).forEach(function(value) {
+                if (value < min) { min = value; }
+                if (value > max) { max = value; }
+            });
+        });
+    });
+    return { min: min, max: max };
+}
+
+function scale_range(range, factor) {
+    var r = (range.max - range.min)/2;
+    var c = (range.max + range.min)/2;
+    return {
+        min: c - r*factor,
+        max: c + r*factor
+    };
+}
+
 var _i = 0;
 var starti = function(v) { _i = v||0; return _i; };
 var nexti = function() { return ++_i; };
@@ -706,6 +729,7 @@ var climate_widget_graph = function(orig_options) {
             }
         }
 
+/*
         // if variable or presentation changed, set y axis data range
         if (obj.options.variable != old_options.variable ||
             obj.options.presentation != old_options.presentation) {
@@ -717,6 +741,7 @@ var climate_widget_graph = function(orig_options) {
                                         variable_config(obj.options.variable).scales[obj.options.frequency].max);
             }
         }
+*/
 
         // if scenario changed, set which plots are visible
         if (obj.options.scenario != old_options.scenario) {
@@ -797,6 +822,9 @@ var climate_widget_graph = function(orig_options) {
                         }
                     }
 
+                    var range = scale_range(datas_range([hist_obs_data, hist_mod_data, proj_mod_data]), 1.10);
+                    obj.axes.y.setDataRange(range.min, range.max);
+
                     obj.data.annual_hist_obs.array(convertArray(attr_list_array(obj.data.annual_hist_obs.columns()), hist_obs_data));
                     obj.data.annual_hist_mod.array(convertArray(attr_list_array(obj.data.annual_hist_mod.columns()), hist_mod_data));
                     obj.data.annual_proj_mod.array(convertArray(attr_list_array(obj.data.annual_proj_mod.columns()), proj_mod_data));
@@ -854,6 +882,8 @@ var climate_widget_graph = function(orig_options) {
                 ]).done(function(hist_obs,proj_mod) {
                     var hist_obs_data = string_to_data( hist_obs[0] );
                     var proj_mod_data = string_to_data( proj_mod[0] );
+                    var range = scale_range(datas_range([hist_obs_data, proj_mod_data]), 1.10);
+                    obj.axes.y.setDataRange(range.min, range.max);
                     obj.data.monthly_hist_obs.array(convertArray(attr_list_array(obj.data.monthly_hist_obs.columns()), hist_obs_data));
                     obj.data.monthly_proj_mod.array(convertArray(attr_list_array(obj.data.monthly_proj_mod.columns()), proj_mod_data));
                     obj.plots.monthly.hist_obs.med.visible(true);
@@ -886,6 +916,8 @@ var climate_widget_graph = function(orig_options) {
                     // The incoming data has month values 1,4,7,10.  Here we replace these with the values 0,1,2,3:
                     hist_obs_data.forEach(function(v) { v[0] = Math.floor(v[0]/3); });
                     proj_mod_data.forEach(function(v) { v[0] = Math.floor(v[0]/3); });
+                    var range = scale_range(datas_range([hist_obs_data, proj_mod_data]), 1.10);
+                    obj.axes.y.setDataRange(range.min, range.max);
                     obj.data.seasonal_hist_obs.array(convertArray(attr_list_array(obj.data.seasonal_hist_obs.columns()), hist_obs_data));
                     obj.data.seasonal_proj_mod.array(convertArray(attr_list_array(obj.data.seasonal_proj_mod.columns()), proj_mod_data));
                     obj.plots.seasonal.hist_obs.med.visible(true);
