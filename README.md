@@ -10,64 +10,118 @@ been loaded in your page before including any of the `<script>` tags below.
 
 ## Installation
 
-To use this library, include the following two script tag in your HTML file (after
+To use this library, include the following script tag in your HTML file (after
 loading jQuery):
 
 ```html
 <script src="climate-widget-graph.js"></script>
 ```
 
-Both of these `.js` files are included in the project, and they are the only two
-files from the project that are needed 
+The file `climate-widget-graph.js` is included in this project, in the top-level
+directory, and is the only file that is needed for deployment; all other files
+in this directory are only used in development, or for examples or documentation.
 
-// This file defines the single global name "climate_widget" which has the following
-// functions:
-// 
-//   climate_widget.graph(OPTIONS)
-//     Creates a graph according to OPTIONS, which should be an object with some or
-//     all of the following properties:
-//       {
-//         div           : a string which is a CSS-style selector identifying a div
-//                         where the graph should be drawn; this div must already
-//                         be layed out and sized by the browser --- the graph will
-//                         exactly fill the div. Required.
-//         dataprefix    : A URL from which the data can be downloaded.  Required.
-//         fips          : a 5-character fips code of a US county, as a string.  Required.
-//         variable      : the id of the variable to display; see climate_widget.variables()
-//                         below for a way to get a list of variable ids.  Optional; defaults
-//                         to "tasmax".
-//         frequency     : One of the strings "annual", "monthly", or "seasonal", indicating which
-//                         type of data to display.  Optional; defaults to "annual".
-//         scenario      : One of the strings "rcp45", "rcp85", or "both", indicating which
-//                         scenario(s) to display for projection data.  Optional; defaults to "both".
-//         presentation  : One of the strings "absolute" or "anomaly", indicating which
-//                         presentation should be used in setting the graph's y axis scale.   Only
-//                         relevant for annual data; ignored for monthly or seasonal. Optional;
-//                         defaults to "absolute".
-//         timeperiod    : One of the strings "2025", "2050", or "2075" (strings not numbers!),
-//                         indicating which 30-year period of projection data to show for
-//                         monthly or seasonal data.  Ignored for annual data.  Optional;
-//                         defaults to "2025".
-//         font          : A string giving the font-family to be used for all text in the graph.
-//                         Optional; defaults to the browser's default canvas font (depends on
-//                         the browser).
+## Usage
+
+The file `climate-widget-graph.js` defines the single global name "climate_widget"
+which has the following function properties:
+
+### `climate_widget.graph(OPTIONS)`
+
+This function creates a graph according to `OPTIONS`, which should be an object with some or
+all of the following properties:
+
+  * `div`
+    a string which is a CSS-style selector identifying a div
+    where the graph should be drawn; this div must already
+    be layed out and sized by the browser --- the graph will
+    exactly fill the div. Required.
+
+  * `dataprefix`
+    A URL from which the data can be downloaded.  Required.
+
+  * `fips`
+    A 5-character fips code of a US county, as a string.  Required.
+
+  * `variable` 
+    The id of the variable to display; see climate_widget.variables()
+    below for a way to get a list of variable ids.  Optional; defaults
+    to "tasmax".
+
+  * `frequency` 
+    One of the strings "annual", "monthly", or "seasonal", indicating which
+    type of data to display.  Optional; defaults to "annual".
+
+  * `scenario` 
+    One of the strings "rcp45", "rcp85", or "both", indicating which
+   scenario(s) to display for projection data.  Optional; defaults to "both".
+
+  * `presentation` 
+    One of the strings "absolute" or "anomaly", indicating which
+    presentation should be used in setting the graph's y axis scale.   Only
+    relevant for annual data; ignored for monthly or seasonal. Optional;
+    defaults to "absolute".
+
+  * `timeperiod` 
+    One of the strings "2025", "2050", or "2075" (strings not numbers!),
+    indicating which 30-year period of projection data to show for
+    monthly or seasonal data.  Ignored for annual data.  Optional;
+    defaults to "2025".
+
+  * `font` 
+    A string giving the font-family to be used for all text in the graph.
+    Optional; defaults to the browser's default canvas font (depends on
+    the browser).
+
+The `climate_widget.graph()` function returns an object which
+represents the graph just created.  This object has a single property
+named `update` which is a function that can be used to modify the
+graph.  The `update()` function takes an OPTIONS object with exactly
+the same properities described above for `climate_widget.graph()`, and
+has the effect of updating the graph according to the new values.
 
 
+### `climate_widget.variables(FREQUENCY)`
 
-This directory contains the file `climate-widget-graph.js` which
-defines the function `climate_widget_graph()` for displaying a climate
-widget graph in an arbitrary DOM element.
+The function `climate_widget.variables(FREQUENCY)` will return an
+array giving the ids and the titles of all the climate variables for
+the given frequency; FREQUENCY should be one of the strings "annual",
+"monthly", or "seasonal".
 
-The file demo.html is a sample web page (and associated embedded JavaScript code)
-that illustrates how to use the function.  You should be able to view that file
-in your browser to see the code in action.  Also see the comments in that file
-for more detailed instructions.
+## Examples
 
-Note that the data for the graphs is currently hosted at the location
-http://climate-widget.nemac.org; this is a temporary hosting
-arrangement for use during development only.  Ultimately, the data
-will be hosted on climate.gov along with the widget itself.  When
-deploying to climate.gov, we can reconfigure the graph code to access
-the data from the new location; for now, the default location of
-http://climate-widget.nemac.org is hard-wired into the code.
+The following will create a graph in the div with id "widget", showing
+annual average daily minimum temperature for Buncombe county NC, showing
+the rcp85 scenario for the projection data:
 
+```javascript
+var cwg = climate_widget.graph({
+    div        : "div#widget",
+    dataprefix : "http://climate-widget-data.nemac.org/data",
+    font       : "Roboto",
+    frequency  : "annual",
+    fips       : "37021",
+    variable   : "tasmin",
+    scenario   : "rcp85"
+});
+```
+
+The following will modify the above graph to show both the rcp45 and rcp85
+scenarios:
+
+```javascript
+cwg.update{
+    scenario : "both"
+});
+```
+
+The following will modify the above graph to show annual average daily precipitation:
+
+```javascript
+cwg.update{
+    variable : "pr"
+});
+```
+
+For a more complete example, see the files `demo.html` and `demo.js` in this
+directory.
