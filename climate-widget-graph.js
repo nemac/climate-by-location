@@ -292,6 +292,11 @@ function scale_range(range, factor) {
     };
 }
 
+// Data ranges will get scaled by this factor when setting y axis ranges.
+// Previously was 1.1, but set to 1 now to avoid awkard negative values for
+// things that can never be negative.
+var yAxisRangeScaleFactor = 1;
+
 var _i = 0;
 var starti = function(v) { _i = v||0; return _i; };
 var nexti = function() { return ++_i; };
@@ -510,8 +515,6 @@ var colors = {
     outerBand: '#3279d8'
   }
 };
-
-var scaleFactor = 1; //1.10
 
 function band_plot(x_axis, x, y_axis, y0, y1, fill_color, fill_opacity) {
     var obj = {
@@ -973,7 +976,7 @@ var climate_widget_graph = function(orig_options) {
                         }
                     }
 
-                    var range = scale_range(datas_range([hist_obs_data, hist_mod_data, proj_mod_data]), scaleFactor);
+                    var range = scale_range(datas_range([hist_obs_data, hist_mod_data, proj_mod_data]), yAxisRangeScaleFactor);
                     obj.axes.y.setDataRange(range.min, range.max);
                     obj.axes.y.title().content().string(
                         variable_config(obj.options.variable).ytitles.annual[obj.options.presentation][obj.options.unitsystem]
@@ -1039,7 +1042,7 @@ var climate_widget_graph = function(orig_options) {
                     var convfunc = variable_config(obj.options.variable).dataconverters[obj.options.unitsystem];
                     hist_obs_data = transform_data(hist_obs_data, convfunc);
                     proj_mod_data = transform_data(proj_mod_data, convfunc);
-                    var range = scale_range(datas_range([hist_obs_data, proj_mod_data]), scaleFactor);
+                    var range = scale_range(datas_range([hist_obs_data, proj_mod_data]), yAxisRangeScaleFactor);
                     obj.axes.y.setDataRange(range.min, range.max);
                     obj.axes.y.title().content().string(variable_config(obj.options.variable).ytitles.monthly[obj.options.unitsystem]);
                     obj.data.monthly_hist_obs.array(convertArray(attr_list_array(obj.data.monthly_hist_obs.columns()), hist_obs_data));
@@ -1077,7 +1080,7 @@ var climate_widget_graph = function(orig_options) {
                     var convfunc = variable_config(obj.options.variable).dataconverters[obj.options.unitsystem];
                     hist_obs_data = transform_data(hist_obs_data, convfunc);
                     proj_mod_data = transform_data(proj_mod_data, convfunc);
-                    var range = scale_range(datas_range([hist_obs_data, proj_mod_data]), scaleFactor);
+                    var range = scale_range(datas_range([hist_obs_data, proj_mod_data]), yAxisRangeScaleFactor);
                     obj.axes.y.setDataRange(range.min, range.max);
                     obj.axes.y.title().content().string(variable_config(obj.options.variable).ytitles.seasonal[obj.options.unitsystem]);
                     obj.data.seasonal_hist_obs.array(convertArray(attr_list_array(obj.data.seasonal_hist_obs.columns()), hist_obs_data));
