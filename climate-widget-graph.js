@@ -434,11 +434,14 @@ var mugl = {
         padding: 0,
         margin:  0
     },
+    plotarea: {
+       marginleft: 45
+    },
     horizontalaxis: [{
         id: "x_annual",
         min: 1950,
         max: 2099,
-        title: false,
+        title: { text: "Year" },
         visible: true,
         labels: {
             label: [
@@ -450,6 +453,7 @@ var mugl = {
         min: -2,
         max: 12,
         title: false,
+        title: { text: "Month" },
         visible: false,
         labels: {
             label: [ { format: ["Dec","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"],
@@ -459,7 +463,7 @@ var mugl = {
         id: "x_seasonal",
         min: -0.5,
         max: 3.5,
-        title: false,
+        title: { text: "Season" },
         visible: false,
         labels: {
             label: [ { format: ["Winter", "Spring", "Summer", /* or */ "Fall"],
@@ -471,7 +475,7 @@ var mugl = {
         id: "y",
         min: 0,
         max: 2000,
-        title: false,
+        title: { text: "Degrees Celsius", angle: 90, anchor: [0,-1], position: [-30,0] },
         visible: true,
         labels: {
             label: [
@@ -703,6 +707,20 @@ var climate_widget_graph = function(orig_options) {
     obj.update = function(delta) {
         var old_options = $.extend({}, obj.options);
         obj.options = $.extend({}, obj.options, delta || {});
+
+        // if font changed, set it in all the relevant places
+        if (obj.options.font != old_options.font) {
+            var i,j;
+            for (i=0; i<obj.m.graphs().at(0).axes().size(); ++i) {
+                var axis = obj.m.graphs().at(0).axes().at(i);
+                if (axis.title()) {
+                    axis.title().font("14px " + obj.options.font);
+                }
+                for (j=0; j<axis.labelers().size(); ++j) {
+                    axis.labelers().at(j).font("12px " + obj.options.font);
+                }
+            }
+        }
 
         // if variable or presentation changed, set y axis data range
         if (obj.options.variable != old_options.variable ||

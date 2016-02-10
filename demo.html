@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>Climate Widget Demo</title>
   <link rel="stylesheet" href="vendor/skeleton.min.css">
-
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js"></script>
   <style>
     h1 {
       font-size: 3.95rem;
@@ -165,6 +165,7 @@
         'div'           :  "div#widget",         // jquery-style selector for the dom element that you want the graph to appear in
         //'dataprefix'    : 'data/02-final',
         'dataprefix'    : 'http://climate-widget-data.nemac.org/data',
+        'font'          : 'Roboto',
         'frequency'     :  selectedFrequency,    // time frequency of graph to display ("annual", "monthly", or "seasonal")
         'timeperiod'    :  selectedTimePeriod,   // time period center for monthly/seasonal graphs ("2025", "2050", or "2075")
         'fips'          :  selectedCounty,       // 5-character fips code for county (as a string)
@@ -221,7 +222,15 @@
                   + (v.selected ? ' selected="selected"' : '')
                   + '>'  + v.title + '</option>');
       }).join("")).appendTo($("select#variable"));
-      configureAndLaunchGraph();
+
+      WebFont.load({
+        google: {
+          families: ['Pacifico', 'Roboto']
+        },
+        active: function() {
+          configureAndLaunchGraph();
+        }
+      });
 
     $('#download-button').click(function() {
       if (cwg) {
