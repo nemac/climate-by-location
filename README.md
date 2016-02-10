@@ -1,12 +1,12 @@
-# Climate Widget (Climate in Your Location) Library
+# Climate Widget (Climate in Your Location) Graph Library
 
-This library defines functions that can create and manage interactive climate
+This library defines functions that create and manage interactive climate
 widget graphs.
 
 ## Prerequisite
 
 This library depends on jQuery. You should make sure that a copy of jQuery has
-been loaded in your page before including any of the `<script>` tags below.
+been loaded in your page before including the `<script>` tag below.
 
 ## Installation
 
