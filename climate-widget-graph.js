@@ -768,8 +768,7 @@ var climate_widget_graph = function(orig_options) {
                 obj.axes.x_monthly.visible(false);
                 obj.axes.x_seasonal.visible(false);
 
-                each_plot(obj.plots.monthly, function(plot) { plot.visible(false); });
-                each_plot(obj.plots.seasonal, function(plot) { plot.visible(false); });
+                each_plot(obj.plots, function(plot) { plot.visible(false); });
 
                 obj.data_urls = {
                     hist_obs: dataurl(obj.options.dataprefix, obj.options.fips, 'annual/hist-obs',         obj.options.variable),
@@ -843,16 +842,7 @@ var climate_widget_graph = function(orig_options) {
                 obj.axes.x_monthly.visible(true);
                 obj.axes.x_seasonal.visible(false);
 
-                each_plot(obj.plots.annual, function(plot) { plot.visible(false); });
-                each_plot(obj.plots.seasonal, function(plot) { plot.visible(false); });
-
-                obj.plots.monthly.hist_obs.med.visible(true);
-
-                each_keys(obj.plots.monthly.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
-                    obj.plots.monthly.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
-                        obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")
-                    );
-                });
+                each_plot(obj.plots, function(plot) { plot.visible(false); });
                 
                 obj.data_urls = {
                     hist_obs: dataurl(obj.options.dataprefix, obj.options.fips, 'monthly/hist-obs/stats', obj.options.variable),
@@ -866,6 +856,12 @@ var climate_widget_graph = function(orig_options) {
                     var proj_mod_data = string_to_data( proj_mod[0] );
                     obj.data.monthly_hist_obs.array(convertArray(attr_list_array(obj.data.monthly_hist_obs.columns()), hist_obs_data));
                     obj.data.monthly_proj_mod.array(convertArray(attr_list_array(obj.data.monthly_proj_mod.columns()), proj_mod_data));
+                    obj.plots.monthly.hist_obs.med.visible(true);
+                    each_keys(obj.plots.monthly.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
+                        obj.plots.monthly.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
+                            obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")
+                        );
+                    });
                     obj.m.render();
                 });
 
@@ -875,15 +871,7 @@ var climate_widget_graph = function(orig_options) {
                 obj.axes.x_monthly.visible(false);
                 obj.axes.x_seasonal.visible(true);
 
-                each_plot(obj.plots.annual, function(plot) { plot.visible(false); });
-                each_plot(obj.plots.monthly, function(plot) { plot.visible(false); });
-
-                obj.plots.seasonal.hist_obs.med.visible(true);
-                each_keys(obj.plots.seasonal.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
-                    obj.plots.seasonal.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
-                        obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")
-                    );
-                });
+                each_plot(obj.plots, function(plot) { plot.visible(false); });
 
                 obj.data_urls = {
                     hist_obs: dataurl(obj.options.dataprefix, obj.options.fips, 'seasonal/hist-obs/stats', obj.options.variable),
@@ -900,6 +888,12 @@ var climate_widget_graph = function(orig_options) {
                     proj_mod_data.forEach(function(v) { v[0] = Math.floor(v[0]/3); });
                     obj.data.seasonal_hist_obs.array(convertArray(attr_list_array(obj.data.seasonal_hist_obs.columns()), hist_obs_data));
                     obj.data.seasonal_proj_mod.array(convertArray(attr_list_array(obj.data.seasonal_proj_mod.columns()), proj_mod_data));
+                    obj.plots.seasonal.hist_obs.med.visible(true);
+                    each_keys(obj.plots.seasonal.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
+                        obj.plots.seasonal.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
+                            obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")
+                        );
+                    });
                     obj.m.render();
                 });
 
