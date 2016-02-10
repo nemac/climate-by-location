@@ -27,25 +27,25 @@ var variables = [
          ytitles: {
              annual: {
                  absolute: {
-                     english: "y-tasmax-annual-absolute-english",
-                     metric:  "y-tasmax-annual-absolute-metric"
+                     english: "Mean Daily Maximum Temperature (°F)",
+                     metric:  "Mean Daily Maximum Temperature (°C)"
                  },
                  anomaly:  {
-                     english: "y-tasmax-annual-anomaly-english",
-                     metric:  "y-tasmax-annual-anomaly-metric"
+                     english: "Mean Daily Maximum Temperature Departure (°F)",
+                     metric:  "Mean Daily Maximum Temperature Departure (°C)"
                  }
              },
              monthly:  {
-                 english: "y-tasmax-monthly-english",
-                 metric:  "y-tasmax-monthly-metric"
+                 english: "Mean Daily Maximum Temperature (°F)",
+                 metric:  "Mean Daily Maximum Temperature (°C)"
              },
              seasonal: {
-                 english: "y-tasmax-seasonal-english",
-                 metric:  "y-tasmax-seasonal-metric"
+                 english: "Mean Daily Maximum Temperature (°F)",
+                 metric:  "Mean Daily Maximum Temperature (°C)"
              }
          }
      },
-     
+
      {
          id:       "tasmin",
          title: {
@@ -59,21 +59,21 @@ var variables = [
          ytitles: {
              annual: {
                  absolute: {
-                     english: "y-tasmin-annual-absolute-english",
-                     metric:  "y-tasmin-annual-absolute-metric"
+                     english: "Mean Daily Minimum Temperature (°F)",
+                     metric:  "Mean Daily Minimum Temperature (°C)"
                  },
                  anomaly:  {
-                     english: "y-tasmin-annual-anomaly-english",
-                     metric:  "y-tasmin-annual-anomaly-metric"
+                   english: "Mean Daily Minimum Temperature Departure (°F)",
+                   metric:  "Mean Daily Minimum Temperature Departure (°C)"
                  }
              },
              monthly:  {
-                 english: "y-tasmin-monthly-english",
-                 metric:  "y-tasmin-monthly-metric"
+                 english: "Mean Daily Minimum Temperature (°F)",
+                 metric:  "Mean Daily Minimum Temperature (°C)"
              },
              seasonal: {
-                 english: "y-tasmin-seasonal-english",
-                 metric:  "y-tasmin-seasonal-metric"
+                 english: "Mean Daily Minimum Temperature (°F)",
+                 metric:  "Mean Daily Minimum Temperature (°C)"
              }
          }
      },
@@ -92,21 +92,21 @@ var variables = [
          ytitles: {
              annual: {
                  absolute: {
-                     english: "y-pr-annual-absolute-english",
-                     metric:  "y-pr-annual-absolute-metric"
+                     english: "Mean Daily Average Precipitation (in/d)",
+                     metric: "Mean Daily Average Precipitation (mm/d)"
                  },
                  anomaly:  {
-                     english: "y-pr-annual-anomaly-english",
-                     metric:  "y-pr-annual-anomaly-metric"
+                   english: "Mean Daily Average Precipitation Departure (%)",
+                   metric: "Mean Daily Average Precipitation Departure (%)"
                  }
              },
              monthly:  {
-                 english: "y-pr-monthly-english",
-                 metric:  "y-pr-monthly-metric"
+                 english: "Mean Daily Average Precipitation (in/d)",
+                 metric: "Mean Daily Average Precipitation (mm/d)"
              },
              seasonal: {
-                 english: "y-pr-seasonal-english",
-                 metric:  "y-pr-seasonal-metric"
+                 english: "Mean Daily Average Precipitation (in/d)",
+                 metric: "Mean Daily Average Precipitation (mm/d)"
              }
          }
      },
@@ -115,8 +115,8 @@ var variables = [
      {
          id:       "days_tmax_abv_35.0",
          title: {
-             english: "Days with Maximum Temperature Above 95° F",
-             metric: "Days with Maximum Temperature Above 35° C"
+             english: "Days with Maximum Temperature Above 95 °F",
+             metric: "Days with Maximum Temperature Above 35 °C"
          },
          dataconverters: {
              metric: identity,
@@ -125,12 +125,12 @@ var variables = [
          ytitles: {
              annual: {
                  absolute: {
-                     english: "y-days_tmax_abv_35.0-absolute-english",
-                     metric:  "y-days_tmax_abv_35.0-absolute-metric"
+                     english: "Days with Maximum Temperature Above 95 °F (d)",
+                     metric:  "Days with Maximum Temperature Above 95 °C (d)"
                  },
                  anomaly:  {
-                     english: "y-days_tmax_abv_35.0-anomaly-english",
-                     metric:  "y-days_tmax_abv_35.0-anomaly-metric"
+                     english: "Days with Maximum Temperature Above 95 °F Departure (d)",
+                     metric:  "Days with Maximum Temperature Above 95 °C Departure (d)"
                  }
              }
          }
@@ -139,8 +139,8 @@ var variables = [
      {
          id:       "days_tmin_blw_0.0",
          title: {
-             english: "Days with Minimum Temperature Below 32° F",
-             metric: "Days with Minimum Temperature Below 0° C"
+             english: "Days with Minimum Temperature Below 32 °F",
+             metric: "Days with Minimum Temperature Below 0 °C"
          },
          dataconverters: {
              metric: identity,
@@ -149,12 +149,12 @@ var variables = [
          ytitles: {
              annual: {
                  absolute: {
-                     english: "y-days_tmin_blw_0.0-absolute-english",
-                     metric:  "y-days_tmin_blw_0.0-absolute-metric"
+                     english: "Days with Minimum Temperature Below 32 °F (d)",
+                     metric:  "Days with Minimum Temperature Below 0 °C (d)"
                  },
                  anomaly:  {
-                     english: "y-days_tmin_blw_0.0-anomaly-english",
-                     metric:  "y-days_tmin_blw_0.0-anomaly-metric"
+                     english: "Days with Minimum Temperature Below 32 °F (d)",
+                     metric:  "Days with Minimum Temperature Below 0 °C (d)"
                  }
              }
          }
@@ -173,12 +173,12 @@ var variables = [
          ytitles: {
              annual: {
                  absolute: {
-                     english: "y-heating_degree_day_18.3-absolute-english",
-                     metric:  "y-heating_degree_day_18.3-absolute-metric"
+                     english: "Heating Degree Days (HDD)",
+                     metric:  "Heating Degree Days (HDD)"
                  },
                  anomaly:  {
-                     english: "y-heating_degree_day_18.3-anomaly-english",
-                     metric:  "y-heating_degree_day_18.3-anomaly-metric"
+                     english: "Heating Degree Days Departure (HDD)",
+                     metric:  "Heating Degree Days Departure (HDD)"
                  }
              }
          }
@@ -197,12 +197,12 @@ var variables = [
          ytitles: {
              annual: {
                  absolute: {
-                     english: "y-cooling_degree_day_18.3-absolute-english",
-                     metric:  "y-cooling_degree_day_18.3-absolute-metric"
+                     english: "Cooling Degree Days (CDD)",
+                     metric:  "Cooling Degree Days (CDD)"
                  },
                  anomaly:  {
-                     english: "y-cooling_degree_day_18.3-anomaly-english",
-                     metric:  "y-cooling_degree_day_18.3-anomaly-metric"
+                     english: "Cooling Degree Days Departure (CDD)",
+                     metric:  "Cooling Degree Days Departure (CDD)"
                  }
              }
          }
@@ -211,8 +211,8 @@ var variables = [
      {
          id:       "days_prcp_abv_25.3",
          title: {
-             english: "Days of Precipitation Above 1in",
-             metric: "Days of Precipitation Above 25.3mm"
+             english: "Days of Precipitation Above 1 in",
+             metric: "Days of Precipitation Above 25.3 mm"
          },
          dataconverters: {
              metric: identity,
@@ -221,12 +221,12 @@ var variables = [
          ytitles: {
              annual: {
                  absolute: {
-                     english: "y-days_prcp_abv_25.3-absolute-english",
-                     metric:  "y-days_prcp_abv_25.3-absolute-metric"
+                     english: "Days of Precipitation Above 1 in (d)",
+                     metric:  "Days of Precipitation Above 25.3 mm (d)"
                  },
                  anomaly:  {
-                     english: "y-days_prcp_abv_25.3-anomaly-english",
-                     metric:  "y-days_prcp_abv_25.3-anomaly-metric"
+                     english: "Days of Precipitation Above 1 in Departure (d)",
+                     metric:  "Days of Precipitation Above 25.3 mm Departure (d)"
                  }
              }
          }
@@ -321,7 +321,7 @@ function set_in(obj, keys, value) {
             p = p[key];
             if (typeof(p) !== "object") {
                 throw new Error("set_in: cannot drill into non-object value");
-            }           
+            }
         } else {
             p[key] = {};
             p = p[key];
@@ -1023,7 +1023,7 @@ var climate_widget_graph = function(orig_options) {
                 obj.axes.x_seasonal.visible(false);
 
                 each_plot(obj.plots, function(plot) { plot.visible(false); });
-                
+
                 obj.data_urls = {
                     hist_obs: dataurl(obj.options.dataprefix, obj.options.fips, 'monthly/hist-obs/stats', obj.options.variable),
                     proj_mod: dataurl(obj.options.dataprefix, obj.options.fips, 'monthly/proj-mod/stats', obj.options.variable)
@@ -1117,7 +1117,7 @@ var climate_widget_graph = function(orig_options) {
         set_in(obj.plots, ["annual",  "hist_mod", "med"                    ], m.graphs().at(0).plots().at(nexti()));
         set_in(obj.plots, ["annual",  "proj_mod", "med",    "rcp45"        ], m.graphs().at(0).plots().at(nexti()));
         set_in(obj.plots, ["annual",  "proj_mod", "med",    "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
- 
+
         set_in(obj.plots, ["monthly", "hist_obs", "med"                    ], m.graphs().at(0).plots().at(nexti()));
         set_in(obj.plots, ["monthly", "proj_mod", "p1090",  "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
         set_in(obj.plots, ["monthly", "proj_mod", "p1090",  "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
