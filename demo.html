@@ -41,6 +41,10 @@
     .center {
       text-align: center;
     }
+    .outlinebox {
+      padding: 10px;
+      border: 1px solid black;
+    }
   </style>
   <script src="vendor/jquery.min.js"></script>
   <script src="climate-widget-graph.js"></script>
@@ -50,9 +54,9 @@
   <div class="container">
     <h1>Climate Widget Graphs - Demonstration</h1>
 <p>The interactive graphs on this pages are for demonstration processes only.  Do not link to this page.</p>
-    <h5 id="pagetitle">Annual timeseries</h5>
     <div class="row">
-      <div class="four columns">
+      <div class="four columns outlinebox">
+<h5><center>Sample Controls</center></h5>
         <form onsubmit="return false;">
           <div class="row">
             <label for="frequency">Frequency</label>
@@ -99,15 +103,16 @@
               </select>
             </div>
           </div>
-          <!-- <button class="button-primary u-full-width" onclick="configureAndLaunchGraph()">Show Graph</button> -->
+          <div class="center"><button id="download-button">Download Data</button></div>
         </form>
       </div>
-      <div class="eight columns">
+      <div class="eight columns outlinebox">
+<h5><center>Graph</center></h5>
         <div id="widget"></div>
       </div>
     </div>
   </div>
- <div class="center"><button id="download-button">Download Data</button></div>
+ 
   <div id="download-panel" class="hidden">
     <div class="download-inner">
       <p>Use the following links to download this graph's data:</p>
