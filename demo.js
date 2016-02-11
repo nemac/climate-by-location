@@ -10,22 +10,38 @@ $(document).ready(function() {
         }).join("")).appendTo($("select#variable"));
     }
 
-    populate_variables($('#frequency').val());
-
-    $('#frequency').change(function() {
+    function update_frequency_ui() {
         var freq = $('#frequency').val();
         if (freq === "annual") {
             $('#pagetitle').text("Annual timeseries");
+            $('#timeperiod').attr("disabled", "true");
+            $('label[for=timeperiod]').css("opacity", 0.5);
+            $('#presentation').removeAttr("disabled");
+            $('label[for=presentation]').css("opacity", 1.0);
         }
         if (freq === "monthly") {
             $('#pagetitle').text("Monthly timeseries");
+            $('#timeperiod').removeAttr("disabled");
+            $('label[for=timeperiod]').css("opacity", 1.0);
+            $('#presentation').attr("disabled", "true");
+            $('label[for=presentation]').css("opacity", 0.5);
         }
         if (freq === "seasonal") {
             $('#pagetitle').text("Seasonal timeseries");
+            $('#timeperiod').removeAttr("disabled");
+            $('label[for=timeperiod]').css("opacity", 1.0);
+            $('#presentation').attr("disabled", "true");
+            $('label[for=presentation]').css("opacity", 0.5);
         }
-        populate_variables($('#frequency').val());
+        populate_variables(freq);
+    }
+
+    update_frequency_ui();
+
+    $('#frequency').change(function() {
+        update_frequency_ui();
         cwg.update({
-            frequency: freq,
+            frequency: $('#frequency').val(),
             variable: $('#variable').val()
         });
     });
