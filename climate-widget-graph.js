@@ -620,7 +620,7 @@
             id: "x_annual",
             min: 1950,
             max: 2099,
-            title: { text: "Year" },
+            title: false, // { text: "Year" },
             visible: true,
             labels: {
                 label: [
@@ -632,7 +632,7 @@
             min: -2,
             max: 12,
             title: false,
-            title: { text: "Month" },
+            title: false, // { text: "Month" },
             visible: false,
             labels: {
                 label: [ { format: ["Dec","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"],
@@ -642,7 +642,7 @@
             id: "x_seasonal",
             min: -0.5,
             max: 3.5,
-            title: { text: "Season" },
+            title: false, // { text: "Season" },
             visible: false,
             labels: {
                 label: [ { format: ["Winter", "Spring", "Summer", /* or */ "Fall"],
