@@ -625,7 +625,7 @@
             border:  0,
             padding: 0,
             margin:  0
-        },
+        }, /*
         background: {
             img : {
                src: "demo.png",
@@ -633,7 +633,7 @@
                base: [0, 0],
                frame: "padding"
           }
-        },
+        }, */
         plotarea: {
             marginleft: 55
         },
