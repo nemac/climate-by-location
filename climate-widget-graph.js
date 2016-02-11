@@ -4,6 +4,19 @@
 // See the file README.md for more details.
 (function(){
 
+    if (!String.prototype.endsWith) {
+        // String.endsWith() polyfill for browsers that don't implement it
+        String.prototype.endsWith = function(searchString, position) {
+            var subjectString = this.toString();
+            if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
+                position = subjectString.length;
+            }
+            position -= searchString.length;
+            var lastIndex = subjectString.indexOf(searchString, position);
+            return lastIndex !== -1 && lastIndex === position;
+        };
+    }
+
     function celsius_to_fahrenheit(c) {
         return c * 9/5 + 32.0;
     }
