@@ -31,63 +31,75 @@ which has the following function properties:
 This function creates a graph according to `OPTIONS`, which should be an object with some or
 all of the following properties:
 
-  * `div` 
+  * `div`
 
     a string which is a CSS-style selector identifying a div
     where the graph should be drawn; this div must already
     be layed out and sized by the browser --- the graph will
     exactly fill the div. Required.
 
-  * `dataprefix` 
+  * `dataprefix`
 
     A URL from which the data can be downloaded.  Required.
 
-  * `fips` 
+  * `fips`
 
     A 5-character fips code of a US county, as a string.  Required.
 
-  * `variable` 
+  * `variable`
 
     The id of the variable to display; see climate_widget.variables()
     below for a way to get a list of variable ids.  Optional; defaults
     to "tasmax".
 
-  * `frequency` 
+  * `frequency`
 
     One of the strings "annual", "monthly", or "seasonal", indicating which
     type of data to display.  Optional; defaults to "annual".
 
-  * `scenario` 
+  * `scenario`
 
     One of the strings "rcp45", "rcp85", or "both", indicating which
     scenario(s) to display for projection data.  Optional; defaults to "both".
 
-  * `presentation` 
+  * `presentation`
 
     One of the strings "absolute" or "anomaly", indicating which
     presentation should be used in setting the graph's y axis scale.   Only
     relevant for annual data; ignored for monthly or seasonal. Optional;
     defaults to "absolute".
 
-  * `timeperiod` 
+  * `timeperiod`
 
     One of the strings "2025", "2050", or "2075" (strings not numbers!),
     indicating which 30-year period of projection data to show for
     monthly or seasonal data.  Ignored for annual data.  Optional;
     defaults to "2025".
 
-  * `font` 
+  * `font`
 
     A string giving the font-family to be used for all text in the graph.
     Optional; defaults to the browser's default canvas font (depends on
     the browser).
 
 The `climate_widget.graph()` function returns an object which
-represents the graph just created.  This object has a single property
-named `update` which is a function that can be used to modify the
-graph.  The `update()` function takes an OPTIONS object with
-the same properities described above for `climate_widget.graph()`, except
-that the `div` setting cannot be changed once a graph has been created.
+represents the graph just created.  This object has two properties:
+   1. `update` is a function that can be used to modify the graph. The `update()`
+      function takes an OPTIONS object with the same properties described above
+      for `climate_widget.graph()`, except that the `div` setting cannot be changed
+      once a graph has been created.
+
+   2. `dataurls` is a function that returns an object with the urls for the time
+      series data that drives the graph. The object may have up to three keys:
+
+        i. `hist_obs` for historical observed data
+
+       ii. `hist_mod` for historical modeled data
+
+      iii. `proj_mod` for projected modeled data
+
+      Note that not all presentations use all datasets, so there may be graphs
+      that when `dataurls()` is called do not return an object with all three keys.
 
 ### `climate_widget.variables(FREQUENCY)`
 
