@@ -625,20 +625,36 @@
             border:  0,
             padding: 0,
             margin:  0
-        },
+        }, /*
+        background: {
+            img : {
+               src: "demo.png",
+               anchor: [0, 0],
+               base: [0, 0],
+               frame: "padding"
+          }
+        }, */
         plotarea: {
             marginleft: 55
         },
         horizontalaxis: [{
             id: "x_annual",
-            min: 1950,
-            max: 2099,
+            min: 1949.5,
+            max: 2099.5,
             title: false, // { text: "Year" },
             visible: true,
             labels: {
                 label: [
                     { format: "%1d", spacing: [100, 50, 20, 10, 5, 2, 1] }
                 ]
+            },
+            pan: {
+              min: 1949.5,
+              max: 2099.5
+            },
+            zoom: {
+              min: "10Y",
+              max: "151Y"
             }
         },{
             id: "x_monthly",
@@ -650,6 +666,12 @@
             labels: {
                 label: [ { format: ["Dec","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"],
                            spacing: [1] } ]
+            },
+            pan: {
+              allowed: "no"
+            },
+            zoom: {
+              allowed: "no"
             }
         }, {
             id: "x_seasonal",
@@ -661,7 +683,22 @@
                 label: [ { format: ["Winter", "Spring", "Summer", /* or */ "Fall"],
                            /*        all you have to do is call... */
                            spacing: [1] } ]
+            },
+            pan: {
+              allowed: "no"
+            },
+            zoom: {
+              allowed: "no"
             }
+/*            pan: {
+              min: -0.5,
+              max: 3.5
+            },
+            zoom: {
+              min: 1,
+              max: 4
+            }
+*/
         }],
         verticalaxis: {
             id: "y",
@@ -675,6 +712,14 @@
                     { format: "%.1f", spacing: [0.5, 0.2, 0.1] },
                     { format: "%.2f", spacing: [0.05, 0.02, 0.01] }
                 ]
+            },
+            pan: {
+              min: -7500.5,
+              max: 10000.5
+            },
+            zoom: {
+              min: 0.05,
+              max: 10000
             }
         },
         plots: [
@@ -688,7 +733,8 @@
             band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_min_rcp85", "annual_proj_mod_max_rcp85", colors.reds.outerBand,  0.3),
             band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_p10_rcp85", "annual_proj_mod_p90_rcp85", colors.reds.innerBand,  0.3),
             bar_plot_based_at("x_annual", "annual_hist_obs_x", "y", "annual_hist_obs_y", 0),
-            line_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_med",       "#000000"),
+            // Hiding historical modeled median for now
+            //line_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_med",       "#000000"),
             line_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_med_rcp45", colors.blues.line),
             line_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_med_rcp85", colors.reds.line),
             //
@@ -1171,7 +1217,8 @@
             set_in(obj.plots, ["annual",  "proj_mod", "minmax", "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
             set_in(obj.plots, ["annual",  "proj_mod", "p1090",  "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
             set_in(obj.plots, ["annual",  "hist_obs"                           ], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["annual",  "hist_mod", "med"                    ], m.graphs().at(0).plots().at(nexti()));
+            // Hiding historical modeled median for now
+            //set_in(obj.plots, ["annual",  "hist_mod", "med"                    ], m.graphs().at(0).plots().at(nexti()));
             set_in(obj.plots, ["annual",  "proj_mod", "med",    "rcp45"        ], m.graphs().at(0).plots().at(nexti()));
             set_in(obj.plots, ["annual",  "proj_mod", "med",    "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
 
@@ -1224,5 +1271,5 @@
         graph: climate_widget_graph,
         variables: climate_widget_variables
     };
-
+    
 }());
