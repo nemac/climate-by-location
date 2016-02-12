@@ -92,11 +92,11 @@ represents the graph just created.  This object has two properties:
    2. `dataurls` is a function that returns an object with the urls for the time
       series data that drives the graph. The object may have up to three keys:
 
-        i. `hist_obs` for historical observed data
-
-       ii. `hist_mod` for historical modeled data
-
-      iii. `proj_mod` for projected modeled data
+      `hist_obs` for historical observed data
+      
+      `hist_mod` for historical modeled data
+      
+      `proj_mod` for projected modeled data
 
       Note that not all presentations use all datasets, so there may be graphs
       that when `dataurls()` is called do not return an object with all three keys.
@@ -130,7 +130,7 @@ The following will modify the above graph to show both the rcp45 and rcp85
 scenarios:
 
 ```javascript
-cwg.update{
+cwg.update({
     scenario : "both"
 });
 ```
@@ -138,7 +138,7 @@ cwg.update{
 The following will modify the above graph to show annual average daily precipitation:
 
 ```javascript
-cwg.update{
+cwg.update({
     variable : "pr"
 });
 ```
