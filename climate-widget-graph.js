@@ -647,6 +647,14 @@
                 label: [
                     { format: "%1d", spacing: [100, 50, 20, 10, 5, 2, 1] }
                 ]
+            },
+            pan: {
+              min: 1950,
+              max: 2099
+            },
+            zoom: {
+              min: "10Y",
+              max: "150Y"
             }
         },{
             id: "x_monthly",
@@ -658,6 +666,12 @@
             labels: {
                 label: [ { format: ["Dec","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"],
                            spacing: [1] } ]
+            },
+            pan: {
+              allowed: "no"
+            },
+            zoom: {
+              allowed: "no"
             }
         }, {
             id: "x_seasonal",
@@ -669,7 +683,22 @@
                 label: [ { format: ["Winter", "Spring", "Summer", /* or */ "Fall"],
                            /*        all you have to do is call... */
                            spacing: [1] } ]
+            },
+            pan: {
+              allowed: "no"
+            },
+            zoom: {
+              allowed: "no"
             }
+/*            pan: {
+              min: -0.5,
+              max: 3.5
+            },
+            zoom: {
+              min: 1,
+              max: 4
+            }
+*/
         }],
         verticalaxis: {
             id: "y",
