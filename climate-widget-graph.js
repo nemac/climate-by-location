@@ -964,7 +964,9 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
                 frequency: "annual",
                 scenario: "both",
                 timeperiod: "2025",
-                presentation: "absolute"
+                presentation: "absolute",
+                range: "minmax",
+                median: false
                 //font: no default for this one; defaults to canvas's default font
                 //dataprefix:  no default for this one; it's required
                 //fips:  no default for this one; it's required
@@ -983,6 +985,10 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
         obj.$graphdiv = obj.$div.find('div.graph');
         obj.$graphdiv.multigraph({muglString: mugl});
         obj.update = function(delta) {
+            if (typeof delta.median === "string") {
+              delta.median = delta.median.toLowerCase() === "true";
+            }
+
             var old_options = $.extend({}, obj.options);
             obj.options = $.extend({}, obj.options, delta || {});
 
@@ -1000,22 +1006,24 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
                 }
             }
 
-            // if scenario changed, set which plots are visible
-            if (obj.options.scenario != old_options.scenario) {
+            // if scenario or median changed, set which plots are visible
+            if (obj.options.scenario != old_options.scenario || obj.options.median != old_options.median) {
                 if (obj.options.frequency === "annual") {
                     each_keys(obj.plots.annual.proj_mod, ["stat", "scenario"], function(k) {
-                        obj.plots.annual.proj_mod[k.stat][k.scenario].visible(obj.options.scenario === k.scenario || obj.options.scenario === "both");
+                        obj.plots.annual.proj_mod[k.stat][k.scenario].visible(
+                          (obj.options.scenario === k.scenario || obj.options.scenario === "both") && (k.stat !== "med" || obj.options.median)
+                        );
                     });
                 } else if (obj.options.frequency === "monthly") {
                     each_keys(obj.plots.monthly.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
                         obj.plots.monthly.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
-                            obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")
+                            (obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")) && (k.stat !== "med" || obj.options.median)
                         );
                     });
                 } else if (obj.options.frequency === "seasonal") {
                     each_keys(obj.plots.seasonal.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
                         obj.plots.seasonal.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
-                            obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")
+                            (obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")) && (k.stat !== "med" || obj.options.median)
                         );
                     });
                 }
@@ -1027,13 +1035,13 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
                 if (obj.options.frequency === "monthly") {
                     each_keys(obj.plots.monthly.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
                         obj.plots.monthly.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
-                            obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")
+                            (obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")) && (k.stat !== "med" || obj.options.median)
                         );
                     });
                 } else if (obj.options.frequency === "seasonal") {
                     each_keys(obj.plots.seasonal.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
                         obj.plots.seasonal.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
-                            obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")
+                            (obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")) && (k.stat !== "med" || obj.options.median)
                         );
                     });
                 }
@@ -1097,7 +1105,7 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
                         obj.plots.annual.hist_obs.visible(true);
                         each_plot(obj.plots.annual.hist_mod, function(plot) { plot.visible(true); });
                         each_keys(obj.plots.annual.proj_mod, ["stat", "scenario"], function(k) {
-                            obj.plots.annual.proj_mod[k.stat][k.scenario].visible(obj.options.scenario === k.scenario || obj.options.scenario === "both");
+                            obj.plots.annual.proj_mod[k.stat][k.scenario].visible((obj.options.scenario === k.scenario || obj.options.scenario === "both") && (k.stat !== "med" || obj.options.median));
                         });
 
                         {
@@ -1158,7 +1166,7 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
                         obj.plots.monthly.hist_obs.med.visible(true);
                         each_keys(obj.plots.monthly.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
                             obj.plots.monthly.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
-                                obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")
+                                (obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")) && (k.stat !== "med" || obj.options.median)
                             );
                         });
                         obj.m.render();
@@ -1196,7 +1204,7 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
                         obj.plots.seasonal.hist_obs.med.visible(true);
                         each_keys(obj.plots.seasonal.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
                             obj.plots.seasonal.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
-                                obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")
+                                (obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")) && (k.stat !== "med" || obj.options.median)
                             );
                         });
                         obj.m.render();
@@ -1281,5 +1289,5 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
         graph: climate_widget_graph,
         variables: climate_widget_variables
     };
-    
+
 }());

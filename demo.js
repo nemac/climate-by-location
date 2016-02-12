@@ -1,6 +1,9 @@
 var cwg = undefined;
 
 $(document).ready(function() {
+    // temporary UI disable for unimplemented features
+    $('#range').attr("disabled", "true");
+    $('label[for=range]').css("opacity", 0.5);
 
     function populate_variables(frequency) {
         var variables = climate_widget.variables(frequency);
@@ -66,6 +69,11 @@ $(document).ready(function() {
     $('#presentation').change(function() {
         cwg.update({
             presentation: $('#presentation').val()
+        });
+    });
+    $('#median').change(function() {
+        cwg.update({
+            median: $('#median').val()
         });
     });
 
