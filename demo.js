@@ -102,7 +102,7 @@ $(document).ready(function() {
     });
 
     // download hook
-    $('#download-image-link').click(function(e) {
+    $('#download-image-link').click(function() {
       cwg.downloadImage(this, 'graph.png');
     });
 

@@ -80,7 +80,7 @@ all of the following properties:
 
     One of the strings "minmax", "p1090", or "both", indicating which
     range band to show for model projection data.
-  
+
   * `hrange`
 
     One of the strings "minmax", "p1090", or "both", indicating which
@@ -90,7 +90,7 @@ all of the following properties:
 
     true or false, indicating whether to show the median line(s) for
     model projection data
-  
+
   * `font`
 
     A string giving the font-family to be used for all text in the graph.
@@ -98,7 +98,7 @@ all of the following properties:
     the browser).
 
 The `climate_widget.graph()` function returns an object which
-represents the graph just created.  This object has two properties:
+represents the graph just created.  This object has three properties:
    1. `update` is a function that can be used to modify the graph. The `update()`
       function takes an OPTIONS object with the same properties described above
       for `climate_widget.graph()`, except that the `div` setting cannot be changed
@@ -108,13 +108,28 @@ represents the graph just created.  This object has two properties:
       series data that drives the graph. The object may have up to three keys:
 
       `hist_obs` for historical observed data
-      
+
       `hist_mod` for historical modeled data
-      
+
       `proj_mod` for projected modeled data
 
       Note that not all presentations use all datasets, so there may be graphs
       that when `dataurls()` is called do not return an object with all three keys.
+
+    3. `downloadImage` is a callback function to an on-click event on an `<a>` tag.
+      this function handles what is required to download the canvas as a PNG.
+
+      In order to use this function, an `<a>` tag must be declared in the HTML.
+      The containing application code then needs to add an event handler as follows:
+
+      ```javascript
+      $('a#download-image-link-id').click(function() {
+          // cwg is the object returned by the climate_widget.graph constructor
+          cwg.downloadImage(this, 'nameOfDownloadedImage.png');
+          // note that the 'this' argument is important as this function modifies
+          // the <a> tag to perform the download.
+      });
+      ```
 
 ### `climate_widget.variables(FREQUENCY)`
 
