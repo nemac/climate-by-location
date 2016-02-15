@@ -353,25 +353,23 @@
         Object.keys(obj).forEach(f);
     }
 
+    // "KeyObj" is a kind of nested index object that we use to store
+    // references to all the Plot objects in the graph.  A KeyObj
+    // object (constructed via new KeyObj() defined below) is just
+    // like a plain old JS object, in the sense that it can arbitrary
+    // properties and values, except that it has a prototype that
+    // defines arbitrary-depth setter and getter methods (set_in &
+    // get_in), and a method call each_keys for iterating over
+    // multiple levels of nesting in a single loop.
     var KeyObjProto = {
-        get_in: function(keys) {
-            var i=0, obj=this;
-            while (obj.get_in && (i < keys.length) && (keys[i] !== undefined) && (keys[i] in obj)) {
-                obj = obj[keys[i]];
-                ++i;
-            }
-            return obj;
-        },
-
         set_in: function(keys, value) {
-            // Take a JS object "obj", an array of string key names "keys", and a "value",
-            // and sets the nested property in obj accessed by that sequence of keys
-            // to the given value, creating objects along the way as necessary.
+            // Set a property value in a nested KeyObj corresponding to successive levels of nesting.
             // For example:
-            //    x = {};
-            //    set_in(x, ["foo", "bar", "bat"], 42)
+            //    x = new KeyObj();
+            //    x.set_in(["foo", "bar", "bat"], 42)
             // results in
             //    x = { foo: { bar: { bat: 42 } } }
+            // (where each {} indicates a KeyObj object)
             var p = this;
             keys.slice(0,-1).forEach(function(key) {
                 if (key in p) {
@@ -387,7 +385,69 @@
             p[keys[keys.length-1]] = value;
         },
 
+        get_in: function(keys) {
+            // Return a property value in a nested KeyObj; keys is an array of property names
+            // corresponding to successive levels of nesting.  If at any level the element of
+            // the keys array is undefined, or the object at that level does not contain a property
+            // with the given name, the value of the object at that level is returned.
+            var i=0, obj=this;
+            while (obj.get_in && (i < keys.length) && (keys[i] !== undefined) && (keys[i] in obj)) {
+                obj = obj[keys[i]];
+                ++i;
+            }
+            return obj;
+        },
+
         each_keys: function(levels, f, k) {
+            // each_keys provides a concise way of looping over the contents
+            // of a arbitrary-depth nested KeyObj.
+            //
+            // each_keys(levels,f) takes an array "levels"
+            // of "level names", and a 1-arg function f.  The "levels" array
+            // determines the depth of the nesting in "obj" to be traversed.
+            // f will be called once for each combination of
+            // nested properties corresponding to the given levels.  The argument
+            // to f is an object whose properties are the level names, and
+            // whose values are the corresponding property names.  For example,
+            // if the object x is defined by:
+            //     x = new KeyObj();
+            //     x.set_in(["med", "rcp45"], "one");
+            //     x.set_in(["med", "rcp85"], "two");
+            //     x.set_in(["max", "rcp45"], "three");
+            //     x.set_in(["max", "rcp65"], "four");
+            //     x.set_in(["max", "rcp85"], "five");
+            //     x.set_in(["min"],          "six");
+            // then
+            //     x.each_keys(["stat", "scenario"], function(k) {
+            //       console.log(k);
+            //     });
+            // will result in the output:
+            //     { stat: 'med', scenario: 'rcp45' }
+            //     { stat: 'med', scenario: 'rcp85' }
+            //     { stat: 'max', scenario: 'rcp45' }
+            //     { stat: 'max', scenario: 'rcp65' }
+            //     { stat: 'max', scenario: 'rcp85' }
+            //     { stat: 'min' }
+            // whereas
+            //     x.each_keys(["stat"], function(k) {
+            //       console.log(k);
+            //     });
+            // will result in the output:
+            //     { stat: 'med' }
+            //     { stat: 'max' }
+            //     { stat: 'min' }
+            // Note that traversal of the nested structure stops, and
+            // results in a call to the callback function f, either
+            // when all the levels in the keys array have been
+            // traversed, or when an object is reached that is not a
+            // KeyObj. Note also that the callback function f does not
+            // receive a reference to the KeyObj or the values stored
+            // in it --- it just recives an object giving the names of
+            // the property values down to the given number of levels.
+            //
+            // Note that the 3rd arg to each_keys is only used internally -- calls
+            // to each_keys from outside its own implementation should only
+            // pass in 2 args.
             if (k === undefined) {
                 this.each_keys(levels, f, {});
                 return;
