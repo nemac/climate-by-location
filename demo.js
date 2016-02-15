@@ -1,9 +1,6 @@
 var cwg = undefined;
 
 $(document).ready(function() {
-    // temporary UI disable for unimplemented features
-    $('#range').attr("disabled", "true");
-    $('label[for=range]').css("opacity", 0.5);
 
     function populate_variables(frequency) {
         var variables = climate_widget.variables(frequency);
@@ -73,13 +70,19 @@ $(document).ready(function() {
     });
     $('#median').change(function() {
         cwg.update({
-            median: $('#median').val()
+            pmedian: $('#median').val()
+        });
+    });
+    $('#range').change(function() {
+        cwg.update({
+            hrange: $('#range').val(),
+            prange: $('#range').val()
         });
     });
 
     $('#download-button').click(function() {
         if (cwg) {
-            var $ul = $('#download-panel').find('ul')
+            var $ul = $('#download-panel').find('ul');
             $ul.empty();
             var dataurls = cwg.dataurls();
             if (dataurls.hist_obs) {

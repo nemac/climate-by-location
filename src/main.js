@@ -335,30 +335,6 @@
         return a;
     }
 
-    function set_in(obj, keys, value) {
-        // Take a JS object "obj", an array of string key names "keys", and a "value",
-        // and sets the nested property in obj accessed by that sequence of keys
-        // to the given value, creating objects along the way as necessary.
-        // For example:
-        //    x = {};
-        //    set_in(x, ["foo", "bar", "bat"], 42)
-        // results in
-        //    x = { foo: { bar: { bat: 42 } } }
-        var p = obj;
-        keys.slice(0,-1).forEach(function(key) {
-            if (key in p) {
-                p = p[key];
-                if (typeof(p) !== "object") {
-                    throw new Error("set_in: cannot drill into non-object value");
-                }
-            } else {
-                p[key] = {};
-                p = p[key];
-            }
-        });
-        p[keys[keys.length-1]] = value;
-    }
-
     function each_plot(obj, f) {
         // Takes a JS object "obj", and a function "f" which is assumed to take
         // a single argument which is a multigraph Plot object, and traverses
@@ -377,80 +353,67 @@
         Object.keys(obj).forEach(f);
     }
 
-    // each_keys provides a concise way of looping over the contents
-    // of a arbitrary-depth nested JS object.
-    //
-    // each_keys(obj,levels,f) takes a JS object "obj", an array "levels"
-    // of "level names", and a 1-arg function f.  The "levels" array
-    // determines the depth of the nesting in "obj" to be traversed.
-    // f will be called once for each combination of
-    // nested properties in obj corresponding to the given levels.  The argument
-    // to f is an object whose properties are the level names, and
-    // whose values are the corresponding property names in obj.  For example,
-    //     each_keys({
-    //                 med: {
-    //                  rcp45: "one",
-    //                  rcp85: "two"
-    //                 },
-    //                 max: {
-    //                  rcp45: "three",
-    //                  rcp65: "four",
-    //                  rcp85: "five"
-    //                 }
-    //               },
-    //               ["stat", "scenario"],
-    //               function(k) {
-    //                  console.log(k);
-    //               });
-    // will result in the output:
-    //     {stat: "med", "scenario": "rcp45"}
-    //     {stat: "med", "scenario": "rcp85"}
-    //     {stat: "max", "scenario": "rcp45"}
-    //     {stat: "max", "scenario": "rcp65"}
-    //     {stat: "max", "scenario": "rcp85"}
-    // whereas
-    //     each_keys({
-    //                 med: {
-    //                  rcp45: "one",
-    //                  rcp85: "two"
-    //                 },
-    //                 max: {
-    //                  rcp45: "three",
-    //                  rcp65: "four",
-    //                  rcp85: "five"
-    //                 }
-    //               },
-    //               ["stat"],
-    //               function(k) {
-    //                  console.log(k);
-    //               });
-    // will result in the output:
-    //     {stat: "med"}
-    //     {stat: "max"}
-    // Note that the traversed depth is determined by the length of
-    // the levels array, not by the actual depth of the structure of
-    // "obj".  Note also that the function f does not receive a reference
-    // to "obj", or the values stored in "obj" --- it just recives an
-    // object giving the names of the property values down to the given
-    // number of levels.
-    //
-    // Note that the 4th arg to each_keys is only used internally -- calls
-    // to each_keys from outside its own implementation should only
-    // pass in 3 args.
-    function each_keys(obj, levels, f, k) {
-        if (k === undefined) {
-            each_keys(obj, levels, f, {});
-            return;
+    var KeyObjProto = {
+        get_in: function(keys) {
+            var i=0, obj=this;
+            while (obj.get_in && (i < keys.length) && (keys[i] !== undefined) && (keys[i] in obj)) {
+                obj = obj[keys[i]];
+                ++i;
+            }
+            return obj;
+        },
+        
+        set_in: function(keys, value) {
+            // Take a JS object "obj", an array of string key names "keys", and a "value",
+            // and sets the nested property in obj accessed by that sequence of keys
+            // to the given value, creating objects along the way as necessary.
+            // For example:
+            //    x = {};
+            //    set_in(x, ["foo", "bar", "bat"], 42)
+            // results in
+            //    x = { foo: { bar: { bat: 42 } } }
+            var p = this;
+            keys.slice(0,-1).forEach(function(key) {
+                if (key in p) {
+                    p = p[key];
+                    if (!p.set_in) {
+                        throw new Error("set_in: cannot drill into non-KeyObj object");
+                    }
+                } else {
+                    p[key] = new KeyObj();
+                    p = p[key];
+                }
+            });
+            p[keys[keys.length-1]] = value;
+        },
+        
+        each_keys: function(levels, f, k) {
+            if (k === undefined) {
+                this.each_keys(levels, f, {});
+                return;
+            }
+            if (levels.length === 0) {
+                return;
+            }
+            var level = levels[0];
+            var that = this;
+            Object.keys(this).forEach(function(keyValue) {
+                if (!that.hasOwnProperty(keyValue)) { return; }
+                var d = {};
+                d[level] = keyValue;
+                k = $.extend({}, k, d);
+                if (!that[keyValue].each_keys || levels.length==1) {
+                    f(k);
+                } else {
+                    that[keyValue].each_keys(levels.slice(1), f, k);
+                }
+            });
         }
-        if (levels.length === 0) {
-            f(k);
-            return;
-        }
-        var level = levels[0];
-        Object.keys(obj).forEach(function(keyValue) {
-            k[level] = keyValue;
-            each_keys(obj[keyValue], levels.slice(1), f, k);
-        });
+        
+    };
+    
+    function KeyObj() {
+        this.__proto__ = KeyObjProto;
     }
 
     function dataurl(prefix, fips, dir, variable) {
@@ -745,16 +708,22 @@
             //line_plot("x_monthly", "monthly_hist_obs_x", "y", "monthly_hist_obs_p10", "#000000", true)
             //line_plot("x_monthly", "monthly_hist_obs_x", "y", "monthly_hist_obs_p90", "#000000", true)
 
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2025", "monthly_proj_mod_max_rcp45_2025", colors.blues.innerBand, 0.3),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2025", "monthly_proj_mod_max_rcp85_2025", colors.reds.innerBand, 0.3),
             band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2025", "monthly_proj_mod_p90_rcp45_2025", colors.blues.innerBand, 0.3),
             band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2025", "monthly_proj_mod_p90_rcp85_2025", colors.reds.innerBand, 0.3),
             line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2025", colors.blues.outerBand),
             line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp85_2025", colors.reds.line),
 
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2050", "monthly_proj_mod_max_rcp45_2050", colors.blues.innerBand, 0.3),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2050", "monthly_proj_mod_max_rcp85_2050", colors.reds.innerBand, 0.3),
             band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2050", "monthly_proj_mod_p90_rcp45_2050", colors.blues.innerBand, 0.3),
             band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2050", "monthly_proj_mod_p90_rcp85_2050", colors.reds.innerBand, 0.3),
             line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2050", colors.blues.outerBand),
             line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp85_2050", colors.reds.line),
 
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2075", "monthly_proj_mod_max_rcp45_2075", colors.blues.innerBand, 0.3),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2075", "monthly_proj_mod_max_rcp85_2075", colors.reds.innerBand, 0.3),
             band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2075", "monthly_proj_mod_p90_rcp45_2075", colors.blues.innerBand, 0.3),
             band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2075", "monthly_proj_mod_p90_rcp85_2075", colors.reds.innerBand, 0.3),
             line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2075", colors.blues.outerBand),
@@ -766,13 +735,25 @@
             // Hiding historical range for now
             //range_bar_plot("x_seasonal", "seasonal_hist_obs_x", "y", "seasonal_hist_obs_p10", "seasonal_hist_obs_p90",  "#cccccc", "#cccccc", 0.5, 0.7);
             range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                           "y", "seasonal_proj_mod_min_rcp45_2025", "seasonal_proj_mod_max_rcp45_2025", colors.blues.innerBand, colors.blues.innerBand, 0.25, 0.4),
+            range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                      "y", "seasonal_proj_mod_min_rcp85_2025", "seasonal_proj_mod_max_rcp85_2025", colors.reds.innerBand, colors.reds.innerBand, 0.0, 0.4),
+            range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
                            "y", "seasonal_proj_mod_p10_rcp45_2025", "seasonal_proj_mod_p90_rcp45_2025", colors.blues.innerBand, colors.blues.innerBand, 0.25, 0.4),
             range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
                            "y", "seasonal_proj_mod_p10_rcp85_2025", "seasonal_proj_mod_p90_rcp85_2025", colors.reds.innerBand, colors.reds.innerBand, 0.0, 0.4),
             range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                           "y", "seasonal_proj_mod_min_rcp45_2050", "seasonal_proj_mod_max_rcp45_2050", colors.blues.innerBand, colors.blues.innerBand, 0.25, 0.4),
+            range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                           "y", "seasonal_proj_mod_min_rcp85_2050", "seasonal_proj_mod_max_rcp85_2050", colors.reds.innerBand, colors.reds.innerBand, 0.0, 0.4),
+            range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
                            "y", "seasonal_proj_mod_p10_rcp45_2050", "seasonal_proj_mod_p90_rcp45_2050", colors.blues.innerBand, colors.blues.innerBand, 0.25, 0.4),
             range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
                            "y", "seasonal_proj_mod_p10_rcp85_2050", "seasonal_proj_mod_p90_rcp85_2050", colors.reds.innerBand, colors.reds.innerBand, 0.0, 0.4),
+            range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                           "y", "seasonal_proj_mod_min_rcp45_2075", "seasonal_proj_mod_max_rcp45_2075", colors.blues.innerBand, colors.blues.innerBand, 0.25, 0.4),
+            range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
+                           "y", "seasonal_proj_mod_min_rcp85_2075", "seasonal_proj_mod_max_rcp85_2075", colors.reds.innerBand, colors.reds.innerBand, 0.0, 0.4),
             range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
                            "y", "seasonal_proj_mod_p10_rcp45_2075", "seasonal_proj_mod_p90_rcp45_2075", colors.blues.innerBand, colors.blues.innerBand, 0.25, 0.4),
             range_bar_plot("x_seasonal", "seasonal_proj_mod_x",
@@ -910,6 +891,43 @@
         }]
     };
 
+
+
+    function is_plot_visible(opts, frequency, regime, stat, scenario, timeperiod) {
+        if (opts.frequency != frequency) { return false; }
+        if (frequency === "annual") {
+            if (regime === "hist_obs") { return true; }
+            if (regime === "hist_mod") {
+                if (opts.hrange !== stat && opts.hrange !== "both") { return false; }
+                return true;
+            }
+            // frequency==="annual" && regime==="proj_mod":
+            if (opts.scenario !== scenario && opts.scenario !== "both") { return false; }
+            if (stat === "med") { return opts.pmedian; }
+            if (opts.prange !== stat && opts.prange !== "both") { return false; }
+            return true;
+        } else {
+            if (regime === "hist_obs") { return true; }
+            if (regime === "hist_mod") { return false; }
+            // frequency==="monthly/seasonal" && regime==="proj_mod":
+            if (opts.timeperiod !== timeperiod) { return false; }
+            if (opts.scenario !== scenario && opts.scenario !== "both") { return false; }
+            if (stat === "med") { return opts.pmedian; }
+            if (opts.prange !== stat && opts.prange !== "both") { return false; }
+            return true;
+        }
+    }
+
+    function set_plot_visibilities(obj) {
+        var opts = obj.options;
+        obj.plots.each_keys(["frequency", "regime", "stat", "scenario", "timeperiod"], function(k) {
+            obj.plots.get_in([k.frequency, k.regime, k.stat, k.scenario, k.timeperiod]).visible(
+                is_plot_visible(opts, k.frequency, k.regime, k.stat, k.scenario, k.timeperiod)
+            );
+        });
+    }
+
+
     //        'div'          : "div#widget",         // jquery-style selector for the dom element that you want the graph to appear in
     //        'fips'         : selectedCounty,       // 5-character fips code for county
     //        'frequency'    : selectedFrequency,    // time frequency of graph to display ("annual", "monthly", or "seasonal")
@@ -955,8 +973,9 @@
                 scenario: "both",
                 timeperiod: "2025",
                 presentation: "absolute",
-                range: "minmax",
-                median: false
+                hrange: "minmax",
+                prange: "minmax",
+                pmedian: false
                 //font: no default for this one; defaults to canvas's default font
                 //dataprefix:  no default for this one; it's required
                 //fips:  no default for this one; it's required
@@ -975,12 +994,14 @@
         obj.$graphdiv = obj.$div.find('div.graph');
         obj.$graphdiv.multigraph({muglString: mugl});
         obj.update = function(delta) {
-            if (typeof delta.median === "string") {
-              delta.median = delta.median.toLowerCase() === "true";
+            if (typeof delta.pmedian === "string") {
+              delta.pmedian = delta.pmedian.toLowerCase() === "true";
             }
 
             var old_options = $.extend({}, obj.options);
             obj.options = $.extend({}, obj.options, delta || {});
+
+            set_plot_visibilities(obj);
 
             // if font changed, set it in all the relevant places
             if (obj.options.font != old_options.font) {
@@ -993,47 +1014,6 @@
                     for (j=0; j<axis.labelers().size(); ++j) {
                         axis.labelers().at(j).font("12px " + obj.options.font);
                     }
-                }
-            }
-
-            // if scenario or median changed, set which plots are visible
-            if (obj.options.scenario != old_options.scenario || obj.options.median != old_options.median) {
-                if (obj.options.frequency === "annual") {
-                    each_keys(obj.plots.annual.proj_mod, ["stat", "scenario"], function(k) {
-                        obj.plots.annual.proj_mod[k.stat][k.scenario].visible(
-                          (obj.options.scenario === k.scenario || obj.options.scenario === "both") && (k.stat !== "med" || obj.options.median)
-                        );
-                    });
-                } else if (obj.options.frequency === "monthly") {
-                    each_keys(obj.plots.monthly.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
-                        obj.plots.monthly.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
-                            (obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")) && (k.stat !== "med" || obj.options.median)
-                        );
-                    });
-                } else if (obj.options.frequency === "seasonal") {
-                    each_keys(obj.plots.seasonal.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
-                        obj.plots.seasonal.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
-                            (obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")) && (k.stat !== "med" || obj.options.median)
-                        );
-                    });
-                }
-
-            }
-
-            // if timeperiod changed, set which plots are visible
-            if (obj.options.timeperiod != old_options.timeperiod) {
-                if (obj.options.frequency === "monthly") {
-                    each_keys(obj.plots.monthly.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
-                        obj.plots.monthly.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
-                            (obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")) && (k.stat !== "med" || obj.options.median)
-                        );
-                    });
-                } else if (obj.options.frequency === "seasonal") {
-                    each_keys(obj.plots.seasonal.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
-                        obj.plots.seasonal.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
-                            (obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")) && (k.stat !== "med" || obj.options.median)
-                        );
-                    });
                 }
             }
 
@@ -1092,11 +1072,7 @@
                         obj.data.annual_hist_mod.array(convertArray(attr_list_array(obj.data.annual_hist_mod.columns()), hist_mod_data));
                         obj.data.annual_proj_mod.array(convertArray(attr_list_array(obj.data.annual_proj_mod.columns()), proj_mod_data));
 
-                        obj.plots.annual.hist_obs.visible(true);
-                        each_plot(obj.plots.annual.hist_mod, function(plot) { plot.visible(true); });
-                        each_keys(obj.plots.annual.proj_mod, ["stat", "scenario"], function(k) {
-                            obj.plots.annual.proj_mod[k.stat][k.scenario].visible((obj.options.scenario === k.scenario || obj.options.scenario === "both") && (k.stat !== "med" || obj.options.median));
-                        });
+                        set_plot_visibilities(obj);
 
                         {
                             // Set the base level for the annual hist_obs bar plot --- this is the y-level
@@ -1153,12 +1129,7 @@
                         obj.axes.y.title().content().string(variable_config(obj.options.variable).ytitles.monthly[obj.options.unitsystem]);
                         obj.data.monthly_hist_obs.array(convertArray(attr_list_array(obj.data.monthly_hist_obs.columns()), hist_obs_data));
                         obj.data.monthly_proj_mod.array(convertArray(attr_list_array(obj.data.monthly_proj_mod.columns()), proj_mod_data));
-                        obj.plots.monthly.hist_obs.med.visible(true);
-                        each_keys(obj.plots.monthly.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
-                            obj.plots.monthly.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
-                                (obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")) && (k.stat !== "med" || obj.options.median)
-                            );
-                        });
+                        set_plot_visibilities(obj);
                         obj.m.render();
                     });
 
@@ -1191,12 +1162,7 @@
                         obj.axes.y.title().content().string(variable_config(obj.options.variable).ytitles.seasonal[obj.options.unitsystem]);
                         obj.data.seasonal_hist_obs.array(convertArray(attr_list_array(obj.data.seasonal_hist_obs.columns()), hist_obs_data));
                         obj.data.seasonal_proj_mod.array(convertArray(attr_list_array(obj.data.seasonal_proj_mod.columns()), proj_mod_data));
-                        obj.plots.seasonal.hist_obs.med.visible(true);
-                        each_keys(obj.plots.seasonal.proj_mod, ["stat", "scenario", "timeperiod"], function(k) {
-                            obj.plots.seasonal.proj_mod[k.stat][k.scenario][k.timeperiod].visible(
-                                (obj.options.timeperiod === k.timeperiod && (obj.options.scenario === k.scenario || obj.options.scenario === "both")) && (k.stat !== "med" || obj.options.median)
-                            );
-                        });
+                        set_plot_visibilities(obj);
                         obj.m.render();
                     });
 
@@ -1208,8 +1174,6 @@
         };
         obj.$graphdiv.multigraph('done', function(m) {
             obj.m = m;
-            //xyzzy
-            //window.mg = m;
             obj.axes = {
                 x_annual   : m.graphs().at(0).axes().at(starti()),
                 x_monthly  : m.graphs().at(0).axes().at(nexti()),
@@ -1217,47 +1181,58 @@
                 y          : m.graphs().at(0).axes().at(nexti())
             };
 
-            obj.plots = {};
-            set_in(obj.plots, ["annual",  "hist_mod", "minmax"                 ], m.graphs().at(0).plots().at(starti()));
-            set_in(obj.plots, ["annual",  "hist_mod", "p1090"                  ], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["annual",  "proj_mod", "minmax", "rcp45"        ], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["annual",  "proj_mod", "p1090",  "rcp45"        ], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["annual",  "proj_mod", "minmax", "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["annual",  "proj_mod", "p1090",  "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["annual",  "hist_obs"                           ], m.graphs().at(0).plots().at(nexti()));
+            obj.plots = new KeyObj();
+            obj.plots.set_in(["annual",  "hist_mod", "minmax"                  ], m.graphs().at(0).plots().at(starti()));
+            obj.plots.set_in(["annual",  "hist_mod", "p1090"                   ], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["annual",  "proj_mod", "minmax",  "rcp45"        ], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["annual",  "proj_mod", "p1090",   "rcp45"        ], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["annual",  "proj_mod", "minmax",  "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["annual",  "proj_mod", "p1090",   "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["annual",  "hist_obs"                            ], m.graphs().at(0).plots().at(nexti()));
             // Hiding historical modeled median for now
-            //set_in(obj.plots, ["annual",  "hist_mod", "med"                    ], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["annual",  "proj_mod", "med",    "rcp45"        ], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["annual",  "proj_mod", "med",    "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
+            //obj.plots.set_in(["annual",  "hist_mod", "med"                   ], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["annual",  "proj_mod", "med",     "rcp45"        ], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["annual",  "proj_mod", "med",     "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
 
-            set_in(obj.plots, ["monthly", "hist_obs", "med"                    ], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["monthly", "proj_mod", "p1090",  "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["monthly", "proj_mod", "p1090",  "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["monthly", "proj_mod", "med",    "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["monthly", "proj_mod", "med",    "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["monthly", "proj_mod", "p1090",  "rcp45", "2050"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["monthly", "proj_mod", "p1090",  "rcp85", "2050"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["monthly", "proj_mod", "med",    "rcp45", "2050"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["monthly", "proj_mod", "med",    "rcp85", "2050"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["monthly", "proj_mod", "p1090",  "rcp45", "2075"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["monthly", "proj_mod", "p1090",  "rcp85", "2075"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["monthly", "proj_mod", "med",    "rcp45", "2075"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["monthly", "proj_mod", "med",    "rcp85", "2075"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "hist_obs", "med"                     ], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "minmax",  "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "minmax",  "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "p1090",   "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "p1090",   "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "med",     "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "med",     "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "minmax",  "rcp45", "2050"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "minmax",  "rcp85", "2050"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "p1090",   "rcp45", "2050"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "p1090",   "rcp85", "2050"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "med",     "rcp45", "2050"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "med",     "rcp85", "2050"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "minmax",  "rcp45", "2075"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "minmax",  "rcp85", "2075"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "p1090",   "rcp45", "2075"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "p1090",   "rcp85", "2075"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "med",     "rcp45", "2075"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["monthly", "proj_mod", "med",     "rcp85", "2075"], m.graphs().at(0).plots().at(nexti()));
 
-            set_in(obj.plots, ["seasonal","proj_mod", "p1090",  "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["seasonal","proj_mod", "p1090",  "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["seasonal","proj_mod", "p1090",  "rcp45", "2050"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["seasonal","proj_mod", "p1090",  "rcp85", "2050"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["seasonal","proj_mod", "p1090",  "rcp45", "2075"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["seasonal","proj_mod", "p1090",  "rcp85", "2075"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["seasonal","hist_obs", "med"                    ], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["seasonal","proj_mod", "med",    "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["seasonal","proj_mod", "med",    "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["seasonal","proj_mod", "med",    "rcp45", "2050"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["seasonal","proj_mod", "med",    "rcp85", "2050"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["seasonal","proj_mod", "med",    "rcp45", "2075"], m.graphs().at(0).plots().at(nexti()));
-            set_in(obj.plots, ["seasonal","proj_mod", "med",    "rcp85", "2075"], m.graphs().at(0).plots().at(nexti()));
-
+            obj.plots.set_in(["seasonal","proj_mod", "minmax",  "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "minmax",  "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "p1090",   "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "p1090",   "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "minmax",  "rcp45", "2050"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "minmax",  "rcp85", "2050"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "p1090",   "rcp45", "2050"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "p1090",   "rcp85", "2050"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "minmax",  "rcp45", "2075"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "minmax",  "rcp85", "2075"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "p1090",   "rcp45", "2075"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "p1090",   "rcp85", "2075"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","hist_obs", "med"                     ], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "med",     "rcp45", "2025"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "med",     "rcp85", "2025"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "med",     "rcp45", "2050"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "med",     "rcp85", "2050"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "med",     "rcp45", "2075"], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["seasonal","proj_mod", "med",     "rcp85", "2075"], m.graphs().at(0).plots().at(nexti()));
             obj.data = {
                 annual_hist_obs  : m.graphs().at(0).data().at(starti()),
                 annual_hist_mod  : m.graphs().at(0).data().at(nexti()),

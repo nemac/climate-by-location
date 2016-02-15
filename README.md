@@ -76,6 +76,21 @@ all of the following properties:
     monthly or seasonal data.  Ignored for annual data.  Optional;
     defaults to "2025".
 
+  * `prange`
+
+    One of the strings "minmax", "p1090", or "both", indicating which
+    range band to show for model projection data.
+  
+  * `hrange`
+
+    One of the strings "minmax", "p1090", or "both", indicating which
+    range band to show for model historical data.
+
+  * `pmedian`
+
+    true or false, indicating whether to show the median line(s) for
+    model projection data
+  
   * `font`
 
     A string giving the font-family to be used for all text in the graph.
