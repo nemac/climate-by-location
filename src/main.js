@@ -1193,6 +1193,12 @@
             }
             obj.m.render();
         };
+
+        obj.downloadImage = function(link, filename) {
+          link.href = obj.$graphdiv.find('canvas')[0].toDataURL('image/png');
+          link.download = filename;
+        }
+
         obj.$graphdiv.multigraph('done', function(m) {
             obj.m = m;
             obj.axes = {
