@@ -101,6 +101,11 @@ $(document).ready(function() {
         $('#download-panel').addClass("hidden");
     });
 
+    // download hook
+    $('#download-image-link').click(function(e) {
+      cwg.downloadImage(this, 'graph.png');
+    });
+
     WebFont.load({
         google: {
             families: ['Pacifico', 'Roboto']
