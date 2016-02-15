@@ -372,7 +372,7 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
             }
             return obj;
         },
-        
+
         set_in: function(keys, value) {
             // Take a JS object "obj", an array of string key names "keys", and a "value",
             // and sets the nested property in obj accessed by that sequence of keys
@@ -396,7 +396,7 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
             });
             p[keys[keys.length-1]] = value;
         },
-        
+
         each_keys: function(levels, f, k) {
             if (k === undefined) {
                 this.each_keys(levels, f, {});
@@ -419,9 +419,9 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
                 }
             });
         }
-        
+
     };
-    
+
     function KeyObj() {
         this.__proto__ = KeyObjProto;
     }
@@ -499,19 +499,6 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
         });
         return anomalies;
     }
-
-    var colors = {
-        reds: {
-            line: '#f5442d',
-            innerBand: '#f65642',
-            outerBand: '#f76956'
-        },
-        blues: {
-            line: '#0058cf',
-            innerBand: '#1968d3',
-            outerBand: '#3279d8'
-        }
-    };
 
     function band_plot(x_axis, x, y_axis, y0, y1, fill_color, fill_opacity) {
         var obj = {
@@ -591,6 +578,40 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
         return obj;
     }
 
+    var colors = {
+        reds: {
+            line: '#f5442d',
+            innerBand: '#f65642',
+            outerBand: '#f76956'
+        },
+        blues: {
+            line: '#0058cf',
+            innerBand: '#1968d3',
+            outerBand: '#3279d8'
+        },
+        grays: {
+            innerBand: "#aaaaaa",
+            outerBand: "#bbbbbb"
+            //original hard-coded values
+            //innerBand: "#999999",
+            //outerBand: "#cccccc"
+        },
+        opacities: {
+            ann_hist_1090: 0.6,
+            ann_hist_minmax: 0.6,
+            ann_proj_1090: 0.5,
+            ann_proj_minmax: 0.5,
+            mon_proj_1090: 0.5,
+            mon_proj_minmax: 0.5,
+            //original hard-coded values
+            //ann_hist_1090: 0.5,
+            //ann_hist_minmax: 0.7,
+            //ann_proj_1090: 0.3,
+            //ann_proj_minmax: 0.3,
+            //mon_proj_1090: 0.3,
+            //mon_proj_minmax: 0.3,
+        }
+    };
 
     var mugl = {
         legend: false,
@@ -699,12 +720,12 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
             //
             // annual plots:
             //
-            band_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_min",       "annual_hist_mod_max",       "#cccccc",              0.7),
-            band_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_p10",       "annual_hist_mod_p90",       "#999999",              0.5),
-            band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_min_rcp45", "annual_proj_mod_max_rcp45", colors.blues.outerBand, 0.3),
-            band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_p10_rcp45", "annual_proj_mod_p90_rcp45", colors.blues.innerBand, 0.3),
-            band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_min_rcp85", "annual_proj_mod_max_rcp85", colors.reds.outerBand,  0.3),
-            band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_p10_rcp85", "annual_proj_mod_p90_rcp85", colors.reds.innerBand,  0.3),
+            band_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_min",       "annual_hist_mod_max",       colors.grays.outerBand, colors.opacities.ann_hist_minmax),
+            band_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_p10",       "annual_hist_mod_p90",       colors.grays.innerBand, colors.opacities.ann_hist_1090),
+            band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_min_rcp45", "annual_proj_mod_max_rcp45", colors.blues.outerBand, colors.opacities.ann_proj_minmax),
+            band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_p10_rcp45", "annual_proj_mod_p90_rcp45", colors.blues.innerBand, colors.opacities.ann_proj_1090),
+            band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_min_rcp85", "annual_proj_mod_max_rcp85", colors.reds.outerBand,  colors.opacities.ann_proj_minmax),
+            band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_p10_rcp85", "annual_proj_mod_p90_rcp85", colors.reds.innerBand,  colors.opacities.ann_proj_1090),
             bar_plot_based_at("x_annual", "annual_hist_obs_x", "y", "annual_hist_obs_y", 0),
             // Hiding historical modeled median for now
             //line_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_med",       "#000000"),
@@ -718,24 +739,24 @@ var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(
             //line_plot("x_monthly", "monthly_hist_obs_x", "y", "monthly_hist_obs_p10", "#000000", true)
             //line_plot("x_monthly", "monthly_hist_obs_x", "y", "monthly_hist_obs_p90", "#000000", true)
 
-            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2025", "monthly_proj_mod_max_rcp45_2025", colors.blues.innerBand, 0.3),
-            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2025", "monthly_proj_mod_max_rcp85_2025", colors.reds.innerBand, 0.3),
-            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2025", "monthly_proj_mod_p90_rcp45_2025", colors.blues.innerBand, 0.3),
-            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2025", "monthly_proj_mod_p90_rcp85_2025", colors.reds.innerBand, 0.3),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2025", "monthly_proj_mod_max_rcp45_2025", colors.blues.innerBand, colors.opacities.mon_proj_minmax),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2025", "monthly_proj_mod_max_rcp85_2025", colors.reds.innerBand,  colors.opacities.mon_proj_minmax),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2025", "monthly_proj_mod_p90_rcp45_2025", colors.blues.innerBand, colors.opacities.mon_proj_1090),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2025", "monthly_proj_mod_p90_rcp85_2025", colors.reds.innerBand,  colors.opacities.mon_proj_1090),
             line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2025", colors.blues.outerBand),
             line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp85_2025", colors.reds.line),
 
-            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2050", "monthly_proj_mod_max_rcp45_2050", colors.blues.innerBand, 0.3),
-            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2050", "monthly_proj_mod_max_rcp85_2050", colors.reds.innerBand, 0.3),
-            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2050", "monthly_proj_mod_p90_rcp45_2050", colors.blues.innerBand, 0.3),
-            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2050", "monthly_proj_mod_p90_rcp85_2050", colors.reds.innerBand, 0.3),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2050", "monthly_proj_mod_max_rcp45_2050", colors.blues.innerBand, colors.opacities.mon_proj_minmax),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2050", "monthly_proj_mod_max_rcp85_2050", colors.reds.innerBand,  colors.opacities.mon_proj_minmax),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2050", "monthly_proj_mod_p90_rcp45_2050", colors.blues.innerBand, colors.opacities.mon_proj_1090),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2050", "monthly_proj_mod_p90_rcp85_2050", colors.reds.innerBand,  colors.opacities.mon_proj_1090),
             line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2050", colors.blues.outerBand),
             line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp85_2050", colors.reds.line),
 
-            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2075", "monthly_proj_mod_max_rcp45_2075", colors.blues.innerBand, 0.3),
-            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2075", "monthly_proj_mod_max_rcp85_2075", colors.reds.innerBand, 0.3),
-            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2075", "monthly_proj_mod_p90_rcp45_2075", colors.blues.innerBand, 0.3),
-            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2075", "monthly_proj_mod_p90_rcp85_2075", colors.reds.innerBand, 0.3),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2075", "monthly_proj_mod_max_rcp45_2075", colors.blues.innerBand, colors.opacities.mon_proj_minmax),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2075", "monthly_proj_mod_max_rcp85_2075", colors.reds.innerBand,  colors.opacities.mon_proj_minmax),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2075", "monthly_proj_mod_p90_rcp45_2075", colors.blues.innerBand, colors.opacities.mon_proj_1090),
+            band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2075", "monthly_proj_mod_p90_rcp85_2075", colors.reds.innerBand,  colors.opacities.mon_proj_1090),
             line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2075", colors.blues.outerBand),
             line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp85_2075", colors.reds.line),
 
