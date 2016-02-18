@@ -17,18 +17,24 @@ $(document).ready(function() {
             $('label[for=timeperiod]').css("opacity", 0.5);
             $('#presentation').removeAttr("disabled");
             $('label[for=presentation]').css("opacity", 1.0);
+            $('#slider-range').show();
+            $('#x-axis-pan-note').hide();
         }
         if (freq === "monthly") {
             $('#timeperiod').removeAttr("disabled");
             $('label[for=timeperiod]').css("opacity", 1.0);
             $('#presentation').attr("disabled", "true");
             $('label[for=presentation]').css("opacity", 0.5);
+            $('#slider-range').hide();
+            $('#x-axis-pan-note').show();
         }
         if (freq === "seasonal") {
             $('#timeperiod').removeAttr("disabled");
             $('label[for=timeperiod]').css("opacity", 1.0);
             $('#presentation').attr("disabled", "true");
             $('label[for=presentation]').css("opacity", 0.5);
+            $('#slider-range').hide();
+            $('#x-axis-pan-note').show();
         }
         populate_variables(freq);
     }
@@ -106,6 +112,24 @@ $(document).ready(function() {
       cwg.downloadImage(this, 'graph.png');
     });
 
+    $("#slider-range").slider({
+        range: true,
+        min: 1950,
+        max: 2099,
+        values: [ 1950, 2099 ],
+        slide: function( event, ui ) {
+            // return the return value returned by setXRange, to keep
+            // the slider thumb(s) from moving into a disallowed range
+            return cwg.setXRange(ui.values[0], ui.values[1]);
+        }
+    });
+
+    // This function will be called whenever the user changes the x-scale in the graph.
+    function xrangeset(min,max) {
+        // Force the slider thumbs to adjust to the appropriate place
+        $("#slider-range").slider("option", "values", [min,max]);
+    }
+
     WebFont.load({
         google: {
             families: ['Pacifico', 'Roboto']
@@ -120,7 +144,8 @@ $(document).ready(function() {
                 'fips'          : $('#county').val(),
                 'variable'      : $('#variable').val(),
                 'scenario'      : $('#scenario').val(),
-                'presentation'  : $('#presentation').val()
+                'presentation'  : $('#presentation').val(),
+                'xrangefunc'    : xrangeset
             });
         }
     });

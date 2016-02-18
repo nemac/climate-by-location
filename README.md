@@ -96,9 +96,17 @@ all of the following properties:
     A string giving the font-family to be used for all text in the graph.
     Optional; defaults to the browser's default canvas font (depends on
     the browser).
+    
+  * `xrangefunc`
+  
+    A function to be called whenever the user changes the scale on the
+    horizontal annual data axis (horizontal scale changes are not allowed in the
+    monthly or seasonal graphs).  This function will receive two arguments,
+    which are the new minimum and maximum values along the axis.
 
 The `climate_widget.graph()` function returns an object which
 represents the graph just created.  This object has three properties:
+
    1. `update` is a function that can be used to modify the graph. The `update()`
       function takes an OPTIONS object with the same properties described above
       for `climate_widget.graph()`, except that the `div` setting cannot be changed
@@ -116,20 +124,34 @@ represents the graph just created.  This object has three properties:
       Note that not all presentations use all datasets, so there may be graphs
       that when `dataurls()` is called do not return an object with all three keys.
 
-    3. `downloadImage` is a callback function to an on-click event on an `<a>` tag.
-      this function handles what is required to download the canvas as a PNG.
-
-      In order to use this function, an `<a>` tag must be declared in the HTML.
-      The containing application code then needs to add an event handler as follows:
+   3. `downloadImage` is a function that the contaiming application may call
+      in its click-event-handling code for an `<a>` element, in order to modify that
+      `<a>` element so that clicking on it will download the current canvas image.
+      The `downloadImage` function takes two arguments.  The first argument
+      should be the `<a>` element -- i.e. it should be the value of `this` inside
+      the click-event-handler function for an `<a>` tag.  The second argument
+      gives the name that will be used for the downloaded file.
+      
+      For example:
 
       ```javascript
       $('a#download-image-link-id').click(function() {
           // cwg is the object returned by the climate_widget.graph constructor
           cwg.downloadImage(this, 'nameOfDownloadedImage.png');
           // note that the 'this' argument is important as this function modifies
-          // the <a> tag to perform the download.
+          // the <a> tag
       });
       ```
+      
+   4. `setXRange` is a function that will set the range of data visible on the
+      graph's x-axis when an annual data graph is displayed (monthly and seasonal
+      data graphs have fixed x-axes).  It takes two arguments, which are the
+      desired minimum and maximum values for the axis.  `setXRange` returns either
+      true or false, depending on whether the specified range is allowed according
+      to whatever pan and/or zoom limits have been specified for the axis:  if
+      the specified range is allowed, the axis is adjusted and true is returned;
+      if the specified range is not allowed, the axis is unchanged and false is
+      returned.
 
 ### `climate_widget.variables(FREQUENCY)`
 

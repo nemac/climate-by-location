@@ -652,7 +652,7 @@
             ann_proj_1090: 0.5,
             ann_proj_minmax: 0.5,
             mon_proj_1090: 0.5,
-            mon_proj_minmax: 0.5,
+            mon_proj_minmax: 0.5
             //original hard-coded values
             //ann_hist_1090: 0.5,
             //ann_hist_minmax: 0.7,
@@ -1257,7 +1257,27 @@
         obj.downloadImage = function(link, filename) {
           link.href = obj.$graphdiv.find('canvas')[0].toDataURL('image/png');
           link.download = filename;
-        }
+        };
+
+        function setRange(axis, min, max) {
+            var pan = axis.pan();
+            var panMin = pan ? pan.min().getRealValue() : null;
+            var panMax = pan ? pan.max().getRealValue() : null;
+            var zoom = axis.zoom();
+            var zoomMin = zoom ? zoom.min().getRealValue() : null;
+            var zoomMax = zoom ? zoom.max().getRealValue() : null;
+            if (panMax !== null && max > panMax) { return false; }
+            if (panMin !== null && min < panMin) { return false; }
+            if (zoomMax !== null && (max-min)>zoomMax) { return false; }
+            if (zoomMin !== null && (max-min)<zoomMin) { return false; }
+            axis.setDataRange(min-0.5, max+0.5);
+            obj.m.render();
+            return true;
+        };
+
+        obj.setXRange = function(min,max) {
+            return setRange(obj.axes.x_annual, min, max);
+        };
 
         obj.$graphdiv.multigraph('done', function(m) {
             obj.m = m;
@@ -1267,6 +1287,20 @@
                 x_seasonal : m.graphs().at(0).axes().at(nexti()),
                 y          : m.graphs().at(0).axes().at(nexti())
             };
+
+            obj.axes.x_annual.addListener('dataRangeSet', function (e) {
+                if (obj.options.xrangefunc) {
+                    var min = Math.ceil(e.min.getRealValue());
+                    var max = Math.floor(e.max.getRealValue());
+                    obj.options.xrangefunc(min,max);
+                    //console.log(e);
+                    //console.log(min);
+                    //console.log(max);
+                    //var minYear = parseInt(yearFormatter.format(e.min), 10);
+                    //var maxYear = parseInt(yearFormatter.format(e.max), 10);
+                }
+            });
+
 
             obj.plots = new KeyObj();
             obj.plots.set_in(["annual",  "hist_mod", "minmax"                  ], m.graphs().at(0).plots().at(starti()));
