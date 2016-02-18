@@ -154,8 +154,8 @@ represents the graph just created.  This object has three properties:
       returned.
       
    5. `resize` is a function that will cause the graph to resize itself to fit
-      the <div> that contains it; you can call this function to adjust the size
-      of the graph if the <div> changes size after the graph has been displayed.
+      the `<div>` that contains it; you can call this function to adjust the size
+      of the graph if the `<div>` changes size after the graph has been displayed.
       `resize` takes no arguments; just call it like `cwg.resize()` and the
       graph will adjust to fit its container.
 
