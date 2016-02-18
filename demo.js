@@ -130,6 +130,10 @@ $(document).ready(function() {
         $("#slider-range").slider("option", "values", [min,max]);
     }
 
+    $(window).resize(function() {
+        cwg.resize();
+    });
+
     WebFont.load({
         google: {
             families: ['Pacifico', 'Roboto']

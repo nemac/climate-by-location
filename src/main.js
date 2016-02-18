@@ -1279,6 +1279,10 @@
             return setRange(obj.axes.x_annual, min, max);
         };
 
+        obj.resize = function() {
+            if (obj.m) { obj.m.resize(); }
+        };
+
         obj.$graphdiv.multigraph('done', function(m) {
             obj.m = m;
             obj.axes = {
