@@ -91,6 +91,16 @@ all of the following properties:
     true or false, indicating whether to show the median line(s) for
     model projection data
 
+  * `yzoom`
+
+    true or false, indicating whether to allow the user to zoom along
+    the graph's y-axis; defaults to true
+
+  * `ypan`
+
+    true or false, indicating whether to allow the user to pan along
+    the graph's y-axis; defaults to true
+
   * `font`
 
     A string giving the font-family to be used for all text in the graph.

@@ -768,10 +768,12 @@ Labeler.parseXML=function(xml,axis,defaults,spacing){var labeler,Point=require("
                 ]
             },
             pan: {
+              allowed: "yes",
               min: -7500.5,
               max: 10000.5
             },
             zoom: {
+              allowed: "yes",
               min: 0.05,
               max: 10000
             }
@@ -1066,7 +1068,9 @@ Labeler.parseXML=function(xml,axis,defaults,spacing){var labeler,Point=require("
                 presentation: "absolute",
                 hrange: "minmax",
                 prange: "minmax",
-                pmedian: false
+                pmedian: false,
+                yzoom: true,
+                ypan: true
                 //font: no default for this one; defaults to canvas's default font
                 //dataprefix:  no default for this one; it's required
                 //fips:  no default for this one; it's required
@@ -1088,11 +1092,28 @@ Labeler.parseXML=function(xml,axis,defaults,spacing){var labeler,Point=require("
             if (typeof delta.pmedian === "string") {
               delta.pmedian = delta.pmedian.toLowerCase() === "true";
             }
+            if (typeof delta.yzoom === "string") {
+              delta.yzoom = delta.yzoom.toLowerCase() === "true";
+            }
+            if (typeof delta.ypan === "string") {
+              delta.ypan = delta.ypan.toLowerCase() === "true";
+            }
 
             var old_options = $.extend({}, obj.options);
             obj.options = $.extend({}, obj.options, delta || {});
 
             set_plot_visibilities(obj);
+
+            if (obj.options.yzoom != old_options.yzoom) {
+                console.log('yzoom changed');
+                obj.axes.y.zoom().allowed(obj.options.yzoom);
+                console.log(obj.axes.y.zoom().allowed());
+            }
+            if (obj.options.ypan != old_options.ypan) {
+                console.log('ypan changed');
+                obj.axes.y.pan().allowed(obj.options.ypan);
+                console.log(obj.axes.y.pan().allowed());
+            }
 
             // if font changed, set it in all the relevant places
             if (obj.options.font != old_options.font) {
