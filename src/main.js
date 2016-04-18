@@ -1077,7 +1077,7 @@
         $('.errorDisplayDetails').remove();
         obj.$div.append("<div class='graph' style='width: 100%; height: 100%;'></div>");
         obj.$graphdiv = obj.$div.find('div.graph');
-        obj.$graphdiv.multigraph({muglString: mugl});
+        obj.$graphdiv.multigraph({muglString: mugl, noscroll: true});
         obj.update = function(delta) {
             if (typeof delta.pmedian === "string") {
               delta.pmedian = delta.pmedian.toLowerCase() === "true";
