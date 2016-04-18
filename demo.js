@@ -100,6 +100,16 @@ $(document).ready(function() {
             prange: $('#range').val()
         });
     });
+    $('#histmod').change(function() {
+        cwg.update({
+            histmod: $('#histmod').val()
+        });
+    });
+    $('#histobs').change(function() {
+        cwg.update({
+            histobs: $('#histobs').val()
+        });
+    });
 
     $('#download-button').click(function() {
         if (cwg) {

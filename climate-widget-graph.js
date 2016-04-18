@@ -709,7 +709,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             zoom: {
               min: "10Y",
               max: "151Y"
-            }
+            },
+            grid: true
         },{
             id: "x_monthly",
             min: -2,
@@ -726,7 +727,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             },
             zoom: {
               allowed: "no"
-            }
+            },
+            grid: true
         }, {
             id: "x_seasonal",
             min: -0.5,
@@ -758,6 +760,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             id: "y",
             min: 0,
             max: 2000,
+            grid: true,
             title: { text: " ", angle: 90, anchor: [0,-1], position: [-40,0] },
             visible: true,
             labels: {
@@ -989,10 +992,10 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
     function is_plot_visible(opts, frequency, regime, stat, scenario, timeperiod) {
         if (opts.frequency != frequency) { return false; }
         if (frequency === "annual") {
-            if (regime === "hist_obs") { return true; }
+            if (regime === "hist_obs") { return opts.histobs; }
             if (regime === "hist_mod") {
                 if (opts.hrange !== stat && opts.hrange !== "both") { return false; }
-                return true;
+                return opts.histmod;
             }
             // frequency==="annual" && regime==="proj_mod":
             if (opts.scenario !== scenario && opts.scenario !== "both") { return false; }
@@ -1000,7 +1003,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             if (opts.prange !== stat && opts.prange !== "both") { return false; }
             return true;
         } else {
-            if (regime === "hist_obs") { return true; }
+            if (regime === "hist_obs") { return opts.histobs; }
             if (regime === "hist_mod") { return false; }
             // frequency==="monthly/seasonal" && regime==="proj_mod":
             if (opts.timeperiod !== timeperiod) { return false; }
@@ -1069,6 +1072,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 hrange: "minmax",
                 prange: "minmax",
                 pmedian: false,
+                hmedian: true,
+                histobs: true,
+                histmod: true,
                 yzoom: true,
                 ypan: true
                 //font: no default for this one; defaults to canvas's default font
@@ -1091,6 +1097,12 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         obj.update = function(delta) {
             if (typeof delta.pmedian === "string") {
               delta.pmedian = delta.pmedian.toLowerCase() === "true";
+            }
+            if (typeof delta.histobs === "string") {
+              delta.histobs = delta.histobs.toLowerCase() === "true";
+            }
+            if (typeof delta.histmod === "string") {
+              delta.histmod = delta.histmod.toLowerCase() === "true";
             }
             if (typeof delta.yzoom === "string") {
               delta.yzoom = delta.yzoom.toLowerCase() === "true";
