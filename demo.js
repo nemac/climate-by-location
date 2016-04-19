@@ -91,7 +91,8 @@ $(document).ready(function() {
     });
     $('#median').change(function() {
         cwg.update({
-            pmedian: $('#median').val()
+            pmedian: $('#median').val(),
+            hmedian: $('#median').val()
         });
     });
     $('#range').change(function() {
