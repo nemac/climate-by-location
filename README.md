@@ -91,6 +91,22 @@ all of the following properties:
     true or false, indicating whether to show the median line(s) for
     model projection data
 
+  * `hmedian`
+
+    true or false, indicating whether to show the median line(s) for
+    annual historical model data (applies to annual data only; there
+    is no historical model data for monthly or seasonal data)
+
+  * `histobs`
+  
+    true or false, indicating whether to show historical observed data
+
+  * `histmod`
+  
+    true or false, indicating whether to show annual historical model data
+    (applies to annual data only; there is no historical model data for
+    monthly or seasonal data)
+
   * `yzoom`
 
     true or false, indicating whether to allow the user to zoom along
