@@ -91,13 +91,24 @@ $(document).ready(function() {
     });
     $('#median').change(function() {
         cwg.update({
-            pmedian: $('#median').val()
+            pmedian: $('#median').val(),
+            hmedian: $('#median').val()
         });
     });
     $('#range').change(function() {
         cwg.update({
             hrange: $('#range').val(),
             prange: $('#range').val()
+        });
+    });
+    $('#histmod').change(function() {
+        cwg.update({
+            histmod: $('#histmod').val()
+        });
+    });
+    $('#histobs').change(function() {
+        cwg.update({
+            histobs: $('#histobs').val()
         });
     });
 

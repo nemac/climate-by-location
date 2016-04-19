@@ -699,7 +699,8 @@
             zoom: {
               min: "10Y",
               max: "151Y"
-            }
+            },
+            grid: true
         },{
             id: "x_monthly",
             min: -2,
@@ -716,7 +717,8 @@
             },
             zoom: {
               allowed: "no"
-            }
+            },
+            grid: true
         }, {
             id: "x_seasonal",
             min: -0.5,
@@ -748,6 +750,7 @@
             id: "y",
             min: 0,
             max: 2000,
+            grid: true,
             title: { text: " ", angle: 90, anchor: [0,-1], position: [-40,0] },
             visible: true,
             labels: {
@@ -779,8 +782,7 @@
             band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_min_rcp85", "annual_proj_mod_max_rcp85", colors.reds.outerBand,  colors.opacities.ann_proj_minmax),
             band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_p10_rcp85", "annual_proj_mod_p90_rcp85", colors.reds.innerBand,  colors.opacities.ann_proj_1090),
             bar_plot_based_at("x_annual", "annual_hist_obs_x", "y", "annual_hist_obs_y", 0),
-            // Hiding historical modeled median for now
-            //line_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_med",       "#000000"),
+            line_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_med",       "#000000"),
             line_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_med_rcp45", colors.blues.line),
             line_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_med_rcp85", colors.reds.line),
             //
@@ -975,14 +977,17 @@
     };
 
 
-
     function is_plot_visible(opts, frequency, regime, stat, scenario, timeperiod) {
         if (opts.frequency != frequency) { return false; }
         if (frequency === "annual") {
-            if (regime === "hist_obs") { return true; }
+            if (regime === "hist_obs") { return opts.histobs; }
             if (regime === "hist_mod") {
-                if (opts.hrange !== stat && opts.hrange !== "both") { return false; }
-                return true;
+                if (stat === "med") {
+                    return opts.histmod && opts.hmedian;
+                } else {
+                    if (opts.hrange !== stat && opts.hrange !== "both") { return false; }
+                    return opts.histmod;
+                }
             }
             // frequency==="annual" && regime==="proj_mod":
             if (opts.scenario !== scenario && opts.scenario !== "both") { return false; }
@@ -990,7 +995,7 @@
             if (opts.prange !== stat && opts.prange !== "both") { return false; }
             return true;
         } else {
-            if (regime === "hist_obs") { return true; }
+            if (regime === "hist_obs") { return opts.histobs; }
             if (regime === "hist_mod") { return false; }
             // frequency==="monthly/seasonal" && regime==="proj_mod":
             if (opts.timeperiod !== timeperiod) { return false; }
@@ -1059,6 +1064,9 @@
                 hrange: "minmax",
                 prange: "minmax",
                 pmedian: false,
+                hmedian: false,
+                histobs: true,
+                histmod: true,
                 yzoom: true,
                 ypan: true
                 //font: no default for this one; defaults to canvas's default font
@@ -1082,6 +1090,15 @@
             if (typeof delta.pmedian === "string") {
               delta.pmedian = delta.pmedian.toLowerCase() === "true";
             }
+            if (typeof delta.hmedian === "string") {
+              delta.hmedian = delta.hmedian.toLowerCase() === "true";
+            }
+            if (typeof delta.histobs === "string") {
+              delta.histobs = delta.histobs.toLowerCase() === "true";
+            }
+            if (typeof delta.histmod === "string") {
+              delta.histmod = delta.histmod.toLowerCase() === "true";
+            }
             if (typeof delta.yzoom === "string") {
               delta.yzoom = delta.yzoom.toLowerCase() === "true";
             }
@@ -1095,14 +1112,14 @@
             set_plot_visibilities(obj);
 
             if (obj.options.yzoom != old_options.yzoom) {
-                console.log('yzoom changed');
+                //console.log('yzoom changed');
                 obj.axes.y.zoom().allowed(obj.options.yzoom);
-                console.log(obj.axes.y.zoom().allowed());
+                //console.log(obj.axes.y.zoom().allowed());
             }
             if (obj.options.ypan != old_options.ypan) {
-                console.log('ypan changed');
+                //console.log('ypan changed');
                 obj.axes.y.pan().allowed(obj.options.ypan);
-                console.log(obj.axes.y.pan().allowed());
+                //console.log(obj.axes.y.pan().allowed());
             }
 
             // if font changed, set it in all the relevant places
@@ -1335,8 +1352,7 @@
             obj.plots.set_in(["annual",  "proj_mod", "minmax",  "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
             obj.plots.set_in(["annual",  "proj_mod", "p1090",   "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
             obj.plots.set_in(["annual",  "hist_obs"                            ], m.graphs().at(0).plots().at(nexti()));
-            // Hiding historical modeled median for now
-            //obj.plots.set_in(["annual",  "hist_mod", "med"                   ], m.graphs().at(0).plots().at(nexti()));
+            obj.plots.set_in(["annual",  "hist_mod", "med"                     ], m.graphs().at(0).plots().at(nexti()));
             obj.plots.set_in(["annual",  "proj_mod", "med",     "rcp45"        ], m.graphs().at(0).plots().at(nexti()));
             obj.plots.set_in(["annual",  "proj_mod", "med",     "rcp85"        ], m.graphs().at(0).plots().at(nexti()));
 
