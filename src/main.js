@@ -2,7 +2,7 @@
 //   climate_widget.graph(OPTIONS)
 //   climate_widget.variables(FREQUENCY)
 // See the file README.md for more details.
-(function($){
+;(function($){
 
     if (!String.prototype.endsWith) {
         // String.endsWith() polyfill for browsers that don't implement it
@@ -41,13 +41,24 @@
                 english: "Mean Daily Maximum Temperature",
                 metric: "Mean Daily Maximum Temperature"
             },
-            acis_elements: [{
-                "name": "maxt",
-                "interval": "yly",
-                "duration": "yly",
-                "reduce": "mean",
-                "area_reduce": "county_mean"
-            }],
+            acis_elements: {
+                annual: [{
+                    "name": "maxt",
+                    "units":"degreeC",
+                    "interval": "yly",
+                    "duration": "yly",
+                    "reduce": "mean",
+                    "area_reduce": "county_mean"
+                }],
+                monthly: [{
+                    "name": "maxt",
+                    "units":"degreeC",
+                    "interval": "mly",
+                    "duration": "mly",
+                    "reduce": "mean",
+                    "area_reduce": "county_mean"
+                }]
+            },
             dataconverters: {
                 metric: identity,
                 english: celsius_to_fahrenheit
@@ -80,13 +91,24 @@
                 english: "Mean Daily Minimum Temperature",
                 metric: "Mean Daily Minimum Temperature"
             },
-            acis_elements: [{
-                "name": "mint",
-                "interval": "yly",
-                "duration": "yly",
-                "reduce": "mean",
-                "area_reduce": "county_mean"
-            }],
+            acis_elements: {
+                annual: [{
+                    "name": "mint",
+                    "units":"degreeC",
+                    "interval": "yly",
+                    "duration": "yly",
+                    "reduce": "mean",
+                    "area_reduce": "county_mean"
+                }],
+                monthly: [{
+                    "name": "mint",
+                    "units":"degreeC",
+                    "interval": "mly",
+                    "duration": "mly",
+                    "reduce": "mean",
+                    "area_reduce": "county_mean"
+                }]
+            },
             dataconverters: {
                 metric: identity,
                 english: celsius_to_fahrenheit
@@ -120,14 +142,24 @@
                 english: "Mean Daily Average Precipitation",
                 metric: "Mean Daily Average Precipitation"
             },
-            acis_elements: [{
-            "name": "pcpn",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "mean",
-            "units": "inch",
-            "area_reduce": "county_mean"
-        }],
+            acis_elements: {
+                annual: [{
+                    "name": "pcpn",
+                    "interval": "yly",
+                    "duration": "yly",
+                    "reduce": "mean",
+                    "units": "mm",
+                    "area_reduce": "county_mean"
+                }],
+                monthly: [{
+                    "name": "pcpn",
+                    "interval": "mly",
+                    "duration": "mly",
+                    "reduce": "mean",
+                    "units": "mm",
+                    "area_reduce": "county_mean"
+                }]
+            },
             dataconverters: {
                 metric: identity,
                 english: mm_to_inches
@@ -161,13 +193,15 @@
                 english: "Days with Maximum Temperature Above 95 °F",
                 metric: "Days with Maximum Temperature Above 35 °C"
             },
-            acis_elements:[{
-                "name": "maxt",
-                "interval": "yly",
-                "duration": "yly",
-                "reduce": "cnt_gt_95",
-                "area_reduce": "county_mean"
-            }],
+            acis_elements: {
+                annual: [{
+                    "name": "maxt",
+                    "interval": "yly",
+                    "duration": "yly",
+                    "reduce": "cnt_gt_95",
+                    "area_reduce": "county_mean"
+                }]
+            },
             dataconverters: {
                 metric: identity,
                 english: identity
@@ -192,13 +226,15 @@
                 english: "Days with Minimum Temperature Below 32 °F",
                 metric: "Days with Minimum Temperature Below 0 °C"
             },
-            acis_elements: [{
-                "name": "mint",
-                "interval": "yly",
-                "duration": "yly",
-                "reduce": "cnt_lt_32",
-                "area_reduce": "county_mean"
-            }],
+            acis_elements: {
+                annual: [{
+                    "name": "mint",
+                    "interval": "yly",
+                    "duration": "yly",
+                    "reduce": "cnt_lt_32",
+                    "area_reduce": "county_mean"
+                }]
+            },
             dataconverters: {
                 metric: identity,
                 english: identity
@@ -223,13 +259,15 @@
                 english: "Heating Degree Days",
                 metric: "Heating Degree Days"
             },
-            acis_elements: [{
-                "name": "hdd",
-                "interval": "yly",
-                "duration": "yly",
-                "reduce": "sum",
-                "area_reduce": "county_mean"
-            }],
+            acis_elements: {
+                annual: [{
+                    "name": "hdd",
+                    "interval": "yly",
+                    "duration": "yly",
+                    "reduce": "sum",
+                    "area_reduce": "county_mean"
+                }]
+            },
             dataconverters: {
                 metric: identity,
                 english: cdd_to_fdd
@@ -254,13 +292,15 @@
                 english: "Cooling Degree Days",
                 metric: "Cooling Degree Days"
             },
-            acis_elements:  [{
-                "name": "cdd",
-                "interval": "yly",
-                "duration": "yly",
-                "reduce": "sum",
-                "area_reduce": "county_mean"
-            }],
+            acis_elements: {
+                annual: [{
+                    "name": "cdd",
+                    "interval": "yly",
+                    "duration": "yly",
+                    "reduce": "sum",
+                    "area_reduce": "county_mean"
+                }]
+            },
             dataconverters: {
                 metric: identity,
                 english: cdd_to_fdd
@@ -285,13 +325,15 @@
                 english: "Days of Precipitation Above 1 in",
                 metric: "Days of Precipitation Above 25.3 mm"
             },
-            acis_elements: [{
-                "name": "pcpn",
-                "interval": "yly",
-                "duration": "yly",
-                "reduce": "cnt_gt_1",
-                "area_reduce": "county_mean"
-            }],
+            acis_elements: {
+                annual: [{
+                    "name": "pcpn",
+                    "interval": "yly",
+                    "duration": "yly",
+                    "reduce": "cnt_gt_1",
+                    "area_reduce": "county_mean"
+                }]
+            },
             dataconverters: {
                 metric: identity,
                 english: identity
@@ -535,29 +577,109 @@
 
     function getHistoricalData(obj) {
         if (obj.options.frequency == 'annual') {
-
             return getCountyBBox(obj.options.fips)
-                .then(function(bbox){return $.ajax({
-                    url: 'https://data.rcc-acis.org/' + 'GridData',
-                    type: "POST",
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    data: JSON.stringify({
-                        "bbox": bbox.join(', '),
-                        "sdate": "1981",
-                        "edate": (new Date().getFullYear().toString()),
-                        "grid": "21",
-                        "elems": variable_config(obj.options.variable)['acis_elements']
+                .then(function (bbox) {
+                    return $.ajax({
+                        url: 'https://data.rcc-acis.org/' + 'GridData',
+                        type: "POST",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        data: JSON.stringify({
+                            "bbox": bbox.join(','),
+                            "sdate": "1981",
+                            "edate": (new Date().getFullYear().toString()),
+                            "grid": "21",
+                            "elems": variable_config(obj.options.variable)['acis_elements']['annual']
+                        })
                     })
-                })})
+                })
                 .then(function (response) {
                     var data = [];
                     response.data.forEach(function (record) {
-                        if (undefined !== record[1][obj.options.fips] && record[1][obj.options.fips] != '-999' && record[1][obj.options.fips] != '' ) {
+                        if (undefined !== record[1][obj.options.fips] && record[1][obj.options.fips] != '-999' && record[1][obj.options.fips] != '') {
                             data.push([record[0], record[1][obj.options.fips]]);
                         }
                     });
                     return data
+                });
+        }
+        else if (obj.options.frequency == 'monthly' || obj.options.frequency == 'seasonal') {
+            //get bounding box
+            return getCountyBBox(obj.options.fips)
+            //then get data for all months in time range (30 years), pre-reduced by area(mean) and month(mean)
+                .then(function (bbox) {
+                    return $.ajax({
+                        url: 'https://data.rcc-acis.org/' + 'GridData',
+                        type: "POST",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        data: JSON.stringify({
+                            "bbox": bbox.join(','),
+                            "sdate": "1981-01-01",
+                            "edate": (new Date().getFullYear() - 1 ).toString() + '-12-31',
+                            "grid": "21",
+                            "elems": variable_config(obj.options.variable)['acis_elements']['monthly']
+                        })
+                    })
+                })
+                //then build output of [[month(1-12), mean, median]].
+                .then(function (response) {
+                    var data = {
+                        '01': [],
+                        '02': [],
+                        '03': [],
+                        '04': [],
+                        '05': [],
+                        '06': [],
+                        '07': [],
+                        '08': [],
+                        '09': [],
+                        '10': [],
+                        '11': [],
+                        '12': []
+                    };
+                    response.data.forEach(function (record) {
+                        if (undefined !== record[1][obj.options.fips]) {
+                            data[record[0].slice(-2)].push(parseFloat(record[1][obj.options.fips]));
+                        }
+                    });
+                    //group monthly data by season
+                    if (obj.options.frequency == 'seasonal') {
+                        var seasons = {
+                            "01": ["12", "01", "02"],
+                            "04": ["03", "04", "05"],
+                            "07": ["06", "07", "08"],
+                            "10": ["09", "10", "11"]
+                        };
+                        data = Object.keys(seasons).reduce(function (acc, season) {
+                            acc[season] = [].concat(data[seasons[season][0]], data[seasons[season][1]], data[seasons[season][2]]);
+                            return acc;
+                        }, {});
+                    }
+                    var mean = Object.keys(data).reduce(function (acc, key) {
+                        acc[key] = data[key].reduce(function (a, b) {
+                                return a + b;
+                            }) / data[key].length;
+                        return acc;
+                    }, {});
+                    var median = Object.keys(data).reduce(function (acc, key) {
+                        data[key].sort(function (a, b) {
+                            return a - b;
+                        });
+                        var half = Math.floor(data[key].length / 2);
+                        if (data[key].length % 2)
+                            acc[key] = data[key][half];
+                        else
+                            acc[key] = (data[key][half - 1] + data[key][half]) / 2.0;
+                        return acc;
+                    }, {});
+                    //return [[month, mean, median]]
+                    return Object.keys(data).reduce(function (acc, key) {
+                        acc.push([parseInt(key), mean[key], median[key]]);
+                        return acc;
+                    }, []).sort(function (a, b) {
+                        return a[0] - b[0]
+                    });
                 });
         }
         else {
@@ -994,12 +1116,8 @@
         },{
             variables: [{id: "monthly_hist_obs_x"},
                         {id: "monthly_hist_obs_mean30"},
-                        {id: "monthly_hist_obs_max"},
-                        {id: "monthly_hist_obs_med"},
-                        {id: "monthly_hist_obs_min"},
-                        {id: "monthly_hist_obs_p10"},
-                        {id: "monthly_hist_obs_p90"}],
-            values: [[-9999,0,0,0,0,0,0]],
+                        {id: "monthly_hist_obs_med"}],
+            values: [[-9999,0,0]],
             repeat: { period: 12 }
         }, {
             variables: [{id: "monthly_proj_mod_x"},
@@ -1038,12 +1156,8 @@
         },{
             variables: [{id: "seasonal_hist_obs_x"},
                         {id: "seasonal_hist_obs_mean30"},
-                        {id: "seasonal_hist_obs_max"},
-                        {id: "seasonal_hist_obs_med"},
-                        {id: "seasonal_hist_obs_min"},
-                        {id: "seasonal_hist_obs_p10"},
-                        {id: "seasonal_hist_obs_p90"}],
-            values: [[-9999,0,0,0,0,0,0]],
+                        {id: "seasonal_hist_obs_med"}],
+            values: [[-9999,0,0]],
             repeat: { period: 4 }
         }, {
             variables: [{id: "seasonal_proj_mod_x"},
@@ -1083,6 +1197,7 @@
     };
 
     function showSpinner($div){
+        hideSpinner($div);
     var style =  "<style>.cwg-spinner { margin-top: -2.5rem; border-radius: 100%;border-style: solid;border-width: 0.25rem;height: 5rem;width: 5rem;animation: basic 1s infinite linear; border-color: rgba(0, 0, 0, 0.2);border-top-color: rgba(0, 0, 0, 1); }@keyframes basic {0%   { transform: rotate(0); }100% { transform: rotate(359.9deg); }} .cwg-spinner-wrapper {display:flex; align-items: center; justify-content: center; }</style>";
         $("<div class='cwg-spinner-wrapper'><div class='cwg-spinner'></div></div>").css({
             position: "absolute",
@@ -1278,7 +1393,6 @@
                     showSpinner(obj.$div);
                     $.when.apply($, [
                         getHistoricalData(obj),
-                        // $.ajax({url: obj.data_urls.hist_obs, dataType: 'text'}),
                         $.ajax({url: obj.data_urls.hist_mod, dataType: 'text'}),
                         $.ajax({url: obj.data_urls.proj_mod, dataType: 'text'})
                     ]).done(function(hist_obs_data,hist_mod,proj_mod) {
@@ -1288,13 +1402,11 @@
                         var proj_mod_data = string_to_data( proj_mod[0] );
 
                         var convfunc = variable_config(obj.options.variable).dataconverters[obj.options.unitsystem];
-                       if(obj.options.frequency !== 'annual'){ //only transform data if not using ACIS
                         hist_obs_data = transform_data(hist_obs_data, convfunc);
-                       }
                         hist_mod_data = transform_data(hist_mod_data, convfunc);
                         proj_mod_data = transform_data(proj_mod_data, convfunc);
 
-                        var avg = average(hist_obs_data, 1981, 2010); //TODO update the avg baseline
+                        var avg = average(hist_obs_data, 1981, 2010);
                         if (obj.options.presentation === "anomaly") {
                             if (obj.options.variable === "pr") {
                                 hist_obs_data = percent_anomalies(hist_obs_data, avg);
@@ -1360,11 +1472,12 @@
                         hist_obs: dataurl(obj.options.dataprefix, obj.options.fips, 'monthly/hist-obs/stats', obj.options.variable),
                         proj_mod: dataurl(obj.options.dataprefix, obj.options.fips, 'monthly/proj-mod/stats', obj.options.variable)
                     };
+                    showSpinner(obj.$div);
                     $.when.apply($, [
-                        $.ajax({url: obj.data_urls.hist_obs, dataType: 'text'}),
+                        getHistoricalData(obj),
                         $.ajax({url: obj.data_urls.proj_mod, dataType: 'text'})
-                    ]).done(function(hist_obs,proj_mod) {
-                        var hist_obs_data = string_to_data( hist_obs[0] );
+                    ]).done(function(hist_obs_data,proj_mod) {
+                        hideSpinner(obj.$div);
                         var proj_mod_data = string_to_data( proj_mod[0] );
                         var convfunc = variable_config(obj.options.variable).dataconverters[obj.options.unitsystem];
                         hist_obs_data = transform_data(hist_obs_data, convfunc);
@@ -1390,11 +1503,12 @@
                         hist_obs: dataurl(obj.options.dataprefix, obj.options.fips, 'seasonal/hist-obs/stats', obj.options.variable),
                         proj_mod: dataurl(obj.options.dataprefix, obj.options.fips, 'seasonal/proj-mod/stats', obj.options.variable)
                     };
+                    showSpinner(obj.$div);
                     $.when.apply($, [
-                        $.ajax({url: obj.data_urls.hist_obs, dataType: 'text'}),
+                        getHistoricalData(obj),
                         $.ajax({url: obj.data_urls.proj_mod, dataType: 'text'})
-                    ]).done(function(hist_obs,proj_mod) {
-                        var hist_obs_data = string_to_data( hist_obs[0] );
+                    ]).done(function(hist_obs_data,proj_mod) {
+                        hideSpinner(obj.$div);
                         var proj_mod_data = string_to_data( proj_mod[0] );
                         // The incoming data has month values 1,4,7,10.  Here we replace these with the values 0,1,2,3:
                         hist_obs_data.forEach(function(v) { v[0] = Math.floor(v[0]/3); });
@@ -1537,8 +1651,6 @@
         };
         return obj;
     };
-
-
 
     window.climate_widget = {
         graph: climate_widget_graph,
