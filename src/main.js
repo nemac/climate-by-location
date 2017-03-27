@@ -600,6 +600,7 @@
                             data.push([record[0], record[1][obj.options.fips]]);
                         }
                     });
+                    obj.data_urls.hist_obs = 'data:text/csv;base64,' + window.btoa(('year,'+ variable_config(obj.options.variable).id + '\n' + data.join('\n')));
                     return data
                 });
         }
@@ -674,12 +675,14 @@
                         return acc;
                     }, {});
                     //return [[month, mean, median]]
-                    return Object.keys(data).reduce(function (acc, key) {
+                   var data = Object.keys(data).reduce(function (acc, key) {
                         acc.push([parseInt(key), mean[key], median[key]]);
                         return acc;
                     }, []).sort(function (a, b) {
                         return a[0] - b[0]
                     });
+                    obj.data_urls.hist_obs = 'data:text/csv;base64,' + window.btoa(('month,mean '+ variable_config(obj.options.variable).id +',median ' + variable_config(obj.options.variable).id + '\n' + data.join('\n')));
+                    return data;
                 });
         }
         else {
