@@ -597,7 +597,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                         data: JSON.stringify({
                             "bbox": bbox.join(','),
                             "sdate": "1981",
-                            "edate": (new Date().getFullYear().toString()),
+                            "edate": (String(new Date().getFullYear() - 1)) ,
                             "grid": "21",
                             "elems": variable_config(obj.options.variable)['acis_elements']['annual']
                         })
