@@ -587,7 +587,7 @@
                         data: JSON.stringify({
                             "bbox": bbox.join(','),
                             "sdate": "1981",
-                            "edate": (new Date().getFullYear().toString()),
+                            "edate": (String(new Date().getFullYear() - 1)) ,
                             "grid": "21",
                             "elems": variable_config(obj.options.variable)['acis_elements']['annual']
                         })
@@ -1394,6 +1394,9 @@
                         proj_mod: dataurl(obj.options.dataprefix, obj.options.fips, 'annual/proj-mod/stats', obj.options.variable)
                     };
                     showSpinner(obj.$div);
+                    //cancel previous (if any) requests
+
+
                     $.when.apply($, [
                         getHistoricalData(obj),
                         $.ajax({url: obj.data_urls.hist_mod, dataType: 'text'}),
@@ -1405,7 +1408,9 @@
                         var proj_mod_data = string_to_data( proj_mod[0] );
 
                         var convfunc = variable_config(obj.options.variable).dataconverters[obj.options.unitsystem];
-                        hist_obs_data = transform_data(hist_obs_data, convfunc);
+                        if(obj.options.variable != 'heating_degree_day_18.3' && obj.options.variable != 'cooling_degree_day_18.3') {
+                            hist_obs_data = transform_data(hist_obs_data, convfunc);
+                        }
                         hist_mod_data = transform_data(hist_mod_data, convfunc);
                         proj_mod_data = transform_data(proj_mod_data, convfunc);
 
