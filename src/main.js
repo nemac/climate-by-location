@@ -694,15 +694,15 @@
 
     function getLOCAData(obj, bbox, grid, sdate, edate) {
 
-      var freq = (obj.options.frequency === 'yearly') ? 'yearly' : 'monthly';
+      var freq = (obj.options.frequency === 'annual') ? 'annual' : 'monthly';
       // todo remove this temporary fix once acis fixes this...bug? feature?
       var elems = variable_config(obj.options.variable)['acis_elements'][freq];
-      elems.map(function (t) {
-        if (t.hasOwnProperty('duration')) {
-          t.duration = 1;
-          return t;
-        }
-      });
+      // elems.map(function (t) {
+      //   if (t.hasOwnProperty('duration')) {
+      //     t.duration = 1;
+      //     return t;
+      //   }
+      // });
 
       return $.ajax({
         url: 'http://grid2.rcc-acis.org/' + 'GridData',
@@ -712,8 +712,8 @@
         data: JSON.stringify({
           "grid": grid,
           "bbox": bbox,
-          "sdate": sdate,
-          "edate": edate,
+          "sdate": String(sdate),
+          "edate": String(edate),
           "elems": elems
         })
       })
