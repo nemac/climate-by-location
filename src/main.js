@@ -396,6 +396,7 @@
       datas.forEach(function (data) {
         data.forEach(function (row) {
           row.slice(1).forEach(function (value) {
+            if (value === null) { return }
             if (value < min) { min = value; }
             if (value > max) { max = value; }
           });
