@@ -252,7 +252,7 @@
           }
         }
       },
-
+/*
       {
         id: "heating_degree_day_18.3",
         title: {
@@ -318,7 +318,7 @@
           }
         }
       },
-
+*/
       {
         id: "days_prcp_abv_25.3",
         title: {

@@ -149,15 +149,15 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       {
         id: "pr",
         title: {
-          english: "Mean Daily Average Precipitation",
-          metric: "Mean Daily Average Precipitation"
+          english: "Total Precipitation",
+          metric: "Total Precipitation"
         },
         acis_elements: {
           annual: [{
             "name": "pcpn",
             "interval": "yly",
             "duration": "yly",
-            "reduce": "mean",
+            "reduce": "sum",
             "units": "mm",
             "area_reduce": "county_mean"
           }],
@@ -165,7 +165,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             "name": "pcpn",
             "interval": "mly",
             "duration": "mly",
-            "reduce": "mean",
+            "reduce": "sum",
             "units": "mm",
             "area_reduce": "county_mean"
           }]
@@ -177,21 +177,21 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         ytitles: {
           annual: {
             absolute: {
-              english: "Mean Daily Average Precipitation (in/d)",
-              metric: "Mean Daily Average Precipitation (mm/d)"
+              english: "Total Precipitation (in/y)",
+              metric: "Total Precipitation (mm/y)"
             },
             anomaly: {
-              english: "Mean Daily Average Precipitation Departure (%)",
-              metric: "Mean Daily Average Precipitation Departure (%)"
+              english: "Total Precipitation Departure (%)",
+              metric: "Total Precipitation Departure (%)"
             }
           },
           monthly: {
-            english: "Mean Daily Average Precipitation (in/d)",
-            metric: "Mean Daily Average Precipitation (mm/d)"
+            english: "Total Precipitation (in/m)",
+            metric: "Total Precipitation (mm/m)"
           },
           seasonal: {
-            english: "Mean Daily Average Precipitation (in/d)",
-            metric: "Mean Daily Average Precipitation (mm/d)"
+            english: "Total Precipitation (in/season)",
+            metric: "Total Precipitation (mm/season)"
           }
         }
       },
@@ -262,7 +262,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           }
         }
       },
-
+/*
       {
         id: "heating_degree_day_18.3",
         title: {
@@ -328,7 +328,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           }
         }
       },
-
+*/
       {
         id: "days_prcp_abv_25.3",
         title: {
@@ -406,6 +406,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       datas.forEach(function (data) {
         data.forEach(function (row) {
           row.slice(1).forEach(function (value) {
+            if (value === null) { return }
             if (value < min) { min = value; }
             if (value > max) { max = value; }
           });
