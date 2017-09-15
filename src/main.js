@@ -139,15 +139,15 @@
       {
         id: "pr",
         title: {
-          english: "Mean Daily Average Precipitation",
-          metric: "Mean Daily Average Precipitation"
+          english: "Total Precipitation",
+          metric: "Total Precipitation"
         },
         acis_elements: {
           annual: [{
             "name": "pcpn",
             "interval": "yly",
             "duration": "yly",
-            "reduce": "mean",
+            "reduce": "sum",
             "units": "mm",
             "area_reduce": "county_mean"
           }],
@@ -155,7 +155,7 @@
             "name": "pcpn",
             "interval": "mly",
             "duration": "mly",
-            "reduce": "mean",
+            "reduce": "sum",
             "units": "mm",
             "area_reduce": "county_mean"
           }]
@@ -167,21 +167,21 @@
         ytitles: {
           annual: {
             absolute: {
-              english: "Mean Daily Average Precipitation (in/d)",
-              metric: "Mean Daily Average Precipitation (mm/d)"
+              english: "Total Precipitation (in/y)",
+              metric: "Total Precipitation (mm/y)"
             },
             anomaly: {
-              english: "Mean Daily Average Precipitation Departure (%)",
-              metric: "Mean Daily Average Precipitation Departure (%)"
+              english: "Total Precipitation Departure (%)",
+              metric: "Total Precipitation Departure (%)"
             }
           },
           monthly: {
-            english: "Mean Daily Average Precipitation (in/d)",
-            metric: "Mean Daily Average Precipitation (mm/d)"
+            english: "Total Precipitation (in/m)",
+            metric: "Total Precipitation (mm/m)"
           },
           seasonal: {
-            english: "Mean Daily Average Precipitation (in/d)",
-            metric: "Mean Daily Average Precipitation (mm/d)"
+            english: "Total Precipitation (in/season)",
+            metric: "Total Precipitation (mm/season)"
           }
         }
       },
