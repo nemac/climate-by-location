@@ -607,7 +607,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           .then(function (response) {
             var data = [];
             response.data.forEach(function (record) {
-              if (undefined !== record[1][obj.options.fips] && record[1][obj.options.fips] != '-999' && record[1][obj.options.fips] != '') {
+              if (undefined !== record[1][obj.options.fips] && String(record[1][obj.options.fips]) !== '-999' && String(record[1][obj.options.fips]) !== '') {
                 data.push([record[0], record[1][obj.options.fips]]);
               }
             });
@@ -706,14 +706,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
     function getLOCAData(obj, bbox, grid, sdate, edate) {
 
       var freq = (obj.options.frequency === 'annual') ? 'annual' : 'monthly';
-      // todo remove this temporary fix once acis fixes this...bug? feature?
       var elems = variable_config(obj.options.variable)['acis_elements'][freq];
-      // elems.map(function (t) {
-      //   if (t.hasOwnProperty('duration')) {
-      //     t.duration = 1;
-      //     return t;
-      //   }
-      // });
 
       return $.ajax({
         url: 'http://grid2.rcc-acis.org/' + 'GridData',
@@ -731,7 +724,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         .then(function (response) {
           var data = {};
           response.data.forEach(function (record) {
-            if (undefined !== record[1][obj.options.fips] && record[1][obj.options.fips] != '-999' && record[1][obj.options.fips] != '' && record[1][obj.options.fips] != '0') {
+            if (undefined !== record[1][obj.options.fips] && String(record[1][obj.options.fips]) !== '-999' && String(record[1][obj.options.fips]) !== '') {
               // todo refactor this crude data conversion after grid2 is rolled out.
               if (variable_config(obj.options.variable) === 'pr') {
                 record[1][obj.options.fips] = mm_to_inches(record[1][obj.options.fips])
@@ -751,26 +744,19 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         getLOCAData(obj, bbox, 'loca:allMax:rcp85', '1950', lastyear)
       ])
         .then(function (wMean, min, max) {
-          // Build an array of all unique keys.
-          var keys = Object.keys(wMean);
-          keys = keys.concat(Object.keys(min).filter(function (k) { return keys.indexOf(k) < 0; }));
-          keys = keys.concat(Object.keys(max).filter(function (k) { return keys.indexOf(k) < 0; }));
-
-          if (obj.options.frequency === 'annual') {
-            var data = [];
-            // Extract values
-            keys.forEach(function (key) {
+          var data = [];
+          for (var key = 1950; key < new Date().getFullYear(); key++) {
               var values = {};
               values.wMean = wMean.hasOwnProperty(key) ? wMean[key] : null;
               values.min = min.hasOwnProperty(key) ? min[key] : null;
               values.max = max.hasOwnProperty(key) ? max[key] : null;
-              data.push([key, values.wMean, values.min, values.max, null, null])
-            });
-            // Sort before returning
-            data.sort(function (a, b) {return (a[0] > b[0]) - (a[0] < b[0]) });
-            obj.data_urls.hist_obs = 'data:text/csv;base64,' + window.btoa(('year,' + variable_config(obj.options.variable).id + '\n' + data.join('\n')));
-            return data
+              //year,mean,min,max,?,?
+              data.push([String(key), values.wMean, values.min, values.max, null, null])
           }
+          // Sort before returning
+          data.sort(function (a, b) {return (a[0] > b[0]) - (a[0] < b[0]) });
+          obj.data_urls.hist_obs = 'data:text/csv;base64,' + window.btoa(('year,' + variable_config(obj.options.variable).id + '\n' + data.join('\n')));
+          return data
         });
     }
 
