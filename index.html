@@ -2,7 +2,7 @@
 <html class="no-js" lang="en-us">
 <head>
     <meta charset="utf-8">
-    <title>Climate by Location (LOCA)</title>
+    <title>Climate by Location (LOCA/Livneh)</title>
     <!-- demo dependencies, not required for the widget itself. -->
     <link rel="stylesheet" href="vendor/skeleton.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.css"
@@ -169,14 +169,14 @@
     <div class="outlinebox" style="flex-basis: 30%; flex-shrink: 0; padding-bottom:6.5rem;">
         <div>
 
-            <h1>Climate by Location (LOCA)</h1>
+            <h1>Climate by Location <span style="font-size: 60%;">(LOCA/Livneh)</span></h1>
         </div>
         <form onsubmit="return false;">
             <div class="row">
                 <div class="four columns" style="min-width: 6rem;">
                     <label for="state">State</label>
                     <select id="state" class="u-full-width">
-                        <option value="" disabled selected hidden>State</option>
+                        <option value="" selected >State</option>
                         <option value="AL">AL</option>
                         <option value="AZ">AZ</option>
                         <option value="AR">AR</option>
@@ -231,7 +231,7 @@
                 <div class="eight columns" style="min-width: 15rem;">
                     <label for="county">County</label>
                     <select id="county" class="u-full-width">
-                        <option value="" disabled selected hidden>County</option>
+                        <option value="" selected >County</option>
                         <!--
                          <option value="37021" selected="selected">Buncombe County, NC</option>
                          <option value="41003">Benton County, OR</option>
@@ -252,10 +252,8 @@
                 <label for="frequency">Frequency</label>
                 <select id="frequency" class="u-full-width">
                     <option value="annual" selected="selected">Annual</option>
-                    <!--
-                    <option value="monthly">Monthly</option>
-                    <option value="seasonal">Seasonal</option>
-                    -->
+                    <!--<option value="monthly">Monthly</option>-->
+                    <!--<option value="seasonal">Seasonal</option>-->
                 </select>
             </div>
             <div class="row hidden" id="timeperiod-wrapper">
@@ -309,7 +307,11 @@
 <div id="download-panel" class="hidden">
     <div class="download-inner">
         <p>Use the following links to download this graph's data:</p>
-        <ul></ul>
+        <ul>
+            <li><a href="" id="download_hist_obs_data">Observed Data</a></li>
+            <li><a href="" id="download_hist_mod_data">Historical Modeled Data</a></li>
+            <li><a href="" id="download_proj_mod_data">Projected Modeled Data</a></li>
+        </ul>
         <div class="center">
             <button id="download-dismiss-button">Dismiss</button>
         </div>
