@@ -36,22 +36,37 @@ $(document).ready(function () {
     });
   }
 
-  $('#county').change(initGraph)
+  $('#county').change(initGraph);
 
   $("#countysearch").autocomplete({
-    source: newcounties,
+    source: states.concat(newcounties),
     select: function (event, ui) {
-      $('#state option[value="' + ui.item.label.slice(-2) + '"]').prop('selected', 'selected');
-      var stateCounties = counties[ui.item.label.slice(-2)];
-      var $el = $("#county");
-      $el.empty();
-      stateCounties.forEach(function (sc) {
-        $el.append($("<option></option>")
-          .attr("value", sc.fips)
-          .text(sc.label))
-      });
-      $('#county option[value="' + ui.item.value + '"]').prop('selected', 'selected');
+      if (ui.item.value.length === 2){
+        $('#state option[value="' + ui.item.value + '"]').prop('selected', 'selected');
 
+        var stateCounties = counties[ui.item.value];
+        var $el = $("#county");
+        $el.empty();
+        $el.append($('<option value="" selected>County</option>'));
+        stateCounties.forEach(function (sc) {
+          $el.append($("<option></option>")
+            .attr("value", sc.fips)
+            .text(sc.label))
+        });
+      }
+      else {
+        $('#state option[value="' + ui.item.label.slice(-2) + '"]').prop('selected', 'selected');
+        var stateCounties = counties[ui.item.label.slice(-2)];
+        var $el = $("#county");
+        $el.empty();
+        $el.append($('<option value="">County</option>'));
+        stateCounties.forEach(function (sc) {
+          $el.append($("<option></option>")
+            .attr("value", sc.fips)
+            .text(sc.label))
+        });
+        $('#county option[value="' + ui.item.value + '"]').prop('selected', 'selected');
+      }
       initGraph();
     }
   });
@@ -72,7 +87,7 @@ $(document).ready(function () {
 
     var $el = $("#county");
     $el.empty();
-    $el.append($('<option value="" disabled selected hidden>County</option>'));
+    $el.append($('<option value=""  selected>County</option>'));
     stateCounties.forEach(function (sc) {
       $el.append($("<option></option>")
         .attr("value", sc.fips).text(sc.label));
@@ -209,6 +224,113 @@ $(document).ready(function () {
 
 });
 
+var states = [
+  {'label': "Alabama", "value": "AL"},
+  {'label': "Alaska", "value": "AK"},
+  {'label': "Arizona", "value": "AZ"},
+  {'label': "Arkansas", "value": "AR"},
+  {'label': "California", "value": "CA"},
+  {'label': "Colorado", "value": "CO"},
+  {'label': "Connecticut", "value": "CT"},
+  {'label': "Delaware", "value": "DE"},
+  {'label': "District of Columbia", "value": "DC"},
+  {'label': "Florida", "value": "FL"},
+  {'label': "Georgia", "value": "GA"},
+  {'label': "Hawaii", "value": "HI"},
+  {'label': "Idaho", "value": "ID"},
+  {'label': "Illinois", "value": "IL"},
+  {'label': "Indiana", "value": "IN"},
+  {'label': "Iowa", "value": "IA"},
+  {'label': "Kansas", "value": "KS"},
+  {'label': "Kentucky", "value": "KY"},
+  {'label': "Louisiana", "value": "LA"},
+  {'label': "Maine", "value": "ME"},
+  {'label': "Montana", "value": "MT"},
+  {'label': "Nebraska", "value": "NE"},
+  {'label': "Nevada", "value": "NV"},
+  {'label': "New Hampshire", "value": "NH"},
+  {'label': "New Jersey", "value": "NJ"},
+  {'label': "New Mexico", "value": "NM"},
+  {'label': "New York", "value": "NY"},
+  {'label': "North Carolina", "value": "NC"},
+  {'label': "North Dakota", "value": "ND"},
+  {'label': "Ohio", "value": "OH"},
+  {'label': "Oklahoma", "value": "OK"},
+  {'label': "Oregon", "value": "OR"},
+  {'label': "Maryland", "value": "MD"},
+  {'label': "Massachusetts", "value": "MA"},
+  {'label': "Michigan", "value": "MI"},
+  {'label': "Minnesota", "value": "MN"},
+  {'label': "Mississippi", "value": "MS"},
+  {'label': "Missouri", "value": "MO"},
+  {'label': "Pennsylvania", "value": "PA"},
+  {'label': "Rhode Island", "value": "RI"},
+  {'label': "South Carolina", "value": "SC"},
+  {'label': "South Dakota", "value": "SD"},
+  {'label': "Tennessee", "value": "TN"},
+  {'label': "Texas", "value": "TX"},
+  {'label': "Utah", "value": "UT"},
+  {'label': "Vermont", "value": "VT"},
+  {'label': "Virginia", "value": "VA"},
+  {'label': "Washington", "value": "WA"},
+  {'label': "West Virginia", "value": "WV"},
+  {'label': "Wisconsin", "value": "WI"},
+  {'label': "Wyoming", "value": "WY"},
+
+
+  {'label': "AL", "value": "AL"},
+  {'label': "AK", "value": "AK"},
+  {'label': "AZ", "value": "AZ"},
+  {'label': "AR", "value": "AR"},
+  {'label': "CA", "value": "CA"},
+  {'label': "CO", "value": "CO"},
+  {'label': "CT", "value": "CT"},
+  {'label': "DE", "value": "DE"},
+  {'label': "DC", "value": "DC"},
+  {'label': "FL", "value": "FL"},
+  {'label': "GA", "value": "GA"},
+  {'label': "HI", "value": "HI"},
+  {'label': "ID", "value": "ID"},
+  {'label': "IL", "value": "IL"},
+  {'label': "IN", "value": "IN"},
+  {'label': "IA", "value": "IA"},
+  {'label': "KS", "value": "KS"},
+  {'label': "KY", "value": "KY"},
+  {'label': "LA", "value": "LA"},
+  {'label': "ME", "value": "ME"},
+  {'label': "MT", "value": "MT"},
+  {'label': "NE", "value": "NE"},
+  {'label': "NV", "value": "NV"},
+  {'label': "NH", "value": "NH"},
+  {'label': "NJ", "value": "NJ"},
+  {'label': "NM", "value": "NM"},
+  {'label': "NY", "value": "NY"},
+  {'label': "NC", "value": "NC"},
+  {'label': "ND", "value": "ND"},
+  {'label': "OH", "value": "OH"},
+  {'label': "OK", "value": "OK"},
+  {'label': "OR", "value": "OR"},
+  {'label': "MD", "value": "MD"},
+  {'label': "MA", "value": "MA"},
+  {'label': "MI", "value": "MI"},
+  {'label': "MN", "value": "MN"},
+  {'label': "MS", "value": "MS"},
+  {'label': "MO", "value": "MO"},
+  {'label': "PA", "value": "PA"},
+  {'label': "RI", "value": "RI"},
+  {'label': "SC", "value": "SC"},
+  {'label': "SD", "value": "SD"},
+  {'label': "TN", "value": "TN"},
+  {'label': "TX", "value": "TX"},
+  {'label': "UT", "value": "UT"},
+  {'label': "VT", "value": "VT"},
+  {'label': "VA", "value": "VA"},
+  {'label': "WA", "value": "WA"},
+  {'label': "WV", "value": "WV"},
+  {'label': "WI", "value": "WI"},
+  {'label': "WY", "value": "WY"}
+  
+];
 //--------------------------------------------------------------------------
 var counties = {
   "AL": [
