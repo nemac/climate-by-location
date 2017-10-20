@@ -47,7 +47,7 @@ $(document).ready(function () {
         var stateCounties = counties[ui.item.value];
         var $el = $("#county");
         $el.empty();
-        $el.append($('<option value="" selected>County</option>'));
+        $el.append($('<option value="" selected></option>'));
         stateCounties.forEach(function (sc) {
           $el.append($("<option></option>")
             .attr("value", sc.fips)
@@ -59,7 +59,7 @@ $(document).ready(function () {
         var stateCounties = counties[ui.item.label.slice(-2)];
         var $el = $("#county");
         $el.empty();
-        $el.append($('<option value="">County</option>'));
+        $el.append($('<option value=""></option>'));
         stateCounties.forEach(function (sc) {
           $el.append($("<option></option>")
             .attr("value", sc.fips)
@@ -87,7 +87,7 @@ $(document).ready(function () {
 
     var $el = $("#county");
     $el.empty();
-    $el.append($('<option value=""  selected>County</option>'));
+    $el.append($('<option value=""  selected></option>'));
     stateCounties.forEach(function (sc) {
       $el.append($("<option></option>")
         .attr("value", sc.fips).text(sc.label));
