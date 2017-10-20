@@ -187,6 +187,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "duration": "yly",
           "reduce": "cnt_gt_90"
 
+        },
+        monthly: {
+          "name": "maxt",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_gt_90"
+
         }
       },
       dataconverters: {
@@ -195,6 +202,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: " Days with Maximum Temperature Above 90°F",
+            metric: " Days with Maximum Temperature Above 90°F"
+          },
+          anomaly: {
+            english: " Days with Maximum Temperature Above 90°F",
+            metric: " Days with Maximum Temperature Above 90°F"
+          }
+        },
+        monthly: {
           absolute: {
             english: " Days with Maximum Temperature Above 90°F",
             metric: " Days with Maximum Temperature Above 90°F"
@@ -219,6 +236,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "duration": "yly",
           "reduce": "cnt_gt_95"
 
+        },
+        monthly: {
+          "name": "maxt",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_gt_95"
+
         }
       },
       dataconverters: {
@@ -227,6 +251,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Days with Maximum Temperature Above 95 °F (d)",
+            metric: "Days with Maximum Temperature Above 95 °C (d)"
+          },
+          anomaly: {
+            english: "Days with Maximum Temperature Above 95 °F Departure (d)",
+            metric: "Days with Maximum Temperature Above 95 °C Departure (d)"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Days with Maximum Temperature Above 95 °F (d)",
             metric: "Days with Maximum Temperature Above 95 °C (d)"
@@ -251,6 +285,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "duration": "yly",
           "reduce": "cnt_gt_100"
 
+        },
+        monthly: {
+          "name": "maxt",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_gt_100"
+
         }
       },
       dataconverters: {
@@ -259,6 +300,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Days with Maximum Temperature Above 100°F",
+            metric: "Days with Maximum Temperature Above 100°F"
+          },
+          anomaly: {
+            english: " Days with Maximum Temperature Above 100°F",
+            metric: " Days with Maximum Temperature Above 100°F"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Days with Maximum Temperature Above 100°F",
             metric: "Days with Maximum Temperature Above 100°F"
@@ -283,6 +334,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "duration": "yly",
           "reduce": "cnt_gt_105"
 
+        },
+        monthly: {
+          "name": "maxt",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_gt_105"
+
         }
       },
       dataconverters: {
@@ -291,6 +349,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Days with Maximum Temperature Above 105°F",
+            metric: "Days with Maximum Temperature Above 105°F"
+          },
+          anomaly: {
+            english: "Departure Days with Maximum Temperature Above 105°F",
+            metric: "Departure Days with Maximum Temperature Above 105°F"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Days with Maximum Temperature Above 105°F",
             metric: "Days with Maximum Temperature Above 105°F"
@@ -315,6 +383,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "duration": "yly",
           "reduce": "cnt_lt_32"
 
+        },
+        monthly: {
+          "name": "maxt",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_lt_32"
+
         }
       },
       dataconverters: {
@@ -323,6 +398,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Days with Maximum Temperature Below 32°F",
+            metric: "Days with Maximum Temperature Below 32°F"
+          },
+          anomaly: {
+            english: "Days with Maximum Temperature Below 32°F",
+            metric: "Days with Maximum Temperature Below 32°F"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Days with Maximum Temperature Below 32°F",
             metric: "Days with Maximum Temperature Below 32°F"
@@ -347,6 +432,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "duration": "yly",
           "reduce": "cnt_lt_32"
 
+        },
+        monthly: {
+          "name": "mint",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_lt_32"
+
         }
       },
       dataconverters: {
@@ -355,6 +447,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Days with Minimum Temperature Below 32 °F (d)",
+            metric: "Days with Minimum Temperature Below 0 °C (d)"
+          },
+          anomaly: {
+            english: "Days with Minimum Temperature Below 32 °F (d)",
+            metric: "Days with Minimum Temperature Below 0 °C (d)"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Days with Minimum Temperature Below 32 °F (d)",
             metric: "Days with Minimum Temperature Below 0 °C (d)"
@@ -379,6 +481,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "duration": "yly",
           "reduce": "cnt_gt_80"
 
+        },
+        monthly: {
+          "name": "mint",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_gt_80"
+
         }
       },
       dataconverters: {
@@ -387,6 +496,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Days with Minimum Temperature Above 80°F",
+            metric: "Days with Minimum Temperature Above 80°F"
+          },
+          anomaly: {
+            english: "Departure Days with Minimum Temperature Above 80°F",
+            metric: "Departure Days with Minimum Temperature Above 80°F"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Days with Minimum Temperature Above 80°F",
             metric: "Days with Minimum Temperature Above 80°F"
@@ -411,6 +530,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "duration": "yly",
           "reduce": "cnt_gt_90"
 
+        },
+        monthly: {
+          "name": "mint",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_gt_90"
+
         }
       },
       dataconverters: {
@@ -419,6 +545,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Days with Minimum Temperature Above 90°F",
+            metric: "Days with Minimum Temperature Above 90°F"
+          },
+          anomaly: {
+            english: "Departure Days with Minimum Temperature Above 90°F",
+            metric: "Departure Days with Minimum Temperature Above 90°F"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Days with Minimum Temperature Above 90°F",
             metric: "Days with Minimum Temperature Above 90°F"
@@ -443,6 +579,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "duration": "yly",
           "reduce": "sum"
 
+        },
+        monthly: {
+          "name": "hdd",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "sum"
+
         }
       },
       dataconverters: {
@@ -451,6 +594,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Heating Degree Days (HDD F)",
+            metric: "Heating Degree Days (HDD C)"
+          },
+          anomaly: {
+            english: "Heating Degree Days Departure (HDD F)",
+            metric: "Heating Degree Days Departure (HDD C)"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Heating Degree Days (HDD F)",
             metric: "Heating Degree Days (HDD C)"
@@ -475,6 +628,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "duration": "yly",
           "reduce": "sum"
 
+        },
+        monthly: {
+          "name": "cdd",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "sum"
+
         }
       },
       dataconverters: {
@@ -483,6 +643,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Cooling Degree Days (CDD F)",
+            metric: "Cooling Degree Days (CDD C)"
+          },
+          anomaly: {
+            english: "Cooling Degree Days Departure (CDD F)",
+            metric: "Cooling Degree Days Departure (CDD C)"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Cooling Degree Days (CDD F)",
             metric: "Cooling Degree Days (CDD C)"
@@ -506,6 +676,12 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "interval": "yly",
           "duration": "yly",
           "reduce": "sum"
+        },
+        monthly: {
+          "name": "gdd",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "sum"
         }
       },
       dataconverters: {
@@ -514,6 +690,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Growing Degree Days (d)",
+            metric: "Growing Degree Days (d)"
+          },
+          anomaly: {
+            english: "Departure Growing Degree Days (d)",
+            metric: "Departure Growing Degree Days (d)"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Growing Degree Days (d)",
             metric: "Growing Degree Days (d)"
@@ -538,6 +724,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "limit": [86, 50],
           "interval": "yly",
           "reduce": "sum"
+        },
+        monthly: {
+          "name": "gdd",
+          "duration": "mly",
+          "limit": [86, 50],
+          "interval": "mly",
+          "reduce": "sum"
         }
       },
       dataconverters: {
@@ -546,6 +739,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Modified Growing Degree Days",
+            metric: "Modified Growing Degree Days"
+          },
+          anomaly: {
+            english: "Departure Modified Growing Degree Days",
+            metric: "Departure Modified Growing Degree Days"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Modified Growing Degree Days",
             metric: "Modified Growing Degree Days"
@@ -569,6 +772,12 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "interval": "yly",
           "duration": "yly",
           "reduce": "cnt_lt_0.01"
+        },
+        monthly: {
+          "name": "pcpn",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_lt_0.01"
         }
       },
       dataconverters: {
@@ -577,6 +786,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Dry Days",
+            metric: "Dry Days"
+          },
+          anomaly: {
+            english: "Dry Days",
+            metric: "Dry Days"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Dry Days",
             metric: "Dry Days"
@@ -628,8 +847,14 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           }
         },
         monthly: {
-          english: "Total Precipitation (in/m)",
-          metric: "Total Precipitation (mm/m)"
+          absolute: {
+            english: "Total Precipitation (in/y)",
+            metric: "Total Precipitation (mm/y)"
+          },
+          anomaly: {
+            english: "Total Precipitation Departure (%)",
+            metric: "Total Precipitation Departure (%)"
+          }
         },
         seasonal: {
           english: "Total Precipitation (in/season)",
@@ -650,6 +875,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "duration": "yly",
           "reduce": "cnt_gt_1"
 
+        },
+        monthly: {
+          "name": "pcpn",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_gt_1"
+
         }
       },
       dataconverters: {
@@ -658,6 +890,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Days of Precipitation Above 1 in (d)",
+            metric: "Days of Precipitation Above 25.3 mm (d)"
+          },
+          anomaly: {
+            english: "Days of Precipitation Above 1 in Departure (d)",
+            metric: "Days of Precipitation Above 25.3 mm Departure (d)"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Days of Precipitation Above 1 in (d)",
             metric: "Days of Precipitation Above 25.3 mm (d)"
@@ -682,6 +924,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "duration": "yly",
           "reduce": "cnt_gt_2"
 
+        },
+        monthly: {
+          "name": "pcpn",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_gt_2"
+
         }
       },
       dataconverters: {
@@ -690,6 +939,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Days of Precipitation Above 2 in (d)",
+            metric: "Days of Precipitation Above 50.8mm (d)"
+          },
+          anomaly: {
+            english: "Days of Precipitation Above 2 in Departure (d)",
+            metric: "Days of Precipitation Above 50.8mm Departure (d)"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Days of Precipitation Above 2 in (d)",
             metric: "Days of Precipitation Above 50.8mm (d)"
@@ -714,6 +973,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "duration": "yly",
           "reduce": "cnt_gt_3"
 
+        },
+        monthly: {
+          "name": "pcpn",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_gt_3"
+
         }
       },
       dataconverters: {
@@ -722,6 +988,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       },
       ytitles: {
         annual: {
+          absolute: {
+            english: "Days of Precipitation Above 3 in (d)",
+            metric: "Days of Precipitation Above 76.2 mm (d)"
+          },
+          anomaly: {
+            english: "Days of Precipitation Above 3 in Departure (d)",
+            metric: "Days of Precipitation Above 76.2 mm Departure (d)"
+          }
+        },
+        monthly: {
           absolute: {
             english: "Days of Precipitation Above 3 in (d)",
             metric: "Days of Precipitation Above 76.2 mm (d)"
@@ -746,6 +1022,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "duration": "yly",
           "reduce": "cnt_gt_4"
 
+        },
+        monthly: {
+          "name": "pcpn",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_gt_4"
+
         }
       },
       dataconverters: {
@@ -762,9 +1045,19 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             english: "Days of Precipitation Above 4 in Departure (d)",
             metric: "Days of Precipitation Above 101.6 mm Departure (d)"
           }
+        },
+        monthly: {
+          absolute: {
+            english: "Days of Precipitation Above 4 in (d)",
+            metric: "Days of Precipitation Above 101.6 mm (d)"
+          },
+          anomaly: {
+            english: "Days of Precipitation Above 4 in Departure (d)",
+            metric: "Days of Precipitation Above 101.6 mm Departure (d)"
+          }
         }
       }
-    },
+    }
 
     // {
     //   id: "days_consecDD",
@@ -1164,23 +1457,26 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
   }
 
   function get_historical_observed_data(obj) {
-    if (obj.options.frequency === 'annual') {
-      return $.ajax({
-        url: 'http://grid2.rcc-acis.org/' + 'GridData',
-        type: "POST",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        timeout: 60000,
-        data: JSON.stringify($.extend({
-          "sdate": "por",
-          "edate": "2013",
-          // "edate": (String(new Date().getFullYear() - 1)),
-          "grid": "livneh",
-          "elems": [$.extend(variable_config(obj.options.variable)['acis_elements']['annual'], get_region_reduction(obj))]
-        }, get_region_parameters(obj)))
-      })
-        .then(function (response) {
-          var data = [];
+    var freq = (obj.options.frequency === 'annual') ? 'annual' : 'monthly';
+    var elems = [$.extend(variable_config(obj.options.variable)['acis_elements'][freq], get_region_reduction(obj))];
+    return $.ajax({
+      url: 'http://grid2.rcc-acis.org/' + 'GridData',
+      type: "POST",
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      timeout: 60000,
+      data: JSON.stringify($.extend({
+        "sdate": "1950-01-01",
+        "edate": "2013-12-31",
+        // "edate": (String(new Date().getFullYear() - 1)),
+        "grid": "livneh",
+        "elems": elems
+      }, get_region_parameters(obj)))
+    })
+      .then(function (response) {
+        var data;
+        if (obj.options.frequency === 'annual') {
+          data = [];
           response.data.forEach(function (record) {
             if (undefined !== record[1][get_region_value(obj)] && String(record[1][get_region_value(obj)]) !== '-999' && String(record[1][get_region_value(obj)]) !== '') {
               data.push([record[0], record[1][get_region_value(obj)]]);
@@ -1188,25 +1484,10 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           });
           obj.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa(('year,' + variable_config(obj.options.variable).id + '\n' + data.join('\n')));
           return data
-        });
-    }
-    else if (obj.options.frequency === 'monthly' || obj.options.frequency === 'seasonal') {
-      //get get data for all months in time range (30 years), pre-reduced by area(mean) and month(mean)
-      return $.ajax({
-        url: 'https://grid2.rcc-acis.org/' + 'GridData',
-        type: "POST",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        data: JSON.stringify($.extend({
-          "sdate": "1981-01-01",
-          "edate": (new Date().getFullYear() - 1 ).toString() + '-12-31',
-          "grid": "livneh",
-          "elems": [$.extend(variable_config(obj.options.variable)['acis_elements']['monthly'], get_region_reduction(obj))]
-        }, get_region_parameters(obj)))
-      })
-      //then build output of [[month(1-12), mean, median]].
-        .then(function (response) {
-          var data = {
+        }
+        else if (obj.options.frequency === 'monthly' || obj.options.frequency === 'seasonal') {
+          //then build output of [[month(1-12), mean, median]].
+          data = {
             '01': [],
             '02': [],
             '03': [],
@@ -1264,8 +1545,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           });
           obj.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa(('month,mean ' + variable_config(obj.options.variable).id + ',weighted mean ' + variable_config(obj.options.variable).id + '\n' + data.join('\n')));
           return data;
-        });
-    }
+
+        }
+      });
   }
 
   function get_loca_data(obj, grid, sdate, edate) {
@@ -1297,11 +1579,11 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
   }
 
   function get_historical_model_data(obj) {
-    var thisyear = (String(new Date().getFullYear()));
+    var thisyear = (String(new Date().getFullYear())) + '-01-01';
     return $.when.apply($, [
-      get_loca_data(obj, 'loca:wMean:rcp85', '1950', thisyear),
-      get_loca_data(obj, 'loca:allMin:rcp85', '1950', thisyear),
-      get_loca_data(obj, 'loca:allMax:rcp85', '1950', thisyear)
+      get_loca_data(obj, 'loca:wMean:rcp85', '1950-01-01', thisyear),
+      get_loca_data(obj, 'loca:allMin:rcp85', '1950-01-01', thisyear),
+      get_loca_data(obj, 'loca:allMax:rcp85', '1950-01-01', thisyear)
     ])
       .then(function (wMean, min, max) {
         var data = [];
@@ -1326,20 +1608,41 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
   }
 
   function get_projected_model_data(obj) {
+    var sdate;
     if (obj.options.frequency === 'annual') {
-      var thisyear = (String(new Date().getFullYear())) + '01-01';
-      return $.when.apply($, [
+      sdate = (String(new Date().getFullYear())) + '-01-01';
+    }
+    else {
+      sdate = '2005-01-01';
+    }
 
-        get_loca_data(obj, 'loca:wMean:rcp45', thisyear, '2099-12-31'),
-        get_loca_data(obj, 'loca:allMin:rcp45', thisyear, '2099-12-31'),
-        get_loca_data(obj, 'loca:allMax:rcp45', thisyear, '2099-12-31'),
-        get_loca_data(obj, 'loca:wMean:rcp85', thisyear, '2099-12-31'),
-        get_loca_data(obj, 'loca:allMin:rcp85', thisyear, '2099-12-31'),
-        get_loca_data(obj, 'loca:allMax:rcp85', thisyear, '2099-12-31')
-      ])
-        .then(function (wMean45, min45, max45, wMean85, min85, max85) {
-          var data = [];
-          var export_data = [];
+    return $.when.apply($, [
+      get_loca_data(obj, 'loca:wMean:rcp45', sdate, '2099-12-31'),
+      get_loca_data(obj, 'loca:allMin:rcp45', sdate, '2099-12-31'),
+      get_loca_data(obj, 'loca:allMax:rcp45', sdate, '2099-12-31'),
+      get_loca_data(obj, 'loca:wMean:rcp85', sdate, '2099-12-31'),
+      get_loca_data(obj, 'loca:allMin:rcp85', sdate, '2099-12-31'),
+      get_loca_data(obj, 'loca:allMax:rcp85', sdate, '2099-12-31')
+    ])
+      .then(function (wMean45, min45, max45, wMean85, min85, max85) {
+        var data, export_data;
+        var seasons = {
+          "01": "01",
+          "02": "01",
+          "03": "04",
+          "04": "04",
+          "05": "04",
+          "06": "07",
+          "07": "07",
+          "08": "07",
+          "09": "10",
+          "10": "10",
+          "11": "10",
+          "12": "01"
+        };
+        if (obj.options.frequency === 'annual') {
+          data = [];
+          export_data = [];
           // Extract values
           for (var key = new Date().getFullYear(); key < 2100; key++) {
             var values = {};
@@ -1360,54 +1663,40 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           obj.dataurls.proj_mod = 'data:text/csv;base64,' + window.btoa(('year,' + 'rcp45 weighted mean,rcp45 min,rcp45 max,rcp85 weighted mean,rcp85 min,rcp85 max' + '\n' + export_data.join('\n')));
           export_data = [];
           return data
-        });
-    } else if (obj.options.frequency === 'monthly' || obj.options.frequency === 'seasonal') {
-      return $.when.apply($, [
-        get_loca_data(obj, 'loca:wMean:rcp45', '2005', '2099'),
-        get_loca_data(obj, 'loca:allMin:rcp45', '2005', '2099'),
-        get_loca_data(obj, 'loca:allMax:rcp45', '2005', '2099'),
-        get_loca_data(obj, 'loca:wMean:rcp85', '2005', '2099'),
-        get_loca_data(obj, 'loca:allMin:rcp85', '2005', '2099'),
-        get_loca_data(obj, 'loca:allMax:rcp85', '2005', '2099')
-      ])
-        .then(function (wMean45, min45, max45, wMean85, min85, max85) {
-          var data = [];
-          [2025, 2025, 2075].forEach(function (yearRange) {
+        }
+        else if (obj.options.frequency === 'monthly' || obj.options.frequency === 'seasonal') {
+          data = {};
+          [2025, 2050, 2075].forEach(function (yearRange) {
+            data[yearRange] = {};
             ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
               .forEach(function (month) {
-                data[yearRange][month] = {
-                  'wMean45': [],
-                  'min45': [],
-                  'max45': [],
-                  'wMean85': [],
-                  'min85': [],
-                  'max85': []
-                };
-                // Extract values
-                for (var year = yearRange - 15; year < yearRange + 15; year++) {
-                  if (wMean45.hasOwnProperty(String(year) + String(month))) {
-                    data[yearRange][month]['wMean45'].push(wMean45[String(year) + String(month)]);
-                  }
-                  if (wMean85.hasOwnProperty(String(year) + String(month))) {
-                    data[yearRange][month]['wMean85'].push(wMean85[String(year) + String(month)]);
-                  }
-                  if (min45.hasOwnProperty(String(year) + String(month))) {
-                    data[yearRange][month]['min45'].push(min45[String(year) + String(month)]);
-                  }
-                  if (min85.hasOwnProperty(String(year) + String(month))) {
-                    data[yearRange][month]['min85'].push(min85[String(year) + String(month)]);
-                  }
-                  if (max45.hasOwnProperty(String(year) + String(month))) {
-                    data[yearRange][month]['max45'].push(max45[String(year) + String(month)]);
-                  }
-                  if (max85.hasOwnProperty(String(year) + String(month))) {
-                    data[yearRange][month]['max85'].push(max85[String(year) + String(month)]);
-                  }
+                var season_month = month;
+                if (obj.options.frequency === 'seasonal') {
+                  //for seasonal group by season, not month.
+                  season_month = seasons[month];
                 }
+                data[yearRange][season_month] = {};
+                 var datasets =  {
+                  'wMean45': wMean45,
+                  'wMean85': wMean85,
+                  'min45': min45,
+                  'max45': max45,
+                  'min85': min85,
+                  'max85': max85
+                };
+                Object.keys(datasets).forEach(function (dataset) {
+                  data[yearRange][season_month][dataset] = [];
+                  for (var year = yearRange - 15; year < yearRange + 15; year++) {
+                    var year_month = String(year) + '-' + String(month);
+                    if (datasets[dataset].hasOwnProperty(year_month)) {
+                      data[yearRange][season_month][dataset].push(datasets[dataset][year_month]);
+                    }
+                  }
+                });
               });
           });
-          // mean values
-          data.forEach(function (yearRange) {
+          // mean values by month
+          Object.keys(data).forEach(function (yearRange) {
             Object.keys(data[yearRange]).forEach(function (month) {
               ['wMean45', 'wMean85', 'min45', 'min85', 'max45', 'max85'].forEach(function (valueName) {
                 var length = data[yearRange][month][valueName].length;
@@ -1421,9 +1710,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           // reformat to expected output
           // [ month,2025rcp45_max,2025rcp45_median,2025rcp45_min,2025rcp45_p10,2025rcp45_p90,2025rcp85_max,2025rcp85_median,2025rcp85_min,2025rcp85_p10,2025rcp85_p90,2050rcp45_max,2050rcp45_median,2050rcp45_min,2050rcp45_p10,2050rcp45_p90,2050rcp85_max,2050rcp85_median,2050rcp85_min,2050rcp85_p10,2050rcp85_p90,2075rcp45_max,2075rcp45_median,2075rcp45_min,2075rcp45_p10,2075rcp45_p90,2075rcp85_max,2075rcp85_median,2075rcp85_min,2075rcp85_p10,2075rcp85_p90 ]
           var dataByMonth = {};
-          ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'].forEach(function (month) {
+          var months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+          if (obj.options.frequency === 'seasonal'){
+            months = ['01','04','07','10']
+          }
+          months.forEach(function (month) {
             dataByMonth[month] = {};
-            [2025, 2025, 2075].forEach(function (yearRange) {
+            [2025, 2050, 2075].forEach(function (yearRange) {
               ['45', '85'].forEach(function (scenario) {
                 ['max', 'wMean', 'min'].forEach(function (valueName) {
                   dataByMonth[month][String(yearRange) + 'rcp' + String(scenario) + '_' + String(valueName)] = data[yearRange][month][String(valueName) + String(scenario)];
@@ -1431,49 +1724,50 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               });
             });
           });
+
           var result = [];
           Object.keys(dataByMonth).forEach(function (month) {
             result.push([month,
               dataByMonth[month]['2025rcp45_max'],
-              dataByMonth[month]['2025rcp45_median'],
+              dataByMonth[month]['2025rcp45_wMean'],
               dataByMonth[month]['2025rcp45_min'],
               null,
               null,
               dataByMonth[month]['2025rcp85_max'],
-              dataByMonth[month]['2025rcp85_median'],
+              dataByMonth[month]['2025rcp85_wMean'],
               dataByMonth[month]['2025rcp85_min'],
               null,
               null,
               dataByMonth[month]['2050rcp45_max'],
-              dataByMonth[month]['2050rcp45_median'],
+              dataByMonth[month]['2050rcp45_wMean'],
               dataByMonth[month]['2050rcp45_min'],
               null,
               null,
               dataByMonth[month]['2050rcp85_max'],
-              dataByMonth[month]['2050rcp85_median'],
+              dataByMonth[month]['2050rcp85_wMean'],
               dataByMonth[month]['2050rcp85_min'],
               null,
               null,
               dataByMonth[month]['2075rcp45_max'],
-              dataByMonth[month]['2075rcp45_median'],
+              dataByMonth[month]['2075rcp45_wMean'],
               dataByMonth[month]['2075rcp45_min'],
               null,
               null,
               dataByMonth[month]['2075rcp85_max'],
-              dataByMonth[month]['2075rcp85_median'],
+              dataByMonth[month]['2075rcp85_wMean'],
               dataByMonth[month]['2075rcp85_min'],
               null,
               null]);
           });
 
           // Sort before returning
-          data.sort(function (a, b) {
+          result.sort(function (a, b) {
             return (a[0] > b[0]) - (a[0] < b[0])
           });
-          obj.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa(('year,' + variable_config(obj.options.variable).id + '\n' + data.join('\n')));
-          return data
-        });
-    }
+          //TODO fix monthly/seasonal data download
+          return result
+        }
+      });
   }
 
 
@@ -2264,41 +2558,39 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
 
 
         } else if (obj.options.frequency === "seasonal") {
-          // obj.axes.x_annual.visible(false);
-          // obj.axes.x_monthly.visible(false);
-          // obj.axes.x_seasonal.visible(true);
-          //
-          // each_plot(obj.plots, function (plot) {
-          //   plot.visible(false);
-          // });
-          //
-          // obj.dataurls = {
-          // };
-          // show_spinner(obj.$div);
-          // $.when.apply($, [
-          //   get_historical_observed_data(obj),
-          //   $.ajax({url: obj.dataurls.proj_mod, dataType: 'text'})
-          // ]).done(function (hist_obs_data, proj_mod) {
-          //   hide_spinner(obj.$div);
-          //   var proj_mod_data = string_to_data(proj_mod[0]);
-          //   // The incoming data has month values 1,4,7,10.  Here we replace these with the values 0,1,2,3:
-          //   hist_obs_data.forEach(function (v) {
-          //     v[0] = Math.floor(v[0] / 3);
-          //   });
-          //   proj_mod_data.forEach(function (v) {
-          //     v[0] = Math.floor(v[0] / 3);
-          //   });
-          //   var convfunc = variable_config(obj.options.variable).dataconverters[obj.options.unitsystem];
-          //   hist_obs_data = transform_data(hist_obs_data, convfunc);
-          //   proj_mod_data = transform_data(proj_mod_data, convfunc);
-          //   var range = scale_range(datas_range([hist_obs_data, proj_mod_data]), yAxisRangeScaleFactor);
-          //   obj.axes.y.setDataRange(range.min, range.max);
-          //   obj.axes.y.title().content().string(variable_config(obj.options.variable).ytitles.seasonal[obj.options.unitsystem]);
-          //   obj.data.seasonal_hist_obs.array(convertArray(attr_list_array(obj.data.seasonal_hist_obs.columns()), hist_obs_data));
-          //   obj.data.seasonal_proj_mod.array(convertArray(attr_list_array(obj.data.seasonal_proj_mod.columns()), proj_mod_data));
-          //   set_plot_visibilities(obj);
-          //   obj.m.render();
-          // });
+          obj.axes.x_annual.visible(false);
+          obj.axes.x_monthly.visible(false);
+          obj.axes.x_seasonal.visible(true);
+
+          each_plot(obj.plots, function (plot) {
+            plot.visible(false);
+          });
+
+          obj.dataurls = {};
+          show_spinner(obj.$div);
+          $.when.apply($, [
+            get_historical_observed_data(obj),
+            get_projected_model_data(obj)
+          ]).then(function (hist_obs_data, proj_mod_data) {
+            hide_spinner(obj.$div);
+            // The incoming data has month values 1,4,7,10.  Here we replace these with the values 0,1,2,3:
+            hist_obs_data.forEach(function (v) {
+              v[0] = Math.floor(v[0] / 3);
+            });
+            proj_mod_data.forEach(function (v) {
+              v[0] = Math.floor(v[0] / 3);
+            });
+            var convfunc = variable_config(obj.options.variable).dataconverters[obj.options.unitsystem];
+            hist_obs_data = transform_data(hist_obs_data, convfunc);
+            proj_mod_data = transform_data(proj_mod_data, convfunc);
+            var range = scale_range(datas_range([hist_obs_data, proj_mod_data]), yAxisRangeScaleFactor);
+            obj.axes.y.setDataRange(range.min, range.max);
+            obj.axes.y.title().content().string(variable_config(obj.options.variable).ytitles.seasonal[obj.options.unitsystem]);
+            obj.data.seasonal_hist_obs.array(convertArray(attr_list_array(obj.data.seasonal_hist_obs.columns()), hist_obs_data));
+            obj.data.seasonal_proj_mod.array(convertArray(attr_list_array(obj.data.seasonal_proj_mod.columns()), proj_mod_data));
+            set_plot_visibilities(obj);
+            obj.m.render();
+          });
 
 
         }
@@ -2370,6 +2662,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       obj.m.render();
       return true;
     }
+
     obj.setXRange = function (min, max) {
       return setRange(obj.axes.x_annual, min, max);
     };
