@@ -1591,7 +1591,7 @@
         data.sort(function (a, b) {
           return (a[0] > b[0]) - (a[0] < b[0])
         });
-        obj.dataurls.hist_mod = 'data:text/csv;base64,' + window.btoa(('year,' + 'weighted mean,min,max' + '\n' + export_data.join('\n')));
+        obj.dataurls.hist_mod = 'data:text/csv;base64,' + window.btoa(('year,weighted mean,min,max' + '\n' + export_data.join('\n')));
         export_data = [];
         return data
       });
@@ -1603,7 +1603,7 @@
       sdate = (String(new Date().getFullYear())) + '-01-01';
     }
     else {
-      sdate = '2005-01-01';
+      sdate = '2010-01-01';
     }
 
     return $.when.apply($, [
@@ -1754,7 +1754,8 @@
           result.sort(function (a, b) {
             return (a[0] > b[0]) - (a[0] < b[0])
           });
-          //TODO fix monthly/seasonal data download
+          obj.dataurls.proj_mod = 'data:text/csv;base64,' + window.btoa((
+            'month,2025rcp45_max,2025rcp45_median,2025rcp45_min,2025rcp45_p10,2025rcp45_p90,2025rcp85_max,2025rcp85_median,2025rcp85_min,2025rcp85_p10,2025rcp85_p90,2050rcp45_max,2050rcp45_median,2050rcp45_min,2050rcp45_p10,2050rcp45_p90,2050rcp85_max,2050rcp85_median,2050rcp85_min,2050rcp85_p10,2050rcp85_p90,2075rcp45_max,2075rcp45_median,2075rcp45_min,2075rcp45_p10,2075rcp45_p90,2075rcp85_max,2075rcp85_median,2075rcp85_min,2075rcp85_p10,2075rcp85_p90\n' + result.join('\n')));
           return result
         }
       });
