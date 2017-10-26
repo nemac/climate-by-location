@@ -1543,7 +1543,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           }, []).sort(function (a, b) {
             return a[0] - b[0]
           });
-          obj.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa(('month,mean ' + variable_config(obj.options.variable).id + ',weighted mean ' + variable_config(obj.options.variable).id + '\n' + data.join('\n')));
+          obj.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa(('month,mean ' + variable_config(obj.options.variable).id + ',median ' + variable_config(obj.options.variable).id + '\n' + data.join('\n')));
           return data;
 
         }
@@ -1675,8 +1675,10 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                   //for seasonal group by season, not month.
                   season_month = seasons[month];
                 }
-                data[yearRange][season_month] = {};
-                 var datasets =  {
+                if (undefined === data[yearRange][season_month]) {
+                  data[yearRange][season_month] = {};
+                }
+                var datasets = {
                   'wMean45': wMean45,
                   'wMean85': wMean85,
                   'min45': min45,
@@ -1685,7 +1687,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                   'max85': max85
                 };
                 Object.keys(datasets).forEach(function (dataset) {
-                  data[yearRange][season_month][dataset] = [];
+                  if (undefined === data[yearRange][season_month][dataset]) {
+                    data[yearRange][season_month][dataset] = [];
+                  }
                   for (var year = yearRange - 15; year < yearRange + 15; year++) {
                     var year_month = String(year) + '-' + String(month);
                     if (datasets[dataset].hasOwnProperty(year_month)) {
@@ -1711,8 +1715,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           // [ month,2025rcp45_max,2025rcp45_median,2025rcp45_min,2025rcp45_p10,2025rcp45_p90,2025rcp85_max,2025rcp85_median,2025rcp85_min,2025rcp85_p10,2025rcp85_p90,2050rcp45_max,2050rcp45_median,2050rcp45_min,2050rcp45_p10,2050rcp45_p90,2050rcp85_max,2050rcp85_median,2050rcp85_min,2050rcp85_p10,2050rcp85_p90,2075rcp45_max,2075rcp45_median,2075rcp45_min,2075rcp45_p10,2075rcp45_p90,2075rcp85_max,2075rcp85_median,2075rcp85_min,2075rcp85_p10,2075rcp85_p90 ]
           var dataByMonth = {};
           var months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
-          if (obj.options.frequency === 'seasonal'){
-            months = ['01','04','07','10']
+          if (obj.options.frequency === 'seasonal') {
+            months = ['01', '04', '07', '10']
           }
           months.forEach(function (month) {
             dataByMonth[month] = {};
