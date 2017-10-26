@@ -177,13 +177,6 @@
           "duration": "yly",
           "reduce": "cnt_gt_90"
 
-        },
-        monthly: {
-          "name": "maxt",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "cnt_gt_90"
-
         }
       },
       dataconverters: {
@@ -200,17 +193,8 @@
             english: " Days with Maximum Temperature Above 90°F",
             metric: " Days with Maximum Temperature Above 90°F"
           }
-        },
-        monthly: {
-          absolute: {
-            english: " Days with Maximum Temperature Above 90°F",
-            metric: " Days with Maximum Temperature Above 90°F"
-          },
-          anomaly: {
-            english: " Days with Maximum Temperature Above 90°F",
-            metric: " Days with Maximum Temperature Above 90°F"
-          }
         }
+
       }
     },
     {
@@ -226,13 +210,6 @@
           "duration": "yly",
           "reduce": "cnt_gt_95"
 
-        },
-        monthly: {
-          "name": "maxt",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "cnt_gt_95"
-
         }
       },
       dataconverters: {
@@ -241,16 +218,6 @@
       },
       ytitles: {
         annual: {
-          absolute: {
-            english: "Days with Maximum Temperature Above 95 °F (d)",
-            metric: "Days with Maximum Temperature Above 95 °C (d)"
-          },
-          anomaly: {
-            english: "Days with Maximum Temperature Above 95 °F Departure (d)",
-            metric: "Days with Maximum Temperature Above 95 °C Departure (d)"
-          }
-        },
-        monthly: {
           absolute: {
             english: "Days with Maximum Temperature Above 95 °F (d)",
             metric: "Days with Maximum Temperature Above 95 °C (d)"
@@ -275,13 +242,6 @@
           "duration": "yly",
           "reduce": "cnt_gt_100"
 
-        },
-        monthly: {
-          "name": "maxt",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "cnt_gt_100"
-
         }
       },
       dataconverters: {
@@ -290,16 +250,6 @@
       },
       ytitles: {
         annual: {
-          absolute: {
-            english: "Days with Maximum Temperature Above 100°F",
-            metric: "Days with Maximum Temperature Above 100°F"
-          },
-          anomaly: {
-            english: " Days with Maximum Temperature Above 100°F",
-            metric: " Days with Maximum Temperature Above 100°F"
-          }
-        },
-        monthly: {
           absolute: {
             english: "Days with Maximum Temperature Above 100°F",
             metric: "Days with Maximum Temperature Above 100°F"
@@ -324,13 +274,6 @@
           "duration": "yly",
           "reduce": "cnt_gt_105"
 
-        },
-        monthly: {
-          "name": "maxt",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "cnt_gt_105"
-
         }
       },
       dataconverters: {
@@ -339,16 +282,6 @@
       },
       ytitles: {
         annual: {
-          absolute: {
-            english: "Days with Maximum Temperature Above 105°F",
-            metric: "Days with Maximum Temperature Above 105°F"
-          },
-          anomaly: {
-            english: "Departure Days with Maximum Temperature Above 105°F",
-            metric: "Departure Days with Maximum Temperature Above 105°F"
-          }
-        },
-        monthly: {
           absolute: {
             english: "Days with Maximum Temperature Above 105°F",
             metric: "Days with Maximum Temperature Above 105°F"
@@ -373,13 +306,6 @@
           "duration": "yly",
           "reduce": "cnt_lt_32"
 
-        },
-        monthly: {
-          "name": "maxt",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "cnt_lt_32"
-
         }
       },
       dataconverters: {
@@ -388,16 +314,6 @@
       },
       ytitles: {
         annual: {
-          absolute: {
-            english: "Days with Maximum Temperature Below 32°F",
-            metric: "Days with Maximum Temperature Below 32°F"
-          },
-          anomaly: {
-            english: "Days with Maximum Temperature Below 32°F",
-            metric: "Days with Maximum Temperature Below 32°F"
-          }
-        },
-        monthly: {
           absolute: {
             english: "Days with Maximum Temperature Below 32°F",
             metric: "Days with Maximum Temperature Below 32°F"
@@ -422,13 +338,6 @@
           "duration": "yly",
           "reduce": "cnt_lt_32"
 
-        },
-        monthly: {
-          "name": "mint",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "cnt_lt_32"
-
         }
       },
       dataconverters: {
@@ -437,16 +346,6 @@
       },
       ytitles: {
         annual: {
-          absolute: {
-            english: "Days with Minimum Temperature Below 32 °F (d)",
-            metric: "Days with Minimum Temperature Below 0 °C (d)"
-          },
-          anomaly: {
-            english: "Days with Minimum Temperature Below 32 °F (d)",
-            metric: "Days with Minimum Temperature Below 0 °C (d)"
-          }
-        },
-        monthly: {
           absolute: {
             english: "Days with Minimum Temperature Below 32 °F (d)",
             metric: "Days with Minimum Temperature Below 0 °C (d)"
@@ -494,16 +393,6 @@
             english: "Departure Days with Minimum Temperature Above 80°F",
             metric: "Departure Days with Minimum Temperature Above 80°F"
           }
-        },
-        monthly: {
-          absolute: {
-            english: "Days with Minimum Temperature Above 80°F",
-            metric: "Days with Minimum Temperature Above 80°F"
-          },
-          anomaly: {
-            english: "Departure Days with Minimum Temperature Above 80°F",
-            metric: "Departure Days with Minimum Temperature Above 80°F"
-          }
         }
       }
     },
@@ -543,16 +432,6 @@
             english: "Departure Days with Minimum Temperature Above 90°F",
             metric: "Departure Days with Minimum Temperature Above 90°F"
           }
-        },
-        monthly: {
-          absolute: {
-            english: "Days with Minimum Temperature Above 90°F",
-            metric: "Days with Minimum Temperature Above 90°F"
-          },
-          anomaly: {
-            english: "Departure Days with Minimum Temperature Above 90°F",
-            metric: "Departure Days with Minimum Temperature Above 90°F"
-          }
         }
       }
     },
@@ -569,13 +448,6 @@
           "duration": "yly",
           "reduce": "sum"
 
-        },
-        monthly: {
-          "name": "hdd",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "sum"
-
         }
       },
       dataconverters: {
@@ -584,16 +456,6 @@
       },
       ytitles: {
         annual: {
-          absolute: {
-            english: "Heating Degree Days (HDD F)",
-            metric: "Heating Degree Days (HDD C)"
-          },
-          anomaly: {
-            english: "Heating Degree Days Departure (HDD F)",
-            metric: "Heating Degree Days Departure (HDD C)"
-          }
-        },
-        monthly: {
           absolute: {
             english: "Heating Degree Days (HDD F)",
             metric: "Heating Degree Days (HDD C)"
@@ -618,13 +480,6 @@
           "duration": "yly",
           "reduce": "sum"
 
-        },
-        monthly: {
-          "name": "cdd",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "sum"
-
         }
       },
       dataconverters: {
@@ -633,16 +488,6 @@
       },
       ytitles: {
         annual: {
-          absolute: {
-            english: "Cooling Degree Days (CDD F)",
-            metric: "Cooling Degree Days (CDD C)"
-          },
-          anomaly: {
-            english: "Cooling Degree Days Departure (CDD F)",
-            metric: "Cooling Degree Days Departure (CDD C)"
-          }
-        },
-        monthly: {
           absolute: {
             english: "Cooling Degree Days (CDD F)",
             metric: "Cooling Degree Days (CDD C)"
@@ -666,12 +511,6 @@
           "interval": "yly",
           "duration": "yly",
           "reduce": "sum"
-        },
-        monthly: {
-          "name": "gdd",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "sum"
         }
       },
       dataconverters: {
@@ -680,16 +519,6 @@
       },
       ytitles: {
         annual: {
-          absolute: {
-            english: "Growing Degree Days (d)",
-            metric: "Growing Degree Days (d)"
-          },
-          anomaly: {
-            english: "Departure Growing Degree Days (d)",
-            metric: "Departure Growing Degree Days (d)"
-          }
-        },
-        monthly: {
           absolute: {
             english: "Growing Degree Days (d)",
             metric: "Growing Degree Days (d)"
@@ -715,13 +544,7 @@
           "interval": "yly",
           "reduce": "sum"
         },
-        monthly: {
-          "name": "gdd",
-          "duration": "mly",
-          "limit": [86, 50],
-          "interval": "mly",
-          "reduce": "sum"
-        }
+
       },
       dataconverters: {
         metric: no_conversion,
@@ -738,16 +561,7 @@
             metric: "Departure Modified Growing Degree Days"
           }
         },
-        monthly: {
-          absolute: {
-            english: "Modified Growing Degree Days",
-            metric: "Modified Growing Degree Days"
-          },
-          anomaly: {
-            english: "Departure Modified Growing Degree Days",
-            metric: "Departure Modified Growing Degree Days"
-          }
-        }
+
       }
     },
     {
@@ -763,12 +577,7 @@
           "duration": "yly",
           "reduce": "cnt_lt_0.01"
         },
-        monthly: {
-          "name": "pcpn",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "cnt_lt_0.01"
-        }
+
       },
       dataconverters: {
         metric: no_conversion,
@@ -776,16 +585,6 @@
       },
       ytitles: {
         annual: {
-          absolute: {
-            english: "Dry Days",
-            metric: "Dry Days"
-          },
-          anomaly: {
-            english: "Dry Days",
-            metric: "Dry Days"
-          }
-        },
-        monthly: {
           absolute: {
             english: "Dry Days",
             metric: "Dry Days"
@@ -866,13 +665,7 @@
           "reduce": "cnt_gt_1"
 
         },
-        monthly: {
-          "name": "pcpn",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "cnt_gt_1"
 
-        }
       },
       dataconverters: {
         metric: no_conversion,
@@ -888,17 +681,8 @@
             english: "Days of Precipitation Above 1 in Departure (d)",
             metric: "Days of Precipitation Above 25.3 mm Departure (d)"
           }
-        },
-        monthly: {
-          absolute: {
-            english: "Days of Precipitation Above 1 in (d)",
-            metric: "Days of Precipitation Above 25.3 mm (d)"
-          },
-          anomaly: {
-            english: "Days of Precipitation Above 1 in Departure (d)",
-            metric: "Days of Precipitation Above 25.3 mm Departure (d)"
-          }
         }
+
       }
     },
     {
@@ -914,14 +698,8 @@
           "duration": "yly",
           "reduce": "cnt_gt_2"
 
-        },
-        monthly: {
-          "name": "pcpn",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "cnt_gt_2"
-
         }
+
       },
       dataconverters: {
         metric: no_conversion,
@@ -937,17 +715,8 @@
             english: "Days of Precipitation Above 2 in Departure (d)",
             metric: "Days of Precipitation Above 50.8mm Departure (d)"
           }
-        },
-        monthly: {
-          absolute: {
-            english: "Days of Precipitation Above 2 in (d)",
-            metric: "Days of Precipitation Above 50.8mm (d)"
-          },
-          anomaly: {
-            english: "Days of Precipitation Above 2 in Departure (d)",
-            metric: "Days of Precipitation Above 50.8mm Departure (d)"
-          }
         }
+
       }
     },
     {
@@ -964,13 +733,6 @@
           "reduce": "cnt_gt_3"
 
         },
-        monthly: {
-          "name": "pcpn",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "cnt_gt_3"
-
-        }
       },
       dataconverters: {
         metric: no_conversion,
@@ -987,16 +749,7 @@
             metric: "Days of Precipitation Above 76.2 mm Departure (d)"
           }
         },
-        monthly: {
-          absolute: {
-            english: "Days of Precipitation Above 3 in (d)",
-            metric: "Days of Precipitation Above 76.2 mm (d)"
-          },
-          anomaly: {
-            english: "Days of Precipitation Above 3 in Departure (d)",
-            metric: "Days of Precipitation Above 76.2 mm Departure (d)"
-          }
-        }
+
       }
     },
     {
@@ -1013,13 +766,7 @@
           "reduce": "cnt_gt_4"
 
         },
-        monthly: {
-          "name": "pcpn",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "cnt_gt_4"
 
-        }
       },
       dataconverters: {
         metric: no_conversion,
@@ -1036,16 +783,7 @@
             metric: "Days of Precipitation Above 101.6 mm Departure (d)"
           }
         },
-        monthly: {
-          absolute: {
-            english: "Days of Precipitation Above 4 in (d)",
-            metric: "Days of Precipitation Above 101.6 mm (d)"
-          },
-          anomaly: {
-            english: "Days of Precipitation Above 4 in Departure (d)",
-            metric: "Days of Precipitation Above 101.6 mm Departure (d)"
-          }
-        }
+
       }
     }
 
