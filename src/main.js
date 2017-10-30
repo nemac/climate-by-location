@@ -576,7 +576,7 @@
           "interval": "yly",
           "duration": "yly",
           "reduce": "cnt_lt_0.01"
-        },
+        }
 
       },
       dataconverters: {
@@ -636,14 +636,8 @@
           }
         },
         monthly: {
-          absolute: {
             english: "Total Precipitation (in/y)",
             metric: "Total Precipitation (mm/y)"
-          },
-          anomaly: {
-            english: "Total Precipitation Departure (%)",
-            metric: "Total Precipitation Departure (%)"
-          }
         },
         seasonal: {
           english: "Total Precipitation (in/season)",
