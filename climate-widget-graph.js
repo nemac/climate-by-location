@@ -586,6 +586,14 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           "interval": "yly",
           "duration": "yly",
           "reduce": "cnt_lt_0.01"
+        },
+        monthly: {
+
+            "name": "pcpn",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "cnt_lt_0.01"
+
         }
 
       },
@@ -603,6 +611,14 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             english: "Dry Days",
             metric: "Dry Days"
           }
+        },
+        monthly:{
+          english: "Dry Days",
+          metric: "Dry Days"
+        },
+        seasonal:{
+          english: "Dry Days",
+          metric: "Dry Days"
         }
       }
     },

@@ -576,6 +576,14 @@
           "interval": "yly",
           "duration": "yly",
           "reduce": "cnt_lt_0.01"
+        },
+        monthly: {
+
+            "name": "pcpn",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "cnt_lt_0.01"
+
         }
 
       },
@@ -593,6 +601,14 @@
             english: "Dry Days",
             metric: "Dry Days"
           }
+        },
+        monthly:{
+          english: "Dry Days",
+          metric: "Dry Days"
+        },
+        seasonal:{
+          english: "Dry Days",
+          metric: "Dry Days"
         }
       }
     },
