@@ -612,10 +612,6 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             metric: "Dry Days"
           }
         },
-        monthly:{
-          english: "Dry Days",
-          metric: "Dry Days"
-        },
         seasonal:{
           english: "Dry Days",
           metric: "Dry Days"

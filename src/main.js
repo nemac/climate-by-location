@@ -602,10 +602,6 @@
             metric: "Dry Days"
           }
         },
-        monthly:{
-          english: "Dry Days",
-          metric: "Dry Days"
-        },
         seasonal:{
           english: "Dry Days",
           metric: "Dry Days"
