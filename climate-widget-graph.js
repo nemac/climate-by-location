@@ -589,10 +589,10 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         },
         monthly: {
 
-            "name": "pcpn",
-            "interval": "mly",
-            "duration": "mly",
-            "reduce": "cnt_lt_0.01"
+          "name": "pcpn",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_lt_0.01"
 
         }
 
@@ -612,7 +612,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             metric: "Dry Days"
           }
         },
-        seasonal:{
+        seasonal: {
           english: "Dry Days",
           metric: "Dry Days"
         }
@@ -658,8 +658,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           }
         },
         monthly: {
-            english: "Total Precipitation (in/y)",
-            metric: "Total Precipitation (mm/y)"
+          english: "Total Precipitation (in/y)",
+          metric: "Total Precipitation (mm/y)"
         },
         seasonal: {
           english: "Total Precipitation (in/season)",
@@ -1223,14 +1223,14 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           data = [];
           response.data.forEach(function (record) {
             if (undefined !== record[1][get_region_value(obj)] && String(record[1][get_region_value(obj)]) !== '-999' && String(record[1][get_region_value(obj)]) !== '') {
-              data.push([record[0], record[1][get_region_value(obj)]]);
+              data.push([record[0], Math.round((record[1][get_region_value(obj)]) * 10) / 10]);
             }
           });
           obj.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa(('year,' + variable_config(obj.options.variable).id + '\n' + data.join('\n')));
           return data
         }
         else if (obj.options.frequency === 'monthly' || obj.options.frequency === 'seasonal') {
-          //then build output of [[month(1-12), mean, median]].
+          //then build output of [[month(1-12), weighted mean]].
           data = {
             '01': [],
             '02': [],
@@ -1264,30 +1264,32 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             }, {});
           }
           var mean = Object.keys(data).reduce(function (acc, key) {
-            acc[key] = data[key].reduce(function (a, b) {
+            acc[key] = Math.round((data[key].reduce(function (a, b) {
               return a + b;
-            }) / data[key].length;
+            }) / data[key].length) * 10) / 10;
             return acc;
           }, {});
-          var median = Object.keys(data).reduce(function (acc, key) {
-            data[key].sort(function (a, b) {
-              return a - b;
-            });
-            var half = Math.floor(data[key].length / 2);
-            if (data[key].length % 2)
-              acc[key] = data[key][half];
-            else
-              acc[key] = (data[key][half - 1] + data[key][half]) / 2.0;
-            return acc;
-          }, {});
-          //return [[month, mean, median]]
+          // var median = Object.keys(data).reduce(function (acc, key) {
+          //   data[key].sort(function (a, b) {
+          //     return a - b;
+          //   });
+          //   var half = Math.floor(data[key].length / 2);
+          //   if (data[key].length % 2)
+          //     acc[key] = Math.round(data[key][half]* 10) / 10;
+          //   else
+          //     acc[key] = Math.round(((data[key][half - 1] + data[key][half]) / 2.0) * 10) / 10;
+          //   return acc;
+          // }, {});
+          //return [[month, weighted mean]]
+          var export_data = [];
           data = Object.keys(data).reduce(function (acc, key) {
-            acc.push([parseInt(key), mean[key], median[key]]);
+            acc.push([parseInt(key), null, mean[key]]);
+            export_data.push([parseInt(key), mean[key]]);
             return acc;
           }, []).sort(function (a, b) {
             return a[0] - b[0]
           });
-          obj.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa(('month,mean ' + variable_config(obj.options.variable).id + ',median ' + variable_config(obj.options.variable).id + '\n' + data.join('\n')));
+          obj.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa((obj.options.timeperiod + '_month,weighted_mean_' + variable_config(obj.options.variable).id + '\n' + export_data.join('\n')));
           return data;
 
         }
@@ -1334,9 +1336,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         var export_data = [];
         for (var key = 1950; key < new Date().getFullYear(); key++) {
           var values = {};
-          values.wMean = wMean.hasOwnProperty(key) ? wMean[key] : null;
-          values.min = min.hasOwnProperty(key) ? min[key] : null;
-          values.max = max.hasOwnProperty(key) ? max[key] : null;
+          values.wMean = wMean.hasOwnProperty(key) ? Math.round(wMean[key] * 10) / 10 : null;
+          values.min = min.hasOwnProperty(key) ? Math.round(min[key] * 10) / 10 : null;
+          values.max = max.hasOwnProperty(key) ? Math.round(max[key] * 10) / 10 : null;
           //year,mean,min,max,?,?
           data.push([String(key), values.wMean, values.min, values.max, null, null]);
           export_data.push([String(key), values.wMean, values.min, values.max])
@@ -1345,7 +1347,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         data.sort(function (a, b) {
           return (a[0] > b[0]) - (a[0] < b[0])
         });
-        obj.dataurls.hist_mod = 'data:text/csv;base64,' + window.btoa(('year,weighted mean,min,max' + '\n' + export_data.join('\n')));
+        obj.dataurls.hist_mod = 'data:text/csv;base64,' + window.btoa(('year,weighted_mean,min,max' + '\n' + export_data.join('\n')));
         export_data = [];
         return data
       });
@@ -1390,12 +1392,12 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           // Extract values
           for (var key = new Date().getFullYear(); key < 2100; key++) {
             var values = {};
-            values.wMean45 = wMean45.hasOwnProperty(key) ? wMean45[key] : null;
-            values.min45 = min45.hasOwnProperty(key) ? min45[key] : null;
-            values.max45 = max45.hasOwnProperty(key) ? max45[key] : null;
-            values.wMean85 = wMean85.hasOwnProperty(key) ? wMean85[key] : null;
-            values.min85 = min85.hasOwnProperty(key) ? min85[key] : null;
-            values.max85 = max85.hasOwnProperty(key) ? max85[key] : null;
+            values.wMean45 = wMean45.hasOwnProperty(key) ? Math.round(wMean45[key] * 10) / 10 : null;
+            values.min45 = min45.hasOwnProperty(key) ? Math.round(min45[key] * 10) / 10 : null;
+            values.max45 = max45.hasOwnProperty(key) ? Math.round(max45[key] * 10) / 10 : null;
+            values.wMean85 = wMean85.hasOwnProperty(key) ? Math.round(wMean85[key] * 10) / 10 : null;
+            values.min85 = min85.hasOwnProperty(key) ? Math.round(min85[key] * 10) / 10 : null;
+            values.max85 = max85.hasOwnProperty(key) ? Math.round(max85[key] * 10) / 10 : null;
             //year,rcp45mean,rcp45min,rcp45max,rcp45p10,rcp45p90,rcp85mean,rcp85min,rcp85max,rcp85p10,rcp85p90
             data.push([String(key), values.wMean45, values.min45, values.max45, null, null, values.wMean85, values.min85, values.max85, null, null]);
             export_data.push([String(key), values.wMean45, values.min45, values.max45, values.wMean85, values.min85, values.max85]);
@@ -1456,7 +1458,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             });
           });
           // reformat to expected output
-          // [ month,2025rcp45_max,2025rcp45_median,2025rcp45_min,2025rcp45_p10,2025rcp45_p90,2025rcp85_max,2025rcp85_median,2025rcp85_min,2025rcp85_p10,2025rcp85_p90,2050rcp45_max,2050rcp45_median,2050rcp45_min,2050rcp45_p10,2050rcp45_p90,2050rcp85_max,2050rcp85_median,2050rcp85_min,2050rcp85_p10,2050rcp85_p90,2075rcp45_max,2075rcp45_median,2075rcp45_min,2075rcp45_p10,2075rcp45_p90,2075rcp85_max,2075rcp85_median,2075rcp85_min,2075rcp85_p10,2075rcp85_p90 ]
+          // [ month,2025rcp45_max,2025rcp45_weighted_mean,2025rcp45_min,2025rcp45_p10,2025rcp45_p90,2025rcp85_max,2025rcp85_weighted_mean,2025rcp85_min,2025rcp85_p10,2025rcp85_p90,2050rcp45_max,2050rcp45_weighted_mean,2050rcp45_min,2050rcp45_p10,2050rcp45_p90,2050rcp85_max,2050rcp85_weighted_mean,2050rcp85_min,2050rcp85_p10,2050rcp85_p90,2075rcp45_max,2075rcp45_weighted_mean,2075rcp45_min,2075rcp45_p10,2075rcp45_p90,2075rcp85_max,2075rcp85_weighted_mean,2075rcp85_min,2075rcp85_p10,2075rcp85_p90 ]
           var dataByMonth = {};
           var months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
           if (obj.options.frequency === 'seasonal') {
@@ -1472,7 +1474,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               });
             });
           });
-
+          var export_data = [];
           var result = [];
           Object.keys(dataByMonth).forEach(function (month) {
             result.push([month,
@@ -1506,14 +1508,35 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               dataByMonth[month]['2075rcp85_min'],
               null,
               null]);
+            export_data.push([month,
+              Math.round(dataByMonth[month]['2025rcp45_max'] * 10) / 10,
+              Math.round(dataByMonth[month]['2025rcp45_wMean'] * 10) / 10,
+              Math.round(dataByMonth[month]['2025rcp45_min'] * 10) / 10,
+              Math.round(dataByMonth[month]['2025rcp85_max'] * 10) / 10,
+              Math.round(dataByMonth[month]['2025rcp85_wMean'] * 10) / 10,
+              Math.round(dataByMonth[month]['2025rcp85_min'] * 10) / 10,
+              Math.round(dataByMonth[month]['2050rcp45_max'] * 10) / 10,
+              Math.round(dataByMonth[month]['2050rcp45_wMean'] * 10) / 10,
+              Math.round(dataByMonth[month]['2050rcp45_min'] * 10) / 10,
+              Math.round(dataByMonth[month]['2050rcp85_max'] * 10) / 10,
+              Math.round(dataByMonth[month]['2050rcp85_wMean'] * 10) / 10,
+              Math.round(dataByMonth[month]['2050rcp85_min'] * 10) / 10,
+              Math.round(dataByMonth[month]['2075rcp45_max'] * 10) / 10,
+              Math.round(dataByMonth[month]['2075rcp45_wMean'] * 10) / 10,
+              Math.round(dataByMonth[month]['2075rcp45_min'] * 10) / 10,
+              Math.round(dataByMonth[month]['2075rcp85_max'] * 10) / 10,
+              Math.round(dataByMonth[month]['2075rcp85_wMean'] * 10) / 10,
+              Math.round(dataByMonth[month]['2075rcp85_min'] * 10) / 10
+            ]);
           });
 
           // Sort before returning
           result.sort(function (a, b) {
             return (a[0] > b[0]) - (a[0] < b[0])
           });
+
           obj.dataurls.proj_mod = 'data:text/csv;base64,' + window.btoa((
-            'month,2025rcp45_max,2025rcp45_median,2025rcp45_min,2025rcp45_p10,2025rcp45_p90,2025rcp85_max,2025rcp85_median,2025rcp85_min,2025rcp85_p10,2025rcp85_p90,2050rcp45_max,2050rcp45_median,2050rcp45_min,2050rcp45_p10,2050rcp45_p90,2050rcp85_max,2050rcp85_median,2050rcp85_min,2050rcp85_p10,2050rcp85_p90,2075rcp45_max,2075rcp45_median,2075rcp45_min,2075rcp45_p10,2075rcp45_p90,2075rcp85_max,2075rcp85_median,2075rcp85_min,2075rcp85_p10,2075rcp85_p90\n' + result.join('\n')));
+            'month,2025rcp45_max,2025rcp45_weighted_mean,2025rcp45_min,2025rcp85_max,2025rcp85_weighted_mean,2025rcp85_min,2050rcp45_max,2050rcp45_weighted_mean,2050rcp45_min,2050rcp85_max,2050rcp85_weighted_mean,2050rcp85_min,2075rcp45_max,2075rcp45_weighted_mean,2075rcp45_min,2075rcp85_max,2075rcp85_weighted_mean,2075rcp85_min,\n' + export_data.join('\n')));
           return result
         }
       });
