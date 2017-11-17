@@ -8,6 +8,7 @@ $(document).ready(function () {
     $(variables.map(function (v) {
       return ('<option value="' + v.id + '"' + '>' + v.title + '</option>');
     }).join("")).appendTo($("select#variable"));
+
   }
 
   function initGraph() {
@@ -101,16 +102,19 @@ $(document).ready(function () {
       $('#timeperiod-wrapper').hide();
       $('#slider-range').show();
       $('#x-axis-pan-note').hide();
+      $('#download_hist_mod_data_li').show();
     }
     if (freq === "monthly") {
       $('#timeperiod-wrapper').show();
       $('#slider-range').hide();
       $('#x-axis-pan-note').show();
+      $('#download_hist_mod_data_li').hide();
     }
     if (freq === "seasonal") {
       $('#timeperiod-wrapper').show();
       $('#slider-range').hide();
       $('#x-axis-pan-note').show();
+      $('#download_hist_mod_data_li').hide();
     }
     populate_variables(freq);
   }
