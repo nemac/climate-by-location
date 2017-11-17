@@ -1279,7 +1279,7 @@
           }, []).sort(function (a, b) {
             return a[0] - b[0]
           });
-          obj.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa((obj.options.timeperiod + '_month,weighted_mean_' + variable_config(obj.options.variable).id + '\n' + export_data.join('\n')));
+          obj.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa((obj.options.timeperiod + '_month,weighted_mean\n' + export_data.join('\n')));
           return data;
 
         }
@@ -1396,7 +1396,7 @@
           data.sort(function (a, b) {
             return (a[0] > b[0]) - (a[0] < b[0])
           });
-          obj.dataurls.proj_mod = 'data:text/csv;base64,' + window.btoa(('year,' + 'rcp45 weighted mean,rcp45 min,rcp45 max,rcp85 weighted mean,rcp85 min,rcp85 max' + '\n' + export_data.join('\n')));
+          obj.dataurls.proj_mod = 'data:text/csv;base64,' + window.btoa(('year,' + 'rcp45_weighted_mean,rcp45_min,rcp45_max,rcp85_weighted mean,rcp85_min,rcp85_max' + '\n' + export_data.join('\n')));
           export_data = [];
           return data
         }
@@ -1526,7 +1526,7 @@
           });
 
           obj.dataurls.proj_mod = 'data:text/csv;base64,' + window.btoa((
-            'month,2025rcp45_max,2025rcp45_weighted_mean,2025rcp45_min,2025rcp85_max,2025rcp85_weighted_mean,2025rcp85_min,2050rcp45_max,2050rcp45_weighted_mean,2050rcp45_min,2050rcp85_max,2050rcp85_weighted_mean,2050rcp85_min,2075rcp45_max,2075rcp45_weighted_mean,2075rcp45_min,2075rcp85_max,2075rcp85_weighted_mean,2075rcp85_min,\n' + export_data.join('\n')));
+            'month,2025_rcp45_max,2025_rcp45_weighted_mean,2025_rcp45_min,2025_rcp85_max,2025_rcp85_weighted_mean,2025_rcp85_min,2050_rcp45_max,2050_rcp45_weighted_mean,2050_rcp45_min,2050_rcp85_max,2050_rcp85_weighted_mean,2050_rcp85_min,2075_rcp45_max,2075_rcp45_weighted_mean,2075_rcp45_min,2075_rcp85_max,2075_rcp85_weighted_mean,2075_rcp85_min\n' + export_data.join('\n')));
           return result
         }
       });
