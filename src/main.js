@@ -69,7 +69,7 @@
 
   var variables = [
     {
-      id: "tasmax",
+      id: "tmax",
       title: {
         english: "Mean Daily Maximum Temperature",
         metric: "Mean Daily Maximum Temperature"
@@ -117,7 +117,7 @@
       }
     },
     {
-      id: "tasmin",
+      id: "tmin",
       title: {
         english: "Mean Daily Minimum Temperature",
         metric: "Mean Daily Minimum Temperature"
@@ -165,7 +165,7 @@
       }
     },
     {
-      id: "days_maxt90F",
+      id: "days_tmax_gt_90f",
       title: {
         english: " Days with Maximum Temperature Above 90°F",
         metric: " Days with Maximum Temperature Above 90°F"
@@ -198,7 +198,7 @@
       }
     },
     {
-      id: "days_tmax_gt_95F",
+      id: "days_tmax_gt_95f",
       title: {
         english: "Days with Maximum Temperature Above 95 °F",
         metric: "Days with Maximum Temperature Above 35 °C"
@@ -230,7 +230,7 @@
       }
     },
     {
-      id: "days_maxt_gt_100F",
+      id: "days_tmax_gt_100f",
       title: {
         english: "Days with Maximum Temperature Above 100°F",
         metric: "Days with Maximum Temperature Above 100°F"
@@ -262,7 +262,7 @@
       }
     },
     {
-      id: "days_maxt_gt_105F",
+      id: "days_tmax_gt_105f",
       title: {
         english: "Days with Maximum Temperature Above 105°F",
         metric: "Days with Maximum Temperature Above 105°F"
@@ -294,7 +294,7 @@
       }
     },
     {
-      id: "days_maxt32F",
+      id: "days_tmax_lt_32f",
       title: {
         english: "Days with Maximum Temperature Below 32°F",
         metric: "Days with Maximum Temperature Below 32°F"
@@ -326,7 +326,7 @@
       }
     },
     {
-      id: "days_mint_blw_0.0",
+      id: "days_tmin_lt_32f",
       title: {
         english: "Days with Minimum Temperature Below 32 °F",
         metric: "Days with Minimum Temperature Below 0 °C"
@@ -358,7 +358,7 @@
       }
     },
     {
-      id: "days_mint_days_above_80F",
+      id: "days_tmin_gt_80f",
       title: {
         english: "Days with Minimum Temperature Above 80°F",
         metric: "Days with Minimum Temperature Above 80°F"
@@ -397,7 +397,7 @@
       }
     },
     {
-      id: "days_mint_days_above_90F",
+      id: "days_tmin_gt_90f",
       title: {
         english: "Days with Minimum Temperature Above 90°F",
         metric: "Days with Minimum Temperature Above 90°F"
@@ -436,7 +436,7 @@
       }
     },
     {
-      id: "heating_degree_day_65F",
+      id: "hdd_65f",
       title: {
         english: "Heating Degree Days",
         metric: "Heating Degree Days"
@@ -468,7 +468,7 @@
       }
     },
     {
-      id: "cooling_degree_day_65F",
+      id: "cdd_65f",
       title: {
         english: "Cooling Degree Days",
         metric: "Cooling Degree Days"
@@ -500,7 +500,7 @@
       }
     },
     {
-      id: "days_gdd",
+      id: "gdd",
       title: {
         english: "Growing Degree Days",
         metric: "Growing Degree Days"
@@ -531,7 +531,7 @@
       }
     },
     {
-      id: "days_gddmod",
+      id: "gddmod",
       title: {
         english: "Modified Growing Degree Days",
         metric: "Modified Growing Degree Days"
@@ -562,50 +562,6 @@
           }
         },
 
-      }
-    },
-    {
-      id: "days_cntDD",
-      title: {
-        english: "Dry Days",
-        metric: "Dry Days"
-      },
-      acis_elements: {
-        annual: {
-          "name": "pcpn",
-          "interval": "yly",
-          "duration": "yly",
-          "reduce": "cnt_lt_0.01"
-        },
-        monthly: {
-
-          "name": "pcpn",
-          "interval": "mly",
-          "duration": "mly",
-          "reduce": "cnt_lt_0.01"
-
-        }
-
-      },
-      dataconverters: {
-        metric: no_conversion,
-        english: no_conversion
-      },
-      ytitles: {
-        annual: {
-          absolute: {
-            english: "Dry Days",
-            metric: "Dry Days"
-          },
-          anomaly: {
-            english: "Dry Days",
-            metric: "Dry Days"
-          }
-        },
-        seasonal: {
-          english: "Dry Days",
-          metric: "Dry Days"
-        }
       }
     },
     {
@@ -658,6 +614,50 @@
       }
     },
     {
+      id: "days_pcpn_lt_0.01in",
+      title: {
+        english: "Dry Days",
+        metric: "Dry Days"
+      },
+      acis_elements: {
+        annual: {
+          "name": "pcpn",
+          "interval": "yly",
+          "duration": "yly",
+          "reduce": "cnt_lt_0.01"
+        },
+        monthly: {
+
+          "name": "pcpn",
+          "interval": "mly",
+          "duration": "mly",
+          "reduce": "cnt_lt_0.01"
+
+        }
+
+      },
+      dataconverters: {
+        metric: no_conversion,
+        english: no_conversion
+      },
+      ytitles: {
+        annual: {
+          absolute: {
+            english: "Dry Days",
+            metric: "Dry Days"
+          },
+          anomaly: {
+            english: "Dry Days",
+            metric: "Dry Days"
+          }
+        },
+        seasonal: {
+          english: "Dry Days",
+          metric: "Dry Days"
+        }
+      }
+    },
+    {
       id: "days_pcpn_gt_1in",
       title: {
         english: "Days of Precipitation Above 1 in",
@@ -670,8 +670,7 @@
           "duration": "yly",
           "reduce": "cnt_gt_1"
 
-        },
-
+        }
       },
       dataconverters: {
         metric: no_conversion,
@@ -771,8 +770,7 @@
           "duration": "yly",
           "reduce": "cnt_gt_4"
 
-        },
-
+        }
       },
       dataconverters: {
         metric: no_conversion,
@@ -788,170 +786,9 @@
             english: "Days of Precipitation Above 4 in Departure (d)",
             metric: "Days of Precipitation Above 101.6 mm Departure (d)"
           }
-        },
-
+        }
       }
     }
-
-    // {
-    //   id: "days_consecDD",
-    //   title: {
-    //     english: "Maximum Consecutive Dry Days",
-    //     metric: "Maximum Consecutive Dry Days"
-    //   },
-    //   acis_elements: {
-    //     annual: {
-    //       "name": "pcpn",
-    //       "interval": "yly",
-    //       "duration": "yly",
-    //       "reduce": "run_lt_0.01",
-    //       
-    //     }
-    //   },
-    //   dataconverters: {
-    //     metric: no_conversion,
-    //     english: no_conversion
-    //   },
-    //   ytitles: {
-    //     annual: {
-    //       absolute: {
-    //         english: "Maximum Consecutive Dry Days",
-    //         metric: "Maximum Consecutive Dry Days"
-    //       },
-    //       anomaly: {
-    //         english: "Departure Maximum Consecutive Dry Days",
-    //         metric: "Departure Maximum Consecutive Dry Days"
-    //       }
-    //     }
-    //   }
-    // },
-    // {
-    //   id: "days_consecDD-JJA",
-    //   title: {
-    //     english: "Maximum Consecutive Summer Dry Days",
-    //     metric: "Maximum Consecutive Summer Dry Days"
-    //   },
-    //   acis_elements: {
-    //     annual: {
-    //       "name": "consecDD-JJA",
-    //       "interval": "yly",
-    //       "duration": "yly",
-    //       "reduce": "sum",
-    //       
-    //     }
-    //   },
-    //   dataconverters: {
-    //     metric: no_conversion,
-    //     english: no_conversion
-    //   },
-    //   ytitles: {
-    //     annual: {
-    //       absolute: {
-    //         english: "Maximum Consecutive Summer Dry Days",
-    //         metric: "Maximum Consecutive Summer Dry Days"
-    //       },
-    //       anomaly: {
-    //         english: "Departure Maximum Consecutive Summer Dry Days",
-    //         metric: "Departure Maximum Consecutive Summer Dry Days"
-    //       }
-    //     }
-    //   }
-    // },
-    // {
-    //   id: "days_consecWD",
-    //   title: {
-    //     english: "Maximum Consecutive Wet Days",
-    //     metric: "Maximum Consecutive Wet Days"
-    //   },
-    //   acis_elements: {
-    //     annual: {
-    //       "name": "consecWD",
-    //       "interval": "yly",
-    //       "duration": "yly",
-    //       "reduce": "sum",
-    //       
-    //     }
-    //   },
-    //   dataconverters: {
-    //     metric: no_conversion,
-    //     english: no_conversion
-    //   },
-    //   ytitles: {
-    //     annual: {
-    //       absolute: {
-    //         english: "Maximum Consecutive Wet Days",
-    //         metric: "Maximum Consecutive Wet Days"
-    //       },
-    //       anomaly: {
-    //         english: "Departure Maximum Consecutive Wet Days",
-    //         metric: "Departure Maximum Consecutive Wet Days"
-    //       }
-    //     }
-    //   }
-    // },
-    // {
-    //   id: "days_prmax1day",
-    //   title: {
-    //     english: "Maximum Single-Day Precipitation (in)",
-    //     metric: "Maximum Single-Day Precipitation (mm)"
-    //   },
-    //   acis_elements: {
-    //     annual: {
-    //       "name": "prmax1day",
-    //       "interval": "yly",
-    //       "duration": "yly",
-    //       
-    //     }
-    //   },
-    //   dataconverters: {
-    //     metric: no_conversion,
-    //     english: no_conversion
-    //   },
-    //   ytitles: {
-    //     annual: {
-    //       absolute: {
-    //         english: "Maximum Single-Day Precipitation (in)",
-    //         metric: "Maximum Single-Day Precipitation (mm)"
-    //       },
-    //       anomaly: {
-    //         english: "Departure Maximum Single-Day Precipitation",
-    //         metric: "Departure Maximum Single-Day Precipitation"
-    //       }
-    //     }
-    //   }
-    // },
-    // {
-    //   id: "days_prmax5day",
-    //   title: {
-    //     english: "Maximum Five-Day Precipitation (in)",
-    //     metric: "Maximum Five-Day Precipitation (mm)"
-    //   },
-    //   acis_elements: {
-    //     annual: {
-    //       "name": "prmax5day",
-    //       "interval": "yly",
-    //       "duration": "yly",
-    //       
-    //     }
-    //   },
-    //   dataconverters: {
-    //     metric: no_conversion,
-    //     english: no_conversion
-    //   },
-    //   ytitles: {
-    //     annual: {
-    //       absolute: {
-    //         english: "Maximum Five-Day Precipitation (in)",
-    //         metric: "Maximum Five-Day Precipitation (mm)"
-    //       },
-    //       anomaly: {
-    //         english: "Departure Maximum Five-Day Precipitation",
-    //         metric: "Departure Maximum Five-Day Precipitation"
-    //       }
-    //     }
-    //   }
-    // }
-
   ];
 
   function variable_config(id) {
@@ -1279,7 +1116,7 @@
           }, []).sort(function (a, b) {
             return a[0] - b[0]
           });
-          obj.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa((obj.options.timeperiod + '_month,weighted_mean\n' + export_data.join('\n')));
+          obj.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa(('month,weighted_mean\n' + export_data.join('\n')));
           return data;
 
         }
@@ -2101,7 +1938,7 @@
 // optional, with defaults provided:
 //   unitsystem        ("english")
 //   frequency         ("annual")
-//   variable          ("tasmax")
+//   variable          ("tmax")
 //   presentation      ("absolute")
 //   scenario          ("both")
 //   timeperiod        ("2025")
@@ -2112,7 +1949,7 @@
       options: {
         // default values:
         unitsystem: defaultUnitSystem,
-        variable: "tasmax",
+        variable: "tmax",
         frequency: "annual",
         scenario: "both",
         timeperiod: "2025",
