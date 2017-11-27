@@ -1,12 +1,11 @@
-# Climate Widget (Climate in Your Location) Graph Library
+# Climate By Location (formerly Climate Widget Graph)
 
 This library defines functions that create and manage interactive climate
 widget graphs.
 
-## Prerequisite
+## Dependencies
 
-This library depends on jQuery. You should make sure that a copy of jQuery has
-been loaded in your page before including the `<script>` tag below.
+This library depends on jQuery 3.2+ being loaded prior to `climate-widget-graph.js`. Using an older version of jQuery can result in unpredictable outputs.
 
 ## Installation
 
@@ -17,9 +16,7 @@ loading jQuery):
 <script src="climate-widget-graph.js"></script>
 ```
 
-The file `climate-widget-graph.js` is included in this project, in the top-level
-directory, and is the only file that is needed for deployment; all other files
-in this directory are only used in development, or for examples or documentation.
+The file `climate-widget-graph.js` is the only file that is needed for deployment.
 
 ## Usage
 
@@ -38,19 +35,23 @@ all of the following properties:
     be layed out and sized by the browser --- the graph will
     exactly fill the div. Required.
 
-  * `dataprefix`
+  * `data_api_endpoint`
 
-    A URL from which the data can be downloaded.  Required.
+    The endpoint for the data api.
+    
+    * `state`
 
-  * `fips`
+    A 2-character state abbreviation code of a US state, as a string.  Required if `county` not specified.
 
-    A 5-character fips code of a US county, as a string.  Required.
+  * `county`
+
+    A 5-character fips code of a US county, as a string.  Required if `state` not specified.
 
   * `variable`
 
     The id of the variable to display; see climate_widget.variables()
     below for a way to get a list of variable ids.  Optional; defaults
-    to "tasmax".
+    to "tmax".
 
   * `frequency`
 
@@ -75,16 +76,6 @@ all of the following properties:
     indicating which 30-year period of projection data to show for
     monthly or seasonal data.  Ignored for annual data.  Optional;
     defaults to "2025".
-
-  * `prange`
-
-    One of the strings "minmax", "p1090", or "both", indicating which
-    range band to show for model projection data.
-
-  * `hrange`
-
-    One of the strings "minmax", "p1090", or "both", indicating which
-    range band to show for model historical data.
 
   * `pmedian`
 
@@ -138,36 +129,25 @@ represents the graph just created.  This object has three properties:
       for `climate_widget.graph()`, except that the `div` setting cannot be changed
       once a graph has been created.
 
-   2. `dataurls` is a function that returns an object with the urls for the time
-      series data that drives the graph. The object may have up to three keys:
-
-      `hist_obs` for historical observed data
-
-      `hist_mod` for historical modeled data
-
-      `proj_mod` for projected modeled data
-
-      Note that not all presentations use all datasets, so there may be graphs
-      that when `dataurls()` is called do not return an object with all three keys.
-
-   3. `downloadImage` is a function that the contaiming application may call
+   2. `download_image` is a function that the containing application may call
       in its click-event-handling code for an `<a>` element, in order to modify that
       `<a>` element so that clicking on it will download the current canvas image.
-      The `downloadImage` function takes two arguments.  The first argument
-      should be the `<a>` element -- i.e. it should be the value of `this` inside
-      the click-event-handler function for an `<a>` tag.  The second argument
-      gives the name that will be used for the downloaded file.
+      The first argument should be the `<a>` element to modify
       
       For example:
 
       ```javascript
       $('a#download-image-link-id').click(function() {
           // cwg is the object returned by the climate_widget.graph constructor
-          cwg.downloadImage(this, 'nameOfDownloadedImage.png');
+          if (cwg) { // ensure widget exists
+            cwg.download_image(this);
+          }
           // note that the 'this' argument is important as this function modifies
           // the <a> tag
       });
       ```
+    
+   3. `download_hist_obs_data`, `download_hist_mod_data`, and `download_proj_mod_data` are functions that modifies a `<a>` with data urls for the time series data that drives the graph. These functions behave the same as `download_image`. Note that monthly/seasonal presentations do not use historical modeled data, so calling `download_hist_mod_data` will do nothing.   
       
    4. `setXRange` is a function that will set the range of data visible on the
       graph's x-axis when an annual data graph is displayed (monthly and seasonal
@@ -192,6 +172,31 @@ array giving the ids and the titles of all the climate variables for
 the given frequency; FREQUENCY should be one of the strings "annual",
 "monthly", or "seasonal".
 
+Here is a list of all possible variables:
+
+| variable            | description                                              |
+|---------------------|----------------------------------------------------------|
+| tmax                | mean daily maximum temperature (°F)                      |
+| tmin                | mean daily minimum temperature (°F)                      |
+| days_tmax_gt_90f    | count of days with maximum temperature over 90°F (days)  |
+| days_tmax_gt_95f    | count of days with maximum temperature over 95°F (days)  |
+| days_tmax_gt_100f   | count of days with maximum temperature over 100°F (days) |
+| days_tmax_gt_105f   | count of days with maximum temperature over 105°F (days) |
+| days_tmax_lt_32f    | count of days with maximum temperature below 32°F (days) |
+| days_tmin_lt_32f    | days with minimum temps below 32°F (days)                |
+| days_tmin_gt_80f    | count of days with minimum temperature above 80°F (days) |
+| days_tmin_gt_90f    | count of days with minimum temperature above 90°F (days) |
+| hdd_65f             | days * degrees below 65°F (°F-days)                      |
+| cdd_65f             | days * degrees above 65°F (°F-days)                      |
+| gdd                 | growing degree days (°F-days)                            |
+| gddmod              | modified growing degree days (°F-days)                   |
+| days_pcpn_lt_0.01in | dry days (days)                                          |
+| pcpn                | total precipitation (inches)                             |
+| days_pcpn_gt_1in    | days with more than 1 inch of precipitation (days)       |
+| days_pcpn_gt_2in    | days with more than 2 inch of precipitation (days)       |
+| days_pcpn_gt_3in    | days with more than 3 inch of precipitation (days)       |
+| days_pcpn_gt_4in    | days with more than 4 inch of precipitation (days)       |
+
 ## Examples
 
 The following will create a graph in the div with id "widget", showing
@@ -201,12 +206,12 @@ the rcp85 scenario for the projection data:
 ```javascript
 var cwg = climate_widget.graph({
     div        : "div#widget",
-    dataprefix : "http://climate-widget-data.nemac.org/data",
+    data_api_endpoint: 'https://grid2.rcc-acis.org/GridData',
     font       : "Roboto",
     frequency  : "annual",
-    fips       : "37021",
-    variable   : "tasmin",
-    scenario   : "rcp85"
+    county       : "37021",
+    variable   : "tmin",
+    scenario   : "rcp85"    
 });
 ```
 
@@ -223,9 +228,9 @@ The following will modify the above graph to show annual average daily precipita
 
 ```javascript
 cwg.update({
-    variable : "pr"
+    variable : "pcpn"
 });
 ```
 
-For a more complete example, see the files `demo.html` and `demo.js` in this
+For a more complete example, see the files `index.html` and `demo.js` in this
 directory.

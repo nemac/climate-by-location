@@ -1041,7 +1041,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
     var freq = (obj.options.frequency === 'annual') ? 'annual' : 'monthly';
     var elems = [$.extend(variable_config(obj.options.variable)['acis_elements'][freq], get_region_reduction(obj))];
     return $.ajax({
-      url: 'http://grid2.rcc-acis.org/' + 'GridData',
+      url: obj.options.data_api_endpoint,
       type: "POST",
       contentType: "application/json; charset=utf-8",
       dataType: "json",
@@ -1139,7 +1139,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
     var elems = [$.extend(variable_config(obj.options.variable)['acis_elements'][freq], get_region_reduction(obj))];
 
     return $.ajax({
-      url: 'http://grid2.rcc-acis.org/' + 'GridData',
+      url: obj.options.data_api_endpoint,
       type: "POST",
       contentType: "application/json; charset=utf-8",
       dataType: "json",
@@ -1971,7 +1971,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         histobs: true,
         histmod: true,
         yzoom: true,
-        ypan: true
+        ypan: true,
+        data_api_endpoint: 'https://grid2.rcc-acis.org/GridData'
         //font: no default for this one; defaults to canvas's default font
         //dataprefix:  no default for this one; it's required
         //county:
