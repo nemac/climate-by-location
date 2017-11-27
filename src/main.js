@@ -1953,9 +1953,9 @@
         frequency: "annual",
         scenario: "both",
         timeperiod: "2025",
-        presentation: "absolute",
-        hrange: "minmax",
-        prange: "minmax",
+        presentation: "absolute", // deprecated
+        hrange: "minmax", // deprecated
+        prange: "minmax", // deprecated
         pmedian: false,
         hmedian: false,
         histobs: true,

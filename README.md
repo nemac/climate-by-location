@@ -28,98 +28,23 @@ which has the following function properties:
 This function creates a graph according to `OPTIONS`, which should be an object with some or
 all of the following properties:
 
-  * `div`
-
-    a string which is a CSS-style selector identifying a div
-    where the graph should be drawn; this div must already
-    be layed out and sized by the browser --- the graph will
-    exactly fill the div. Required.
-
-  * `data_api_endpoint`
-
-    The endpoint for the data api.
-    
-    * `state`
-
-    A 2-character state abbreviation code of a US state, as a string.  Required if `county` not specified.
-
-  * `county`
-
-    A 5-character fips code of a US county, as a string.  Required if `state` not specified.
-
-  * `variable`
-
-    The id of the variable to display; see climate_widget.variables()
-    below for a way to get a list of variable ids.  Optional; defaults
-    to "tmax".
-
-  * `frequency`
-
-    One of the strings "annual", "monthly", or "seasonal", indicating which
-    type of data to display.  Optional; defaults to "annual".
-
-  * `scenario`
-
-    One of the strings "rcp45", "rcp85", or "both", indicating which
-    scenario(s) to display for projection data.  Optional; defaults to "both".
-
-  * `presentation`
-
-    One of the strings "absolute" or "anomaly", indicating which
-    presentation should be used in setting the graph's y axis scale.   Only
-    relevant for annual data; ignored for monthly or seasonal. Optional;
-    defaults to "absolute".
-
-  * `timeperiod`
-
-    One of the strings "2025", "2050", or "2075" (strings not numbers!),
-    indicating which 30-year period of projection data to show for
-    monthly or seasonal data.  Ignored for annual data.  Optional;
-    defaults to "2025".
-
-  * `pmedian`
-
-    true or false, indicating whether to show the median line(s) for
-    model projection data
-
-  * `hmedian`
-
-    true or false, indicating whether to show the median line(s) for
-    annual historical model data (applies to annual data only; there
-    is no historical model data for monthly or seasonal data)
-
-  * `histobs`
-  
-    true or false, indicating whether to show historical observed data
-
-  * `histmod`
-  
-    true or false, indicating whether to show annual historical model data
-    (applies to annual data only; there is no historical model data for
-    monthly or seasonal data)
-
-  * `yzoom`
-
-    true or false, indicating whether to allow the user to zoom along
-    the graph's y-axis; defaults to true
-
-  * `ypan`
-
-    true or false, indicating whether to allow the user to pan along
-    the graph's y-axis; defaults to true
-
-  * `font`
-
-    A string giving the font-family to be used for all text in the graph.
-    Optional; defaults to the browser's default canvas font (depends on
-    the browser).
-    
-  * `xrangefunc`
-  
-    A function to be called whenever the user changes the scale on the
-    horizontal annual data axis (horizontal scale changes are not allowed in the
-    monthly or seasonal graphs).  This function will receive two arguments,
-    which are the new minimum and maximum values along the axis.
+| Option | Description |
+|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| div | a string which is a CSS-style selector identifying a div where the graph should be drawn; this div must already be layed out and sized by the browser --- the graph will exactly fill the div. Required. |
+| data_api_endpoint | The endpoint for the data api. |
+| state | A 2-character state abbreviation code of a US state, as a string.  Required if `county` not specified. |
+| county | A 5-character fips code of a US county, as a string.  Required if `state` not specified. |
+| variable | The id of the variable to display; see climate_widget.variables() below for a way to get a list of variable ids.  Optional; defaults to "tmax". |
+| frequency | One of the strings "annual", "monthly", or "seasonal", indicating which type of data to display.  Optional; defaults to "annual". |
+| scenario | One of the strings "rcp45", "rcp85", or "both", indicating which scenario(s) to display for projection data.  Optional; defaults to "both". |
+| timeperiod | One of the strings "2025", "2050", or "2075" (strings not numbers!), indicating which 30-year period of projection data to show for monthly or seasonal data.  Ignored for annual data.  Optional; defaults to "2025". |
+| pmedian | true or false, indicating whether to show the median line(s) for model projection data |
+| hmedian | true or false, indicating whether to show the median line(s) for annual historical model data (applies to annual data only; there is no historical model data for monthly or seasonal data) |
+| histobs | true or false, indicating whether to show historical observed data |
+| histmod | true or false, indicating whether to show annual historical model data (applies to annual data only; there is no historical model data for monthly or seasonal data) |
+| yzoom | true or false, indicating whether to allow the user to zoom along the graph's y-axis; defaults to true |
+| font | A string giving the font-family to be used for all text in the graph. Optional; defaults to the browser's default canvas font (depends on the browser). |
+| xrangefunc | A function to be called whenever the user changes the scale on the horizontal annual data axis (horizontal scale changes are not allowed in the monthly or seasonal graphs).  This function will receive two arguments, which are the new minimum and maximum values along the axis. |
 
 The `climate_widget.graph()` function returns an object which
 represents the graph just created.  This object has three properties:
@@ -174,8 +99,8 @@ the given frequency; FREQUENCY should be one of the strings "annual",
 
 Here is a list of all possible variables:
 
-| variable            | description                                              |
-|---------------------|----------------------------------------------------------|
+| Variable            | Description                                              |
+|:--------------------|:---------------------------------------------------------|
 | tmax                | mean daily maximum temperature (°F)                      |
 | tmin                | mean daily minimum temperature (°F)                      |
 | days_tmax_gt_90f    | count of days with maximum temperature over 90°F (days)  |
