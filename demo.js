@@ -94,8 +94,6 @@ $(document).ready(function () {
         .attr("value", sc.fips).text(sc.label));
     });
   });
-
-
   function update_frequency_ui() {
     var freq = $('#frequency').val();
     if (freq === "annual") {
