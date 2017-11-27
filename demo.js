@@ -22,7 +22,6 @@ $(document).ready(function () {
       'state': $('#state').val(),
       'variable': $('#variable').val(),
       'scenario': $('#scenario').val(),
-      'presentation': 'absolute',
       'xrangefunc': xrangeset,
       'pmedian': true,
       'hmedian': true
