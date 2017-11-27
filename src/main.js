@@ -1114,7 +1114,10 @@
             export_data.push([parseInt(key), mean[key]]);
             return acc;
           }, []).sort(function (a, b) {
-            return a[0] - b[0]
+            return parseInt(a[0]) - parseInt(b[0])
+          });
+          export_data.sort(function (a, b) {
+            return parseInt(a[0]) - parseInt(b[0])
           });
           obj.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa(('month,weighted_mean\n' + export_data.join('\n')));
           return data;
@@ -1174,6 +1177,9 @@
         data.sort(function (a, b) {
           return (a[0] > b[0]) - (a[0] < b[0])
         });
+        export_data.sort(function (a, b) {
+          return parseInt(a[0]) - parseInt(b[0])
+        });
         obj.dataurls.hist_mod = 'data:text/csv;base64,' + window.btoa(('year,weighted_mean,min,max' + '\n' + export_data.join('\n')));
         export_data = [];
         return data
@@ -1232,6 +1238,9 @@
           // Sort before returning
           data.sort(function (a, b) {
             return (a[0] > b[0]) - (a[0] < b[0])
+          });
+          export_data.sort(function (a, b) {
+            return parseInt(a[0]) - parseInt(b[0])
           });
           obj.dataurls.proj_mod = 'data:text/csv;base64,' + window.btoa(('year,' + 'rcp45_weighted_mean,rcp45_min,rcp45_max,rcp85_weighted mean,rcp85_min,rcp85_max' + '\n' + export_data.join('\n')));
           export_data = [];
@@ -1361,7 +1370,9 @@
           result.sort(function (a, b) {
             return (a[0] > b[0]) - (a[0] < b[0])
           });
-
+          export_data.sort(function (a, b) {
+            return parseInt(a[0]) - parseInt(b[0])
+          });
           obj.dataurls.proj_mod = 'data:text/csv;base64,' + window.btoa((
             'month,2025_rcp45_max,2025_rcp45_weighted_mean,2025_rcp45_min,2025_rcp85_max,2025_rcp85_weighted_mean,2025_rcp85_min,2050_rcp45_max,2050_rcp45_weighted_mean,2050_rcp45_min,2050_rcp85_max,2050_rcp85_weighted_mean,2050_rcp85_min,2075_rcp45_max,2075_rcp45_weighted_mean,2075_rcp45_min,2075_rcp85_max,2075_rcp85_weighted_mean,2075_rcp85_min\n' + export_data.join('\n')));
           return result
