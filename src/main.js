@@ -2082,7 +2082,7 @@
               hist_mod_data = transform_data(hist_mod_data, convfunc);
               proj_mod_data = transform_data(proj_mod_data, convfunc);
 
-              var avg = average(hist_obs_data, 1981, 2010);
+              var avg = average(hist_obs_data, 1961, 1990);
               if (obj.options.presentation === "anomaly") {
                 if (obj.options.variable === "pcpn") {
                   hist_obs_data = percent_anomalies(hist_obs_data, avg);
