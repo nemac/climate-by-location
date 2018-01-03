@@ -1155,16 +1155,17 @@
   }
 
   function get_historical_model_data(obj) {
-    var thisyear = (String(new Date().getFullYear())) + '-01-01';
+    // var edate = (String(new Date().getFullYear())) + '-01-01';
+    var edate = '2006-12-31';
     return $.when.apply($, [
-      get_loca_data(obj, 'loca:wMean:rcp85', '1950-01-01', thisyear),
-      get_loca_data(obj, 'loca:allMin:rcp85', '1950-01-01', thisyear),
-      get_loca_data(obj, 'loca:allMax:rcp85', '1950-01-01', thisyear)
+      get_loca_data(obj, 'loca:wMean:rcp85', '1950-01-01', edate),
+      get_loca_data(obj, 'loca:allMin:rcp85', '1950-01-01', edate),
+      get_loca_data(obj, 'loca:allMax:rcp85', '1950-01-01', edate)
     ])
       .then(function (wMean, min, max) {
         var data = [];
         var export_data = [];
-        for (var key = 1950; key < new Date().getFullYear(); key++) {
+        for (var key = 1950; key <= 2006; key++) {
           var values = {};
           values.wMean = wMean.hasOwnProperty(key) ? Math.round(wMean[key] * 10) / 10 : null;
           values.min = min.hasOwnProperty(key) ? Math.round(min[key] * 10) / 10 : null;
@@ -1188,8 +1189,10 @@
 
   function get_projected_model_data(obj) {
     var sdate;
+
     if (obj.options.frequency === 'annual') {
-      sdate = (String(new Date().getFullYear())) + '-01-01';
+      // sdate = (String(new Date().getFullYear())) + '-01-01';
+      sdate = '2006-01-01';
     }
     else {
       sdate = '2010-01-01';
@@ -1223,7 +1226,7 @@
           data = [];
           export_data = [];
           // Extract values
-          for (var key = new Date().getFullYear(); key < 2100; key++) {
+          for (var key = 2006; key < 2100; key++) {
             var values = {};
             values.wMean45 = wMean45.hasOwnProperty(key) ? Math.round(wMean45[key] * 10) / 10 : null;
             values.min45 = min45.hasOwnProperty(key) ? Math.round(min45[key] * 10) / 10 : null;
