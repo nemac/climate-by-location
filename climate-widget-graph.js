@@ -1413,6 +1413,10 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       var arow = [row[0]];
       var i;
       for (i = 1; i < row.length; ++i) {
+        if (row[i] === null){
+          arow[i] = row[i];
+          continue;
+        }
         arow[i] = row[i] - ref;
       }
       return arow;
@@ -1424,6 +1428,10 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       var arow = [row[0]];
       var i;
       for (i = 1; i < row.length; ++i) {
+        if (row[i] === null){
+          arow[i] = row[i];
+          continue;
+        }
         arow[i] = 100 * row[i] / ref;
       }
       return arow;
@@ -1977,7 +1985,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         frequency: "annual",
         scenario: "both",
         timeperiod: "2025",
-        presentation: "absolute", // deprecated
+        presentation: "absolute",
         hrange: "minmax", // deprecated
         prange: "minmax", // deprecated
         pmedian: false,

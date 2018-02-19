@@ -18,6 +18,7 @@ $(document).ready(function () {
       'font': 'Roboto',
       'frequency': $('#frequency').val(),
       'timeperiod': $('#timeperiod').val(),
+      'presentation': $('#presentation').val(),
       'county': $('#county').val(),
       'state': $('#state').val(),
       'variable': $('#variable').val(),
@@ -93,6 +94,7 @@ $(document).ready(function () {
         .attr("value", sc.fips).text(sc.label));
     });
   });
+
   function update_frequency_ui() {
     var freq = $('#frequency').val();
     if (freq === "annual") {
@@ -100,18 +102,21 @@ $(document).ready(function () {
       $('#slider-range').show();
       $('#x-axis-pan-note').hide();
       $('#download_hist_mod_data_li').show();
+      $('#presentation-wrapper').show();
     }
     if (freq === "monthly") {
       $('#timeperiod-wrapper').show();
       $('#slider-range').hide();
       $('#x-axis-pan-note').show();
       $('#download_hist_mod_data_li').hide();
+      $('#presentation-wrapper').hide();
     }
     if (freq === "seasonal") {
       $('#timeperiod-wrapper').show();
       $('#slider-range').hide();
       $('#x-axis-pan-note').show();
       $('#download_hist_mod_data_li').hide();
+      $('#presentation-wrapper').hide();
     }
     populate_variables(freq);
   }
@@ -129,6 +134,13 @@ $(document).ready(function () {
       });
     }
   });
+
+  $('#presentation').change(function () {
+    if (cwg) {
+      cwg.update({presentation: $('#presentation').val()});
+    }
+  });
+
 
   $('#timeperiod').change(function () {
     if (cwg) {
