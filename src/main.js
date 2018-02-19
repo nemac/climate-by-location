@@ -1549,7 +1549,8 @@
           }
         }, */
     plotarea: {
-      marginleft: 55
+      marginleft: 55,
+      marginright: 0
     },
     horizontalaxis: [{
       id: "x_annual",

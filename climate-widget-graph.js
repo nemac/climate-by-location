@@ -1559,7 +1559,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           }
         }, */
     plotarea: {
-      marginleft: 55
+      marginleft: 55,
+      marginright: 0
     },
     horizontalaxis: [{
       id: "x_annual",
