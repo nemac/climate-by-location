@@ -3,6 +3,9 @@
 This library defines functions that create and manage interactive climate
 widget graphs.
 
+## Powered by ACIS
+This module relies on the dataservices provided by the [Applied Climate Information System (ACIS)](http://www.rcc-acis.org/index.html).
+
 ## Dependencies
 
 This library depends on jQuery 3.2+ being loaded prior to `climate-widget-graph.js`. Using an older version of jQuery can result in unpredictable outputs.
