@@ -4,7 +4,7 @@
   "description": "This library defines functions that can create and manage interactive climate widget graphs.",
   "main": "climate-widget-graph.js",
   "scripts": {
-    "build" : "cat vendor/multigraph-nojq-min.js src/main.js > climate-widget-graph.js"
+    "build": "uglifyjs vendor/multigraph-nojq-min.js src/main.js -o climate-widget-graph.js -c"
   },
   "repository": {
     "type": "git",
@@ -12,5 +12,9 @@
   },
   "bugs": {
     "url": "https://github.com/nemac/climate-widget-graph/issues"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "uglify-js": "^3.3.13"
   }
 }
