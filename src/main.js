@@ -592,7 +592,7 @@
       ytitles: {
         annual: {
           absolute: {
-            english: "Total Precipitation",
+            english: "Total Precipitation (in.)",
             metric: "Total Precipitation"
           },
           anomaly: {
@@ -601,17 +601,17 @@
           }
         },
         monthly: {
-          english: "Total Precipitation",
+          english: "Total Precipitation (in.)",
           metric: "Total Precipitation"
         },
         seasonal: {
-          english: "Total Precipitation",
+          english: "Total Precipitation (in.)",
           metric: "Total Precipitation"
         }
       }
     },
     {
-      id: "days_pcpn_lt_0.01in",
+      id: "days_dry_days",
       title: {
         english: "Dry Days",
         metric: "Dry Days"
