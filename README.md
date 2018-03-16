@@ -118,7 +118,7 @@ Here is a list of all possible variables:
 | cdd_65f             | days * degrees above 65°F (°F-days)                      |
 | gdd                 | growing degree days (°F-days)                            |
 | gddmod              | modified growing degree days (°F-days)                   |
-| days_pcpn_lt_0.01in | dry days (days)                                          |
+| days_dry_days       | dry days (days)                                          |
 | pcpn                | total precipitation (inches)                             |
 | days_pcpn_gt_1in    | days with more than 1 inch of precipitation (days)       |
 | days_pcpn_gt_2in    | days with more than 2 inch of precipitation (days)       |
