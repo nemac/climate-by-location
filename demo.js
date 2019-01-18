@@ -1,19 +1,17 @@
 var cwg = undefined;
 
-$(document).ready(function () {
+jQuery(document).ready(function ($) {
 
   function populate_variables(frequency) {
-    var variables = climate_widget.variables(frequency);
+    var variables = $.nemac.climate_by_location.prototype.get_variables(frequency);
     $("select#variable").empty();
     $(variables.map(function (v) {
       return ('<option value="' + v.id + '"' + '>' + v.title + '</option>');
     }).join("")).appendTo($("select#variable"));
-
   }
 
   function initGraph() {
-    cwg = climate_widget.graph({
-      'div': "div#widget",
+     $('div#widget').climate_by_location({
       'dataprefix': 'http://climate-widget-data.nemac.org/data',
       'font': 'Roboto',
       'frequency': $('#frequency').val(),
@@ -23,18 +21,21 @@ $(document).ready(function () {
       'state': $('#state').val(),
       'variable': $('#variable').val(),
       'scenario': $('#scenario').val(),
-      'xrangefunc': xrangeset,
+      'xrangefunc': function (min, max) {
+        // Force the slider thumbs to adjust to the appropriate place
+        $("#slider-range").slider("option", "values", [min, max]);
+      },
       'pmedian': true,
       'hmedian': true
     });
+
+    cwg = $('div#widget').climate_by_location( "instance" );
     $('#county').off().change(function () {
-      cwg.update({
+      $('div#widget').climate_by_location({
         county: $('#county').val()
       });
     });
-    $(window).resize(function () {
-      cwg.resize();
-    });
+
   }
 
   $('#county').change(initGraph);
@@ -80,7 +81,7 @@ $(document).ready(function () {
     if (!cwg) {
       initGraph();
     } else {
-      cwg.update({
+      $('div#widget').climate_by_location({
         state: $('#state').val()
       });
     }
@@ -128,7 +129,7 @@ $(document).ready(function () {
 
     update_frequency_ui();
     if (cwg) {
-      cwg.update({
+      $('div#widget').climate_by_location({
         frequency: $('#frequency').val(),
         variable: $('#variable').val()
       });
@@ -137,14 +138,14 @@ $(document).ready(function () {
 
   $('#presentation').change(function () {
     if (cwg) {
-      cwg.update({presentation: $('#presentation').val()});
+      $('div#widget').climate_by_location({presentation: $('#presentation').val()});
     }
   });
 
 
   $('#timeperiod').change(function () {
     if (cwg) {
-      cwg.update({
+      $('div#widget').climate_by_location({
         timeperiod: $('#timeperiod').val()
       });
     }
@@ -152,7 +153,7 @@ $(document).ready(function () {
 
   $('#variable').change(function () {
     if (cwg) {
-      cwg.update({
+      $('div#widget').climate_by_location({
         variable: $('#variable').val()
       });
     }
@@ -172,7 +173,7 @@ $(document).ready(function () {
       else {
         scenario = '';
       }
-      cwg.update({
+      $('div#widget').climate_by_location({
         scenario: scenario
       });
     }
@@ -222,11 +223,7 @@ $(document).ready(function () {
     }
   });
 
-  // This function will be called whenever the user changes the x-scale in the graph.
-  function xrangeset(min, max) {
-    // Force the slider thumbs to adjust to the appropriate place
-    $("#slider-range").slider("option", "values", [min, max]);
-  }
+
 
   WebFont.load({
     google: {
