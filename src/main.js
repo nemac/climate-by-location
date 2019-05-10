@@ -256,9 +256,9 @@ if (!String.prototype.endsWith) {
       },
       //font: no default for this one; defaults to canvas's default font
       //dataprefix:  no default for this one; it's required
-      //county:
-      //state:
-
+      county: null,
+      state: null,
+      get_region_label: null,
       // Data ranges will get scaled by this factor when setting y axis ranges.
       // Previously was 1.1, but set to 1 now to avoid awkard negative values for
       // things that can never be negative.
@@ -986,7 +986,9 @@ if (!String.prototype.endsWith) {
 
     _create: function (options) {
       this.convertArray = window.multigraph.core.ArrayData.stringArrayToDataValuesArray;
-
+      if (!this.options.get_region_label){
+        this.options.get_region_label = this.get_region_value;
+      }
       this.mugl = {
         legend: false,
         window: {
@@ -2275,15 +2277,16 @@ if (!String.prototype.endsWith) {
     set_plot_visibilities: function () {
       this.plots.each_keys(["frequency", "regime", "stat", "scenario", "timeperiod"], function (k) {
         this.plots.get_in([k['frequency'], k['regime'], k['stat'], k['scenario'], k['timeperiod']]).visible(
-          this.is_plot_visible(this.options, k['frequency'], k['regime'], k['stat'], k['scenario'], k['timeperiod'])
+          !!(this.is_plot_visible(this.options, k['frequency'], k['regime'], k['stat'], k['scenario'], k['timeperiod']))
         );
       }.bind(this));
     },
 
+
     download_image: function (link) {
       link.href = this.$graphdiv.find('canvas')[0].toDataURL('image/png');
       link.download = [
-        this.get_region_value(),
+        this.options.get_region_label.bind(this)(),
         this.options.frequency,
         this.options.variable,
         "graph"
@@ -2293,7 +2296,7 @@ if (!String.prototype.endsWith) {
     download_hist_obs_data: function (link) {
       link.href = this.dataurls.hist_obs;
       link.download = [
-        this.get_region_value(),
+        this.options.get_region_label.bind(this)(),
         this.options.frequency,
         "hist_obs",
         this.options.variable
@@ -2303,7 +2306,7 @@ if (!String.prototype.endsWith) {
     download_hist_mod_data: function (link) {
       link.href = this.dataurls.hist_mod;
       link.download = [
-        this.get_region_value(),
+        this.options.get_region_label.bind(this)(),
         this.options.frequency,
         "hist_mod",
         this.options.variable
@@ -2312,7 +2315,7 @@ if (!String.prototype.endsWith) {
     download_proj_mod_data: function (link) {
       link.href = this.dataurls.proj_mod;
       link.download = [
-        this.get_region_value(),
+        this.options.get_region_label.bind(this)(),
         this.options.frequency,
         "proj_mod",
         this.options.variable
