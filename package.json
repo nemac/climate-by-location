@@ -4,7 +4,9 @@
   "description": "This library defines functions that can create and manage interactive climate widget graphs.",
   "main": "climate-widget-graph.js",
   "scripts": {
-    "build": "uglifyjs vendor/multigraph-nojq-min.js src/main.js -o climate-widget-graph.js -c"
+    "buildold": "uglifyjs vendor/multigraph-nojq-min.js src/main.js -o climate-widget-graph.js -c",
+    "build": "rollup -c && cat vendor/multigraph-nojq-min.js build/climate-widget-graph.js > climate-widget-graph.js",
+    "start": "static ./ -p 8080"
   },
   "repository": {
     "type": "git",
@@ -13,8 +15,21 @@
   "bugs": {
     "url": "https://github.com/nemac/climate-widget-graph/issues"
   },
-  "dependencies": {},
+  "dependencies": {
+    "babel-plugin-transform-object-assign": "^6.22.0",
+    "babel-polyfill": "^6.26.0",
+    "node-static": "^0.7.11"
+  },
   "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-transform-runtime": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "babel-plugin-transform-es2015-literals": "^6.22.0",
+    "babel-plugin-transform-regenerator": "^6.26.0",
+    "lodash-es": "^4.17.15",
+    "rollup": "^1.20.3",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "uglify-js": "^3.3.13"
   }
 }

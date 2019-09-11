@@ -613,6 +613,7 @@ var counties = {
       "fips": "01133"
     }
   ],
+  "AK":[{"label":"Aleutians East Borough","fips":"02013"},{"label":"Aleutians West Census Area","fips":"02016"},{"label":"Anchorage Municipality","fips":"02020"},{"label":"Bethel Census Area","fips":"02050"},{"label":"Bristol Bay Borough","fips":"02060"},{"label":"Denali Borough","fips":"02068"},{"label":"Dillingham Census Area","fips":"02070"},{"label":"Fairbanks North Star Borough","fips":"02090"},{"label":"Haines Borough","fips":"02100"},{"label":"Hoonah-Angoon Census Area","fips":"02105"},{"label":"Juneau City and Borough","fips":"02110"},{"label":"Kenai Peninsula Borough","fips":"02122"},{"label":"Ketchikan Gateway Borough","fips":"02130"},{"label":"Kodiak Island Borough","fips":"02150"},{"label":"Lake and Peninsula Borough","fips":"02164"},{"label":"Matanuska-Susitna Borough","fips":"02170"},{"label":"Nome Census Area","fips":"02180"},{"label":"North Slope Borough","fips":"02185"},{"label":"Northwest Arctic Borough","fips":"02188"},{"label":"Petersburg Census Area","fips":"02195"},{"label":"Prince of Wales-Hyder Census Area","fips":"02198"},{"label":"Sitka City and Borough","fips":"02220"},{"label":"Skagway Municipality","fips":"02230"},{"label":"Southeast Fairbanks Census Area","fips":"02240"},{"label":"Valdez-Cordova Census Area","fips":"02261"},{"label":"Wade Hampton Census Area","fips":"02270"},{"label":"Wrangell City and Borough","fips":"02275"},{"label":"Yakutat City and Borough","fips":"02282"},{"label":"Yukon-Koyukuk Census Area","fips":"02290"}],
   "AZ": [
     {
       "label": "Apache County",
@@ -17541,5 +17542,40 @@ var newcounties = [{"label": "Autauga County, AL", "value": "01001"}, {
 }, {"label": "Uinta County, WY", "value": "56041"}, {
   "label": "Washakie County, WY",
   "value": "56043"
-}, {"label": "Weston County, WY", "value": "56045"}];
+}, {"label": "Weston County, WY", "value": "56045"},
+
+
+  {"value": "02013", "label":"Aleutians East Borough, AK"},
+  {"value": "02016", "label":"Aleutians West Census Area, AK"},
+  {"value": "02020", "label":"Anchorage Municipality, AK"},
+  {"value": "02050", "label":"Bethel Census Area, AK"},
+  {"value": "02060", "label":"Bristol Bay Borough, AK"},
+  {"value": "02068", "label":"Denali Borough, AK"},
+  {"value": "02070", "label":"Dillingham Census Area, AK"},
+  {"value": "02090", "label":"Fairbanks North Star Borough, AK"},
+  {"value": "02100", "label":"Haines Borough, AK"},
+  {"value": "02105", "label":"Hoonah-Angoon Census Area, AK"},
+  {"value": "02110", "label":"Juneau City and Borough, AK"},
+  {"value": "02122", "label":"Kenai Peninsula Borough, AK"},
+  {"value": "02130", "label":"Ketchikan Gateway Borough, AK"},
+  {"value": "02150", "label":"Kodiak Island Borough, AK"},
+  {"value": "02158", "label":"Kusilvak Census Area, AK"},
+  {"value": "02164", "label":"Lake and Peninsula Borough, AK"},
+  {"value": "02170", "label":"Matanuska-Susitna Borough, AK"},
+  {"value": "02180", "label":"Nome Census Area, AK"},
+  {"value": "02185", "label":"North Slope Borough, AK"},
+  {"value": "02188", "label":"Northwest Arctic Borough, AK"},
+  {"value": "02195", "label":"Petersburg Borough, AK"},
+  {"value": "02198", "label":"Prince of Wales-Hyder Census Area, AK"},
+  {"value": "02220", "label":"Sitka City and Borough, AK"},
+  {"value": "02230", "label":"Skagway Municipality, AK"},
+  {"value": "02240", "label":"Southeast Fairbanks Census Area, AK"},
+  {"value": "02261", "label":"Valdez-Cordova Census Area, AK"},
+  {"value": "02270", "label":"Wade Hampton Census Area, AK"},
+  {"value": "02275", "label":"Wrangell City and Borough, AK"},
+  {"value": "02282", "label":"Yakutat City and Borough, AK"},
+  {"value": "02290", "label":"Yukon-Koyukuk Census Area, AK"}
+
+
+];
 
