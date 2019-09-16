@@ -1,7 +1,7 @@
 'use strict';
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-import {get, find, round, merge} from 'lodash-es';
+import {get, find, round, merge, mean, max, min, range as lodash_range} from 'lodash-es';
 
 
 /* globals jQuery, window */
@@ -288,40 +288,40 @@ export class ClimateByLocationWidget {
 
   async _update_annual_ak() {
     // get data for GFDL-CM3 and NCAR-CCSM4
-    let hist_sdate = '1976-01-01';
-    // todo review this date as it may only apply to the GFDL-CM3 model but we are using here for both models.
+    let hist_sdate = '1970-01-01';
     let hist_edate = '2005-12-31';
-
+    let hist_sdate_year = parseInt(String(hist_sdate).slice(0, 4));
+    let hist_edate_year = parseInt(String(hist_edate).slice(0, 4));
+    let mod_edate_year = parseInt(String(this._model_edate).slice(0, 4));
     return Promise.all([
-      this._fetch_acis_data('snap:GFDL-CM3:rcp85', hist_sdate, this._model_edate),
-      // this._fetch_acis_data('snap:GFDL-CM3:rcp45', hist_sdate, this._model_edate),
-      this._fetch_acis_data('snap:NCAR-CCSM4:rcp85', hist_sdate, this._model_edate),
-      // this._fetch_acis_data('snap:NCAR-CCSM4:rcp45', hist_sdate, this._model_edate),
+      this._fetch_acis_data('snap:GFDL-CM3:rcp85', hist_sdate_year, mod_edate_year),
+      this._fetch_acis_data('snap:NCAR-CCSM4:rcp85', hist_sdate_year, mod_edate_year),
     ]).then(([
                gfdl_cm3_rcp85,
-               // gfdl_cm3_rcp45,
                ncar_ccsm4_rcp85,
-               // ncar_ccsm4_rcp45
              ]) => {
       // split into hist mod vs proj mod
       let hist_mod_data = [];
       let proj_mod_data = [];
-      let gfdl_cm3_rcp45 = {};
-      let ncar_ccsm4_rcp45 = {};
-      let hist_sdate_year = parseInt(String(hist_sdate).slice(0, 4));
-      let hist_edate_year = parseInt(String(hist_edate).slice(0, 4));
-      let mod_edate_year = parseInt(String(this._model_edate).slice(0, 4));
+
+
+      function _rolling_window_average(collection, year, window_size=5){
+       return mean(lodash_range(window_size).map((x)=>get(collection, year - x)).filter((y)=>!!y))
+      }
+
       for (let key = hist_sdate_year; key <= hist_edate_year; key++) {
         //year,gfdl_cm3_rcp85, gfdl_cm3_rcp45, ncar_ccsm4_rcp85, ncar_ccsm4_rcp45
-        let y = [get(gfdl_cm3_rcp85, key, null), get(ncar_ccsm4_rcp85, key, null)];
-        hist_mod_data.push([key,Math.min(...y), Math.max(...y)]);
+        let y = [_rolling_window_average(gfdl_cm3_rcp85, key), _rolling_window_average(ncar_ccsm4_rcp85, key)];
+
+        hist_mod_data.push([key,min(y), max(y)]);
       }
       let proj_edate_year = parseInt(String(this._model_edate).slice(0, 4));
       for (let key = hist_edate_year + 1; key <= mod_edate_year; key++) {
         //year,gfdl_cm3_rcp85, gfdl_cm3_rcp45, ncar_ccsm4_rcp85, ncar_ccsm4_rcp45
-        let y = [get(gfdl_cm3_rcp85, key, null), get(ncar_ccsm4_rcp85, key, null)];
-        proj_mod_data.push([key, Math.min(...y), get(gfdl_cm3_rcp45, key, null), Math.max(...y), get(ncar_ccsm4_rcp45, key, null)]);
+        let y = [_rolling_window_average(gfdl_cm3_rcp85, key), _rolling_window_average(ncar_ccsm4_rcp85, key)];
+        proj_mod_data.push([key, min(y), null, max(y), null]);
       }
+
       hist_mod_data = this._round_2d_values(hist_mod_data, 1);
       proj_mod_data = this._round_2d_values(proj_mod_data, 1);
       // Sort by index before returning
@@ -738,8 +738,8 @@ export class ClimateByLocationWidget {
 
 
         // annual AK plots:
-        p(band_plot("x_annual", "annual_hist_mod_ak_x", "y", "annual_hist_mod_gfdl_cm3_y", "annual_hist_mod_ncar_ccsm4_y", this.options.colors.grays.innerBand), "annual", "annual_ak", "minmax"),
-        p(band_plot("x_annual", "annual_proj_mod_ak_x", "y", "annual_proj_mod_gfdl_cm3_rcp85_y", "annual_proj_mod_ncar_ccsm4_rcp85_y", this.options.colors.reds.innerBand), "annual", "annual_ak", "minmax"),
+        p(band_plot("x_annual", "annual_hist_mod_ak_x", "y", "annual_hist_mod_gfdl_cm3_y", "annual_hist_mod_ncar_ccsm4_y", this.options.colors.grays.outerBand), "annual", "annual_ak", "minmax"),
+        p(band_plot("x_annual", "annual_proj_mod_ak_x", "y", "annual_proj_mod_gfdl_cm3_rcp85_y", "annual_proj_mod_ncar_ccsm4_rcp85_y", this.options.colors.reds.outerBand), "annual", "annual_ak", "minmax"),
         // p(line_plot("x_annual", "annual_hist_mod_ak_x", "y", "annual_hist_mod_gfdl_cm3_y", this.options.colors.grays.outerBand), "annual", "annual_ak", "minmax"),
         // p(line_plot("x_annual", "annual_hist_mod_ak_x", "y", "annual_hist_mod_ncar_ccsm4_y", this.options.colors.grays.outerBand), "annual", "annual_ak", "minmax"),
         // p(line_plot("x_annual", "annual_proj_mod_ak_x", "y", "annual_proj_mod_gfdl_cm3_rcp85_y", this.options.colors.reds.line), "annual", "annual_ak", "minmax"),
@@ -1085,7 +1085,7 @@ export class ClimateByLocationWidget {
             metric: "Average Daily Max Temp (°C)"
           }
         },
-        supports_region: this.is_ak_region
+        supports_region: ()=>true
       },
       {
         id: "tmin",
@@ -1134,7 +1134,7 @@ export class ClimateByLocationWidget {
             metric: "Average Daily Min Temp (°C)"
           }
         },
-        supports_region: this.is_ak_region
+        supports_region: ()=>true
       },
       {
         id: "days_tmax_gt_90f",
@@ -1166,7 +1166,8 @@ export class ClimateByLocationWidget {
               metric: " Days per year with max above 90°F"
             }
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "days_tmax_gt_95f",
@@ -1198,7 +1199,8 @@ export class ClimateByLocationWidget {
               metric: "Days per year with max above 95°C departure"
             }
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "days_tmax_gt_100f",
@@ -1230,7 +1232,8 @@ export class ClimateByLocationWidget {
               metric: " Days per year with max above 100°F"
             }
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "days_tmax_gt_105f",
@@ -1262,7 +1265,8 @@ export class ClimateByLocationWidget {
               metric: "Days per year with max above 105°F departure"
             }
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "days_tmax_lt_32f",
@@ -1294,7 +1298,8 @@ export class ClimateByLocationWidget {
               metric: "Days per year with max below 0°C departure"
             }
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "days_tmin_lt_32f",
@@ -1326,7 +1331,8 @@ export class ClimateByLocationWidget {
               metric: "Days per year with min below 0°C (frost days)"
             }
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "days_tmin_gt_80f",
@@ -1365,7 +1371,8 @@ export class ClimateByLocationWidget {
               metric: "Days per year with min above 80°F departure"
             }
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "days_tmin_gt_90f",
@@ -1404,7 +1411,8 @@ export class ClimateByLocationWidget {
               metric: "Days per year with min above 90°F departure"
             }
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "hdd_65f",
@@ -1436,7 +1444,8 @@ export class ClimateByLocationWidget {
               metric: "Heating Degree Days departure (°C-days)"
             }
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "cdd_65f",
@@ -1468,7 +1477,8 @@ export class ClimateByLocationWidget {
               metric: "Cooling Degree Days departure (°C-days)"
             }
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "gdd",
@@ -1499,7 +1509,8 @@ export class ClimateByLocationWidget {
               metric: "Growing Degree Days departure (°C-days)"
             }
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "gddmod",
@@ -1531,7 +1542,8 @@ export class ClimateByLocationWidget {
               metric: "Modified Growing Degree Days departure (°C-days)"
             }
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "pcpn",
@@ -1580,7 +1592,8 @@ export class ClimateByLocationWidget {
             english: "Total Precipitation (in.)",
             metric: "Total Precipitation"
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "days_dry_days",
@@ -1623,7 +1636,8 @@ export class ClimateByLocationWidget {
             english: "Dry Days (days/period)",
             metric: "Dry Days (days/period)"
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "days_pcpn_gt_1in",
@@ -1656,7 +1670,8 @@ export class ClimateByLocationWidget {
             }
           }
 
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "days_pcpn_gt_2in",
@@ -1690,7 +1705,8 @@ export class ClimateByLocationWidget {
             }
           }
 
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "days_pcpn_gt_3in",
@@ -1722,7 +1738,8 @@ export class ClimateByLocationWidget {
               metric: "Days per year with more than 76.2mm precip departure"
             }
           }
-        }
+        },
+        supports_region: ()=>true
       },
       {
         id: "days_pcpn_gt_4in",

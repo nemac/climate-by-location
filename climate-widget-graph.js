@@ -4551,6 +4551,143 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
   var find = createFind(findIndex);
 
   /**
+   * The base implementation of `_.gt` which doesn't coerce arguments.
+   *
+   * @private
+   * @param {*} value The value to compare.
+   * @param {*} other The other value to compare.
+   * @returns {boolean} Returns `true` if `value` is greater than `other`,
+   *  else `false`.
+   */
+  function baseGt(value, other) {
+    return value > other;
+  }
+
+  /**
+   * The base implementation of `_.lt` which doesn't coerce arguments.
+   *
+   * @private
+   * @param {*} value The value to compare.
+   * @param {*} other The other value to compare.
+   * @returns {boolean} Returns `true` if `value` is less than `other`,
+   *  else `false`.
+   */
+  function baseLt(value, other) {
+    return value < other;
+  }
+
+  /**
+   * The base implementation of methods like `_.max` and `_.min` which accepts a
+   * `comparator` to determine the extremum value.
+   *
+   * @private
+   * @param {Array} array The array to iterate over.
+   * @param {Function} iteratee The iteratee invoked per iteration.
+   * @param {Function} comparator The comparator used to compare values.
+   * @returns {*} Returns the extremum value.
+   */
+  function baseExtremum(array, iteratee, comparator) {
+    var index = -1,
+        length = array.length;
+
+    while (++index < length) {
+      var value = array[index],
+          current = iteratee(value);
+
+      if (current != null && (computed === undefined
+            ? (current === current && !isSymbol(current))
+            : comparator(current, computed)
+          )) {
+        var computed = current,
+            result = value;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Computes the maximum value of `array`. If `array` is empty or falsey,
+   * `undefined` is returned.
+   *
+   * @static
+   * @since 0.1.0
+   * @memberOf _
+   * @category Math
+   * @param {Array} array The array to iterate over.
+   * @returns {*} Returns the maximum value.
+   * @example
+   *
+   * _.max([4, 2, 8, 6]);
+   * // => 8
+   *
+   * _.max([]);
+   * // => undefined
+   */
+  function max(array) {
+    return (array && array.length)
+      ? baseExtremum(array, identity, baseGt)
+      : undefined;
+  }
+
+  /**
+   * The base implementation of `_.sum` and `_.sumBy` without support for
+   * iteratee shorthands.
+   *
+   * @private
+   * @param {Array} array The array to iterate over.
+   * @param {Function} iteratee The function invoked per iteration.
+   * @returns {number} Returns the sum.
+   */
+  function baseSum(array, iteratee) {
+    var result,
+        index = -1,
+        length = array.length;
+
+    while (++index < length) {
+      var current = iteratee(array[index]);
+      if (current !== undefined) {
+        result = result === undefined ? current : (result + current);
+      }
+    }
+    return result;
+  }
+
+  /** Used as references for various `Number` constants. */
+  var NAN$1 = 0 / 0;
+
+  /**
+   * The base implementation of `_.mean` and `_.meanBy` without support for
+   * iteratee shorthands.
+   *
+   * @private
+   * @param {Array} array The array to iterate over.
+   * @param {Function} iteratee The function invoked per iteration.
+   * @returns {number} Returns the mean.
+   */
+  function baseMean(array, iteratee) {
+    var length = array == null ? 0 : array.length;
+    return length ? (baseSum(array, iteratee) / length) : NAN$1;
+  }
+
+  /**
+   * Computes the mean of the values in `array`.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Math
+   * @param {Array} array The array to iterate over.
+   * @returns {number} Returns the mean.
+   * @example
+   *
+   * _.mean([4, 2, 8, 6]);
+   * // => 5
+   */
+  function mean(array) {
+    return baseMean(array, identity);
+  }
+
+  /**
    * This method is like `_.assign` except that it recursively merges own and
    * inherited enumerable string keyed properties of source objects into the
    * destination object. Source properties that resolve to `undefined` are
@@ -4584,6 +4721,125 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
   var merge = createAssigner(function(object, source, srcIndex) {
     baseMerge(object, source, srcIndex);
   });
+
+  /**
+   * Computes the minimum value of `array`. If `array` is empty or falsey,
+   * `undefined` is returned.
+   *
+   * @static
+   * @since 0.1.0
+   * @memberOf _
+   * @category Math
+   * @param {Array} array The array to iterate over.
+   * @returns {*} Returns the minimum value.
+   * @example
+   *
+   * _.min([4, 2, 8, 6]);
+   * // => 2
+   *
+   * _.min([]);
+   * // => undefined
+   */
+  function min(array) {
+    return (array && array.length)
+      ? baseExtremum(array, identity, baseLt)
+      : undefined;
+  }
+
+  /* Built-in method references for those with the same name as other `lodash` methods. */
+  var nativeCeil = Math.ceil,
+      nativeMax$2 = Math.max;
+
+  /**
+   * The base implementation of `_.range` and `_.rangeRight` which doesn't
+   * coerce arguments.
+   *
+   * @private
+   * @param {number} start The start of the range.
+   * @param {number} end The end of the range.
+   * @param {number} step The value to increment or decrement by.
+   * @param {boolean} [fromRight] Specify iterating from right to left.
+   * @returns {Array} Returns the range of numbers.
+   */
+  function baseRange(start, end, step, fromRight) {
+    var index = -1,
+        length = nativeMax$2(nativeCeil((end - start) / (step || 1)), 0),
+        result = Array(length);
+
+    while (length--) {
+      result[fromRight ? length : ++index] = start;
+      start += step;
+    }
+    return result;
+  }
+
+  /**
+   * Creates a `_.range` or `_.rangeRight` function.
+   *
+   * @private
+   * @param {boolean} [fromRight] Specify iterating from right to left.
+   * @returns {Function} Returns the new range function.
+   */
+  function createRange(fromRight) {
+    return function(start, end, step) {
+      if (step && typeof step != 'number' && isIterateeCall(start, end, step)) {
+        end = step = undefined;
+      }
+      // Ensure the sign of `-0` is preserved.
+      start = toFinite(start);
+      if (end === undefined) {
+        end = start;
+        start = 0;
+      } else {
+        end = toFinite(end);
+      }
+      step = step === undefined ? (start < end ? 1 : -1) : toFinite(step);
+      return baseRange(start, end, step, fromRight);
+    };
+  }
+
+  /**
+   * Creates an array of numbers (positive and/or negative) progressing from
+   * `start` up to, but not including, `end`. A step of `-1` is used if a negative
+   * `start` is specified without an `end` or `step`. If `end` is not specified,
+   * it's set to `start` with `start` then set to `0`.
+   *
+   * **Note:** JavaScript follows the IEEE-754 standard for resolving
+   * floating-point values which can produce unexpected results.
+   *
+   * @static
+   * @since 0.1.0
+   * @memberOf _
+   * @category Util
+   * @param {number} [start=0] The start of the range.
+   * @param {number} end The end of the range.
+   * @param {number} [step=1] The value to increment or decrement by.
+   * @returns {Array} Returns the range of numbers.
+   * @see _.inRange, _.rangeRight
+   * @example
+   *
+   * _.range(4);
+   * // => [0, 1, 2, 3]
+   *
+   * _.range(-4);
+   * // => [0, -1, -2, -3]
+   *
+   * _.range(1, 5);
+   * // => [1, 2, 3, 4]
+   *
+   * _.range(0, 20, 5);
+   * // => [0, 5, 10, 15]
+   *
+   * _.range(0, -4, -1);
+   * // => [0, -1, -2, -3]
+   *
+   * _.range(1, 4, 0);
+   * // => [1, 1, 1]
+   *
+   * _.range(0);
+   * // => []
+   */
+  var range = createRange();
 
   /**
    * Computes `number` rounded to `precision`.
@@ -4696,10 +4952,11 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
 
         _this.axes.x_annual.addListener('dataRangeSet', function (e) {
           if (_this.options.xrangefunc) {
-            var min = Math.ceil(e.min.getRealValue());
-            var max = Math.floor(e.max.getRealValue());
+            var _min = Math.ceil(e.min.getRealValue());
 
-            _this.options.xrangefunc(min, max);
+            var _max = Math.floor(e.max.getRealValue());
+
+            _this.options.xrangefunc(_min, _max);
           }
         }.bind(_this));
 
@@ -5065,43 +5322,47 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         regeneratorRuntime.mark(function _callee5() {
           var _this5 = this;
 
-          var hist_sdate, hist_edate;
+          var hist_sdate, hist_edate, hist_sdate_year, hist_edate_year, mod_edate_year;
           return regeneratorRuntime.wrap(function _callee5$(_context5) {
             while (1) {
               switch (_context5.prev = _context5.next) {
                 case 0:
                   // get data for GFDL-CM3 and NCAR-CCSM4
-                  hist_sdate = '1976-01-01'; // todo review this date as it may only apply to the GFDL-CM3 model but we are using here for both models.
-
+                  hist_sdate = '1970-01-01';
                   hist_edate = '2005-12-31';
-                  return _context5.abrupt("return", Promise.all([this._fetch_acis_data('snap:GFDL-CM3:rcp85', hist_sdate, this._model_edate), // this._fetch_acis_data('snap:GFDL-CM3:rcp45', hist_sdate, this._model_edate),
-                  this._fetch_acis_data('snap:NCAR-CCSM4:rcp85', hist_sdate, this._model_edate)]).then(function (_ref7) {
+                  hist_sdate_year = parseInt(String(hist_sdate).slice(0, 4));
+                  hist_edate_year = parseInt(String(hist_edate).slice(0, 4));
+                  mod_edate_year = parseInt(String(this._model_edate).slice(0, 4));
+                  return _context5.abrupt("return", Promise.all([this._fetch_acis_data('snap:GFDL-CM3:rcp85', hist_sdate_year, mod_edate_year), this._fetch_acis_data('snap:NCAR-CCSM4:rcp85', hist_sdate_year, mod_edate_year)]).then(function (_ref7) {
                     var _ref8 = _slicedToArray(_ref7, 2),
                         gfdl_cm3_rcp85 = _ref8[0],
-                        // gfdl_cm3_rcp45,
-                    ncar_ccsm4_rcp85 = _ref8[1];
+                        ncar_ccsm4_rcp85 = _ref8[1];
 
                     // split into hist mod vs proj mod
                     var hist_mod_data = [];
                     var proj_mod_data = [];
-                    var gfdl_cm3_rcp45 = {};
-                    var ncar_ccsm4_rcp45 = {};
-                    var hist_sdate_year = parseInt(String(hist_sdate).slice(0, 4));
-                    var hist_edate_year = parseInt(String(hist_edate).slice(0, 4));
-                    var mod_edate_year = parseInt(String(_this5._model_edate).slice(0, 4));
+
+                    function _rolling_window_average(collection, year) {
+                      var window_size = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
+                      return mean(range(window_size).map(function (x) {
+                        return get(collection, year - x);
+                      }).filter(function (y) {
+                        return !!y;
+                      }));
+                    }
 
                     for (var key = hist_sdate_year; key <= hist_edate_year; key++) {
                       //year,gfdl_cm3_rcp85, gfdl_cm3_rcp45, ncar_ccsm4_rcp85, ncar_ccsm4_rcp45
-                      var y = [get(gfdl_cm3_rcp85, key, null), get(ncar_ccsm4_rcp85, key, null)];
-                      hist_mod_data.push([key, Math.min.apply(Math, y), Math.max.apply(Math, y)]);
+                      var y = [_rolling_window_average(gfdl_cm3_rcp85, key), _rolling_window_average(ncar_ccsm4_rcp85, key)];
+                      hist_mod_data.push([key, min(y), max(y)]);
                     }
 
                     var proj_edate_year = parseInt(String(_this5._model_edate).slice(0, 4));
 
                     for (var _key = hist_edate_year + 1; _key <= mod_edate_year; _key++) {
                       //year,gfdl_cm3_rcp85, gfdl_cm3_rcp45, ncar_ccsm4_rcp85, ncar_ccsm4_rcp45
-                      var _y = [get(gfdl_cm3_rcp85, _key, null), get(ncar_ccsm4_rcp85, _key, null)];
-                      proj_mod_data.push([_key, Math.min.apply(Math, _y), get(gfdl_cm3_rcp45, _key, null), Math.max.apply(Math, _y), get(ncar_ccsm4_rcp45, _key, null)]);
+                      var _y = [_rolling_window_average(gfdl_cm3_rcp85, _key), _rolling_window_average(ncar_ccsm4_rcp85, _key)];
+                      proj_mod_data.push([_key, min(_y), null, max(_y), null]);
                     }
 
                     hist_mod_data = _this5._round_2d_values(hist_mod_data, 1);
@@ -5125,9 +5386,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                     hist_mod_data = _this5._map_2d_data(hist_mod_data, convfunc);
                     proj_mod_data = _this5._map_2d_data(proj_mod_data, convfunc);
 
-                    var range = _this5._scale_range(_this5._datas_range([hist_mod_data, proj_mod_data]), _this5.options.yAxisRangeScaleFactor);
+                    var range$1 = _this5._scale_range(_this5._datas_range([hist_mod_data, proj_mod_data]), _this5.options.yAxisRangeScaleFactor);
 
-                    _this5.axes.y.setDataRange(range.min, range.max);
+                    _this5.axes.y.setDataRange(range$1.min, range$1.max);
 
                     _this5.axes.y.title().content().string(variable_config.ytitles.annual[_this5.options.presentation][_this5.options.unitsystem]);
 
@@ -5140,7 +5401,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                     _this5.multigraph.render();
                   }));
 
-                case 3:
+                case 6:
                 case "end":
                   return _context5.stop();
               }
@@ -5542,7 +5803,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                         }, {});
                       }
 
-                      var mean = Object.keys(data).reduce(function (acc, key) {
+                      var _mean = Object.keys(data).reduce(function (acc, key) {
                         acc[key] = round(data[key].reduce(function (a, b) {
                           return a + b;
                         }) / data[key].length, 1);
@@ -5560,8 +5821,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                       // }, {});
                       //return [[month, weighted mean]]
 
+
                       data = Object.keys(data).reduce(function (acc, key) {
-                        acc.push([parseInt(key), null, mean[key]]);
+                        acc.push([parseInt(key), null, _mean[key]]);
                         return acc;
                       }, []).sort(function (a, b) {
                         return parseInt(a[0]) - parseInt(b[0]);
@@ -6375,7 +6637,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           // Uncomment to show historical ranges
           //range_bar_plot("x_seasonal", "seasonal_hist_obs_x", "y", "seasonal_hist_obs_p10", "seasonal_hist_obs_p90",  "#cccccc", "#cccccc", 0.5, 0.7);
           p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2025", "seasonal_proj_mod_max_rcp45_2025", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2025", "seasonal_proj_mod_max_rcp85_2025", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp45_2025", "seasonal_proj_mod_p90_rcp45_2025", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "p1090", "rcp45", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp85_2025", "seasonal_proj_mod_p90_rcp85_2025", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "p1090", "rcp85", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2050", "seasonal_proj_mod_max_rcp45_2050", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2050", "seasonal_proj_mod_max_rcp85_2050", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp45_2050", "seasonal_proj_mod_p90_rcp45_2050", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "p1090", "rcp45", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp85_2050", "seasonal_proj_mod_p90_rcp85_2050", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "p1090", "rcp85", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2075", "seasonal_proj_mod_max_rcp45_2075", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2075"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2075", "seasonal_proj_mod_max_rcp85_2075", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2075"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp45_2075", "seasonal_proj_mod_p90_rcp45_2075", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "p1090", "rcp45", "2075"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp85_2075", "seasonal_proj_mod_p90_rcp85_2075", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "p1090", "rcp85", "2075"), p(range_bar_plot("x_seasonal", "seasonal_hist_obs_x", "y", "seasonal_hist_obs_med", "seasonal_hist_obs_med", "#000000", "#000000", 0.5, 1.0), "seasonal", "hist_obs", "med"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp45_2025", "seasonal_proj_mod_med_rcp45_2025", "#0000ff", "#0000ff", 0.25, 1.0), "seasonal", "proj_mod", "med", "rcp45", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp85_2025", "seasonal_proj_mod_med_rcp85_2025", this.options.colors.reds.line, this.options.colors.reds.line, 0.0, 1.0), "seasonal", "proj_mod", "med", "rcp85", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp45_2050", "seasonal_proj_mod_med_rcp45_2050", "#0000ff", "#0000ff", 0.25, 1.0), "seasonal", "proj_mod", "med", "rcp45", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp85_2050", "seasonal_proj_mod_med_rcp85_2050", this.options.colors.reds.line, this.options.colors.reds.line, 0.0, 1.0), "seasonal", "proj_mod", "med", "rcp85", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp45_2075", "seasonal_proj_mod_med_rcp45_2075", "#0000ff", "#0000ff", 0.25, 1.0), "seasonal", "proj_mod", "med", "rcp45", "2075"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp85_2075", "seasonal_proj_mod_med_rcp85_2075", this.options.colors.reds.line, this.options.colors.reds.line, 0.0, 1.0), "seasonal", "proj_mod", "med", "rcp85", "2075"), // annual AK plots:
-          p(band_plot("x_annual", "annual_hist_mod_ak_x", "y", "annual_hist_mod_gfdl_cm3_y", "annual_hist_mod_ncar_ccsm4_y", this.options.colors.grays.innerBand), "annual", "annual_ak", "minmax"), p(band_plot("x_annual", "annual_proj_mod_ak_x", "y", "annual_proj_mod_gfdl_cm3_rcp85_y", "annual_proj_mod_ncar_ccsm4_rcp85_y", this.options.colors.reds.innerBand), "annual", "annual_ak", "minmax")]; // assign indexes based on array position.
+          p(band_plot("x_annual", "annual_hist_mod_ak_x", "y", "annual_hist_mod_gfdl_cm3_y", "annual_hist_mod_ncar_ccsm4_y", this.options.colors.grays.outerBand), "annual", "annual_ak", "minmax"), p(band_plot("x_annual", "annual_proj_mod_ak_x", "y", "annual_proj_mod_gfdl_cm3_rcp85_y", "annual_proj_mod_ncar_ccsm4_rcp85_y", this.options.colors.reds.outerBand), "annual", "annual_ak", "minmax")]; // assign indexes based on array position.
 
           this._plots_config = this._plots_config.map(function (plot_config, idx) {
             plot_config.plot_index = idx;
@@ -6710,7 +6972,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               metric: "Average Daily Max Temp (°C)"
             }
           },
-          supports_region: this.is_ak_region
+          supports_region: function supports_region() {
+            return true;
+          }
         }, {
           id: "tmin",
           title: {
@@ -6757,7 +7021,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               metric: "Average Daily Min Temp (°C)"
             }
           },
-          supports_region: this.is_ak_region
+          supports_region: function supports_region() {
+            return true;
+          }
         }, {
           id: "days_tmax_gt_90f",
           title: {
@@ -6787,6 +7053,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: " Days per year with max above 90°F"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "days_tmax_gt_95f",
@@ -6817,6 +7086,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: "Days per year with max above 95°C departure"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "days_tmax_gt_100f",
@@ -6847,6 +7119,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: " Days per year with max above 100°F"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "days_tmax_gt_105f",
@@ -6877,6 +7152,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: "Days per year with max above 105°F departure"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "days_tmax_lt_32f",
@@ -6907,6 +7185,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: "Days per year with max below 0°C departure"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "days_tmin_lt_32f",
@@ -6937,6 +7218,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: "Days per year with min below 0°C (frost days)"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "days_tmin_gt_80f",
@@ -6973,6 +7257,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: "Days per year with min above 80°F departure"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "days_tmin_gt_90f",
@@ -7009,6 +7296,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: "Days per year with min above 90°F departure"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "hdd_65f",
@@ -7039,6 +7329,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: "Heating Degree Days departure (°C-days)"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "cdd_65f",
@@ -7069,6 +7362,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: "Cooling Degree Days departure (°C-days)"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "gdd",
@@ -7099,6 +7395,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: "Growing Degree Days departure (°C-days)"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "gddmod",
@@ -7130,6 +7429,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: "Modified Growing Degree Days departure (°C-days)"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "pcpn",
@@ -7176,6 +7478,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               english: "Total Precipitation (in.)",
               metric: "Total Precipitation"
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "days_dry_days",
@@ -7216,6 +7521,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               english: "Dry Days (days/period)",
               metric: "Dry Days (days/period)"
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "days_pcpn_gt_1in",
@@ -7246,6 +7554,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: "Days per year with more than 25.3mm precip departure"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "days_pcpn_gt_2in",
@@ -7276,6 +7587,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: "Days of Precipitation Above 50.8mm departure"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "days_pcpn_gt_3in",
@@ -7306,6 +7620,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: "Days per year with more than 76.2mm precip departure"
               }
             }
+          },
+          supports_region: function supports_region() {
+            return true;
           }
         }, {
           id: "days_pcpn_gt_4in",
