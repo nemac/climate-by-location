@@ -5343,7 +5343,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                     var proj_mod_data = [];
 
                     function _rolling_window_average(collection, year) {
-                      var window_size = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
+                      var window_size = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
                       return mean(range(window_size).map(function (x) {
                         return get(collection, year - x);
                       }).filter(function (y) {

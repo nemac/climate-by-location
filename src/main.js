@@ -305,7 +305,7 @@ export class ClimateByLocationWidget {
       let proj_mod_data = [];
 
 
-      function _rolling_window_average(collection, year, window_size=5){
+      function _rolling_window_average(collection, year, window_size=10){
        return mean(lodash_range(window_size).map((x)=>get(collection, year - x)).filter((y)=>!!y))
       }
 
