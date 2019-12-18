@@ -1,22 +1,42 @@
-var cwg = undefined;
+let cbl_instance = undefined;
 
 jQuery(document).ready(function ($) {
 
-  function populate_variables(frequency) {
-    var variables = $.nemac.climate_by_location.prototype.get_variables(frequency);
-    $("select#variable").empty();
-    $(variables.map(function (v) {
-      return ('<option value="' + v.id + '"' + '>' + v.title + '</option>');
-    }).join("")).appendTo($("select#variable"));
+  /**
+   * Update control values based on the widget's internal state.
+   * This allows for changes in frequency/region/etc which may conflict
+   * with previous settings to be propagated back to the ui.
+   */
+  function update_controls() {
+    if (!cbl_instance) { // already inited
+      return
+    }
+    $('#county').val(cbl_instance.options['county']);
+    $('#state').val(cbl_instance.options['state']);
+    update_frequency_options(cbl_instance.options['county'] || cbl_instance.options['state']);
+    $('#frequency').val(cbl_instance.options['frequency']);
+    $('#timeperiod').val(cbl_instance.options['timeperiod']);
+    update_variable_options(cbl_instance.options['frequency'], cbl_instance.options['county'] || cbl_instance.options['state']);
+    $('#variable').val(cbl_instance.options['variable']);
+    $('#scenario').val(cbl_instance.options['scenario']);
+    $('#presentation').val(cbl_instance.options['presentation']);
+    update_frequency_controls();
+
   }
 
-  function initGraph() {
-     $('div#widget').climate_by_location({
+  /**
+   * Create the widget instance
+   */
+  function init_climate_by_location() {
+    if (!!cbl_instance) { // already inited
+      return
+    }
+    cbl_instance = new ClimateByLocationWidget($('div#widget')[0], {
       'dataprefix': 'http://climate-widget-data.nemac.org/data',
       'font': 'Roboto',
       'frequency': $('#frequency').val(),
       'timeperiod': $('#timeperiod').val(),
-      'presentation': $('#presentation').val(),
+      // 'presentation': $('#presentation').val(), // deprecated
       'county': $('#county').val(),
       'state': $('#state').val(),
       'variable': $('#variable').val(),
@@ -28,26 +48,76 @@ jQuery(document).ready(function ($) {
       'pmedian': true,
       'hmedian': true
     });
+  }
 
-    cwg = $('div#widget').climate_by_location( "instance" );
-    $('#county').off().change(function () {
-      $('div#widget').climate_by_location({
-        county: $('#county').val()
-      });
-    });
+
+
+  function update_variable_options(frequency=null, region=null) {
+    let variables = ClimateByLocationWidget.get_variables(frequency || $('#frequency').val(), null, region || $('#county').val() || $('#state').val());
+    $("select#variable").empty();
+    $(variables.map(v => (`<option value="${v.id}">${v.title}</option>`)).join("")).appendTo($("select#variable"));
+  }
+
+  function update_frequency_options(region) {
+    let frequencies = ClimateByLocationWidget.get_frequencies(region || $('#county').val() || $('#state').val());
+    $("select#frequency").empty();
+    $(frequencies.map(v => (`<option value="${v.id}">${v.title}</option>`)).join("")).appendTo($("select#frequency"));
+
 
   }
 
-  $('#county').change(initGraph);
+  function update_frequency_controls() {
+    let freq = $('#frequency').val();
+    if (freq === "annual") {
+      $('#timeperiod-wrapper').hide();
+      $('#slider-range').show();
+      $('#x-axis-pan-note').hide();
+      $('#download_hist_mod_data_li').show();
+      // $('#presentation-wrapper').show(); // deprecated
+    }
+    if (freq === "monthly") {
+      $('#timeperiod-wrapper').show();
+      $('#slider-range').hide();
+      $('#x-axis-pan-note').show();
+      $('#download_hist_mod_data_li').hide();
+      // $('#presentation-wrapper').hide();  // deprecated
+    }
+    if (freq === "seasonal") {
+      $('#timeperiod-wrapper').show();
+      $('#slider-range').hide();
+      $('#x-axis-pan-note').show();
+      $('#download_hist_mod_data_li').hide();
+      // $('#presentation-wrapper').hide(); // deprecated
+    }
+  }
+
+  //load initial options for frequency and variable
+  update_frequency_options();
+  update_variable_options();
+
+  $('#county').change(() => {
+    if ($('#county').val() === '') {
+      return;
+    }
+
+    if (!cbl_instance) {
+      init_climate_by_location();
+    } else {
+      cbl_instance.set_options({
+        county: $('#county').val()
+      });
+    }
+    update_controls();
+  });
 
   $("#countysearch").autocomplete({
     source: states.concat(newcounties),
     select: function (event, ui) {
-      if (ui.item.value.length === 2){
+      if (ui.item.value.length === 2) {
         $('#state option[value="' + ui.item.value + '"]').prop('selected', 'selected');
 
-        var stateCounties = counties[ui.item.value];
-        var $el = $("#county");
+        let stateCounties = counties[ui.item.value];
+        let $el = $("#county");
         $el.empty();
         $el.append($('<option value="" selected></option>'));
         stateCounties.forEach(function (sc) {
@@ -55,11 +125,10 @@ jQuery(document).ready(function ($) {
             .attr("value", sc.fips)
             .text(sc.label))
         });
-      }
-      else {
+      } else {
         $('#state option[value="' + ui.item.label.slice(-2) + '"]').prop('selected', 'selected');
-        var stateCounties = counties[ui.item.label.slice(-2)];
-        var $el = $("#county");
+        let stateCounties = counties[ui.item.label.slice(-2)];
+        let $el = $("#county");
         $el.empty();
         $el.append($('<option value=""></option>'));
         stateCounties.forEach(function (sc) {
@@ -69,7 +138,7 @@ jQuery(document).ready(function ($) {
         });
         $('#county option[value="' + ui.item.value + '"]').prop('selected', 'selected');
       }
-      initGraph();
+      init_climate_by_location();
     }
   });
 
@@ -77,136 +146,124 @@ jQuery(document).ready(function ($) {
     if ($('#state').val() === '') {
       return;
     }
-
-    if (!cwg) {
-      initGraph();
+    if (!cbl_instance) {
+      init_climate_by_location();
     } else {
-      $('div#widget').climate_by_location({
+      cbl_instance.set_options({
         state: $('#state').val()
       });
     }
-    var stateCounties = counties[$('#state').val()];
+    let stateCounties = counties[$('#state').val()];
 
-    var $el = $("#county");
+    let $el = $("#county");
     $el.empty();
     $el.append($('<option value=""  selected></option>'));
     stateCounties.forEach(function (sc) {
       $el.append($("<option></option>")
         .attr("value", sc.fips).text(sc.label));
     });
+    update_controls();
   });
-
-  function update_frequency_ui() {
-    var freq = $('#frequency').val();
-    if (freq === "annual") {
-      $('#timeperiod-wrapper').hide();
-      $('#slider-range').show();
-      $('#x-axis-pan-note').hide();
-      $('#download_hist_mod_data_li').show();
-      $('#presentation-wrapper').show();
-    }
-    if (freq === "monthly") {
-      $('#timeperiod-wrapper').show();
-      $('#slider-range').hide();
-      $('#x-axis-pan-note').show();
-      $('#download_hist_mod_data_li').hide();
-      $('#presentation-wrapper').hide();
-    }
-    if (freq === "seasonal") {
-      $('#timeperiod-wrapper').show();
-      $('#slider-range').hide();
-      $('#x-axis-pan-note').show();
-      $('#download_hist_mod_data_li').hide();
-      $('#presentation-wrapper').hide();
-    }
-    populate_variables(freq);
-  }
-
-  update_frequency_ui();
-
 
   $('#frequency').change(function () {
-
-    update_frequency_ui();
-    if (cwg) {
-      $('div#widget').climate_by_location({
-        frequency: $('#frequency').val(),
-        variable: $('#variable').val()
-      });
+    if (!cbl_instance) {
+      return;
     }
+    cbl_instance.set_options({
+      frequency: $('#frequency').val(),
+      variable: $('#variable').val()
+    });
+    update_controls();
   });
 
-  $('#presentation').change(function () {
-    if (cwg) {
-      $('div#widget').climate_by_location({presentation: $('#presentation').val()});
-    }
-  });
+  // deprecated
+  // $('#presentation').change(function () {
+  //   if (cbl_instance) {
+  //     cbl_instance.set_options({presentation: $('#presentation').val()});
+  //   }
+  // });
 
 
   $('#timeperiod').change(function () {
-    if (cwg) {
-      $('div#widget').climate_by_location({
-        timeperiod: $('#timeperiod').val()
-      });
+    if (!cbl_instance) {
+      return;
     }
+    cbl_instance.set_options({
+      timeperiod: $('#timeperiod').val()
+    });
+    update_controls();
   });
 
-  $('#variable').change(function () {
-    if (cwg) {
-      $('div#widget').climate_by_location({
-        variable: $('#variable').val()
-      });
+  $('#variable').change(() => {
+    if (!cbl_instance) {
+      return;
     }
+    cbl_instance.set_options({
+      variable: $('#variable').val()
+    });
+    update_controls();
   });
-  $('#rcp85, #rcp45').change(function () {
-    if (cwg) {
-      var scenario;
-      if ($('#rcp85').prop('checked')) {
-        if ($('#rcp45').prop('checked')) {
-          scenario = 'both';
-        } else {
-          scenario = 'rcp85';
-        }
-      } else if ($('#rcp45').prop('checked')) {
-        scenario = 'rcp45';
-      }
-      else {
-        scenario = '';
-      }
-      $('div#widget').climate_by_location({
-        scenario: scenario
-      });
+  $('#rcp85, #rcp45').change(() => {
+    if (!cbl_instance) {
+      return;
     }
+    let scenario;
+    if ($('#rcp85').prop('checked')) {
+      if ($('#rcp45').prop('checked')) {
+        scenario = 'both';
+      } else {
+        scenario = 'rcp85';
+      }
+    } else if ($('#rcp45').prop('checked')) {
+      scenario = 'rcp45';
+    } else {
+      scenario = '';
+    }
+    cbl_instance.set_options({
+      scenario: scenario
+    });
+    update_controls();
   });
-  $('#download-button').click(function () {
-    if (cwg) {
-      $('#download-panel').removeClass("hidden");
+  $('#download-button').click(function() {
+    if (!cbl_instance) {
+      return;
     }
+    $('#download-panel').removeClass("hidden");
   });
 
-  $('#download-dismiss-button').click(function () {
+  $('#download-dismiss-button').click(function() {
     $('#download-panel').addClass("hidden");
   });
 
   // download hooks
-  $('#download-image-link').click(function () {
-    if (cwg) {
-      cwg.download_image(this)
+  $('#download-image-link').click(function(e) {
+    if (!cbl_instance) {
+      return;
+    }
+    cbl_instance.download_image(this)
+  });
+  $('#download_hist_obs_data').click(function(e) {
+    if (!cbl_instance) {
+      return;
+    }
+    if(!cbl_instance.download_hist_obs_data(this)){
+      e.stopPropagation()
     }
   });
-  $('#download_hist_obs_data').click(function () {
-    if (cwg) {
-      cwg.download_hist_obs_data(this)
+  $('#download_hist_mod_data').click(function(e) {
+    if (!cbl_instance) {
+      return;
+    }
+    if(!cbl_instance.download_hist_mod_data(this)){
+      e.stopPropagation()
     }
   });
-  $('#download_hist_mod_data').click(function () {
-    if (cwg) {
-      cwg.download_hist_mod_data(this)
+  $('#download_proj_mod_data').click(function(e) {
+    if (!cbl_instance) {
+      return;
     }
-  });
-  $('#download_proj_mod_data').click(function () {
-    if (cwg) {
-      cwg.download_proj_mod_data(this)
+    if(!cbl_instance.download_proj_mod_data(this)){
+      e.stopPropagation()
     }
   });
 
@@ -217,12 +274,11 @@ jQuery(document).ready(function ($) {
     max: 2099,
     values: [1950, 2099],
     slide: function (event, ui) {
-      // return the return value returned by setXRange, to keep
+      // return the return value returned by set_x_axis_range, to keep
       // the slider thumb(s) from moving into a disallowed range
-      return cwg.setXRange(ui.values[0], ui.values[1]);
+      return cbl_instance.set_x_axis_range(ui.values[0], ui.values[1]);
     }
   });
-
 
 
   WebFont.load({
@@ -234,7 +290,7 @@ jQuery(document).ready(function ($) {
 
 });
 
-var states = [
+let states = [
   {'label': "Alabama", "value": "AL"},
   {'label': "Alaska", "value": "AK"},
   {'label': "Arizona", "value": "AZ"},
@@ -339,10 +395,10 @@ var states = [
   {'label': "WV", "value": "WV"},
   {'label': "WI", "value": "WI"},
   {'label': "WY", "value": "WY"}
-  
+
 ];
 //--------------------------------------------------------------------------
-var counties = {
+let counties = {
   "AL": [
     {
       "label": "Autauga County",
@@ -613,7 +669,91 @@ var counties = {
       "fips": "01133"
     }
   ],
-  "AK":[{"label":"Aleutians East Borough","fips":"02013"},{"label":"Aleutians West Census Area","fips":"02016"},{"label":"Anchorage Municipality","fips":"02020"},{"label":"Bethel Census Area","fips":"02050"},{"label":"Bristol Bay Borough","fips":"02060"},{"label":"Denali Borough","fips":"02068"},{"label":"Dillingham Census Area","fips":"02070"},{"label":"Fairbanks North Star Borough","fips":"02090"},{"label":"Haines Borough","fips":"02100"},{"label":"Hoonah-Angoon Census Area","fips":"02105"},{"label":"Juneau City and Borough","fips":"02110"},{"label":"Kenai Peninsula Borough","fips":"02122"},{"label":"Ketchikan Gateway Borough","fips":"02130"},{"label":"Kodiak Island Borough","fips":"02150"},{"label":"Lake and Peninsula Borough","fips":"02164"},{"label":"Matanuska-Susitna Borough","fips":"02170"},{"label":"Nome Census Area","fips":"02180"},{"label":"North Slope Borough","fips":"02185"},{"label":"Northwest Arctic Borough","fips":"02188"},{"label":"Petersburg Census Area","fips":"02195"},{"label":"Prince of Wales-Hyder Census Area","fips":"02198"},{"label":"Sitka City and Borough","fips":"02220"},{"label":"Skagway Municipality","fips":"02230"},{"label":"Southeast Fairbanks Census Area","fips":"02240"},{"label":"Valdez-Cordova Census Area","fips":"02261"},{"label":"Wade Hampton Census Area","fips":"02270"},{"label":"Wrangell City and Borough","fips":"02275"},{"label":"Yakutat City and Borough","fips":"02282"},{"label":"Yukon-Koyukuk Census Area","fips":"02290"}],
+  "AK": [{
+    "label": "Aleutians East Borough",
+    "fips": "02013"
+  }, {
+    "label": "Aleutians West Census Area",
+    "fips": "02016"
+  }, {
+    "label": "Anchorage Municipality",
+    "fips": "02020"
+  }, {
+    "label": "Bethel Census Area",
+    "fips": "02050"
+  }, {
+    "label": "Bristol Bay Borough",
+    "fips": "02060"
+  }, {
+    "label": "Denali Borough",
+    "fips": "02068"
+  }, {
+    "label": "Dillingham Census Area",
+    "fips": "02070"
+  }, {
+    "label": "Fairbanks North Star Borough",
+    "fips": "02090"
+  }, {
+    "label": "Haines Borough",
+    "fips": "02100"
+  }, {
+    "label": "Hoonah-Angoon Census Area",
+    "fips": "02105"
+  }, {
+    "label": "Juneau City and Borough",
+    "fips": "02110"
+  }, {
+    "label": "Kenai Peninsula Borough",
+    "fips": "02122"
+  }, {
+    "label": "Ketchikan Gateway Borough",
+    "fips": "02130"
+  }, {
+    "label": "Kodiak Island Borough",
+    "fips": "02150"
+  }, {
+    "label": "Lake and Peninsula Borough",
+    "fips": "02164"
+  }, {
+    "label": "Matanuska-Susitna Borough",
+    "fips": "02170"
+  }, {
+    "label": "Nome Census Area",
+    "fips": "02180"
+  }, {
+    "label": "North Slope Borough",
+    "fips": "02185"
+  }, {
+    "label": "Northwest Arctic Borough",
+    "fips": "02188"
+  }, {
+    "label": "Petersburg Census Area",
+    "fips": "02195"
+  }, {
+    "label": "Prince of Wales-Hyder Census Area",
+    "fips": "02198"
+  }, {
+    "label": "Sitka City and Borough",
+    "fips": "02220"
+  }, {
+    "label": "Skagway Municipality",
+    "fips": "02230"
+  }, {
+    "label": "Southeast Fairbanks Census Area",
+    "fips": "02240"
+  }, {
+    "label": "Valdez-Cordova Census Area",
+    "fips": "02261"
+  }, {
+    "label": "Wade Hampton Census Area",
+    "fips": "02270"
+  }, {
+    "label": "Wrangell City and Borough",
+    "fips": "02275"
+  }, {
+    "label": "Yakutat City and Borough",
+    "fips": "02282"
+  }, {"label": "Yukon-Koyukuk Census Area", "fips": "02290"}],
   "AZ": [
     {
       "label": "Apache County",
@@ -1542,7 +1682,7 @@ var counties = {
       "fips": "12007"
     },
     {
-      "label": "Brevard County",
+      "label": "Breletd County",
       "fips": "12009"
     },
     {
@@ -5878,7 +6018,7 @@ var counties = {
       "fips": "28009"
     },
     {
-      "label": "Bolivar County",
+      "label": "Bolilet County",
       "fips": "28011"
     },
     {
@@ -11080,7 +11220,7 @@ var counties = {
       "fips": "48347"
     },
     {
-      "label": "Navarro County",
+      "label": "Naletro County",
       "fips": "48349"
     },
     {
@@ -12880,7 +13020,7 @@ var counties = {
   ]
 };
 
-var newcounties = [{"label": "Autauga County, AL", "value": "01001"}, {
+let newcounties = [{"label": "Autauga County, AL", "value": "01001"}, {
   "label": "Baldwin County, AL",
   "value": "01003"
 }, {"label": "Barbour County, AL", "value": "01005"}, {
@@ -13322,7 +13462,7 @@ var newcounties = [{"label": "Autauga County, AL", "value": "01001"}, {
   "label": "Bay County, FL",
   "value": "12005"
 }, {"label": "Bradford County, FL", "value": "12007"}, {
-  "label": "Brevard County, FL",
+  "label": "Breletd County, FL",
   "value": "12009"
 }, {"label": "Broward County, FL", "value": "12011"}, {
   "label": "Calhoun County, FL",
@@ -14938,7 +15078,7 @@ var newcounties = [{"label": "Autauga County, AL", "value": "01001"}, {
 }, {"label": "Attala County, MS", "value": "28007"}, {
   "label": "Benton County, MS",
   "value": "28009"
-}, {"label": "Bolivar County, MS", "value": "28011"}, {
+}, {"label": "Bolilet County, MS", "value": "28011"}, {
   "label": "Calhoun County, MS",
   "value": "28013"
 }, {"label": "Carroll County, MS", "value": "28015"}, {
@@ -16874,7 +17014,7 @@ var newcounties = [{"label": "Autauga County, AL", "value": "01001"}, {
   "label": "Motley County, TX",
   "value": "48345"
 }, {"label": "Nacogdoches County, TX", "value": "48347"}, {
-  "label": "Navarro County, TX",
+  "label": "Naletro County, TX",
   "value": "48349"
 }, {"label": "Newton County, TX", "value": "48351"}, {
   "label": "Nolan County, TX",
@@ -17545,36 +17685,36 @@ var newcounties = [{"label": "Autauga County, AL", "value": "01001"}, {
 }, {"label": "Weston County, WY", "value": "56045"},
 
 
-  {"value": "02013", "label":"Aleutians East Borough, AK"},
-  {"value": "02016", "label":"Aleutians West Census Area, AK"},
-  {"value": "02020", "label":"Anchorage Municipality, AK"},
-  {"value": "02050", "label":"Bethel Census Area, AK"},
-  {"value": "02060", "label":"Bristol Bay Borough, AK"},
-  {"value": "02068", "label":"Denali Borough, AK"},
-  {"value": "02070", "label":"Dillingham Census Area, AK"},
-  {"value": "02090", "label":"Fairbanks North Star Borough, AK"},
-  {"value": "02100", "label":"Haines Borough, AK"},
-  {"value": "02105", "label":"Hoonah-Angoon Census Area, AK"},
-  {"value": "02110", "label":"Juneau City and Borough, AK"},
-  {"value": "02122", "label":"Kenai Peninsula Borough, AK"},
-  {"value": "02130", "label":"Ketchikan Gateway Borough, AK"},
-  {"value": "02150", "label":"Kodiak Island Borough, AK"},
-  {"value": "02158", "label":"Kusilvak Census Area, AK"},
-  {"value": "02164", "label":"Lake and Peninsula Borough, AK"},
-  {"value": "02170", "label":"Matanuska-Susitna Borough, AK"},
-  {"value": "02180", "label":"Nome Census Area, AK"},
-  {"value": "02185", "label":"North Slope Borough, AK"},
-  {"value": "02188", "label":"Northwest Arctic Borough, AK"},
-  {"value": "02195", "label":"Petersburg Borough, AK"},
-  {"value": "02198", "label":"Prince of Wales-Hyder Census Area, AK"},
-  {"value": "02220", "label":"Sitka City and Borough, AK"},
-  {"value": "02230", "label":"Skagway Municipality, AK"},
-  {"value": "02240", "label":"Southeast Fairbanks Census Area, AK"},
-  {"value": "02261", "label":"Valdez-Cordova Census Area, AK"},
-  {"value": "02270", "label":"Wade Hampton Census Area, AK"},
-  {"value": "02275", "label":"Wrangell City and Borough, AK"},
-  {"value": "02282", "label":"Yakutat City and Borough, AK"},
-  {"value": "02290", "label":"Yukon-Koyukuk Census Area, AK"}
+  {"value": "02013", "label": "Aleutians East Borough, AK"},
+  {"value": "02016", "label": "Aleutians West Census Area, AK"},
+  {"value": "02020", "label": "Anchorage Municipality, AK"},
+  {"value": "02050", "label": "Bethel Census Area, AK"},
+  {"value": "02060", "label": "Bristol Bay Borough, AK"},
+  {"value": "02068", "label": "Denali Borough, AK"},
+  {"value": "02070", "label": "Dillingham Census Area, AK"},
+  {"value": "02090", "label": "Fairbanks North Star Borough, AK"},
+  {"value": "02100", "label": "Haines Borough, AK"},
+  {"value": "02105", "label": "Hoonah-Angoon Census Area, AK"},
+  {"value": "02110", "label": "Juneau City and Borough, AK"},
+  {"value": "02122", "label": "Kenai Peninsula Borough, AK"},
+  {"value": "02130", "label": "Ketchikan Gateway Borough, AK"},
+  {"value": "02150", "label": "Kodiak Island Borough, AK"},
+  {"value": "02158", "label": "Kusilvak Census Area, AK"},
+  {"value": "02164", "label": "Lake and Peninsula Borough, AK"},
+  {"value": "02170", "label": "Matanuska-Susitna Borough, AK"},
+  {"value": "02180", "label": "Nome Census Area, AK"},
+  {"value": "02185", "label": "North Slope Borough, AK"},
+  {"value": "02188", "label": "Northwest Arctic Borough, AK"},
+  {"value": "02195", "label": "Petersburg Borough, AK"},
+  {"value": "02198", "label": "Prince of Wales-Hyder Census Area, AK"},
+  {"value": "02220", "label": "Sitka City and Borough, AK"},
+  {"value": "02230", "label": "Skagway Municipality, AK"},
+  {"value": "02240", "label": "Southeast Fairbanks Census Area, AK"},
+  {"value": "02261", "label": "Valdez-Cordova Census Area, AK"},
+  {"value": "02270", "label": "Wade Hampton Census Area, AK"},
+  {"value": "02275", "label": "Wrangell City and Borough, AK"},
+  {"value": "02282", "label": "Yakutat City and Borough, AK"},
+  {"value": "02290", "label": "Yukon-Koyukuk Census Area, AK"}
 
 
 ];

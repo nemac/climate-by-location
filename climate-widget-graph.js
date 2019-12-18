@@ -9,10 +9,10 @@ module.exports=function($,window,errorHandler){if(!_INCLUDED){require("./draggab
 var Insets=new jermaine.Model("Insets",function(){this.hasA("top").which.isA("number");this.hasA("left").which.isA("number");this.hasA("bottom").which.isA("number");this.hasA("right").which.isA("number");this.respondsTo("set",function(top,left,bottom,right){this.top(top);this.left(left);this.bottom(bottom);this.right(right)});this.isBuiltWith("top","left","bottom","right")});module.exports=Insets},{"../../lib/jermaine/src/jermaine.js":9}],104:[function(require,module,exports){var jermaine=require("../../lib/jermaine/src/jermaine.js");var Point=new jermaine.Model("Point",function(){this.hasA("x").which.isA("number");this.hasA("y").which.isA("number");this.isBuiltWith("x","y");this.respondsTo("eq",function(p){return this.x()===p.x()&&this.y()===p.y()})});var regExp=/^\s*([0-9\-\+\.eE]+)(,|\s+|\s*,\s+|\s+,\s*)([0-9\-\+\.eE]+)\s*$/;Point.parse=function(string){var ar=regExp.exec(string),p;if(!ar||ar.length!==4){throw new Error("cannot parse string '"+string+"' as a Point")}return new Point(parseFloat(ar[1]),parseFloat(ar[3]))};module.exports=Point},{"../../lib/jermaine/src/jermaine.js":9}],105:[function(require,module,exports){var jermaine=require("../../lib/jermaine/src/jermaine.js");var validationFunctions=require("../util/validationFunctions.js");var RGBColor=new jermaine.Model("RGBColor",function(){this.hasA("r").which.validatesWith(function(r){return validationFunctions.validateNumberRange(r,0,1)});this.hasA("g").which.validatesWith(function(g){return validationFunctions.validateNumberRange(g,0,1)});this.hasA("b").which.validatesWith(function(b){return validationFunctions.validateNumberRange(b,0,1)});var numberToHex=function(number){number=parseInt(number*255,10).toString(16);if(number.length===1){number="0"+number}return number};this.respondsTo("getHexString",function(prefix){if(!prefix){prefix="0x"}return prefix+numberToHex(this.r())+numberToHex(this.g())+numberToHex(this.b())});this.respondsTo("toRGBA",function(alpha){if(alpha===undefined){alpha=1}if(typeof alpha!=="number"){throw new Error("RGBColor.toRGBA: The argument, if present, must be a number")}return"rgba("+255*this.r()+", "+255*this.g()+", "+255*this.b()+", "+alpha+")"});this.respondsTo("eq",function(color){return this.r()===color.r()&&this.g()===color.g()&&this.b()===color.b()});this.isBuiltWith("r","g","b")});RGBColor.colorNameIsDeprecated=function(colorName){switch(colorName){case"grey":return"0xeeeeee";case"skyblue":return"0x87ceeb";case"khaki":return"0xf0e68c";case"orange":return"0xffa500";case"salmon":return"0xfa8072";case"olive":return"0x9acd32";case"sienna":return"0xa0522d";case"pink":return"0xffb5c5";case"violet":return"0xee82ee"}return false};RGBColor.parse=function(input){var red,green,blue,grey,parsedInput,colorObj;if(input===undefined){return undefined}else if(typeof input==="string"){parsedInput=input.toLowerCase();switch(parsedInput){case"black":red=0;green=0;blue=0;break;case"red":red=1;green=0;blue=0;break;case"green":red=0;green=1;blue=0;break;case"blue":red=0;green=0;blue=1;break;case"yellow":red=1;green=1;blue=0;break;case"magenta":red=1;green=0;blue=1;break;case"cyan":red=0;green=1;blue=1;break;case"white":red=1;green=1;blue=1;break;case"grey":grey=parseInt("ee",16)/255;red=grey;green=grey;blue=grey;break;case"skyblue":red=parseInt("87",16)/255;green=parseInt("ce",16)/255;blue=parseInt("eb",16)/255;break;case"khaki":red=parseInt("f0",16)/255;green=parseInt("e6",16)/255;blue=parseInt("8c",16)/255;break;case"orange":red=parseInt("ff",16)/255;green=parseInt("a5",16)/255;blue=parseInt("00",16)/255;break;case"salmon":red=parseInt("fa",16)/255;green=parseInt("80",16)/255;blue=parseInt("72",16)/255;break;case"olive":red=parseInt("9a",16)/255;green=parseInt("cd",16)/255;blue=parseInt("32",16)/255;break;case"sienna":red=parseInt("a0",16)/255;green=parseInt("52",16)/255;blue=parseInt("2d",16)/255;break;case"pink":red=parseInt("ff",16)/255;green=parseInt("b5",16)/255;blue=parseInt("c5",16)/255;break;case"violet":red=parseInt("ee",16)/255;green=parseInt("82",16)/255;blue=parseInt("ee",16)/255;break;default:parsedInput=parsedInput.replace(/(0(x|X)|#)/,"");if(parsedInput.search(new RegExp(/([^0-9a-f])/))!==-1){throw new Error("'"+input+"' is not a valid color")}if(parsedInput.length===6){red=parseInt(parsedInput.substring(0,2),16)/255;green=parseInt(parsedInput.substring(2,4),16)/255;blue=parseInt(parsedInput.substring(4,6),16)/255}else if(parsedInput.length===3){red=parseInt(parsedInput.charAt(0),16)/15;green=parseInt(parsedInput.charAt(1),16)/15;blue=parseInt(parsedInput.charAt(2),16)/15}else{throw new Error("'"+input+"' is not a valid color")}break}colorObj=new RGBColor(red,green,blue);return colorObj}throw new Error("'"+input+"' is not a valid color")};module.exports=RGBColor},{"../../lib/jermaine/src/jermaine.js":9,"../util/validationFunctions.js":158}],106:[function(require,module,exports){Util={};Util.interp=function(x,x0,x1,y0,y1){return y0+(y1-y0)*(x-x0)/(x1-x0)};Util.safe_interp=function(x,x0,x1,y0,y1){if(x0===x1){return(y0+y1)/2}return Util.interp(x,x0,x1,y0,y1)};Util.l2dist=function(x1,y1,x2,y2){var dx=x1-x2;var dy=y1-y2;return Math.sqrt(dx*dx+dy*dy)};module.exports=Util},{}],107:[function(require,module,exports){require("./labeler.js");require("./axis_title.js");require("./grid.js");require("./pan.js");require("./zoom.js");var Axis=require("../../core/axis.js"),pF=require("../../util/parsingFunctions.js"),vF=require("../../util/validationFunctions.js"),uF=require("../../util/utilityFunctions.js");var parseLabels=function(json,axis){var spacings,labelers=axis.labelers(),Labeler=require("../../core/labeler.js"),DataValue=require("../../core/data_value.js"),i;spacings=[];if(json!==undefined){if(json.spacing!==undefined){spacings=vF.typeOf(json.spacing)==="array"?json.spacing:[json.spacing]}}if(spacings.length>0){for(i=0;i<spacings.length;++i){labelers.add(Labeler.parseJSON(json,axis,undefined,spacings[i]))}}else if(json!==undefined&&json.label!==undefined&&json.label.length>0){var defaults=Labeler.parseJSON(json,axis,undefined,null);json.label.forEach(function(e){var spacing=[];if(e.spacing!==undefined){spacing=vF.typeOf(e.spacing)==="array"?e.spacing:[e.spacing]}spacing.forEach(function(s){labelers.add(Labeler.parseJSON(e,axis,defaults,s))})})}else{var defaultValues=uF.getDefaultValuesFromXSD().horizontalaxis.labels;var defaultSpacings=axis.type()===DataValue.NUMBER?defaultValues.defaultNumberSpacing:defaultValues.defaultDatetimeSpacing;for(i=0;i<defaultSpacings.length;++i){labelers.add(Labeler.parseJSON(json,axis,undefined,defaultSpacings[i]))}}};Axis.parseJSON=function(json,orientation,messageHandler,multigraph){var DataValue=require("../../core/data_value.js"),Point=require("../../math/point.js"),RGBColor=require("../../math/rgb_color.js"),Displacement=require("../../math/displacement.js"),AxisTitle=require("../../core/axis_title.js"),Grid=require("../../core/grid.js"),Pan=require("../../core/pan.js"),Zoom=require("../../core/zoom.js"),AxisBinding=require("../../core/axis_binding.js"),axis=new Axis(orientation),parseAttribute=pF.parseAttribute,parseDisplacement=Displacement.parse,parseJSONPoint=function(p){return new Point(p[0],p[1])},parseRGBColor=RGBColor.parse,attr,child,value;if(json){parseAttribute(json.id,axis.id);parseAttribute(json.type,axis.type,DataValue.parseType);parseAttribute(json.length,axis.length,parseDisplacement);(function(){var positionbase=json.positionbase;if(positionbase){messageHandler.warning('Use of deprecated axis attribute "positionbase"; use "base" attribute instead');if(positionbase==="left"||positionbase==="bottom"){axis.base(new Point(-1,-1))}else if(positionbase==="right"){axis.base(new Point(1,-1))}else if(positionbase==="top"){axis.base(new Point(-1,1))}}})();attr=json.position;if(attr!==undefined){if(vF.typeOf(attr)==="array"){axis.position(parseJSONPoint(attr))}else{if(vF.isNumberNotNaN(attr)){if(orientation===Axis.HORIZONTAL){axis.position(new Point(0,attr))}else{axis.position(new Point(attr,0))}}else{throw new Error("axis position '"+attr+"' is of the wrong type; it should be a number or a point")}}}if("min"in json){axis.min(uF.coerceToString(json.min))}if(axis.min()!=="auto"){axis.dataMin(DataValue.parse(axis.type(),axis.min()))}if("max"in json){axis.max(uF.coerceToString(json.max))}if(axis.max()!=="auto"){axis.dataMax(DataValue.parse(axis.type(),axis.max()))}parseAttribute(json.pregap,axis.pregap);parseAttribute(json.postgap,axis.postgap);parseAttribute(json.anchor,axis.anchor);parseAttribute(json.base,axis.base,parseJSONPoint);parseAttribute(json.minposition,axis.minposition,parseDisplacement);parseAttribute(json.maxposition,axis.maxposition,parseDisplacement);parseAttribute(json.minoffset,axis.minoffset);parseAttribute(json.maxoffset,axis.maxoffset);parseAttribute(json.color,axis.color,parseRGBColor);parseAttribute(json.tickcolor,axis.tickcolor,parseRGBColor);parseAttribute(json.tickwidth,axis.tickwidth);parseAttribute(json.tickmin,axis.tickmin);parseAttribute(json.tickmax,axis.tickmax);parseAttribute(json.highlightstyle,axis.highlightstyle);parseAttribute(json.linewidth,axis.linewidth);if("title"in json){if(typeof json.title==="boolean"){if(json.title){axis.title(new AxisTitle(axis))}else{axis.title(AxisTitle.parseJSON({},axis))}}else{axis.title(AxisTitle.parseJSON(json.title,axis))}}else{axis.title(new AxisTitle(axis))}if(json.grid){axis.grid(Grid.parseJSON(json.grid))}if(json.visible!==undefined){axis.visible(json.visible)}if("pan"in json){axis.pan(Pan.parseJSON(json.pan,axis.type()))}if("zoom"in json){axis.zoom(Zoom.parseJSON(json.zoom,axis.type()))}if(json.labels){parseLabels(json.labels,axis)}if(json.binding){var bindingMinDataValue=DataValue.parse(axis.type(),json.binding.min),bindingMaxDataValue=DataValue.parse(axis.type(),json.binding.max);if(typeof json.binding.id!=="string"){throw new Error("invalid axis binding id: '"+json.binding.id+"'")}if(!DataValue.isInstance(bindingMinDataValue)){throw new Error("invalid axis binding min: '"+json.binding.min+"'")}if(!DataValue.isInstance(bindingMaxDataValue)){throw new Error("invalid axis binding max: '"+json.binding.max+"'")}AxisBinding.findByIdOrCreateNew(json.binding.id).addAxis(axis,bindingMinDataValue,bindingMaxDataValue,multigraph)}}return axis};module.exports=Axis},{"../../core/axis.js":18,"../../core/axis_binding.js":19,"../../core/axis_title.js":20,"../../core/data_value.js":30,"../../core/grid.js":42,"../../core/labeler.js":45,"../../core/pan.js":52,"../../core/zoom.js":71,"../../math/displacement.js":101,"../../math/point.js":104,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156,"../../util/utilityFunctions.js":157,"../../util/validationFunctions.js":158,"./axis_title.js":108,"./grid.js":116,"./labeler.js":120,"./pan.js":123,"./zoom.js":130}],108:[function(require,module,exports){var AxisTitle=require("../../core/axis_title.js");AxisTitle.parseJSON=function(json,axis){var title=new AxisTitle(axis),Text=require("../../core/text.js"),Point=require("../../math/point.js"),parseAttribute=require("../../util/parsingFunctions.js").parseAttribute,nonEmptyTitle=false,parseJSONPoint=function(p){return new Point(p[0],p[1])},text;if(json){text=json.text;if(text!==""&&text!==undefined){title.content(new Text(text));nonEmptyTitle=true}parseAttribute(json.anchor,title.anchor,parseJSONPoint);parseAttribute(json.base,title.base);parseAttribute(json.position,title.position,parseJSONPoint);parseAttribute(json.angle,title.angle);parseAttribute(json.font,title.font)}if(nonEmptyTitle===true){return title}return undefined};module.exports=AxisTitle},{"../../core/axis_title.js":20,"../../core/text.js":64,"../../math/point.js":104,"../../util/parsingFunctions.js":156}],109:[function(require,module,exports){var Background=require("../../core/background.js");Background.parseJSON=function(json,multigraph){var background=new Background,parseAttribute=require("../../util/parsingFunctions.js").parseAttribute,RGBColor=require("../../math/rgb_color.js"),Img=require("../../core/img.js"),child;if(json){parseAttribute(json.color,background.color,RGBColor.parse);if(json.img){background.img(Img.parseJSON(json.img,multigraph))}}return background};module.exports=Background},{"../../core/background.js":21,"../../core/img.js":44,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156}],110:[function(require,module,exports){module.exports=function($){var Data=require("../../core/data.js");if(typeof Data.parseJSON==="function"){return Data}Data.parseJSON=function(json,multigraph,messageHandler){var ArrayData=require("../../core/array_data.js"),DataVariable=require("../../core/data_variable.js"),DataMeasure=require("../../core/data_measure.js"),PeriodicArrayData=require("../../core/periodic_array_data.js"),CSVData=require("../../core/csv_data.js")($),WebServiceData=require("../../core/web_service_data.js")($),Multigraph=require("../../core/multigraph.js")($),pF=require("../../util/parsingFunctions.js"),vF=require("../../util/validationFunctions.js"),uF=require("../../util/utilityFunctions.js"),defaultMissingvalueString,defaultMissingopString,dataVariables=[],data,adap,adapter=ArrayData;require("./data_variable.js");if(json){adap=json.adapter;if(adap!==undefined&&adap!==""){adapter=Multigraph.getDataAdapter(adap);if(adapter===undefined){throw new Error("Missing data adapater: "+adap)}}if(json.missingvalue){defaultMissingvalueString=uF.coerceToString(json.missingvalue)}defaultMissingopString=json.missingop;if(json.variables){json.variables.forEach(function(variable){dataVariables.push(DataVariable.parseJSON(variable))})}var haveRepeat=false,period;if("repeat"in json){var periodProp=vF.typeOf(json.repeat)==="object"?json.repeat.period:json.repeat;if(periodProp===undefined||periodProp===""){messageHandler.warning("repeat requires a period; data treated as non-repeating")}else{period=DataMeasure.parse(dataVariables[0].type(),periodProp);haveRepeat=true}}if(json.values){var stringValues=json.values;if(haveRepeat){data=new PeriodicArrayData(dataVariables,stringValues,period)}else{data=new ArrayData(dataVariables,stringValues)}}if(json.csv){var filename=vF.typeOf(json.csv)==="object"?json.csv.location:json.csv;data=new CSVData(dataVariables,multigraph?multigraph.rebaseUrl(filename):filename,messageHandler,multigraph?multigraph.getAjaxThrottle(filename):undefined)}if(json.service){var location=vF.typeOf(json.service)==="object"?json.service.location:json.service;data=new WebServiceData(dataVariables,multigraph?multigraph.rebaseUrl(location):location,messageHandler,multigraph?multigraph.getAjaxThrottle(location):undefined);if(vF.typeOf(json.service)==="object"&&"format"in json.service){data.format(json.service.format)}}if("id"in json){data.id(json.id)}}if(data){if(defaultMissingvalueString!==undefined){data.defaultMissingvalue(defaultMissingvalueString)}if(defaultMissingopString!==undefined){data.defaultMissingop(defaultMissingopString)}data.adapter(adapter)}return data};return Data}},{"../../core/array_data.js":17,"../../core/csv_data.js":25,"../../core/data.js":26,"../../core/data_measure.js":28,"../../core/data_variable.js":31,"../../core/multigraph.js":48,"../../core/periodic_array_data.js":53,"../../core/web_service_data.js":67,"../../util/parsingFunctions.js":156,"../../util/utilityFunctions.js":157,"../../util/validationFunctions.js":158,"./data_variable.js":111}],111:[function(require,module,exports){var DataVariable=require("../../core/data_variable.js");DataVariable.parseJSON=function(json,data){var variable,pF=require("../../util/parsingFunctions.js"),parseAttribute=pF.parseAttribute,DataValue=require("../../core/data_value.js"),attr;if(json&&json.id){variable=new DataVariable(json.id);parseAttribute(json.column,variable.column);parseAttribute(json.type,variable.type,DataValue.parseType);parseAttribute(json.missingvalue,variable.missingvalue,function(v){return DataValue.parse(variable.type(),v)});parseAttribute(json.missingop,variable.missingop,DataValue.parseComparator)}return variable};module.exports=DataVariable},{"../../core/data_value.js":30,"../../core/data_variable.js":31,"../../util/parsingFunctions.js":156}],112:[function(require,module,exports){var Datatips=require("../../core/datatips.js");Datatips.parseJSON=function(json){var datatips=new Datatips,RGBColor=require("../../math/rgb_color.js"),DatatipsVariable=require("../../core/datatips_variable.js"),pF=require("../../util/parsingFunctions.js"),uF=require("../../util/utilityFunctions.js"),parseRGBColor=RGBColor.parse,parseAttribute=pF.parseAttribute,parseInteger=pF.parseInteger,child;if(json){if(json["variable-formats"]){json["variable-formats"].forEach(function(fmt){var dtv=new DatatipsVariable;dtv.formatString(fmt);datatips.variables().add(dtv)})}parseAttribute(json.format,datatips.formatString);parseAttribute(json.bgcolor,datatips.bgcolor,parseRGBColor);parseAttribute(json.bgalpha,datatips.bgalpha);parseAttribute(json.border,datatips.border);parseAttribute(json.bordercolor,datatips.bordercolor,parseRGBColor);parseAttribute(json.pad,datatips.pad)}return datatips};module.exports=Datatips},{"../../core/datatips.js":32,"../../core/datatips_variable.js":33,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156,"../../util/utilityFunctions.js":157}],113:[function(require,module,exports){var Filter=require("../../core/filter.js");Filter.parseJSON=function(json){var filter=new Filter,FilterOption=require("../../core/filter_option.js"),pF=require("../../util/parsingFunctions.js"),uF=require("../../util/utilityFunctions.js"),o;require("./filter_option.js");if(json){if(json.options){for(opt in json.options){if(json.options.hasOwnProperty(opt)){o=new FilterOption;o.name(opt);o.value(uF.coerceToString(json.options[opt]));filter.options().add(o)}}}pF.parseAttribute(json.type,filter.type);return filter}return Filter};module.exports=Filter},{"../../core/filter.js":39,"../../core/filter_option.js":40,"../../util/parsingFunctions.js":156,"../../util/utilityFunctions.js":157,"./filter_option.js":114}],114:[function(require,module,exports){var FilterOption=require("../../core/filter_option.js");FilterOption.parseJSON=function(json){var pF=require("../../util/parsingFunctions.js"),uF=require("../../util/utilityFunctions.js"),option=new FilterOption;if(json){option.name(json.name);if("value"in json&&json.value!==""){option.value(uF.coerceToString(json.value))}}return option};module.exports=FilterOption},{"../../core/filter_option.js":40,"../../util/parsingFunctions.js":156,"../../util/utilityFunctions.js":157}],115:[function(require,module,exports){module.exports=function($){var Graph=require("../../core/graph.js"),pF=require("../../util/parsingFunctions.js");if(typeof Graph.parseJSON==="function"){return Graph}Graph.parseJSON=function(json,multigraph,messageHandler){var graph=new Graph,Axis=require("../../core/axis.js"),Window=require("../../core/window.js"),Legend=require("../../core/legend.js"),Background=require("../../core/background.js"),Plotarea=require("../../core/plotarea.js"),ConsecutiveDistanceFilter=require("../../core/consecutive_distance_filter.js"),Title=require("../../core/title.js"),Data=require("../../core/data.js"),Plot=require("../../core/plot.js"),uF=require("../../util/utilityFunctions.js"),vF=require("../../util/validationFunctions.js"),defaults=uF.getDefaultValuesFromXSD(),child;require("./window.js");require("./legend.js");require("./background.js");require("./plotarea.js");require("./title.js");require("./axis.js");require("./data.js")($);require("./plot.js");graph.multigraph(multigraph);if(json){if(json.window){graph.window(Window.parseJSON(json.window))}if("legend"in json){graph.legend(Legend.parseJSON(json.legend))}else{graph.legend(Legend.parseJSON())}if(json.background){graph.background(Background.parseJSON(json.background,graph.multigraph()))}if(json.plotarea){graph.plotarea(Plotarea.parseJSON(json.plotarea))}if(json.title){graph.title(Title.parseJSON(json.title,graph))}if("filter"in json){if(vF.typeOf(json.filter)==="object"){if(typeof json.filter.type!=="undefined"&&json.filter.type!=="consecutivedistance"){throw new Error("unknown filter type: "+json.filter.type)}graph.filter(new ConsecutiveDistanceFilter(json.filter))}else{if(vF.typeOf(json.filter)!=="boolean"){throw new Error("invalid filter property: "+json.filter)}else if(json.filter){graph.filter(new ConsecutiveDistanceFilter({}))}}}var haxes=json.horizontalaxis?json.horizontalaxis:json.horizontalaxes;if(json.horizontalaxis&&json.horizontalaxes){throw new Error("graph may not have both 'horizontalaxis' and 'horizontalaxes'")}if(haxes){if(vF.typeOf(haxes)==="array"){haxes.forEach(function(axis){graph.axes().add(Axis.parseJSON(axis,Axis.HORIZONTAL,messageHandler,graph.multigraph()))})}else{graph.axes().add(Axis.parseJSON(haxes,Axis.HORIZONTAL,messageHandler,graph.multigraph()))}}var vaxes=json.verticalaxis?json.verticalaxis:json.verticalaxes;if(json.verticalaxis&&json.verticalaxes){throw new Error("graph may not have both 'verticalaxis' and 'verticalaxes'")}if(vaxes){if(vF.typeOf(vaxes)==="array"){vaxes.forEach(function(axis){graph.axes().add(Axis.parseJSON(axis,Axis.VERTICAL,messageHandler,graph.multigraph()))})}else{graph.axes().add(Axis.parseJSON(vaxes,Axis.VERTICAL,messageHandler,graph.multigraph()))}}function addAjaxThrottle(t){var pattern=t.pattern?t.pattern:defaults.throttle.pattern,requests=t.requests?t.requests:defaults.throttle.requests,period=t.period?t.period:defaults.throttle.period,concurrent=t.concurrent?t.concurrent:defaults.throttle.concurrent;multigraph.addAjaxThrottle(pattern,requests,period,concurrent)}var throttles=json.throttle?json.throttle:json.throttles;if(json.throttle&&json.throttles){throw new Error("graph may not have both 'throttle' and 'throttles'")}if(throttles){if(vF.typeOf(throttles)==="array"){throttles.forEach(addAjaxThrottle)}else{addAjaxThrottle(throttles)}}if(json.data){if(vF.typeOf(json.data)==="array"){json.data.forEach(function(data){graph.data().add(Data.parseJSON(data,graph.multigraph(),messageHandler))})}else{graph.data().add(Data.parseJSON(json.data,graph.multigraph(),messageHandler))}}var plots=json.plot?json.plot:json.plots;if(json.plot&&json.plots){throw new Error("graph may not have both 'plot' and 'plots'")}if(plots){if(vF.typeOf(plots)==="array"){plots.forEach(function(plot){graph.plots().add(Plot.parseJSON(plot,graph,messageHandler))})}else{graph.plots().add(Plot.parseJSON(plots,graph,messageHandler))}}graph.postParse()}return graph};return Graph}},{"../../core/axis.js":18,"../../core/background.js":21,"../../core/consecutive_distance_filter.js":23,"../../core/data.js":26,"../../core/graph.js":41,"../../core/legend.js":46,"../../core/plot.js":54,"../../core/plotarea.js":56,"../../core/title.js":65,"../../core/window.js":70,"../../util/parsingFunctions.js":156,"../../util/utilityFunctions.js":157,"../../util/validationFunctions.js":158,"./axis.js":107,"./background.js":109,"./data.js":110,"./legend.js":121,"./plot.js":124,"./plotarea.js":126,"./title.js":128,"./window.js":129}],116:[function(require,module,exports){var Grid=require("../../core/grid.js");Grid.parseJSON=function(json){var grid=new Grid,RGBColor=require("../../math/rgb_color.js"),parseAttribute=require("../../util/parsingFunctions.js").parseAttribute,attr;if(json){parseAttribute(json.color,grid.color,RGBColor.parse);attr=json.visible;if(attr!==undefined){grid.visible(attr)}else{grid.visible(true)}}return grid};module.exports=Grid},{"../../core/grid.js":42,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156}],117:[function(require,module,exports){var Icon=require("../../core/icon.js");Icon.parseJSON=function(json){var icon=new Icon,parseAttribute=require("../../util/parsingFunctions.js").parseAttribute;if(json){parseAttribute(json.height,icon.height);parseAttribute(json.width,icon.width);parseAttribute(json.border,icon.border)}return icon};module.exports=Icon},{"../../core/icon.js":43,"../../util/parsingFunctions.js":156}],118:[function(require,module,exports){var Img=require("../../core/img.js");Img.parseJSON=function(json,multigraph){var img,parseAttribute=require("../../util/parsingFunctions.js").parseAttribute,Point=require("../../math/point.js"),parseJSONPoint=function(p){return new Point(p[0],p[1])};if(json&&json.src!==undefined){var src=json.src;if(!src){throw new Error('img requires a "src" property')}if(multigraph){src=multigraph.rebaseUrl(src)}img=new Img(src);parseAttribute(json.anchor,img.anchor,parseJSONPoint);parseAttribute(json.base,img.base,parseJSONPoint);parseAttribute(json.position,img.position,parseJSONPoint);parseAttribute(json.frame,img.frame,function(value){return value.toLowerCase()})}return img};module.exports=Img},{"../../core/img.js":44,"../../math/point.js":104,"../../util/parsingFunctions.js":156}],119:[function(require,module,exports){var included=false;module.exports=function($){if(included){return}included=true;require("./data.js")($);require("./graph.js")($);require("./multigraph.js")($);require("./axis.js");require("./axis_title.js");require("./background.js");require("./datatips.js");require("./data_variable.js");require("./filter.js");require("./filter_option.js");require("./grid.js");require("./icon.js");require("./img.js");require("./json_parser.js");require("./labeler.js");require("./legend.js");require("./pan.js");require("./plotarea.js");require("./plot.js");require("./plot_legend.js");require("./renderer.js");require("./title.js");require("./window.js");require("./zoom.js")}},{"./axis.js":107,"./axis_title.js":108,"./background.js":109,"./data.js":110,"./data_variable.js":111,"./datatips.js":112,"./filter.js":113,"./filter_option.js":114,"./graph.js":115,"./grid.js":116,"./icon.js":117,"./img.js":118,"./json_parser.js":119,"./labeler.js":120,"./legend.js":121,"./multigraph.js":122,"./pan.js":123,"./plot.js":124,"./plot_legend.js":125,"./plotarea.js":126,"./renderer.js":127,"./title.js":128,"./window.js":129,"./zoom.js":130}],120:[function(require,module,exports){var Labeler=require("../../core/labeler.js");Labeler.parseJSON=function(json,axis,defaults,spacing){var labeler,Point=require("../../math/point.js"),RGBColor=require("../../math/rgb_color.js"),DataMeasure=require("../../core/data_measure.js"),DataValue=require("../../core/data_value.js"),DataFormatter=require("../../core/data_formatter.js"),CategoryFormatter=require("../../core/category_formatter.js"),pF=require("../../util/parsingFunctions.js"),vF=require("../../util/validationFunctions.js"),parseJSONPoint=function(p){return new Point(p[0],p[1])};var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(!pF.parseAttribute(value,attribute,preprocessor)&&defaults!==undefined){attribute(defaults[defaultName]())}};var parseDataFormatter=function(type){return function(value){return DataFormatter.create(type,value)}};var parseDataValue=function(type){return function(value){return DataValue.parse(type,value)}};if(json){labeler=new Labeler(axis);if(spacing!==null){if(spacing===undefined){spacing=json.spacing}parseLabelerAttribute(spacing,labeler.spacing,function(v){return DataMeasure.parse(axis.type(),v)},"spacing")}if(vF.typeOf(json.format)==="array"){parseLabelerAttribute(json.format,labeler.formatter,function(format){return new CategoryFormatter(json.format)},undefined)}else{parseLabelerAttribute(json.format,labeler.formatter,parseDataFormatter(axis.type()),"formatter")}parseLabelerAttribute(json.start,labeler.start,parseDataValue(axis.type()),"start");parseLabelerAttribute(json.angle,labeler.angle,undefined,"angle");parseLabelerAttribute(json.position,labeler.position,parseJSONPoint,"position");parseLabelerAttribute(json.anchor,labeler.anchor,parseJSONPoint,"anchor");parseLabelerAttribute(json.densityfactor,labeler.densityfactor,undefined,"densityfactor");parseLabelerAttribute(json.color,labeler.color,RGBColor.parse,"color");parseLabelerAttribute(json.font,labeler.font,undefined,"font");parseLabelerAttribute(json.visible,labeler.visible,pF.parseBoolean,"visible")}return labeler};module.exports=Labeler},{"../../core/category_formatter.js":22,"../../core/data_formatter.js":27,"../../core/data_measure.js":28,"../../core/data_value.js":30,"../../core/labeler.js":45,"../../math/point.js":104,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156,"../../util/validationFunctions.js":158}],121:[function(require,module,exports){var Legend=require("../../core/legend.js");Legend.parseJSON=function(json){var legend=new Legend,pF=require("../../util/parsingFunctions.js"),Point=require("../../math/point.js"),RGBColor=require("../../math/rgb_color.js"),Point=require("../../math/point.js"),Icon=require("../../core/icon.js"),parseAttribute=pF.parseAttribute,parseJSONPoint=function(p){return new Point(p[0],p[1])};require("./icon.js");if(typeof json==="boolean"){parseAttribute(json,legend.visible)}else if(json){parseAttribute(json.visible,legend.visible,pF.parseBoolean);parseAttribute(json.base,legend.base,parseJSONPoint);parseAttribute(json.anchor,legend.anchor,parseJSONPoint);parseAttribute(json.position,legend.position,parseJSONPoint);parseAttribute(json.frame,legend.frame);parseAttribute(json.color,legend.color,RGBColor.parse);parseAttribute(json.bordercolor,legend.bordercolor,RGBColor.parse);parseAttribute(json.opacity,legend.opacity);parseAttribute(json.border,legend.border);parseAttribute(json.rows,legend.rows);parseAttribute(json.columns,legend.columns);parseAttribute(json.cornerradius,legend.cornerradius);parseAttribute(json.padding,legend.padding);if(json.icon){legend.icon(Icon.parseJSON(json.icon))}}return legend};module.exports=Legend},{"../../core/icon.js":43,"../../core/legend.js":46,"../../math/point.js":104,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156,"./icon.js":117}],122:[function(require,module,exports){module.exports=function($){var Multigraph=require("../../core/multigraph.js")($);if(typeof Multigraph.parseJSON==="function"){return Multigraph}Multigraph.parseJSON=function(json,mugl,messageHandler){var multigraph=new Multigraph,graphs=multigraph.graphs(),Graph=require("../../core/graph.js"),vF=require("../../util/validationFunctions.js");require("./graph.js")($);multigraph.mugl(mugl);if(json){if(vF.typeOf(json)==="array"){json.forEach(function(graph){graphs.add(Graph.parseJSON(graph,multigraph,messageHandler))})}else{graphs.add(Graph.parseJSON(json,multigraph,messageHandler))}}return multigraph};return Multigraph}},{"../../core/graph.js":41,"../../core/multigraph.js":48,"../../util/validationFunctions.js":158,"./graph.js":115}],123:[function(require,module,exports){var Pan=require("../../core/pan.js");Pan.parseJSON=function(json,type){var pan=new Pan,pF=require("../../util/parsingFunctions.js"),vF=require("../../util/validationFunctions.js"),parseAttribute=pF.parseAttribute,parseBoolean=pF.parseBoolean,DataValue=require("../../core/data_value.js"),parseDataValue=function(v){return DataValue.parse(type,v)};if(vF.typeOf(json)==="boolean"){parseAttribute(json,pan.allowed,parseBoolean)}else if(json){parseAttribute(json.allowed,pan.allowed,parseBoolean);parseAttribute(json.min,pan.min,parseDataValue);parseAttribute(json.max,pan.max,parseDataValue)}return pan};module.exports=Pan},{"../../core/data_value.js":30,"../../core/pan.js":52,"../../util/parsingFunctions.js":156,"../../util/validationFunctions.js":158}],124:[function(require,module,exports){var Plot=require("../../core/plot.js");Plot.parseJSON=function(json,graph,messageHandler){var DataPlot=require("../../core/data_plot.js"),PlotLegend=require("../../core/plot_legend.js"),ConstantPlot=require("../../core/constant_plot.js"),DataValue=require("../../core/data_value.js"),DateTimeValue=require("../../core/datetime_value.js"),Renderer=require("../../core/renderer.js"),Filter=require("../../core/filter.js"),ConsecutiveDistanceFilter=require("../../core/consecutive_distance_filter.js"),Datatips=require("../../core/datatips.js"),pF=require("../../util/parsingFunctions.js"),vF=require("../../util/validationFunctions.js"),plot,haxis,vaxis,variable,attr;
 require("./plot_legend.js");require("./renderer.js");require("./filter.js");require("./datatips.js");function key(obj){return Object.keys(obj)[0]}function keyCount(obj){return Object.keys(obj).length}function looks_like_data_value(v){if(vF.typeOf(v)==="number"){return true}else if(vF.typeOf(v)==="string"){if(!isNaN(v)){return true}else{try{DatetimeValue.parse(v)}catch(e){return false}return true}}else{return false}}if(json){var vars={horizontal:[],vertical:[]};var axisid={horizontal:undefined,vertical:undefined};var constant_value=undefined;if(json.verticalaxis){if(vF.typeOf(json.verticalaxis)==="array"){vars.vertical=json.verticalaxis}else if(vF.typeOf(json.verticalaxis)==="number"){constant_value=DataValue.parse(DataValue.NUMBER,json.verticalaxis)}else if(vF.typeOf(json.verticalaxis)==="string"){if(looks_like_data_value(json.verticalaxis)){constant_value=DataValue.parse(DataValue.DATETIME,json.verticalaxis)}else{axisid.vertical=json.verticalaxis;vaxis=graph.axisById(axisid.vertical);if(typeof vaxis==="undefined"){throw new Error("plot refers to unknown vertical axis id: "+axisid.vertical)}}}else if(vF.typeOf(json.verticalaxis)==="object"){if(keyCount(json.verticalaxis)!==1){throw new Error("plot.verticalaxis object must contain exactly one key/value pair")}axisid.vertical=key(json.verticalaxis);vaxis=graph.axisById(axisid.vertical);if(typeof vaxis==="undefined"){throw new Error("plot refers to unknown vertical axis id: "+axisid.vertical)}if(vF.typeOf(json.verticalaxis[axisid.vertical])!=="undefined"){if(vF.typeOf(json.verticalaxis[axisid.vertical])==="array"){vars.vertical=json.verticalaxis[axisid.vertical]}else{if(vF.typeOf(json.verticalaxis[axisid.vertical])==="number"){if(vaxis.type()!==DataValue.NUMBER){throw new Error("constant value of '"+json.verticalaxis[axisid.vertical]+"' not appropriate for axis of type '"+vaxis.type()+"'")}constant_value=DataValue.parse(DataValue.NUMBER,json.verticalaxis[axisid.vertical])}else{if(vF.typeOf(json.verticalaxis[axisid.vertical])!=="string"){throw new Error("value for key '"+axisid.vertical+"' for verticalaxis is of wrong type")}if(looks_like_data_value(json.verticalaxis[axisid.vertical])){constant_value=DataValue.parse(vaxis.type(),json.verticalaxis[axisid.vertical])}else{vars.vertical=[json.verticalaxis[axisid.vertical]]}}}}}}if(constant_value!==undefined){plot=new ConstantPlot(constant_value)}else{plot=new DataPlot}plot.verticalaxis(vaxis);if(json.horizontalaxis){if(vF.typeOf(json.horizontalaxis)==="array"){vars.horizontal=json.horizontalaxis}else if(vF.typeOf(json.horizontalaxis)==="string"){axisid.horizontal=json.horizontalaxis;haxis=graph.axisById(axisid.horizontal);if(haxis!==undefined){plot.horizontalaxis(haxis)}else{throw new Error("Plot Horizontal Axis Error: The graph does not contain an axis with an id of '"+axisid.horizontal+"'")}}else if(vF.typeOf(json.horizontalaxis)==="object"){if(keyCount(json.horizontalaxis)!==1){throw new Error("plot.horizontalaxis object must contain exactly one key/value pair")}axisid.horizontal=key(json.horizontalaxis);haxis=graph.axisById(axisid.horizontal);if(haxis!==undefined){plot.horizontalaxis(haxis)}else{throw new Error("Plot Horizontal Axis Error: The graph does not contain an axis with an id of '"+axisid.horizontal+"'")}if(vF.typeOf(json.horizontalaxis[axisid.horizontal])!=="undefined"){if(vF.typeOf(json.horizontalaxis[axisid.horizontal])==="array"){vars.horizontal=json.horizontalaxis[axisid.horizontal]}else{if(vF.typeOf(json.horizontalaxis[axisid.horizontal])!=="string"){throw new Error("value for key '"+axisid.horizontal+"' for horizontalaxis is of wrong type")}vars.horizontal=[json.horizontalaxis[axisid.horizontal]]}}}}if(plot instanceof DataPlot){if(vars.horizontal.length==0){plot.variable().add(null)}if(graph){var allvars=[].concat(vars.horizontal,vars.vertical);allvars.forEach(function(vid){variable=graph.variableById(vid);if(variable!==undefined){plot.data(variable.data());plot.variable().add(variable)}else{throw new Error("Plot Variable Error: No Data tag contains a variable with an id of '"+vid+"'")}})}}if("legend"in json){plot.legend(PlotLegend.parseJSON(json.legend,plot))}else{plot.legend(PlotLegend.parseJSON(undefined,plot))}if("renderer"in json&&("style"in json||"options"in json)){throw new Error("plot may not contain both 'renderer' and 'style', or 'renderer' and 'options'")}if(json.visible!==undefined){plot.visible(json.visible)}if("renderer"in json){plot.renderer(Renderer.parseJSON(json.renderer,plot,messageHandler))}else if("style"in json){plot.renderer(Renderer.parseJSON({type:json.style,options:json.options},plot,messageHandler))}else if("options"in json){plot.renderer(Renderer.parseJSON({type:"line",options:json.options},plot,messageHandler))}if("filter"in json){if(vF.typeOf(json.filter)==="object"){if(typeof json.filter.type!=="undefined"&&json.filter.type!=="consecutivedistance"){throw new Error("unknown filter type: "+json.filter.type)}plot.renderer().filter(new ConsecutiveDistanceFilter(json.filter))}else if(vF.typeOf(json.filter)==="boolean"){if(json.filter){if(graph&&graph.filter()){plot.renderer().filter(graph.filter())}else{plot.renderer().filter(new ConsecutiveDistanceFilter({}))}}}else{throw new Error("invalid filter property: "+json.filter)}}else if(graph&&graph.filter()){plot.renderer().filter(graph.filter())}if("datatips"in json){plot.datatips(Datatips.parseJSON(json.datatips))}}return plot};module.exports=Plot},{"../../core/consecutive_distance_filter.js":23,"../../core/constant_plot.js":24,"../../core/data_plot.js":29,"../../core/data_value.js":30,"../../core/datatips.js":32,"../../core/datetime_value.js":37,"../../core/filter.js":39,"../../core/plot.js":54,"../../core/plot_legend.js":55,"../../core/renderer.js":57,"../../util/parsingFunctions.js":156,"../../util/validationFunctions.js":158,"./datatips.js":112,"./filter.js":113,"./plot_legend.js":125,"./renderer.js":127}],125:[function(require,module,exports){var PlotLegend=require("../../core/plot_legend.js");PlotLegend.parseJSON=function(json,plot){var legend=new PlotLegend,pF=require("../../util/parsingFunctions.js"),Text=require("../../core/text.js"),parseAttribute=pF.parseAttribute,child;if(typeof json==="boolean"){legend.visible(json)}else{if(json){parseAttribute(json.visible,legend.visible,pF.parseBoolean);parseAttribute(json.label,legend.label,function(value){return new Text(value)})}}if(legend.label()===undefined){if(typeof plot.variable==="function"&&plot.variable().size()>=2){legend.label(new Text(plot.variable().at(1).id()))}else{legend.label(new Text("plot"))}}return legend};module.exports=PlotLegend},{"../../core/plot_legend.js":55,"../../core/text.js":64,"../../util/parsingFunctions.js":156}],126:[function(require,module,exports){var Plotarea=require("../../core/plotarea.js");Plotarea.parseJSON=function(json){var plotarea=new Plotarea,margin=plotarea.margin(),pF=require("../../util/parsingFunctions.js"),RGBColor=require("../../math/rgb_color.js"),parseRGBColor=RGBColor.parse,parseAttribute=pF.parseAttribute,parseInteger=pF.parseInteger;if(json){parseAttribute(json.marginbottom,margin.bottom);parseAttribute(json.marginleft,margin.left);parseAttribute(json.margintop,margin.top);parseAttribute(json.marginright,margin.right);parseAttribute(json.border,plotarea.border);parseAttribute(json.color,plotarea.color,parseRGBColor);parseAttribute(json.bordercolor,plotarea.bordercolor,parseRGBColor)}return plotarea};module.exports=Plotarea},{"../../core/plotarea.js":56,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156}],127:[function(require,module,exports){var Renderer=require("../../core/renderer.js");Renderer.parseJSON=function(json,plot,messageHandler){var DataValue=require("../../core/data_value.js"),NumberValue=require("../../core/number_value.js"),Warning=require("../../core/warning.js"),pF=require("../../util/parsingFunctions.js"),vF=require("../../util/validationFunctions.js"),rendererType,renderer,opt;require("../../core/renderers/all_renderers.js");function setOption(name,value,min,max){try{renderer.setOptionFromString(name,value,min,max)}catch(e){if(e instanceof Warning){messageHandler.warning(e)}else{throw e}}}if(json&&json.type!==undefined){rendererType=Renderer.Type.parse(json.type);if(!Renderer.Type.isInstance(rendererType)){throw new Error("unknown renderer type '"+json.type+"'")}renderer=Renderer.create(rendererType);renderer.plot(plot);if(json.options){for(opt in json.options){if(json.options.hasOwnProperty(opt)){if(vF.typeOf(json.options[opt])==="array"){json.options[opt].forEach(function(subopt){setOption(opt,subopt.value,subopt.min,subopt.max)})}else{setOption(opt,json.options[opt])}}}}}return renderer};module.exports=Renderer},{"../../core/data_value.js":30,"../../core/number_value.js":51,"../../core/renderer.js":57,"../../core/renderers/all_renderers.js":58,"../../core/warning.js":66,"../../util/parsingFunctions.js":156,"../../util/validationFunctions.js":158}],128:[function(require,module,exports){var Title=require("../../core/title.js");Title.parseJSON=function(json,graph){var Point=require("../../math/point.js"),RGBColor=require("../../math/rgb_color.js"),Text=require("../../core/text.js"),pF=require("../../util/parsingFunctions.js"),parseJSONPoint=function(p){return new Point(p[0],p[1])},parseRGBColor=RGBColor.parse,parseAttribute=pF.parseAttribute,title;if(json){var text=json.text;if(text!==""){title=new Title(new Text(text),graph)}else{return undefined}parseAttribute(json.frame,title.frame,function(value){return value.toLowerCase()});parseAttribute(json.border,title.border);parseAttribute(json.color,title.color,parseRGBColor);parseAttribute(json.bordercolor,title.bordercolor,parseRGBColor);parseAttribute(json.opacity,title.opacity);parseAttribute(json.padding,title.padding);parseAttribute(json.cornerradius,title.cornerradius);parseAttribute(json.anchor,title.anchor,parseJSONPoint);parseAttribute(json.base,title.base,parseJSONPoint);parseAttribute(json.position,title.position,parseJSONPoint)}return title};module.exports=Title},{"../../core/text.js":64,"../../core/title.js":65,"../../math/point.js":104,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156}],129:[function(require,module,exports){var Window=require("../../core/window.js");Window.parseJSON=function(json){var w=new Window,RGBColor=require("../../math/rgb_color.js"),pF=require("../../util/parsingFunctions.js"),parseAttribute=pF.parseAttribute,parseInteger=pF.parseInteger,attr;if(json){parseAttribute(json.width,w.width);parseAttribute(json.height,w.height);parseAttribute(json.border,w.border);attr=json.margin;if(attr!==undefined){w.margin().set(attr,attr,attr,attr)}attr=json.padding;if(attr!==undefined){w.padding().set(attr,attr,attr,attr)}parseAttribute(json.bordercolor,w.bordercolor,RGBColor.parse)}return w};module.exports=Window},{"../../core/window.js":70,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156}],130:[function(require,module,exports){var Zoom=require("../../core/zoom.js");Zoom.parseJSON=function(json,type){var zoom=new Zoom,DataValue=require("../../core/data_value.js"),DataMeasure=require("../../core/data_measure.js"),pF=require("../../util/parsingFunctions.js"),vF=require("../../util/validationFunctions.js"),parseAttribute=pF.parseAttribute,parseBoolean=pF.parseBoolean,parseDataMeasure=function(v){return DataMeasure.parse(type,v)},attr;if(vF.typeOf(json)==="boolean"){parseAttribute(json,zoom.allowed,parseBoolean)}else if(json){parseAttribute(json.allowed,zoom.allowed,parseBoolean);parseAttribute(json.min,zoom.min,parseDataMeasure);parseAttribute(json.max,zoom.max,parseDataMeasure);attr=json.anchor;if(attr!==undefined){if(typeof attr==="string"&&attr.toLowerCase()==="none"){zoom.anchor(null)}else{zoom.anchor(DataValue.parse(type,attr))}}}return zoom};module.exports=Zoom},{"../../core/data_measure.js":28,"../../core/data_value.js":30,"../../core/zoom.js":71,"../../util/parsingFunctions.js":156,"../../util/validationFunctions.js":158}],131:[function(require,module,exports){module.exports=function($){var Axis=require("../../core/axis.js"),pF=require("../../util/parsingFunctions.js");if(typeof Axis.parseXML==="function"){return Axis}var parseLabels=function(xml,axis){var spacingStrings=[],spacingString,labelsTag=xml.find("labels"),labelTags=xml.find("label"),labelers=axis.labelers(),Labeler=require("../../core/labeler.js"),DataValue=require("../../core/data_value.js"),utilityFunctions=require("../../util/utilityFunctions.js"),i;spacingString=$.trim(pF.getXMLAttr(labelsTag,"spacing"));if(spacingString!==""){spacingStrings=spacingString.split(/\s+/)}if(spacingStrings.length>0){for(i=0;i<spacingStrings.length;++i){labelers.add(Labeler.parseXML(labelsTag,axis,undefined,spacingStrings[i]))}}else if(labelTags.length>0){var defaults=Labeler.parseXML(labelsTag,axis,undefined,null);$.each(labelTags,function(j,e){spacingString=$.trim(pF.getXMLAttr($(e),"spacing"));spacingStrings=[];if(spacingString!==""){spacingStrings=spacingString.split(/\s+/)}for(i=0;i<spacingStrings.length;++i){labelers.add(Labeler.parseXML($(e),axis,defaults,spacingStrings[i]))}})}else{var defaultValues=utilityFunctions.getDefaultValuesFromXSD().horizontalaxis.labels;var defaultSpacings=axis.type()===DataValue.NUMBER?defaultValues.defaultNumberSpacing:defaultValues.defaultDatetimeSpacing;for(i=0;i<defaultSpacings.length;++i){labelers.add(Labeler.parseXML(labelsTag,axis,undefined,defaultSpacings[i]))}}};Axis.parseXML=function(xml,orientation,messageHandler,multigraph){var DataValue=require("../../core/data_value.js"),Point=require("../../math/point.js"),RGBColor=require("../../math/rgb_color.js"),Displacement=require("../../math/displacement.js"),AxisTitle=require("../../core/axis_title.js"),Grid=require("../../core/grid.js"),Pan=require("../../core/pan.js"),Zoom=require("../../core/zoom.js"),AxisBinding=require("../../core/axis_binding.js"),axis=new Axis(orientation),parseAttribute=pF.parseAttribute,parseInteger=pF.parseInteger,parseDisplacement=Displacement.parse,parsePoint=Point.parse,parseRGBColor=RGBColor.parse,attr,child,value;if(xml){parseAttribute(pF.getXMLAttr(xml,"id"),axis.id);parseAttribute(pF.getXMLAttr(xml,"type"),axis.type,DataValue.parseType);parseAttribute(pF.getXMLAttr(xml,"length"),axis.length,parseDisplacement);(function(){var positionbase=pF.getXMLAttr(xml,"positionbase");if(positionbase){messageHandler.warning('Use of deprecated axis attribute "positionbase"; use "base" attribute instead');if(positionbase==="left"||positionbase==="bottom"){axis.base(parsePoint("-1 -1"))}else if(positionbase==="right"){axis.base(parsePoint("1 -1"))}else if(positionbase==="top"){axis.base(parsePoint("-1 1"))}}})();attr=pF.getXMLAttr(xml,"position");if(attr!==undefined){try{axis.position(parsePoint(attr))}catch(e){value=parseInt(attr,10);if(value!==value){throw e}if(orientation===Axis.HORIZONTAL){axis.position(new Point(0,value))}else{axis.position(new Point(value,0))}}}axis.min(pF.getXMLAttr(xml,"min"));if(axis.min()!=="auto"){axis.dataMin(DataValue.parse(axis.type(),axis.min()))}axis.max(pF.getXMLAttr(xml,"max"));if(axis.max()!=="auto"){axis.dataMax(DataValue.parse(axis.type(),axis.max()))}parseAttribute(pF.getXMLAttr(xml,"pregap"),axis.pregap,parseFloat);parseAttribute(pF.getXMLAttr(xml,"postgap"),axis.postgap,parseFloat);parseAttribute(pF.getXMLAttr(xml,"anchor"),axis.anchor,parseFloat);parseAttribute(pF.getXMLAttr(xml,"base"),axis.base,parsePoint);parseAttribute(pF.getXMLAttr(xml,"minposition"),axis.minposition,parseDisplacement);parseAttribute(pF.getXMLAttr(xml,"maxposition"),axis.maxposition,parseDisplacement);parseAttribute(pF.getXMLAttr(xml,"minoffset"),axis.minoffset,parseFloat);parseAttribute(pF.getXMLAttr(xml,"maxoffset"),axis.maxoffset,parseFloat);parseAttribute(pF.getXMLAttr(xml,"color"),axis.color,parseRGBColor);parseAttribute(pF.getXMLAttr(xml,"tickcolor"),axis.tickcolor,parseRGBColor);parseAttribute(pF.getXMLAttr(xml,"tickwidth"),axis.tickwidth,parseInteger);parseAttribute(pF.getXMLAttr(xml,"tickmin"),axis.tickmin,parseInteger);parseAttribute(pF.getXMLAttr(xml,"tickmax"),axis.tickmax,parseInteger);parseAttribute(pF.getXMLAttr(xml,"highlightstyle"),axis.highlightstyle);parseAttribute(pF.getXMLAttr(xml,"linewidth"),axis.linewidth,parseInteger);child=xml.find("title");if(child.length>0){axis.title(AxisTitle.parseXML(child,axis))}else{axis.title(new AxisTitle(axis))}child=xml.find("grid");if(child.length>0){axis.grid(Grid.parseXML(child))}child=xml.find("pan");if(child.length>0){axis.pan(Pan.parseXML(child,axis.type()))}child=xml.find("zoom");if(child.length>0){axis.zoom(Zoom.parseXML(child,axis.type()))}if(xml.find("labels").length>0){parseLabels(xml,axis)}child=xml.find("binding");if(child.length>0){var bindingIdAttr=pF.getXMLAttr(child,"id"),bindingMinAttr=pF.getXMLAttr(child,"min"),bindingMaxAttr=pF.getXMLAttr(child,"max"),bindingMinDataValue=DataValue.parse(axis.type(),bindingMinAttr),bindingMaxDataValue=DataValue.parse(axis.type(),bindingMaxAttr);if(typeof bindingIdAttr!=="string"||bindingIdAttr.length<=0){throw new Error("invalid axis binding id: '"+bindingIdAttr+"'")}if(!DataValue.isInstance(bindingMinDataValue)){throw new Error("invalid axis binding min: '"+bindingMinAttr+"'")}if(!DataValue.isInstance(bindingMaxDataValue)){throw new Error("invalid axis binding max: '"+bindingMaxAttr+"'")}AxisBinding.findByIdOrCreateNew(bindingIdAttr).addAxis(axis,bindingMinDataValue,bindingMaxDataValue,multigraph)}}return axis};return Axis}},{"../../core/axis.js":18,"../../core/axis_binding.js":19,"../../core/axis_title.js":20,"../../core/data_value.js":30,"../../core/grid.js":42,"../../core/labeler.js":45,"../../core/pan.js":52,"../../core/zoom.js":71,"../../math/displacement.js":101,"../../math/point.js":104,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156,"../../util/utilityFunctions.js":157}],132:[function(require,module,exports){var AxisTitle=require("../../core/axis_title.js");AxisTitle.parseXML=function(xml,axis){var title=new AxisTitle(axis),Text=require("../../core/text.js"),Point=require("../../math/point.js"),pF=require("../../util/parsingFunctions.js"),nonEmptyTitle=false,parsePoint=Point.parse,text,parseTitleAttribute=function(value,attribute,preprocessor){if(pF.parseAttribute(value,attribute,preprocessor)){}};if(xml){text=xml.text();if(text!==""){title.content(new Text(text));nonEmptyTitle=true}parseTitleAttribute(pF.getXMLAttr(xml,"anchor"),title.anchor,parsePoint);parseTitleAttribute(pF.getXMLAttr(xml,"base"),title.base,parseFloat);parseTitleAttribute(pF.getXMLAttr(xml,"position"),title.position,parsePoint);parseTitleAttribute(pF.getXMLAttr(xml,"angle"),title.angle,parseFloat)}if(nonEmptyTitle===true){return title}return undefined};module.exports=AxisTitle},{"../../core/axis_title.js":20,"../../core/text.js":64,"../../math/point.js":104,"../../util/parsingFunctions.js":156}],133:[function(require,module,exports){var Background=require("../../core/background.js");Background.parseXML=function(xml,multigraph){var background=new Background,pF=require("../../util/parsingFunctions.js"),RGBColor=require("../../math/rgb_color.js"),Img=require("../../core/img.js"),child;if(xml){pF.parseAttribute(pF.getXMLAttr(xml,"color"),background.color,RGBColor.parse);child=xml.find("img");if(child.length>0){background.img(Img.parseXML(child,multigraph))}}return background};module.exports=Background},{"../../core/background.js":21,"../../core/img.js":44,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156}],134:[function(require,module,exports){module.exports=function($){var Data=require("../../core/data.js");if(typeof Data.parseXML==="function"){return Data}Data.parseXML=function(xml,multigraph,messageHandler){var ArrayData=require("../../core/array_data.js"),DataVariable=require("../../core/data_variable.js"),DataMeasure=require("../../core/data_measure.js"),PeriodicArrayData=require("../../core/periodic_array_data.js"),CSVData=require("../../core/csv_data.js")($),WebServiceData=require("../../core/web_service_data.js")($),Multigraph=require("../../core/multigraph.js")($),pF=require("../../util/parsingFunctions.js"),variables_xml,defaultMissingvalueString,defaultMissingopString,dataVariables=[],data,adap,adapter=ArrayData;if(xml){adap=pF.getXMLAttr($(xml),"adapter");if(adap!==undefined&&adap!==""){adapter=Multigraph.getDataAdapter(adap);if(adapter===undefined){throw new Error("Missing data adapater: "+adap)}}variables_xml=xml.find("variables");defaultMissingvalueString=pF.getXMLAttr(variables_xml,"missingvalue");defaultMissingopString=pF.getXMLAttr(variables_xml,"missingop");var variables=variables_xml.find(">variable");if(variables.length>0){$.each(variables,function(i,e){dataVariables.push(DataVariable.parseXML($(e)))})}var haveRepeat=false,period,repeat_xml=$(xml.find(">repeat"));if(repeat_xml.length>0){var periodString=pF.getXMLAttr($(repeat_xml),"period");if(periodString===undefined||periodString===""){messageHandler.warning("<repeat> tag requires a 'period' attribute; data treated as non-repeating")}else{period=DataMeasure.parse(dataVariables[0].type(),periodString);haveRepeat=true}}var values_xml=$(xml.find(">values"));if(values_xml.length>0){values_xml=values_xml[0];var stringValues=adapter.textToStringArray(dataVariables,$(values_xml).text());if(haveRepeat){data=new PeriodicArrayData(dataVariables,stringValues,period)}else{data=new ArrayData(dataVariables,stringValues)}}var csv_xml=$(xml.find(">csv"));if(csv_xml.length>0){csv_xml=csv_xml[0];var filename=pF.getXMLAttr($(csv_xml),"location");data=new CSVData(dataVariables,multigraph?multigraph.rebaseUrl(filename):filename,messageHandler,multigraph?multigraph.getAjaxThrottle(filename):undefined)}var service_xml=$(xml.find(">service"));if(service_xml.length>0){service_xml=$(service_xml[0]);var location=pF.getXMLAttr(service_xml,"location");data=new WebServiceData(dataVariables,multigraph?multigraph.rebaseUrl(location):location,messageHandler,multigraph?multigraph.getAjaxThrottle(location):undefined);var format=pF.getXMLAttr(service_xml,"format");if(format){data.format(format)}}}if(data){if(defaultMissingvalueString!==undefined){data.defaultMissingvalue(defaultMissingvalueString)}if(defaultMissingopString!==undefined){data.defaultMissingop(defaultMissingopString)}data.adapter(adapter)}return data};return Data}},{"../../core/array_data.js":17,"../../core/csv_data.js":25,"../../core/data.js":26,"../../core/data_measure.js":28,"../../core/data_variable.js":31,"../../core/multigraph.js":48,"../../core/periodic_array_data.js":53,"../../core/web_service_data.js":67,"../../util/parsingFunctions.js":156}],135:[function(require,module,exports){var DataVariable=require("../../core/data_variable.js");DataVariable.parseXML=function(xml,data){var variable,pF=require("../../util/parsingFunctions.js"),parseAttribute=pF.parseAttribute,DataValue=require("../../core/data_value.js"),attr;if(xml&&pF.getXMLAttr(xml,"id")){variable=new DataVariable(pF.getXMLAttr(xml,"id"));parseAttribute(pF.getXMLAttr(xml,"column"),variable.column,pF.parseInteger);parseAttribute(pF.getXMLAttr(xml,"type"),variable.type,DataValue.parseType);parseAttribute(pF.getXMLAttr(xml,"missingvalue"),variable.missingvalue,function(v){return DataValue.parse(variable.type(),v)});parseAttribute(pF.getXMLAttr(xml,"missingop"),variable.missingop,DataValue.parseComparator)}return variable};module.exports=DataVariable},{"../../core/data_value.js":30,"../../core/data_variable.js":31,"../../util/parsingFunctions.js":156}],136:[function(require,module,exports){module.exports=function($){var Datatips=require("../../core/datatips.js");if(typeof Datatips.parseXML==="function"){return Datatips}Datatips.parseXML=function(xml){var datatips=new Datatips,RGBColor=require("../../math/rgb_color.js"),DatatipsVariable=require("../../core/datatips_variable.js"),pF=require("../../util/parsingFunctions.js"),parseRGBColor=RGBColor.parse,parseAttribute=pF.parseAttribute,parseInteger=pF.parseInteger,child;if(xml){child=xml.find("variable");if(child.length>0){$.each(child,function(i,e){datatips.variables().add(DatatipsVariable.parseXML($(e)))})}parseAttribute(pF.getXMLAttr(xml,"format"),datatips.formatString);parseAttribute(pF.getXMLAttr(xml,"bgcolor"),datatips.bgcolor,parseRGBColor);parseAttribute(pF.getXMLAttr(xml,"bgalpha"),datatips.bgalpha,parseFloat);parseAttribute(pF.getXMLAttr(xml,"border"),datatips.border,parseInteger);parseAttribute(pF.getXMLAttr(xml,"bordercolor"),datatips.bordercolor,parseRGBColor);parseAttribute(pF.getXMLAttr(xml,"pad"),datatips.pad,parseInteger)}return datatips};return Datatips}},{"../../core/datatips.js":32,"../../core/datatips_variable.js":33,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156}],137:[function(require,module,exports){var DatatipsVariable=require("../../core/datatips_variable.js");DatatipsVariable.parseXML=function(xml){var variable=new DatatipsVariable,pF=require("../../util/parsingFunctions.js");if(xml){pF.parseAttribute(pF.getXMLAttr(xml,"format"),variable.formatString)}return variable};module.exports=DatatipsVariable},{"../../core/datatips_variable.js":33,"../../util/parsingFunctions.js":156}],138:[function(require,module,exports){module.exports=function($){var Filter=require("../../core/filter.js");if(typeof Filter.parseXML==="function"){return Filter}Filter.parseXML=function(xml){var filter=new Filter,FilterOption=require("../../core/filter_option.js"),pF=require("../../util/parsingFunctions.js"),child;if(xml){child=xml.find("option");if(child.length>0){$.each(child,function(i,e){filter.options().add(FilterOption.parseXML($(e)))})}pF.parseAttribute(pF.getXMLAttr(xml,"type"),filter.type)}return filter};return Filter}},{"../../core/filter.js":39,"../../core/filter_option.js":40,"../../util/parsingFunctions.js":156}],139:[function(require,module,exports){var FilterOption=require("../../core/filter_option.js");FilterOption.parseXML=function(xml){var pF=require("../../util/parsingFunctions.js"),option=new FilterOption;if(xml){option.name(pF.getXMLAttr(xml,"name"));option.value(pF.getXMLAttr(xml,"value")===""?undefined:pF.getXMLAttr(xml,"value"))}return option};module.exports=FilterOption},{"../../core/filter_option.js":40,"../../util/parsingFunctions.js":156}],140:[function(require,module,exports){module.exports=function($){var Graph=require("../../core/graph.js"),pF=require("../../util/parsingFunctions.js");if(typeof Graph.parseXML==="function"){return Graph}var checkDeprecatedColorNames=function(xml,messageHandler){var RGBColor=require("../../math/rgb_color.js"),$xml=$(xml),attributes=$xml[0].attributes,children=$xml.children(),colorNameIsDeprecated=RGBColor.colorNameIsDeprecated,dep;if(xml.nodeName==="option"){if(/color/.test(pF.getXMLAttr($xml,"name"))){dep=colorNameIsDeprecated(pF.getXMLAttr($xml,"value"));if(dep){messageHandler.warning('Warning: color string "'+pF.getXMLAttr($xml,"value")+'" is deprecated; use "'+dep+'" instead')}}}if(attributes){$.each(attributes,function(){if(/color/.test(this.name)){dep=colorNameIsDeprecated(this.value);if(dep){messageHandler.warning('Warning: color string "'+this.value+'" is deprecated; use "'+dep+'" instead')}}})}if(children){children.each(function(){checkDeprecatedColorNames(this,messageHandler)})}};Graph.parseXML=function(xml,multigraph,messageHandler){var graph=new Graph,Axis=require("../../core/axis.js"),Window=require("../../core/window.js"),Legend=require("../../core/legend.js"),Background=require("../../core/background.js"),Plotarea=require("../../core/plotarea.js"),Title=require("../../core/title.js"),Data=require("../../core/data.js"),Plot=require("../../core/plot.js"),utilityFunctions=require("../../util/utilityFunctions.js"),defaults=utilityFunctions.getDefaultValuesFromXSD(),child;graph.multigraph(multigraph);if(xml){try{checkDeprecatedColorNames(xml,messageHandler)}catch(e){}child=xml.find(">window");if(child.length>0){graph.window(Window.parseXML(child))}child=xml.find(">legend");if(child.length>0){graph.legend(Legend.parseXML(child))}else{graph.legend(Legend.parseXML())}child=xml.find(">background");if(child.length>0){graph.background(Background.parseXML(child,graph.multigraph()))}child=xml.find(">plotarea");if(child.length>0){graph.plotarea(Plotarea.parseXML(child))}child=xml.find(">title");if(child.length>0){graph.title(Title.parseXML(child,graph))}$.each(xml.find(">horizontalaxis"),function(i,e){graph.axes().add(Axis.parseXML($(e),Axis.HORIZONTAL,messageHandler,graph.multigraph()))});$.each(xml.find(">verticalaxis"),function(i,e){graph.axes().add(Axis.parseXML($(e),Axis.VERTICAL,messageHandler,graph.multigraph()))});$.each(xml.find(">throttle"),function(i,e){var pattern=pF.getXMLAttr($(e),"pattern")?pF.getXMLAttr($(e),"pattern"):defaults.throttle.pattern,requests=pF.getXMLAttr($(e),"requests")?pF.getXMLAttr($(e),"requests"):defaults.throttle.requests,period=pF.getXMLAttr($(e),"period")?pF.getXMLAttr($(e),"period"):defaults.throttle.period,concurrent=pF.getXMLAttr($(e),"concurrent")?pF.getXMLAttr($(e),"concurrent"):defaults.throttle.concurrent;multigraph.addAjaxThrottle(pattern,requests,period,concurrent)});$.each(xml.find(">data"),function(i,e){graph.data().add(Data.parseXML($(e),graph.multigraph(),messageHandler))});$.each(xml.find(">plot"),function(i,e){graph.plots().add(Plot.parseXML($(e),graph,messageHandler))});graph.postParse()}return graph};return Graph}},{"../../core/axis.js":18,"../../core/background.js":21,"../../core/data.js":26,"../../core/graph.js":41,"../../core/legend.js":46,"../../core/plot.js":54,"../../core/plotarea.js":56,"../../core/title.js":65,"../../core/window.js":70,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156,"../../util/utilityFunctions.js":157}],141:[function(require,module,exports){var Grid=require("../../core/grid.js");Grid.parseXML=function(xml){var grid=new Grid,RGBColor=require("../../math/rgb_color.js"),pF=require("../../util/parsingFunctions.js"),parseAttribute=pF.parseAttribute,attr;if(xml){parseAttribute(pF.getXMLAttr(xml,"color"),grid.color,RGBColor.parse);attr=pF.getXMLAttr(xml,"visible");if(attr!==undefined){grid.visible(pF.parseBoolean(attr))}else{grid.visible(true)}}return grid};module.exports=Grid},{"../../core/grid.js":42,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156}],142:[function(require,module,exports){var Icon=require("../../core/icon.js");Icon.parseXML=function(xml){var icon=new Icon,pF=require("../../util/parsingFunctions.js"),parseAttribute=pF.parseAttribute,parseInteger=pF.parseInteger;if(xml){parseAttribute(pF.getXMLAttr(xml,"height"),icon.height,parseInteger);parseAttribute(pF.getXMLAttr(xml,"width"),icon.width,parseInteger);parseAttribute(pF.getXMLAttr(xml,"border"),icon.border,parseInteger)}return icon};module.exports=Icon},{"../../core/icon.js":43,"../../util/parsingFunctions.js":156}],143:[function(require,module,exports){var Img=require("../../core/img.js");Img.parseXML=function(xml,multigraph){var img,pF=require("../../util/parsingFunctions.js"),Point=require("../../math/point.js"),parseAttribute=pF.parseAttribute,parsePoint=Point.parse;if(xml&&pF.getXMLAttr(xml,"src")!==undefined){var src=pF.getXMLAttr(xml,"src");if(!src){throw new Error('img elment requires a "src" attribute value')}if(multigraph){src=multigraph.rebaseUrl(src)}img=new Img(src);parseAttribute(pF.getXMLAttr(xml,"anchor"),img.anchor,parsePoint);parseAttribute(pF.getXMLAttr(xml,"base"),img.base,parsePoint);parseAttribute(pF.getXMLAttr(xml,"position"),img.position,parsePoint);parseAttribute(pF.getXMLAttr(xml,"frame"),img.frame,function(value){return value.toLowerCase()})}return img};module.exports=Img},{"../../core/img.js":44,"../../math/point.js":104,"../../util/parsingFunctions.js":156}],144:[function(require,module,exports){var JQueryXMLParser;module.exports=function($){if(typeof JQueryXMLParser!="undefined"){return JQueryXMLParser}JQueryXMLParser={};require("./axis.js")($);require("./data.js")($);require("./datatips.js")($);require("./filter.js")($);require("./graph.js")($);require("./multigraph.js")($);
 require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");require("./background.js");require("./datatips_variable.js");require("./data_variable.js");require("./filter_option.js");require("./grid.js");require("./icon.js");require("./img.js");require("./labeler.js");require("./legend.js");require("./pan.js");require("./plotarea.js");require("./plot_legend.js");require("./title.js");require("./window.js");require("./zoom.js");JQueryXMLParser.stringToJQueryXMLObj=function(thingy){if(typeof thingy!=="string"){return $(thingy)}var xml=$.parseXML(thingy);return $($(xml).children()[0])};return JQueryXMLParser}},{"./axis.js":131,"./axis_title.js":132,"./background.js":133,"./data.js":134,"./data_variable.js":135,"./datatips.js":136,"./datatips_variable.js":137,"./filter.js":138,"./filter_option.js":139,"./graph.js":140,"./grid.js":141,"./icon.js":142,"./img.js":143,"./labeler.js":145,"./legend.js":146,"./multigraph.js":147,"./pan.js":148,"./plot.js":149,"./plot_legend.js":150,"./plotarea.js":151,"./renderer.js":152,"./title.js":153,"./window.js":154,"./zoom.js":155}],145:[function(require,module,exports){var Labeler=require("../../core/labeler.js");Labeler.parseXML=function(xml,axis,defaults,spacing){var labeler,Point=require("../../math/point.js"),RGBColor=require("../../math/rgb_color.js"),DataMeasure=require("../../core/data_measure.js"),DataValue=require("../../core/data_value.js"),DataFormatter=require("../../core/data_formatter.js"),pF=require("../../util/parsingFunctions.js"),parsePoint=Point.parse;var parseLabelerAttribute=function(value,attribute,preprocessor,defaultName){if(!pF.parseAttribute(value,attribute,preprocessor)&&defaults!==undefined){attribute(defaults[defaultName]())}};var parseDataFormatter=function(type){return function(value){return DataFormatter.create(type,value)}};var parseDataValue=function(type){return function(value){return DataValue.parse(type,value)}};if(xml){labeler=new Labeler(axis);if(spacing!==null){if(spacing===undefined){spacing=pF.getXMLAttr(xml,"spacing")}parseLabelerAttribute(spacing,labeler.spacing,function(v){return DataMeasure.parse(axis.type(),v)},"spacing")}parseLabelerAttribute(pF.getXMLAttr(xml,"format"),labeler.formatter,parseDataFormatter(axis.type()),"formatter");parseLabelerAttribute(pF.getXMLAttr(xml,"start"),labeler.start,parseDataValue(axis.type()),"start");parseLabelerAttribute(pF.getXMLAttr(xml,"angle"),labeler.angle,parseFloat,"angle");parseLabelerAttribute(pF.getXMLAttr(xml,"position"),labeler.position,parsePoint,"position");parseLabelerAttribute(pF.getXMLAttr(xml,"anchor"),labeler.anchor,parsePoint,"anchor");parseLabelerAttribute(pF.getXMLAttr(xml,"densityfactor"),labeler.densityfactor,parseFloat,"densityfactor");parseLabelerAttribute(pF.getXMLAttr(xml,"color"),labeler.color,RGBColor.parse,"color");parseLabelerAttribute(pF.getXMLAttr(xml,"visible"),labeler.visible,pF.parseBoolean,"visible")}return labeler};module.exports=Labeler},{"../../core/data_formatter.js":27,"../../core/data_measure.js":28,"../../core/data_value.js":30,"../../core/labeler.js":45,"../../math/point.js":104,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156}],146:[function(require,module,exports){var Legend=require("../../core/legend.js");Legend.parseXML=function(xml){var legend=new Legend,pF=require("../../util/parsingFunctions.js"),Point=require("../../math/point.js"),RGBColor=require("../../math/rgb_color.js"),Icon=require("../../core/icon.js"),parseAttribute=pF.parseAttribute,parseInteger=pF.parseInteger,parsePoint=Point.parse,parseRGBColor=RGBColor.parse,child;if(xml){parseAttribute(pF.getXMLAttr(xml,"visible"),legend.visible,pF.parseBoolean);parseAttribute(pF.getXMLAttr(xml,"base"),legend.base,parsePoint);parseAttribute(pF.getXMLAttr(xml,"anchor"),legend.anchor,parsePoint);parseAttribute(pF.getXMLAttr(xml,"position"),legend.position,parsePoint);parseAttribute(pF.getXMLAttr(xml,"frame"),legend.frame);parseAttribute(pF.getXMLAttr(xml,"color"),legend.color,parseRGBColor);parseAttribute(pF.getXMLAttr(xml,"bordercolor"),legend.bordercolor,parseRGBColor);parseAttribute(pF.getXMLAttr(xml,"opacity"),legend.opacity,parseFloat);parseAttribute(pF.getXMLAttr(xml,"border"),legend.border,parseInteger);parseAttribute(pF.getXMLAttr(xml,"rows"),legend.rows,parseInteger);parseAttribute(pF.getXMLAttr(xml,"columns"),legend.columns,parseInteger);parseAttribute(pF.getXMLAttr(xml,"cornerradius"),legend.cornerradius,parseInteger);parseAttribute(pF.getXMLAttr(xml,"padding"),legend.padding,parseInteger);child=xml.find("icon");if(child.length>0){legend.icon(Icon.parseXML(child))}}return legend};module.exports=Legend},{"../../core/icon.js":43,"../../core/legend.js":46,"../../math/point.js":104,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156}],147:[function(require,module,exports){module.exports=function($){var Multigraph=require("../../core/multigraph.js")($);if(typeof Multigraph.parseXML==="function"){return Multigraph}Multigraph.parseXML=function(xml,mugl,messageHandler){var multigraph=new Multigraph,graphs=multigraph.graphs(),Graph=require("../../core/graph.js"),child;multigraph.mugl(mugl);if(xml){child=xml.find(">graph");if(child.length>0){$.each(child,function(i,e){graphs.add(Graph.parseXML($(e),multigraph,messageHandler))})}else if(child.length===0&&xml.children().length>0){graphs.add(Graph.parseXML(xml,multigraph,messageHandler))}}return multigraph};return Multigraph}},{"../../core/graph.js":41,"../../core/multigraph.js":48}],148:[function(require,module,exports){var Pan=require("../../core/pan.js");Pan.parseXML=function(xml,type){var pan=new Pan,pF=require("../../util/parsingFunctions.js"),DataValue=require("../../core/data_value.js"),parseAttribute=pF.parseAttribute,parseDataValue=function(v){return DataValue.parse(type,v)};if(xml){parseAttribute(pF.getXMLAttr(xml,"allowed"),pan.allowed,pF.parseBoolean);parseAttribute(pF.getXMLAttr(xml,"min"),pan.min,parseDataValue);parseAttribute(pF.getXMLAttr(xml,"max"),pan.max,parseDataValue)}return pan};module.exports=Pan},{"../../core/data_value.js":30,"../../core/pan.js":52,"../../util/parsingFunctions.js":156}],149:[function(require,module,exports){module.exports=function($){var Plot=require("../../core/plot.js");if(typeof Plot.parseXML==="function"){return Plot}Plot.parseXML=function(xml,graph,messageHandler){var DataPlot=require("../../core/data_plot.js"),PlotLegend=require("../../core/plot_legend.js"),ConstantPlot=require("../../core/constant_plot.js"),DataValue=require("../../core/data_value.js"),Renderer=require("../../core/renderer.js"),Filter=require("../../core/filter.js"),Datatips=require("../../core/datatips.js"),pF=require("../../util/parsingFunctions.js"),plot,haxis,vaxis,variable,attr,child;if(xml){child=xml.find(">verticalaxis");if(child.length===1&&pF.getXMLAttr(child,"ref")!==undefined){if(graph){vaxis=graph.axisById(pF.getXMLAttr(child,"ref"));if(vaxis===undefined){throw new Error("Plot Vertical Axis Error: The graph does not contain an axis with an id of '"+pF.getXMLAttr(child,"ref")+"'")}}}child=xml.find("verticalaxis constant");if(child.length>0){var constantValueString=pF.getXMLAttr(child,"value");if(constantValueString===undefined){throw new Error("Constant Plot Error: A 'value' attribute is needed to define a Constant Plot")}plot=new ConstantPlot(DataValue.parse(vaxis.type(),constantValueString))}else{plot=new DataPlot}plot.verticalaxis(vaxis);child=xml.find(">horizontalaxis");if(child.length===1&&pF.getXMLAttr(child,"ref")!==undefined){if(graph){haxis=graph.axisById(pF.getXMLAttr(child,"ref"));if(haxis!==undefined){plot.horizontalaxis(haxis)}else{throw new Error("Plot Horizontal Axis Error: The graph does not contain an axis with an id of '"+pF.getXMLAttr(child,"ref")+"'")}}}if(plot instanceof DataPlot){if(xml.find("horizontalaxis variable").length===0){plot.variable().add(null)}child=xml.find("horizontalaxis variable, verticalaxis variable");if(child.length>0){if(graph){$.each(child,function(i,e){attr=pF.getXMLAttr($(e),"ref");variable=graph.variableById(attr);if(variable!==undefined){plot.data(variable.data());plot.variable().add(variable)}else{throw new Error("Plot Variable Error: No Data tag contains a variable with an id of '"+attr+"'")}})}}}child=xml.find("legend");if(child.length>0){plot.legend(PlotLegend.parseXML(child,plot))}else{plot.legend(PlotLegend.parseXML(undefined,plot))}child=xml.find("renderer");if(child.length>0){plot.renderer(Renderer.parseXML(child,plot,messageHandler))}child=xml.find("filter");if(child.length>0){plot.filter(Filter.parseXML(child))}child=xml.find("datatips");if(child.length>0){plot.datatips(Datatips.parseXML(child))}}return plot};return Plot}},{"../../core/constant_plot.js":24,"../../core/data_plot.js":29,"../../core/data_value.js":30,"../../core/datatips.js":32,"../../core/filter.js":39,"../../core/plot.js":54,"../../core/plot_legend.js":55,"../../core/renderer.js":57,"../../util/parsingFunctions.js":156}],150:[function(require,module,exports){var PlotLegend=require("../../core/plot_legend.js");PlotLegend.parseXML=function(xml,plot){var legend=new PlotLegend,pF=require("../../util/parsingFunctions.js"),Text=require("../../core/text.js"),parseAttribute=pF.parseAttribute,child;if(xml){parseAttribute(pF.getXMLAttr(xml,"visible"),legend.visible,pF.parseBoolean);parseAttribute(pF.getXMLAttr(xml,"label"),legend.label,function(value){return new Text(value)})}if(legend.label()===undefined){if(typeof plot.variable==="function"&&plot.variable().size()>=2){legend.label(new Text(plot.variable().at(1).id()))}else{legend.label(new Text("plot"))}}return legend};module.exports=PlotLegend},{"../../core/plot_legend.js":55,"../../core/text.js":64,"../../util/parsingFunctions.js":156}],151:[function(require,module,exports){var Plotarea=require("../../core/plotarea.js");Plotarea.parseXML=function(xml){var plotarea=new Plotarea,margin=plotarea.margin(),pF=require("../../util/parsingFunctions.js"),RGBColor=require("../../math/rgb_color.js"),parseRGBColor=RGBColor.parse,parseAttribute=pF.parseAttribute,parseInteger=pF.parseInteger;if(xml){parseAttribute(pF.getXMLAttr(xml,"marginbottom"),margin.bottom,parseInteger);parseAttribute(pF.getXMLAttr(xml,"marginleft"),margin.left,parseInteger);parseAttribute(pF.getXMLAttr(xml,"margintop"),margin.top,parseInteger);parseAttribute(pF.getXMLAttr(xml,"marginright"),margin.right,parseInteger);parseAttribute(pF.getXMLAttr(xml,"border"),plotarea.border,parseInteger);parseAttribute(pF.getXMLAttr(xml,"color"),plotarea.color,parseRGBColor);parseAttribute(pF.getXMLAttr(xml,"bordercolor"),plotarea.bordercolor,parseRGBColor)}return plotarea};module.exports=Plotarea},{"../../core/plotarea.js":56,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156}],152:[function(require,module,exports){module.exports=function($){var Renderer=require("../../core/renderer.js");if(typeof Renderer.parseXML==="function"){return Renderer}Renderer.parseXML=function(xml,plot,messageHandler){var DataValue=require("../../core/data_value.js"),NumberValue=require("../../core/number_value.js"),Warning=require("../../core/warning.js"),pF=require("../../util/parsingFunctions.js"),rendererType,renderer,opt;require("../../core/renderers/all_renderers.js");if(xml&&pF.getXMLAttr(xml,"type")!==undefined){rendererType=Renderer.Type.parse(pF.getXMLAttr(xml,"type"));if(!Renderer.Type.isInstance(rendererType)){throw new Error("unknown renderer type '"+pF.getXMLAttr(xml,"type")+"'")}renderer=Renderer.create(rendererType);renderer.plot(plot);if(xml.find("option").length>0){(function(renderer,xml,plot,messageHandler){var i,missingValueOption=xml.find("option[name=missingvalue]"),missingOpOption=xml.find("option[name=missingop]");if(missingValueOption.length>0||missingOpOption.length>0){var columns=plot.data().columns(),column;for(i=0;i<columns.size();++i){column=columns.at(i);if(column.type()===DataValue.NUMBER){if(missingValueOption.length>0&&column.missingvalue()===undefined){column.missingvalue(NumberValue.parse(pF.getXMLAttr(missingValueOption,"value")))}if(missingOpOption.length>0&&column.missingop()===undefined){column.missingop(DataValue.parseComparator(pF.getXMLAttr(missingOpOption,"value")))}}}}if(missingValueOption.length>0){messageHandler.warning("Renderer option 'missingvalue' is deprecated; "+"use 'missingvalue' attribute of 'data'/'variable'; instead");missingValueOption.remove()}if(missingOpOption.length>0){messageHandler.warning("Renderer option 'missingop' is deprecated; "+"use 'missingvalue' attribute of 'data'/'variable'; instead");missingOpOption.remove()}})(renderer,xml,plot,messageHandler);$.each(xml.find(">option"),function(i,e){try{renderer.setOptionFromString(pF.getXMLAttr($(e),"name"),pF.getXMLAttr($(e),"value"),pF.getXMLAttr($(e),"min"),pF.getXMLAttr($(e),"max"))}catch(e){if(e instanceof Warning){messageHandler.warning(e)}else{throw e}}})}}return renderer};return Renderer}},{"../../core/data_value.js":30,"../../core/number_value.js":51,"../../core/renderer.js":57,"../../core/renderers/all_renderers.js":58,"../../core/warning.js":66,"../../util/parsingFunctions.js":156}],153:[function(require,module,exports){var Title=require("../../core/title.js");Title.parseXML=function(xml,graph){var Point=require("../../math/point.js"),RGBColor=require("../../math/rgb_color.js"),Text=require("../../core/text.js"),pF=require("../../util/parsingFunctions.js"),parsePoint=Point.parse,parseRGBColor=RGBColor.parse,parseAttribute=pF.parseAttribute,parseInteger=pF.parseInteger,title;if(xml){var text=xml.text();if(text!==""){title=new Title(new Text(text),graph)}else{return undefined}parseAttribute(pF.getXMLAttr(xml,"frame"),title.frame,function(value){return value.toLowerCase()});parseAttribute(pF.getXMLAttr(xml,"border"),title.border,parseInteger);parseAttribute(pF.getXMLAttr(xml,"color"),title.color,parseRGBColor);parseAttribute(pF.getXMLAttr(xml,"bordercolor"),title.bordercolor,parseRGBColor);parseAttribute(pF.getXMLAttr(xml,"opacity"),title.opacity,parseFloat);parseAttribute(pF.getXMLAttr(xml,"padding"),title.padding,parseInteger);parseAttribute(pF.getXMLAttr(xml,"cornerradius"),title.cornerradius,parseInteger);parseAttribute(pF.getXMLAttr(xml,"anchor"),title.anchor,parsePoint);parseAttribute(pF.getXMLAttr(xml,"base"),title.base,parsePoint);parseAttribute(pF.getXMLAttr(xml,"position"),title.position,parsePoint)}return title};module.exports=Title},{"../../core/text.js":64,"../../core/title.js":65,"../../math/point.js":104,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156}],154:[function(require,module,exports){var Window=require("../../core/window.js");Window.parseXML=function(xml){var w=new Window,RGBColor=require("../../math/rgb_color.js"),pF=require("../../util/parsingFunctions.js"),parseAttribute=pF.parseAttribute,parseInteger=pF.parseInteger,attr;if(xml){parseAttribute(pF.getXMLAttr(xml,"width"),w.width,parseInteger);parseAttribute(pF.getXMLAttr(xml,"height"),w.height,parseInteger);parseAttribute(pF.getXMLAttr(xml,"border"),w.border,parseInteger);attr=pF.getXMLAttr(xml,"margin");if(attr!==undefined){(function(m){w.margin().set(m,m,m,m)})(parseInt(attr,10))}attr=pF.getXMLAttr(xml,"padding");if(attr!==undefined){(function(m){w.padding().set(m,m,m,m)})(parseInt(attr,10))}parseAttribute(pF.getXMLAttr(xml,"bordercolor"),w.bordercolor,RGBColor.parse)}return w};module.exports=Window},{"../../core/window.js":70,"../../math/rgb_color.js":105,"../../util/parsingFunctions.js":156}],155:[function(require,module,exports){var Zoom=require("../../core/zoom.js");Zoom.parseXML=function(xml,type){var zoom=new Zoom,DataValue=require("../../core/data_value.js"),DataMeasure=require("../../core/data_measure.js"),pF=require("../../util/parsingFunctions.js"),parseAttribute=pF.parseAttribute,parseDataMeasure=function(v){return DataMeasure.parse(type,v)},attr;if(xml){parseAttribute(pF.getXMLAttr(xml,"allowed"),zoom.allowed,pF.parseBoolean);parseAttribute(pF.getXMLAttr(xml,"min"),zoom.min,parseDataMeasure);parseAttribute(pF.getXMLAttr(xml,"max"),zoom.max,parseDataMeasure);attr=pF.getXMLAttr(xml,"anchor");if(attr!==undefined){if(attr.toLowerCase()==="none"){zoom.anchor(null)}else{zoom.anchor(DataValue.parse(type,attr))}}}return zoom};module.exports=Zoom},{"../../core/data_measure.js":28,"../../core/data_value.js":30,"../../core/zoom.js":71,"../../util/parsingFunctions.js":156}],156:[function(require,module,exports){var ParsingFunctions={};ParsingFunctions.parseAttribute=function(value,attribute,preprocessor){if(value!==undefined){attribute(preprocessor!==undefined?preprocessor(value):value);return true}return false};ParsingFunctions.parseInteger=function(value){return parseInt(value,10)};ParsingFunctions.parseBoolean=function(param){if(typeof param==="string"){switch(param.toLowerCase()){case"true":case"yes":return true;case"false":case"no":return false;default:return param}}else{return param}};ParsingFunctions.getXMLAttr=function(node,attrname){if(node.length>=1&&node[0].hasAttribute(attrname)){return node.attr(attrname)}return undefined};module.exports=ParsingFunctions},{}],157:[function(require,module,exports){utilityFunctions={};utilityFunctions.getKeys=function(obj){var keys=[],key;for(key in obj){if(obj.hasOwnProperty(key)){keys.push(key)}}return keys};utilityFunctions.coerceToString=function(s){if(typeof s!=="undefined"){return String(s)}else{return s}};utilityFunctions.insertDefaults=function(elem,defaults,attributes){var i;for(i=0;i<attributes.length;i++){if(defaults[attributes[i]]!==undefined&&(typeof defaults[attributes[i]]!=="object"||defaults[attributes[i]]===null)){if(elem.attributes().indexOf(attributes[i])>-1){elem.attribute(attributes[i]).defaultsTo(defaults[attributes[i]])}}}return elem};utilityFunctions.getDefaultValuesFromXSD=function(){var DatetimeValue=require("../core/datetime_value.js"),NumberValue=require("../core/number_value.js"),Displacement=require("../math/displacement.js"),Insets=require("../math/insets.js"),Point=require("../math/point.js"),RGBColor=require("../math/rgb_color.js");return{window:{border:2,margin:function(){return new Insets(2,2,2,2)},padding:function(){return new Insets(5,5,5,5)},bordercolor:function(){return new RGBColor.parse("0x000000")}},legend:{icon:{height:30,width:40,border:1},visible:null,base:function(){return new Point(1,1)},anchor:function(){return new Point(1,1)},position:function(){return new Point(0,0)},frame:"plot",color:function(){return new RGBColor.parse("0xffffff")},bordercolor:function(){return new RGBColor.parse("0x000000")},opacity:1,border:1,rows:undefined,columns:undefined,cornerradius:0,padding:0},background:{img:{src:undefined,anchor:function(){return new Point(-1,-1)},base:function(){return new Point(-1,-1)},position:function(){return new Point(0,0)},frame:"padding"},color:"0xffffff"},plotarea:{margin:function(){return new Insets(10,38,35,35)},border:0,color:null,bordercolor:function(){return new RGBColor.parse("0xeeeeee")}},title:{text:undefined,frame:"padding",border:0,color:function(){return new RGBColor.parse("0xffffff")},bordercolor:function(){return new RGBColor.parse("0x000000")},opacity:1,padding:0,cornerradius:15,anchor:function(){return new Point(0,1)},base:function(){return new Point(0,1)},position:function(){return new Point(0,0)}},horizontalaxis:{title:{content:undefined,anchor:undefined,base:0,position:undefined,"position-horizontal-top":function(){return new Point(0,15)},"position-horizontal-bottom":function(){return new Point(0,-18)},"position-vertical-right":function(){return new Point(33,0)},"position-vertical-left":function(){return new Point(-25,0)},"anchor-horizontal-top":function(){return new Point(0,-1)},"anchor-horizontal-bottom":function(){return new Point(0,1)},"anchor-vertical-right":function(){return new Point(-1,0)},"anchor-vertical-left":function(){return new Point(1,0)},angle:0},labels:{label:{format:undefined,position:undefined,anchor:undefined,"position-horizontal-top":function(){return new Point(0,5)},"position-horizontal-bottom":function(){return new Point(0,-5)},"position-vertical-right":function(){return new Point(5,0)},"position-vertical-left":function(){return new Point(-8,0)},"anchor-horizontal-top":function(){return new Point(0,-1)},"anchor-horizontal-bottom":function(){return new Point(0,1)},"anchor-vertical-right":function(){return new Point(-1,0)},"anchor-vertical-left":function(){return new Point(1,0)},angle:0,spacing:undefined,densityfactor:1,color:function(){return new RGBColor.parse("0x000000")},visible:true},"start-number":function(){return new NumberValue(0)},"start-datetime":function(){return new DatetimeValue(0)},angle:0,position:function(){return new Point(0,0)},anchor:function(){return new Point(0,0)},color:function(){return new RGBColor.parse("0x000000")},visible:true,defaultNumberSpacing:[1e4,5e3,2e3,1e3,500,200,100,50,20,10,5,2,1,.1,.01,.001],defaultDatetimeSpacing:["1000Y","500Y","200Y","100Y","50Y","20Y","10Y","5Y","2Y","1Y","6M","3M","2M","1M","7D","3D","2D","1D","12H","6H","3H","2H","1H"],"function":undefined,densityfactor:undefined},grid:{color:function(){return new RGBColor.parse("0xeeeeee")},visible:false},pan:{allowed:true,min:null,max:null},zoom:{allowed:true,min:undefined,max:undefined,anchor:null},binding:{id:undefined,min:undefined,max:undefined},id:undefined,type:"number",length:function(){return new Displacement(1,0)},position:function(){return new Point(0,0)},pregap:0,postgap:0,anchor:-1,base:function(){return new Point(-1,-1)},min:"auto",minoffset:0,minposition:function(){return new Displacement(-1,0)},max:"auto",maxoffset:0,maxposition:function(){return new Displacement(1,0)},positionbase:undefined,color:function(){return new RGBColor(0,0,0)},tickmin:-3,tickmax:3,tickcolor:null,highlightstyle:"axis",linewidth:1,orientation:undefined},verticalaxis:{title:{content:undefined,anchor:function(){return new Point(0,-20)},position:function(){return new Point(0,1)},angle:"0"},labels:{label:{format:undefined,start:undefined,angle:undefined,position:undefined,anchor:undefined,spacing:undefined,densityfactor:undefined},format:"%1d",visible:"true",start:"0",angle:"0.0",position:"0 0",anchor:"0 0","function":undefined,densityfactor:undefined},grid:{visible:"false"},pan:{allowed:"yes",min:undefined,max:undefined},zoom:{allowed:"yes",min:undefined,max:undefined,anchor:"none"},binding:{id:undefined,min:undefined,max:undefined},id:undefined,type:"number",position:"0 0",pregap:"0",postgap:"0",anchor:"-1",base:"-1 1",min:"auto",minoffset:"0",minposition:"-1",max:"auto",maxoffset:"0",maxposition:"1",positionbase:undefined,tickmin:"-3",tickmax:"3",highlightstyle:"axis",linewidth:"1",orientation:undefined},plot:{legend:{visible:true,label:undefined},horizontalaxis:{variable:{ref:undefined,factor:undefined},constant:{value:undefined},ref:undefined},verticalaxis:{variable:{ref:undefined,factor:undefined},constant:{value:undefined},ref:undefined},filter:{option:{name:undefined,value:undefined},type:undefined},renderer:{option:{name:undefined,value:undefined,min:undefined,max:undefined},type:function(){var Renderer=require("../core/renderer.js");return Renderer.Type.parse("line")}},datatips:{variable:{"formatString-number":"%.2f","formatString-datetime":"%d %n %Y"},formatString:"{0}: {1}",bgcolor:function(){return RGBColor.parse("0xeeeeee")},bgalpha:1,border:1,bordercolor:function(){return RGBColor.parse("0x000000")},pad:2}},throttle:{pattern:"",requests:0,period:0,concurrent:0},data:{variables:{variable:{id:undefined,column:undefined,type:"number",missingvalue:undefined,missingop:undefined},missingvalue:"-9000",missingop:"eq"},values:{content:undefined},csv:{location:undefined},service:{location:undefined}}}};module.exports=utilityFunctions},{"../core/datetime_value.js":37,"../core/number_value.js":51,"../core/renderer.js":57,"../math/displacement.js":101,"../math/insets.js":103,"../math/point.js":104,"../math/rgb_color.js":105}],158:[function(require,module,exports){var ValidationFunctions={};ValidationFunctions.validateNumberRange=function(number,lowerBound,upperBound){return typeof number==="number"&&number>=lowerBound&&number<=upperBound};ValidationFunctions.typeOf=function(value){var s=typeof value;if(s==="object"){if(value){if(Object.prototype.toString.call(value)==="[object Array]"){s="array"}}else{s="null"}}return s};ValidationFunctions.isNumberNotNaN=function(x){return typeof x==="number"&&x===x};module.exports=ValidationFunctions},{}]},{},[99]);(function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('core-js/stable')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'core-js/stable'], factory) :
-  (global = global || self, factory(global.ClimateByLocationWidget = {}));
-}(this, function (exports) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('core-js/stable')) :
+  typeof define === 'function' && define.amd ? define(['core-js/stable'], factory) :
+  (global = global || self, global.ClimateByLocationWidget = factory());
+}(this, function () { 'use strict';
 
   function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
     try {
@@ -4915,6 +4915,11 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       this.options = merge({}, this.config_default, options);
       this.element = element;
       this.$element = $(this.element);
+
+      if (!element) {
+        console.log('Climate By Location widget created with no element. Nothing will be displayed.');
+      }
+
       this.dataurls = null;
       this.multigraph = null;
       this.multigraph_config = merge(this.multigraph_config_default, {
@@ -4970,11 +4975,27 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         var old_options = Object.assign({}, this.options);
         this.options = merge({}, old_options, options);
 
+        if (this.options.state !== old_options.state && this.options.county === old_options.county) {
+          this.options.county = null;
+        }
+
         this._bool_options.forEach(function (option) {
           if (typeof options[option] === "string") {
             options[option] = options[option].toLowerCase() === "true";
           }
         });
+
+        if (!get(ClimateByLocationWidget, ['frequencies', this.options.frequency, 'supports_region'], function () {
+          return true;
+        })(this.get_region_value())) {
+          this.options.frequency = ClimateByLocationWidget.get_variables(this.get_region_value())[0].id;
+        }
+
+        if (!get(ClimateByLocationWidget, ['variables', this.options.variable, 'supports_region'], function () {
+          return true;
+        })(this.get_region_value())) {
+          this.options.variable = ClimateByLocationWidget.get_variables(this.options.frequency, null, this.get_region_value())[0].id;
+        }
 
         this._update_plot_visibilities();
 
@@ -4994,11 +5015,11 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             var axis = this.multigraph.graphs().at(0).axes().at(i);
 
             if (axis.title()) {
-              axis.title().font("14px " + this.options.font);
+              axis.title().font("14px" + this.options.font);
             }
 
             for (j = 0; j < axis.labelers().size(); ++j) {
-              axis.labelers().at(j).font("12px " + this.options.font);
+              axis.labelers().at(j).font("12px" + this.options.font);
             }
           }
         } // if frequency, state, county, or variable changed, trigger a larger update cycle (new data + plots maybe changed):
@@ -5021,6 +5042,11 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           proj_mod: ''
         };
       }
+      /**
+       * Requests the widget update according to its current options. Use `set_options()` to changes options instead.
+       * @returns {Promise<void>}
+       */
+
     }, {
       key: "update",
       value: function () {
@@ -5032,7 +5058,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               switch (_context.prev = _context.next) {
                 case 0:
                   if (!(!!this.options.county || !!this.options.state)) {
-                    _context.next = 15;
+                    _context.next = 14;
                     break;
                   }
 
@@ -5071,9 +5097,6 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                   return this._update_seasonal();
 
                 case 14:
-                  this.multigraph.render();
-
-                case 15:
                 case "end":
                   return _context.stop();
               }
@@ -5108,7 +5131,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
 
                   this._show_spinner();
 
-                  if (this.is_ak_region(this.get_region_value())) {
+                  if (ClimateByLocationWidget.is_ak_region(this.get_region_value())) {
                     _context2.next = 10;
                     break;
                   }
@@ -5375,7 +5398,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                       return (a[0] > b[0]) - (a[0] < b[0]);
                     });
                     _this5.dataurls.hist_mod = _this5._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85'], hist_mod_data);
-                    _this5.dataurls.proj_mod = _this5._format_export_data(['year', 'gfdl_cm3_rcp85', 'gfdl_cm3_rcp45', 'ncar_ccsm4_rcp85', 'ncar_ccsm4_rcp45'], proj_mod_data);
+                    _this5.dataurls.proj_mod = _this5._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85'], proj_mod_data);
 
                     _this5._hide_spinner();
 
@@ -5454,15 +5477,15 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           }
         }
       }
-    }, {
-      key: "_set_data_array",
-
       /**
        * Updates the data that multigraph has for a given dataset
        * @param id the alias for the dataset
        * @param data the new data
        * @private
        */
+
+    }, {
+      key: "_set_data_array",
       value: function _set_data_array(id, data) {
         // The following function takes a jermaine attr_list instance and returns
         // a plain JS array containing all its values
@@ -5548,8 +5571,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           }
 
           if (plot_config.frequency === "annual") {
-            if (plot_config.regime === 'annual_ak' && _this7.is_ak_region(_this7.get_region_value())) {
-              return true;
+            // don't show ak plots for non-ak and don't show non-ak plots for ak.
+            if (ClimateByLocationWidget.is_ak_region(_this7.get_region_value()) ? plot_config.region !== "ak" : plot_config.region === "ak") {
+              return false;
             }
 
             if (plot_config.regime === "hist_obs") {
@@ -5612,8 +5636,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         });
       }
     }, {
-      key: "get_region_reduction",
-      value: function get_region_reduction() {
+      key: "_get_region_reduction",
+      value: function _get_region_reduction() {
         if (this.options.county) {
           return {
             'area_reduce': 'county_mean'
@@ -5626,20 +5650,18 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           };
         }
       }
+      /**
+       * Gets the county or state that is currently selected.
+       */
+
     }, {
       key: "get_region_value",
       value: function get_region_value() {
-        if (this.options.county) {
-          return this.options.county;
-        }
-
-        if (this.options.state) {
-          return this.options.state;
-        }
+        return this.options.county || this.options.state || null;
       }
     }, {
-      key: "get_region_parameters",
-      value: function get_region_parameters() {
+      key: "_get_region_parameters",
+      value: function _get_region_parameters() {
         if (this.options.county) {
           return {
             "county": this.options.county
@@ -5654,15 +5676,6 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           throw new Error('county/state not valid');
         }
       }
-      /**
-       * Gets available variables for a specified combination of frequency and region.
-       *
-       * @param frequency
-       * @param unitsystem
-       * @param region
-       * @returns {{id: *, title: *}[]}
-       */
-
     }, {
       key: "_map_2d_data",
       value: function _map_2d_data(data, f) {
@@ -5740,7 +5753,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                   variableConfig = find(ClimateByLocationWidget.variables, function (c) {
                     return c.id === _this8.options.variable;
                   });
-                  elems = [$.extend(variableConfig['acis_elements'][freq], this.get_region_reduction())];
+                  elems = [$.extend(variableConfig['acis_elements'][freq], this._get_region_reduction())];
                   return _context6.abrupt("return", $.ajax({
                     url: this.options.data_api_endpoint,
                     type: "POST",
@@ -5753,7 +5766,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                       // "edate": (String(new Date().getFullYear() - 1)),
                       "grid": 'livneh',
                       "elems": elems
-                    }, this.get_region_parameters()))
+                    }, this._get_region_parameters()))
                   }).then(function (response) {
                     var data;
 
@@ -5863,7 +5876,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                   freq = this.options.frequency === 'annual' ? 'annual' : 'monthly';
                   elems = [$.extend(find(ClimateByLocationWidget.variables, function (c) {
                     return c.id === _this9.options.variable;
-                  })['acis_elements'][freq], this.get_region_reduction())];
+                  })['acis_elements'][freq], this._get_region_reduction())];
                   return _context7.abrupt("return", $.ajax({
                     url: this.options.data_api_endpoint,
                     type: "POST",
@@ -5874,7 +5887,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                       "sdate": String(sdate),
                       "edate": String(edate),
                       "elems": elems
-                    }, this.get_region_parameters()))
+                    }, this._get_region_parameters()))
                   }).then(function (response) {
                     var data = {};
                     response.data.forEach(function (record) {
@@ -6117,29 +6130,72 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
 
         return _get_projected_loca_model_data;
       }()
+      /**
+       * Transform an anchor element to download the current graph as an image. Return false on failure / no data.
+       * @param link
+       * @returns {boolean}
+       */
+
     }, {
       key: "download_image",
       value: function download_image(link) {
         link.href = this.$graphdiv.find('canvas')[0].toDataURL('image/png');
         link.download = [this.options.get_region_label.bind(this)(), this.options.frequency, this.options.variable, "graph"].join('-').replace(/ /g, '_') + '.png';
+        return true;
       }
+      /**
+       * Transform an anchor element to download the historic observed data. Return false on failure / no data.
+       * @param link
+       * @returns {boolean}
+       */
+
     }, {
       key: "download_hist_obs_data",
       value: function download_hist_obs_data(link) {
+        if (!this.dataurls.hist_obs) {
+          link.href = '#nodata';
+          return false;
+        }
+
         link.href = this.dataurls.hist_obs;
         link.download = [this.options.get_region_label.bind(this)(), this.options.frequency, "hist_obs", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
+        return true;
       }
+      /**
+       * Transform an anchor element to download the historic modelled data. Return false on failure / no data.
+       * @param link
+       * @returns {boolean}
+       */
+
     }, {
       key: "download_hist_mod_data",
       value: function download_hist_mod_data(link) {
+        if (!this.dataurls.hist_mod) {
+          link.href = '#nodata';
+          return false;
+        }
+
         link.href = this.dataurls.hist_mod;
         link.download = [this.options.get_region_label.bind(this)(), this.options.frequency, "hist_mod", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
+        return true;
       }
+      /**
+       * Transform an anchor element to download the projected modelled data. Return false on failure / no data.
+       * @param link
+       * @returns {boolean}
+       */
+
     }, {
       key: "download_proj_mod_data",
       value: function download_proj_mod_data(link) {
+        if (!this.dataurls.proj_mod) {
+          link.href = '#nodata';
+          return false;
+        }
+
         link.href = this.dataurls.proj_mod;
         link.download = [this.options.get_region_label.bind(this)(), this.options.frequency, "proj_mod", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
+        return true;
       }
     }, {
       key: "_set_range",
@@ -6171,29 +6227,29 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         this.multigraph.render();
         return true;
       }
+      /**
+       * This function will set the range of data visible on the graph's x-axis when an annual data graph is displayed (monthly and seasonal data graphs have fixed x-axes).
+       *
+       * @param min
+       * @param max
+       * @returns {boolean}
+       */
+
     }, {
       key: "set_x_axis_range",
       value: function set_x_axis_range(min, max) {
         return this._set_range(this.axes.x_annual, min, max);
       }
+      /**
+       * Forces multigraph to resize to its container
+       */
+
     }, {
       key: "resize",
       value: function resize() {
         if (this.multigraph) {
           this.multigraph.resize();
         }
-      }
-      /**
-       * This function is used to toggle features based on whether the selected region is in Alaska or not.
-       *
-       * @param region
-       * @returns {boolean}
-       */
-
-    }, {
-      key: "is_ak_region",
-      value: function is_ak_region(region) {
-        return String(region).startsWith('02') || region === 'AK';
       }
     }, {
       key: "_average",
@@ -6297,6 +6353,10 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       get: function get() {
         return ['pmedian', 'hmedian', 'histobs', 'histmod', 'yzoom', 'ypan'];
       }
+      /**
+       * The default config for the widget
+       */
+
     }, {
       key: "config_default",
       get: function get() {
@@ -6363,6 +6423,10 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           yAxisRangeScaleFactor: 1
         };
       }
+      /**
+       * The default config template for multigraph
+       */
+
     }, {
       key: "multigraph_config_default",
       get: function get() {
@@ -6613,7 +6677,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             var stat = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
             var scenario = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
             var timeperiod = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
-            var plot_index = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : -1;
+            var region = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : null;
+            var plot_index = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : -1;
             return {
               plot_config: plot_config,
               frequency: frequency,
@@ -6621,6 +6686,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               stat: stat,
               scenario: scenario,
               timeperiod: timeperiod,
+              region: region,
               plot_index: plot_index
             };
           };
@@ -6637,7 +6703,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           // Uncomment to show historical ranges
           //range_bar_plot("x_seasonal", "seasonal_hist_obs_x", "y", "seasonal_hist_obs_p10", "seasonal_hist_obs_p90",  "#cccccc", "#cccccc", 0.5, 0.7);
           p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2025", "seasonal_proj_mod_max_rcp45_2025", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2025", "seasonal_proj_mod_max_rcp85_2025", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp45_2025", "seasonal_proj_mod_p90_rcp45_2025", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "p1090", "rcp45", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp85_2025", "seasonal_proj_mod_p90_rcp85_2025", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "p1090", "rcp85", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2050", "seasonal_proj_mod_max_rcp45_2050", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2050", "seasonal_proj_mod_max_rcp85_2050", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp45_2050", "seasonal_proj_mod_p90_rcp45_2050", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "p1090", "rcp45", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp85_2050", "seasonal_proj_mod_p90_rcp85_2050", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "p1090", "rcp85", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2075", "seasonal_proj_mod_max_rcp45_2075", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2075"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2075", "seasonal_proj_mod_max_rcp85_2075", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2075"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp45_2075", "seasonal_proj_mod_p90_rcp45_2075", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "p1090", "rcp45", "2075"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp85_2075", "seasonal_proj_mod_p90_rcp85_2075", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "p1090", "rcp85", "2075"), p(range_bar_plot("x_seasonal", "seasonal_hist_obs_x", "y", "seasonal_hist_obs_med", "seasonal_hist_obs_med", "#000000", "#000000", 0.5, 1.0), "seasonal", "hist_obs", "med"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp45_2025", "seasonal_proj_mod_med_rcp45_2025", "#0000ff", "#0000ff", 0.25, 1.0), "seasonal", "proj_mod", "med", "rcp45", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp85_2025", "seasonal_proj_mod_med_rcp85_2025", this.options.colors.reds.line, this.options.colors.reds.line, 0.0, 1.0), "seasonal", "proj_mod", "med", "rcp85", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp45_2050", "seasonal_proj_mod_med_rcp45_2050", "#0000ff", "#0000ff", 0.25, 1.0), "seasonal", "proj_mod", "med", "rcp45", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp85_2050", "seasonal_proj_mod_med_rcp85_2050", this.options.colors.reds.line, this.options.colors.reds.line, 0.0, 1.0), "seasonal", "proj_mod", "med", "rcp85", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp45_2075", "seasonal_proj_mod_med_rcp45_2075", "#0000ff", "#0000ff", 0.25, 1.0), "seasonal", "proj_mod", "med", "rcp45", "2075"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp85_2075", "seasonal_proj_mod_med_rcp85_2075", this.options.colors.reds.line, this.options.colors.reds.line, 0.0, 1.0), "seasonal", "proj_mod", "med", "rcp85", "2075"), // annual AK plots:
-          p(band_plot("x_annual", "annual_hist_mod_ak_x", "y", "annual_hist_mod_gfdl_cm3_y", "annual_hist_mod_ncar_ccsm4_y", this.options.colors.grays.outerBand), "annual", "annual_ak", "minmax"), p(band_plot("x_annual", "annual_proj_mod_ak_x", "y", "annual_proj_mod_gfdl_cm3_rcp85_y", "annual_proj_mod_ncar_ccsm4_rcp85_y", this.options.colors.reds.outerBand), "annual", "annual_ak", "minmax")]; // assign indexes based on array position.
+          p(band_plot("x_annual", "annual_hist_mod_ak_x", "y", "annual_hist_mod_gfdl_cm3_y", "annual_hist_mod_ncar_ccsm4_y", this.options.colors.grays.outerBand), "annual", "hist_mod", "minmax", null, null, 'ak'), p(band_plot("x_annual", "annual_proj_mod_ak_x", "y", "annual_proj_mod_gfdl_cm3_rcp85_y", "annual_proj_mod_ncar_ccsm4_rcp85_y", this.options.colors.reds.outerBand), "annual", "annual_proj", "minmax", "rcp85", null, 'ak')]; // assign indexes based on array position.
 
           this._plots_config = this._plots_config.map(function (plot_config, idx) {
             plot_config.plot_index = idx;
@@ -6910,18 +6976,58 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       get: function get() {
         return '2099-12-31';
       }
+      /**
+       * Gets available variable options for a specified combination of frequency and region.
+       *
+       * @param frequency
+       * @param unitsystem
+       * @param region
+       * @returns {{id: *, title: *}[]}
+       */
+
     }], [{
       key: "get_variables",
       value: function get_variables(frequency, unitsystem, region) {
         unitsystem = unitsystem || 'english';
         return ClimateByLocationWidget.variables.filter(function (v) {
-          return frequency in v.ytitles && (!region || typeof v.supports_region === "function" && v.supports_region(region));
+          return frequency in v.ytitles && (typeof v.supports_region === "function" ? v.supports_region(region) : true);
         }).map(function (v) {
           return {
             id: v.id,
             title: v.title[unitsystem]
           };
         });
+      }
+      /**
+       * Gets available frequency options for a specified region.
+       *
+       * @param region
+       * @returns {{id: (string), title: (string)}[]}
+       */
+
+    }, {
+      key: "get_frequencies",
+      value: function get_frequencies(region) {
+        return ClimateByLocationWidget.frequencies.filter(function (f) {
+          return typeof f.supports_region === "function" ? f.supports_region(region) : true;
+        }).map(function (v) {
+          return {
+            id: v.id,
+            title: v.title
+          };
+        });
+      }
+      /**
+       * This function is used to toggle features based on whether the selected region is in Alaska or not.
+       *
+       * @param region
+       * @returns {boolean}
+       */
+
+    }, {
+      key: "is_ak_region",
+      value: function is_ak_region(region) {
+        return String(region).startsWith('02') || region === 'AK';
       }
     }, {
       key: "variables",
@@ -7025,10 +7131,134 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             return true;
           }
         }, {
+          id: "days_tmax_gt_50f",
+          title: {
+            english: "Days per year with max above 50°F",
+            metric: "Days per year with max above 10°C"
+          },
+          acis_elements: {
+            annual: {
+              "name": "maxt",
+              "interval": "yly",
+              "duration": "yly",
+              "reduce": "cnt_gt_50"
+            }
+          },
+          dataconverters: {
+            metric: no_conversion,
+            english: no_conversion
+          },
+          ytitles: {
+            annual: {
+              absolute: {
+                english: "Days per year with max above 50°F",
+                metric: "Days per year with max above 10°C"
+              },
+              anomaly: {
+                english: "Days per year with max above 50°F",
+                metric: "Days per year with max above 10°C"
+              }
+            }
+          },
+          supports_region: ClimateByLocationWidget.is_ak_region
+        }, {
+          id: "days_tmax_gt_60f",
+          title: {
+            english: "Days per year with max above 60°F",
+            metric: "Days per year with max above 15.5°C"
+          },
+          acis_elements: {
+            annual: {
+              "name": "maxt",
+              "interval": "yly",
+              "duration": "yly",
+              "reduce": "cnt_gt_60"
+            }
+          },
+          dataconverters: {
+            metric: no_conversion,
+            english: no_conversion
+          },
+          ytitles: {
+            annual: {
+              absolute: {
+                english: "Days per year with max above 60°F",
+                metric: "Days per year with max above 15.5°C"
+              },
+              anomaly: {
+                english: "Days per year with max above 60°F",
+                metric: "Days per year with max above 15.5°C"
+              }
+            }
+          },
+          supports_region: ClimateByLocationWidget.is_ak_region
+        }, {
+          id: "days_tmax_gt_70f",
+          title: {
+            english: "Days per year with max above 70°F",
+            metric: "Days per year with max above 21.1°C"
+          },
+          acis_elements: {
+            annual: {
+              "name": "maxt",
+              "interval": "yly",
+              "duration": "yly",
+              "reduce": "cnt_gt_70"
+            }
+          },
+          dataconverters: {
+            metric: no_conversion,
+            english: no_conversion
+          },
+          ytitles: {
+            annual: {
+              absolute: {
+                english: "Days per year with max above 70°F",
+                metric: "Days per year with max above 21.1°C"
+              },
+              anomaly: {
+                english: "Days per year with max above 70°F",
+                metric: "Days per year with max above 21.1°C"
+              }
+            }
+          },
+          supports_region: ClimateByLocationWidget.is_ak_region
+        }, {
+          id: "days_tmax_gt_80f",
+          title: {
+            english: "Days per year with max above 80°F",
+            metric: "Days per year with max above 26.6°C"
+          },
+          acis_elements: {
+            annual: {
+              "name": "maxt",
+              "interval": "yly",
+              "duration": "yly",
+              "reduce": "cnt_gt_80"
+            }
+          },
+          dataconverters: {
+            metric: no_conversion,
+            english: no_conversion
+          },
+          ytitles: {
+            annual: {
+              absolute: {
+                english: "Days per year with max above 80°F",
+                metric: "Days per year with max above 26.6°C"
+              },
+              anomaly: {
+                english: "Days per year with max above 80°F",
+                metric: "Days per year with max above 26.6°C"
+              }
+            }
+          },
+          supports_region: ClimateByLocationWidget.is_ak_region
+        }, {
           id: "days_tmax_gt_90f",
           title: {
-            english: " Days per year with max above 90°F",
-            metric: " Days per year with max above 90°F"
+            english: "Days per year with max above 90°F",
+            metric: "Days per year with max above 32.2°C"
           },
           acis_elements: {
             annual: {
@@ -7045,12 +7275,12 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           ytitles: {
             annual: {
               absolute: {
-                english: " Days per year with max above 90°F",
-                metric: " Days per year with max above 90°F"
+                english: "Days per year with max above 90°F",
+                metric: "Days per year with max above 32.2°C"
               },
               anomaly: {
-                english: " Days per year with max above 90°F",
-                metric: " Days per year with max above 90°F"
+                english: "Days per year with max above 90°F",
+                metric: "Days per year with max above 32.2°C"
               }
             }
           },
@@ -7079,22 +7309,22 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             annual: {
               absolute: {
                 english: "Days per year with max above 95°F",
-                metric: "Days per year with max above 95°C"
+                metric: "Days per year with max above 35°C"
               },
               anomaly: {
                 english: "Days per year with max above 95°F departure",
-                metric: "Days per year with max above 95°C departure"
+                metric: "Days per year with max above 35°C departure"
               }
             }
           },
-          supports_region: function supports_region() {
-            return true;
+          supports_region: function supports_region(region) {
+            return !ClimateByLocationWidget.is_ak_region(region);
           }
         }, {
           id: "days_tmax_gt_100f",
           title: {
             english: "Days per year with max above 100°F",
-            metric: "Days per year with max above 100°F"
+            metric: "Days per year with max above 37.7°C"
           },
           acis_elements: {
             annual: {
@@ -7112,22 +7342,22 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             annual: {
               absolute: {
                 english: "Days per year with max above 100°F",
-                metric: "Days per year with max above 100°F"
+                metric: "Days per year with max above 37.7°C"
               },
               anomaly: {
-                english: " Days per year with max above 100°F",
-                metric: " Days per year with max above 100°F"
+                english: "Days per year with max above 100°F",
+                metric: "Days per year with max above 37.7°C"
               }
             }
           },
-          supports_region: function supports_region() {
-            return true;
+          supports_region: function supports_region(region) {
+            return !ClimateByLocationWidget.is_ak_region(region);
           }
         }, {
           id: "days_tmax_gt_105f",
           title: {
             english: "Days per year with max above 105°F",
-            metric: "Days per year with max above 105°F"
+            metric: "Days per year with max above 40.5°C"
           },
           acis_elements: {
             annual: {
@@ -7145,16 +7375,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             annual: {
               absolute: {
                 english: "Days per year with max above 105°F",
-                metric: "Days per year with max above 105°F"
+                metric: "Days per year with max above 40.5°C"
               },
               anomaly: {
                 english: "Days per year with max above 105°F departure",
-                metric: "Days per year with max above 105°F departure"
+                metric: "Days per year with max above 40.5°C departure"
               }
             }
           },
-          supports_region: function supports_region() {
-            return true;
+          supports_region: function supports_region(region) {
+            return !ClimateByLocationWidget.is_ak_region(region);
           }
         }, {
           id: "days_tmax_lt_32f",
@@ -7223,10 +7453,78 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             return true;
           }
         }, {
+          id: "days_tmin_lt_minus_40f",
+          title: {
+            english: "Days per year with min below -40°F",
+            metric: "Days per year with min below -40°C"
+          },
+          acis_elements: {
+            annual: {
+              "name": "mint",
+              "interval": "yly",
+              "duration": "yly",
+              "reduce": "cnt_lt_-40"
+            }
+          },
+          dataconverters: {
+            metric: no_conversion,
+            english: no_conversion
+          },
+          ytitles: {
+            annual: {
+              absolute: {
+                english: "Days per year with min below -40°F",
+                metric: "Days per year with min below -40°C"
+              },
+              anomaly: {
+                english: "Days per year with min below -40°F",
+                metric: "Days per year with min below -40°C"
+              }
+            }
+          },
+          supports_region: ClimateByLocationWidget.is_ak_region
+        }, {
+          id: "days_tmin_gt_60f",
+          title: {
+            english: "Days per year with min above 60°F",
+            metric: "Days per year with min above 15.5°C"
+          },
+          acis_elements: {
+            annual: {
+              "name": "mint",
+              "interval": "yly",
+              "duration": "yly",
+              "reduce": "cnt_gt_80"
+            },
+            monthly: {
+              "name": "mint",
+              "interval": "mly",
+              "duration": "mly",
+              "reduce": "cnt_gt_80"
+            }
+          },
+          dataconverters: {
+            metric: no_conversion,
+            english: no_conversion
+          },
+          ytitles: {
+            annual: {
+              absolute: {
+                english: "Days per year with min above 60°F",
+                metric: "Days per year with min above 15.5°C"
+              },
+              anomaly: {
+                english: "Days per year with min above 60°F departure",
+                metric: "Days per year with min above 15.5°C departure"
+              }
+            }
+          },
+          supports_region: ClimateByLocationWidget.is_ak_region
+        }, {
           id: "days_tmin_gt_80f",
           title: {
             english: "Days per year with min above 80°F",
-            metric: "Days per year with min above 80°F"
+            metric: "Days per year with min above 26.6°C"
           },
           acis_elements: {
             annual: {
@@ -7250,22 +7548,22 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             annual: {
               absolute: {
                 english: "Days per year with min above 80°F",
-                metric: "Days per year with min above 80°F"
+                metric: "Days per year with min above 26.6°C"
               },
               anomaly: {
                 english: "Days per year with min above 80°F departure",
-                metric: "Days per year with min above 80°F departure"
+                metric: "Days per year with min above 26.6°C departure"
               }
             }
           },
-          supports_region: function supports_region() {
-            return true;
+          supports_region: function supports_region(region) {
+            return !ClimateByLocationWidget.is_ak_region(region);
           }
         }, {
           id: "days_tmin_gt_90f",
           title: {
             english: "Days per year with min above 90°F",
-            metric: "Days per year with min above 90°F"
+            metric: "Days per year with min above 32.2°C"
           },
           acis_elements: {
             annual: {
@@ -7289,16 +7587,16 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             annual: {
               absolute: {
                 english: "Days per year with min above 90°F",
-                metric: "Days per year with min above 90°F"
+                metric: "Days per year with min above 32.2°C"
               },
               anomaly: {
                 english: "Days per year with min above 90°F departure",
-                metric: "Days per year with min above 90°F departure"
+                metric: "Days per year with min above 32.2°C departure"
               }
             }
           },
-          supports_region: function supports_region() {
-            return true;
+          supports_region: function supports_region(region) {
+            return !ClimateByLocationWidget.is_ak_region(region);
           }
         }, {
           id: "hdd_65f",
@@ -7434,6 +7732,68 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             return true;
           }
         }, {
+          id: "gdd_32f",
+          title: {
+            english: "Thawing Degree Days",
+            metric: "Thawing Degree Days"
+          },
+          acis_elements: {
+            annual: {
+              "name": "gdd32",
+              "interval": "yly",
+              "duration": "yly",
+              "reduce": "sum"
+            }
+          },
+          dataconverters: {
+            metric: fdd_to_cdd,
+            english: no_conversion
+          },
+          ytitles: {
+            annual: {
+              absolute: {
+                english: "Thawing Degree Days (°F-days)",
+                metric: "Thawing Degree Days (°C-days)"
+              },
+              anomaly: {
+                english: "Thawing Degree Days departure (°F-days)",
+                metric: "Thawing Degree Days departure (°C-days)"
+              }
+            }
+          },
+          supports_region: ClimateByLocationWidget.is_ak_region
+        }, {
+          id: "hdd_32f",
+          title: {
+            english: "Freezing Degree Days",
+            metric: "Freezing Degree Days"
+          },
+          acis_elements: {
+            annual: {
+              "name": "hdd32",
+              "interval": "yly",
+              "duration": "yly",
+              "reduce": "sum"
+            }
+          },
+          dataconverters: {
+            metric: fdd_to_cdd,
+            english: no_conversion
+          },
+          ytitles: {
+            annual: {
+              absolute: {
+                english: "Freezing Degree Days (°F-days)",
+                metric: "Freezing Degree Days (°C-days)"
+              },
+              anomaly: {
+                english: "Freezing Degree Days departure (°F-days)",
+                metric: "Freezing Degree Days departure (°C-days)"
+              }
+            }
+          },
+          supports_region: ClimateByLocationWidget.is_ak_region
+        }, {
           id: "pcpn",
           title: {
             english: "Total Precipitation",
@@ -7525,6 +7885,37 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           supports_region: function supports_region() {
             return true;
           }
+        }, {
+          id: "days_pcpn_gt_0_25in",
+          title: {
+            english: "Days per year with more than 0.25in precipitation",
+            metric: "Days per year with more than 6.35mm precipitation"
+          },
+          acis_elements: {
+            annual: {
+              "name": "pcpn",
+              "interval": "yly",
+              "duration": "yly",
+              "reduce": "cnt_gt_1"
+            }
+          },
+          dataconverters: {
+            metric: no_conversion,
+            english: no_conversion
+          },
+          ytitles: {
+            annual: {
+              absolute: {
+                english: "Days per year with more than 0.25in precipitation",
+                metric: "Days per year with more than 6.35mm precipitation"
+              },
+              anomaly: {
+                english: "Days per year with more than 0.25in precipitation departure",
+                metric: "Days per year with more than 6.35mm precipitation departure"
+              }
+            }
+          },
+          supports_region: ClimateByLocationWidget.is_ak_region
         }, {
           id: "days_pcpn_gt_1in",
           title: {
@@ -7653,6 +8044,32 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                 metric: "Days per year with more than 101.6mm precip departure"
               }
             }
+          },
+          supports_region: function supports_region(region) {
+            return !ClimateByLocationWidget.is_ak_region(region);
+          }
+        }];
+      }
+    }, {
+      key: "frequencies",
+      get: function get() {
+        return [{
+          id: 'annual',
+          title: 'Annual',
+          supports_region: function supports_region() {
+            return true;
+          }
+        }, {
+          id: 'monthly',
+          title: 'Monthly',
+          supports_region: function supports_region(region) {
+            return !ClimateByLocationWidget.is_ak_region(region);
+          }
+        }, {
+          id: 'seasonal',
+          title: 'Seasonal',
+          supports_region: function supports_region(region) {
+            return !ClimateByLocationWidget.is_ak_region(region);
           }
         }];
       }
@@ -7660,14 +8077,10 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
 
     return ClimateByLocationWidget;
   }(); //
-  // legacy jQuery Widget api for ClimateByLocationWidget
-  //
 
   (function ($) {
-    polyfillStringEndsWith();
-
     if (!$.hasOwnProperty('widget')) {
-      console.error("jQuery Widget not found.");
+      console.log("jQuery Widget not found, disabled support for Climate By Location jQuery api.");
       return;
     }
 
@@ -7727,25 +8140,6 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
     return x;
   }
 
-  function polyfillStringEndsWith() {
-    // String.endsWith() polyfill for browsers that don't implement it
-    if (!String.prototype.endsWith) {
-      String.prototype.endsWith = function (searchString, position) {
-        var subjectString = this.toString();
-
-        if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
-          position = subjectString.length;
-        }
-
-        position -= searchString.length;
-        var lastIndex = subjectString.indexOf(searchString, position);
-        return lastIndex !== -1 && lastIndex === position;
-      };
-    }
-  }
-
-  exports.ClimateByLocationWidget = ClimateByLocationWidget;
-
-  Object.defineProperty(exports, '__esModule', { value: true });
+  return ClimateByLocationWidget;
 
 }));

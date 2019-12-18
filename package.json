@@ -6,7 +6,8 @@
   "scripts": {
     "buildold": "uglifyjs vendor/multigraph-nojq-min.js src/main.js -o climate-widget-graph.js -c",
     "build": "rollup -c && cat vendor/multigraph-nojq-min.js build/climate-widget-graph.js > climate-widget-graph.js",
-    "start": "static ./ -p 8080"
+    "watch": "nodemon --watch src --exec 'npm run build'",
+    "start": "nodemon --watch src --exec 'npm run build && node serve.js'"
   },
   "repository": {
     "type": "git",
@@ -27,9 +28,9 @@
     "babel-plugin-transform-es2015-literals": "^6.22.0",
     "babel-plugin-transform-regenerator": "^6.26.0",
     "lodash-es": "^4.17.15",
+    "nodemon": "^2.0.2",
     "rollup": "^1.20.3",
     "rollup-plugin-babel": "^4.3.3",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "uglify-js": "^3.3.13"
+    "rollup-plugin-node-resolve": "^5.2.0"
   }
 }
