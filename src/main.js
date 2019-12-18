@@ -1,11 +1,20 @@
 'use strict';
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-import {get, find, round, merge, mean, max, min, range as lodash_range} from 'lodash-es';
+import {
+  find,
+  get,
+  max,
+  mean,
+  merge,
+  min,
+  range as lodash_range,
+  round
+} from 'lodash-es';
 
 
 /* globals jQuery, window */
-export class ClimateByLocationWidget {
+export default class ClimateByLocationWidget {
   /**
    *
    *
@@ -43,12 +52,12 @@ export class ClimateByLocationWidget {
    * @param options
    */
   constructor(element, options = {}) {
-
-
     this.options = merge({}, this.config_default, options);
     this.element = element;
     this.$element = $(this.element);
-
+    if (!element) {
+      console.log('Climate By Location widget created with no element. Nothing will be displayed.');
+    }
     this.dataurls = null;
     this.multigraph = null;
     this.multigraph_config = merge(this.multigraph_config_default, {
@@ -58,7 +67,10 @@ export class ClimateByLocationWidget {
     this.$element.html(`<div class='graph' style='width: 100%; height: 100%;'></div>`);
     $('.errorDisplayDetails').remove();
     this.$graphdiv = this.$element.find('div.graph');
-    this.$graphdiv.multigraph({muglString: this.multigraph_config, noscroll: true});
+    this.$graphdiv.multigraph({
+      muglString: this.multigraph_config,
+      noscroll: true
+    });
     $(window).resize(this.resize.bind(this));
     this.resolve_multigraph = null;
     this.when_multigraph = new Promise((resolve) => {
@@ -88,309 +100,1077 @@ export class ClimateByLocationWidget {
     });
   }
 
+  static get variables() {
+    return [
+      {
+        id: "tmax",
+        title: {
+          english: "Average Daily Max Temp",
+          metric: "Average Daily Max Temp"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "units": "degreeF",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "mean"
+
+          },
+          monthly: {
+            "name": "maxt",
+            "units": "degreeF",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "mean"
+          }
+        },
+        dataconverters: {
+          metric: fahrenheit_to_celsius,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Average Daily Max Temp (°F)",
+              metric: "Average Daily Max Temp (°C)"
+            },
+            anomaly: {
+              english: "Average Daily Max Temp departure (°F)",
+              metric: "Average Daily Max Temp departure (°C)"
+            }
+          },
+          monthly: {
+            english: "Average Daily Max Temp (°F)",
+            metric: "Average Daily Max Temp (°C)"
+          },
+          seasonal: {
+            english: "Average Daily Max Temp (°F)",
+            metric: "Average Daily Max Temp (°C)"
+          }
+        },
+        supports_region: () => true
+      },
+      {
+        id: "tmin",
+        title: {
+          english: "Average Daily Min Temp",
+          metric: "Average Daily Min Temp"
+        },
+        acis_elements: {
+          annual: {
+            "name": "mint",
+            "units": "degreeF",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "mean"
+          },
+          monthly: {
+            "name": "mint",
+            "units": "degreeF",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "mean"
+
+          }
+        },
+        dataconverters: {
+          metric: fahrenheit_to_celsius,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Average Daily Min Temp (°F)",
+              metric: "Average Daily Min Temp (°C)"
+            },
+            anomaly: {
+              english: "Average Daily Min Temp departure (°F)",
+              metric: "Average Daily Min Temp departure (°C)"
+            }
+          },
+          monthly: {
+            english: "Average Daily Min Temp (°F)",
+            metric: "Average Daily Min Temp (°C)"
+          },
+          seasonal: {
+            english: "Average Daily Min Temp (°F)",
+            metric: "Average Daily Min Temp (°C)"
+          }
+        },
+        supports_region: () => true
+      },
+      {
+        id: "days_tmax_gt_50f",
+        title: {
+          english: "Days per year with max above 50°F",
+          metric: "Days per year with max above 10°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_50"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with max above 50°F",
+              metric: "Days per year with max above 10°C"
+            },
+            anomaly: {
+              english: "Days per year with max above 50°F",
+              metric: "Days per year with max above 10°C"
+            }
+          }
+        },
+        supports_region: ClimateByLocationWidget.is_ak_region
+      },
+      {
+        id: "days_tmax_gt_60f",
+        title: {
+          english: "Days per year with max above 60°F",
+          metric: "Days per year with max above 15.5°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_60"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with max above 60°F",
+              metric: "Days per year with max above 15.5°C"
+            },
+            anomaly: {
+              english: "Days per year with max above 60°F",
+              metric: "Days per year with max above 15.5°C"
+            }
+          }
+        },
+        supports_region: ClimateByLocationWidget.is_ak_region
+      },
+      {
+        id: "days_tmax_gt_70f",
+        title: {
+          english: "Days per year with max above 70°F",
+          metric: "Days per year with max above 21.1°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_70"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with max above 70°F",
+              metric: "Days per year with max above 21.1°C"
+            },
+            anomaly: {
+              english: "Days per year with max above 70°F",
+              metric: "Days per year with max above 21.1°C"
+            }
+          }
+        },
+        supports_region: ClimateByLocationWidget.is_ak_region
+      },
+      {
+        id: "days_tmax_gt_80f",
+        title: {
+          english: "Days per year with max above 80°F",
+          metric: "Days per year with max above 26.6°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_80"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with max above 80°F",
+              metric: "Days per year with max above 26.6°C"
+            },
+            anomaly: {
+              english: "Days per year with max above 80°F",
+              metric: "Days per year with max above 26.6°C"
+            }
+          }
+        },
+        supports_region: ClimateByLocationWidget.is_ak_region
+      },
+      {
+        id: "days_tmax_gt_90f",
+        title: {
+          english: "Days per year with max above 90°F",
+          metric: "Days per year with max above 32.2°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_90"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with max above 90°F",
+              metric: "Days per year with max above 32.2°C"
+            },
+            anomaly: {
+              english: "Days per year with max above 90°F",
+              metric: "Days per year with max above 32.2°C"
+            }
+          }
+        },
+        supports_region: () => true
+      },
+      {
+        id: "days_tmax_gt_95f",
+        title: {
+          english: "Days per year with max above 95°F",
+          metric: "Days per year with max above 35°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_95"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with max above 95°F",
+              metric: "Days per year with max above 35°C"
+            },
+            anomaly: {
+              english: "Days per year with max above 95°F departure",
+              metric: "Days per year with max above 35°C departure"
+            }
+          }
+        },
+        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+      },
+      {
+        id: "days_tmax_gt_100f",
+        title: {
+          english: "Days per year with max above 100°F",
+          metric: "Days per year with max above 37.7°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_100"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with max above 100°F",
+              metric: "Days per year with max above 37.7°C"
+            },
+            anomaly: {
+              english: "Days per year with max above 100°F",
+              metric: "Days per year with max above 37.7°C"
+            }
+          }
+        },
+        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+      },
+      {
+        id: "days_tmax_gt_105f",
+        title: {
+          english: "Days per year with max above 105°F",
+          metric: "Days per year with max above 40.5°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_105"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with max above 105°F",
+              metric: "Days per year with max above 40.5°C"
+            },
+            anomaly: {
+              english: "Days per year with max above 105°F departure",
+              metric: "Days per year with max above 40.5°C departure"
+            }
+          }
+        },
+        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+      },
+      {
+        id: "days_tmax_lt_32f",
+        title: {
+          english: "Days per year with max below 32°F (Icing days)",
+          metric: "Days per year with max below 0°C (Icing days)"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_lt_32"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with max below 32°F (Icing days)",
+              metric: "Days per year with max below 0°C (Icing days)"
+            },
+            anomaly: {
+              english: "Days per year with max below 32°F departure",
+              metric: "Days per year with max below 0°C departure"
+            }
+          }
+        },
+        supports_region: () => true
+      },
+      {
+        id: "days_tmin_lt_32f",
+        title: {
+          english: "Days per year with min below 32°F (frost days)",
+          metric: "Days per year with min below 0°C (frost days)"
+        },
+        acis_elements: {
+          annual: {
+            "name": "mint",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_lt_32"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with min below 32°F (frost days)",
+              metric: "Days per year with min below 0°C (frost days)"
+            },
+            anomaly: {
+              english: "Days per year with min below 32°F (frost days)",
+              metric: "Days per year with min below 0°C (frost days)"
+            }
+          }
+        },
+        supports_region: () => true
+      },
+      {
+        id: "days_tmin_lt_minus_40f",
+        title: {
+          english: "Days per year with min below -40°F",
+          metric: "Days per year with min below -40°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "mint",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_lt_-40"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with min below -40°F",
+              metric: "Days per year with min below -40°C"
+            },
+            anomaly: {
+              english: "Days per year with min below -40°F",
+              metric: "Days per year with min below -40°C"
+            }
+          }
+        },
+        supports_region: ClimateByLocationWidget.is_ak_region
+      },
+      {
+        id: "days_tmin_gt_60f",
+        title: {
+          english: "Days per year with min above 60°F",
+          metric: "Days per year with min above 15.5°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "mint",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_80"
+
+          },
+          monthly: {
+            "name": "mint",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "cnt_gt_80"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with min above 60°F",
+              metric: "Days per year with min above 15.5°C"
+            },
+            anomaly: {
+              english: "Days per year with min above 60°F departure",
+              metric: "Days per year with min above 15.5°C departure"
+            }
+          }
+        },
+        supports_region: ClimateByLocationWidget.is_ak_region
+      },
+      {
+        id: "days_tmin_gt_80f",
+        title: {
+          english: "Days per year with min above 80°F",
+          metric: "Days per year with min above 26.6°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "mint",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_80"
+
+          },
+          monthly: {
+            "name": "mint",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "cnt_gt_80"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with min above 80°F",
+              metric: "Days per year with min above 26.6°C"
+            },
+            anomaly: {
+              english: "Days per year with min above 80°F departure",
+              metric: "Days per year with min above 26.6°C departure"
+            }
+          }
+        },
+        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+      },
+      {
+        id: "days_tmin_gt_90f",
+        title: {
+          english: "Days per year with min above 90°F",
+          metric: "Days per year with min above 32.2°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "mint",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_90"
+
+          },
+          monthly: {
+            "name": "mint",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "cnt_gt_90"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with min above 90°F",
+              metric: "Days per year with min above 32.2°C"
+            },
+            anomaly: {
+              english: "Days per year with min above 90°F departure",
+              metric: "Days per year with min above 32.2°C departure"
+            }
+          }
+        },
+        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+      },
+      {
+        id: "hdd_65f",
+        title: {
+          english: "Heating Degree Days",
+          metric: "Heating Degree Days"
+        },
+        acis_elements: {
+          annual: {
+            "name": "hdd",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "sum"
+
+          }
+        },
+        dataconverters: {
+          metric: fdd_to_cdd,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Heating Degree Days (°F-days)",
+              metric: "Heating Degree Days (°C-days)"
+            },
+            anomaly: {
+              english: "Heating Degree Days departure (°F-days)",
+              metric: "Heating Degree Days departure (°C-days)"
+            }
+          }
+        },
+        supports_region: () => true
+      },
+      {
+        id: "cdd_65f",
+        title: {
+          english: "Cooling Degree Days",
+          metric: "Cooling Degree Days"
+        },
+        acis_elements: {
+          annual: {
+            "name": "cdd",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "sum"
+
+          }
+        },
+        dataconverters: {
+          metric: fdd_to_cdd,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Cooling Degree Days (°F-days)",
+              metric: "Cooling Degree Days (°C-days)"
+            },
+            anomaly: {
+              english: "Cooling Degree Days departure (°F-days)",
+              metric: "Cooling Degree Days departure (°C-days)"
+            }
+          }
+        },
+        supports_region: () => true
+      },
+      {
+        id: "gdd",
+        title: {
+          english: "Growing Degree Days",
+          metric: "Growing Degree Days"
+        },
+        acis_elements: {
+          annual: {
+            "name": "gdd",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "sum"
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Growing Degree Days (°F-days)",
+              metric: "Growing Degree Days (°C-days)"
+            },
+            anomaly: {
+              english: "Growing Degree Days departure (°F-days)",
+              metric: "Growing Degree Days departure (°C-days)"
+            }
+          }
+        },
+        supports_region: () => true
+      },
+      {
+        id: "gddmod",
+        title: {
+          english: "Modified Growing Degree Days",
+          metric: "Modified Growing Degree Days"
+        },
+        acis_elements: {
+          annual: {
+            "name": "gdd",
+            "duration": "yly",
+            "limit": [86, 50],
+            "interval": "yly",
+            "reduce": "sum"
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Modified Growing Degree Days (°F-days)",
+              metric: "Modified Growing Degree Days (°C-days)"
+            },
+            anomaly: {
+              english: "Modified Growing Degree Days departure (°F-days)",
+              metric: "Modified Growing Degree Days departure (°C-days)"
+            }
+          }
+        },
+        supports_region: () => true
+      },
+      {
+        id: "gdd_32f",
+        title: {
+          english: "Thawing Degree Days",
+          metric: "Thawing Degree Days"
+        },
+        acis_elements: {
+          annual: {
+            "name": "gdd32",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "sum"
+          }
+        },
+        dataconverters: {
+          metric: fdd_to_cdd,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Thawing Degree Days (°F-days)",
+              metric: "Thawing Degree Days (°C-days)"
+            },
+            anomaly: {
+              english: "Thawing Degree Days departure (°F-days)",
+              metric: "Thawing Degree Days departure (°C-days)"
+            }
+          }
+        },
+        supports_region: ClimateByLocationWidget.is_ak_region
+      },
+      {
+        id: "hdd_32f",
+        title: {
+          english: "Freezing Degree Days",
+          metric: "Freezing Degree Days"
+        },
+        acis_elements: {
+          annual: {
+            "name": "hdd32",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "sum"
+          }
+        },
+        dataconverters: {
+          metric: fdd_to_cdd,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Freezing Degree Days (°F-days)",
+              metric: "Freezing Degree Days (°C-days)"
+            },
+            anomaly: {
+              english: "Freezing Degree Days departure (°F-days)",
+              metric: "Freezing Degree Days departure (°C-days)"
+            }
+          }
+        },
+        supports_region: ClimateByLocationWidget.is_ak_region
+      },
+      {
+        id: "pcpn",
+        title: {
+          english: "Total Precipitation",
+          metric: "Total Precipitation"
+        },
+        acis_elements: {
+          annual: {
+            "name": "pcpn",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "sum",
+            "units": "inch"
+
+          },
+          monthly: {
+            "name": "pcpn",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "sum",
+            "units": "inch"
+
+          }
+        },
+        dataconverters: {
+          metric: inches_to_mm,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Total Precipitation (in.)",
+              metric: "Total Precipitation"
+            },
+            anomaly: {
+              english: "Total Precipitation departure (%)",
+              metric: "Total Precipitation departure (%)"
+            }
+          },
+          monthly: {
+            english: "Total Precipitation (in.)",
+            metric: "Total Precipitation"
+          },
+          seasonal: {
+            english: "Total Precipitation (in.)",
+            metric: "Total Precipitation"
+          }
+        },
+        supports_region: () => true
+      },
+      {
+        id: "days_dry_days",
+        title: {
+          english: "Dry Days",
+          metric: "Dry Days"
+        },
+        acis_elements: {
+          annual: {
+            "name": "pcpn",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_lt_0.01"
+          },
+          monthly: {
+
+            "name": "pcpn",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "cnt_lt_0.01"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Dry Days (days/period)",
+              metric: "Dry Days (days/period)"
+            },
+            anomaly: {
+              english: "Dry Days (days/period)",
+              metric: "Dry Days (days/period)"
+            }
+          },
+          seasonal: {
+            english: "Dry Days (days/period)",
+            metric: "Dry Days (days/period)"
+          }
+        },
+        supports_region: () => true
+      },
+      {
+        id: "days_pcpn_gt_0_25in",
+        title: {
+          english: "Days per year with more than 0.25in precipitation",
+          metric: "Days per year with more than 6.35mm precipitation"
+        },
+        acis_elements: {
+          annual: {
+            "name": "pcpn",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_1"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with more than 0.25in precipitation",
+              metric: "Days per year with more than 6.35mm precipitation"
+            },
+            anomaly: {
+              english: "Days per year with more than 0.25in precipitation departure",
+              metric: "Days per year with more than 6.35mm precipitation departure"
+            }
+          }
+
+        },
+        supports_region: ClimateByLocationWidget.is_ak_region
+      },
+      {
+        id: "days_pcpn_gt_1in",
+        title: {
+          english: "Days per year with more than 1in precip",
+          metric: "Days per year with more than 25.3mm precip"
+        },
+        acis_elements: {
+          annual: {
+            "name": "pcpn",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_1"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with more than 1in precip",
+              metric: "Days per year with more than 25.3mm precip"
+            },
+            anomaly: {
+              english: "Days per year with more than 1in precip departure",
+              metric: "Days per year with more than 25.3mm precip departure"
+            }
+          }
+
+        },
+        supports_region: () => true
+      },
+      {
+        id: "days_pcpn_gt_2in",
+        title: {
+          english: "Days per year with more than 2in precip",
+          metric: "Days per year with more than 50.8mm precip"
+        },
+        acis_elements: {
+          annual: {
+            "name": "pcpn",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_2"
+
+          }
+
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with more than 2in precip",
+              metric: "Days of Precipitation Above 50.8mm"
+            },
+            anomaly: {
+              english: "Days per year with more than 2in precip departure",
+              metric: "Days of Precipitation Above 50.8mm departure"
+            }
+          }
+
+        },
+        supports_region: () => true
+      },
+      {
+        id: "days_pcpn_gt_3in",
+        title: {
+          english: "Days per year with more than 3in precip",
+          metric: "Days per year with more than 76.2mm precip"
+        },
+        acis_elements: {
+          annual: {
+            "name": "pcpn",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_3"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with more than 3in precip",
+              metric: "Days per year with more than 76.2mm precip"
+            },
+            anomaly: {
+              english: "Days per year with more than 3in precip departure",
+              metric: "Days per year with more than 76.2mm precip departure"
+            }
+          }
+        },
+        supports_region: () => true
+      },
+      {
+        id: "days_pcpn_gt_4in",
+        title: {
+          english: "Days per year with more than 4in precip",
+          metric: "Days per year with more than 101.6mm precip"
+        },
+        acis_elements: {
+          annual: {
+            "name": "pcpn",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_4"
+
+          }
+        },
+        dataconverters: {
+          metric: no_conversion,
+          english: no_conversion
+        },
+        ytitles: {
+          annual: {
+            absolute: {
+              english: "Days per year with more than 4in precip",
+              metric: "Days per year with more than 101.6mm precip"
+            },
+            anomaly: {
+              english: "Days per year with more than 4in precip departure",
+              metric: "Days per year with more than 101.6mm precip departure"
+            }
+          }
+        },
+        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+      }
+    ];
+  }
+
+  static get frequencies() {
+    return [
+      {
+        id: 'annual',
+        title: 'Annual',
+        supports_region: () => true
+      },
+      {
+        id: 'monthly',
+        title: 'Monthly',
+        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+      },
+      {
+        id: 'seasonal',
+        title: 'Seasonal',
+        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+      },
+    ]
+  }
+
   get _bool_options() {
     return ['pmedian', 'hmedian', 'histobs', 'histmod', 'yzoom', 'ypan']
   }
 
-  set_options(options) {
-    let old_options = Object.assign({}, this.options);
-    this.options = merge({}, old_options, options);
-    this._bool_options.forEach((option) => {
-      if (typeof options[option] === "string") {
-        options[option] = options[option].toLowerCase() === "true";
-      }
-    });
-
-    this._update_plot_visibilities();
-
-    if (this.options.yzoom !== old_options.yzoom) {
-      this.axes.y.zoom().allowed(this.options.yzoom);
-    }
-    if (this.options.ypan !== old_options.ypan) {
-      this.axes.y.pan().allowed(this.options.ypan)
-    }
-
-    // if font changed, set it in all the relevant places
-    if (this.options.font !== old_options.font) {
-      let i, j;
-      for (i = 0; i < this.multigraph.graphs().at(0).axes().size(); ++i) {
-        let axis = this.multigraph.graphs().at(0).axes().at(i);
-        if (axis.title()) {
-          axis.title().font("14px " + this.options.font);
-        }
-        for (j = 0; j < axis.labelers().size(); ++j) {
-          axis.labelers().at(j).font("12px " + this.options.font);
-        }
-      }
-    }
-
-    // if frequency, state, county, or variable changed, trigger a larger update cycle (new data + plots maybe changed):
-    if (this.options.frequency !== old_options.frequency ||
-      this.options.state !== old_options.state ||
-      this.options.county !== old_options.county ||
-      this.options.presentation !== old_options.presentation ||
-      this.options.variable !== old_options.variable) {
-      this.update();
-    } else {
-      this.multigraph.render();
-    }
-
-    return this;
-  }
-
-  _reset_dataurls() {
-    this.dataurls = {
-      hist_obs: '',
-      hist_mod: '',
-      proj_mod: ''
-    };
-  }
-
-  async update() {
-    if (!!this.options.county || !!this.options.state) {
-
-      if (this.options.frequency === "annual") {
-        await this._update_annual();
-      } else if (this.options.frequency === "monthly") {
-        await this._update_monthly();
-      } else if (this.options.frequency === "seasonal") {
-        await this._update_seasonal();
-      }
-      this.multigraph.render();
-
-    }
-  }
-
-  async _update_annual() {
-    this.axes.x_annual.visible(true);
-    this.axes.x_monthly.visible(false);
-    this.axes.x_seasonal.visible(false);
-
-    this.hide_all_plots();
-
-    this._reset_dataurls();
-    this._show_spinner();
-    if (!this.is_ak_region(this.get_region_value())) {
-      return Promise.all([
-        this._get_historical_observed_livneh_data(),
-        this._get_historical_loca_model_data(),
-        this._get_projected_loca_model_data()
-      ])
-        .then((([hist_obs_data, hist_mod_data, proj_mod_data]) => {
-          this._hide_spinner();
-
-          let variable_config = find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable);
-          let convfunc = variable_config.dataconverters[this.options.unitsystem];
-          hist_obs_data = this._map_2d_data(hist_obs_data, convfunc);
-          hist_mod_data = this._map_2d_data(hist_mod_data, convfunc);
-          proj_mod_data = this._map_2d_data(proj_mod_data, convfunc);
-
-          let avg = this._average(hist_obs_data, 1961, 1990);
-          if (this.options.presentation === "anomaly") {
-            if (this.options.variable === "pcpn") {
-              hist_obs_data = this._percent_anomalies(hist_obs_data, avg);
-              hist_mod_data = this._percent_anomalies(hist_mod_data, avg);
-              proj_mod_data = this._percent_anomalies(proj_mod_data, avg);
-            } else {
-              hist_obs_data = this._anomalies(hist_obs_data, avg);
-              hist_mod_data = this._anomalies(hist_mod_data, avg);
-              proj_mod_data = this._anomalies(proj_mod_data, avg);
-            }
-          }
-
-          let range = this._scale_range(this._datas_range([hist_obs_data, hist_mod_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
-          this.axes.y.setDataRange(range.min, range.max);
-          this.axes.y.title().content().string(
-            variable_config.ytitles.annual[this.options.presentation][this.options.unitsystem]
-          );
-
-          this._set_data_array('annual_hist_obs', hist_obs_data);
-          this._set_data_array('annual_hist_mod', hist_mod_data);
-          this._set_data_array('annual_proj_mod', proj_mod_data);
-
-          this._update_plot_visibilities();
-
-          this._update_hist_obs_bar_plot_base(avg);
-
-          this.multigraph.render();
-
-        }).bind(this));
-    } else { // AK annual graphs
-      return this._update_annual_ak()
-    }
-  }
-
-  async _update_seasonal() {
-    this.axes.x_annual.visible(false);
-    this.axes.x_monthly.visible(false);
-    this.axes.x_seasonal.visible(true);
-
-    this.hide_all_plots();
-
-    this._reset_dataurls();
-    this._show_spinner();
-    return Promise.all([
-      this._get_historical_observed_livneh_data(),
-      this._get_projected_loca_model_data()
-    ]).then((([hist_obs_data, proj_mod_data]) => {
-      this._hide_spinner();
-      // The incoming data has month values 1,4,7,10.  Here we replace these with the values 0,1,2,3:
-      hist_obs_data.forEach((v) => {
-        v[0] = Math.floor(v[0] / 3);
-      });
-      proj_mod_data.forEach((v) => {
-        v[0] = Math.floor(v[0] / 3);
-      });
-      let variable_config = find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable);
-      let convfunc = variable_config.dataconverters[this.options.unitsystem];
-      hist_obs_data = this._map_2d_data(hist_obs_data, convfunc);
-      proj_mod_data = this._map_2d_data(proj_mod_data, convfunc);
-      let range = this._scale_range(this._datas_range([hist_obs_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
-      this.axes.y.setDataRange(range.min, range.max);
-      this.axes.y.title().content().string(variable_config.ytitles.seasonal[this.options.unitsystem]);
-      this._set_data_array('seasonal_hist_obs', hist_obs_data);
-      this._set_data_array('seasonal_proj_mod', proj_mod_data);
-      this._update_plot_visibilities();
-      this.multigraph.render();
-    }).bind(this));
-  }
-
-  async _update_monthly() {
-    this.axes.x_annual.visible(false);
-    this.axes.x_monthly.visible(true);
-    this.axes.x_seasonal.visible(false);
-
-    this.hide_all_plots();
-
-    this._reset_dataurls();
-    this._show_spinner();
-
-    return Promise.all([
-      this._get_historical_observed_livneh_data(),
-      this._get_projected_loca_model_data()
-    ])
-      .then((([hist_obs_data, proj_mod_data]) => {
-        this._hide_spinner();
-        let variable_config = find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable);
-        let convfunc = variable_config.dataconverters[this.options.unitsystem];
-        hist_obs_data = this._map_2d_data(hist_obs_data, convfunc);
-        proj_mod_data = this._map_2d_data(proj_mod_data, convfunc);
-        let range = this._scale_range(this._datas_range([hist_obs_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
-        this.axes.y.setDataRange(range.min, range.max);
-        this.axes.y.title().content().string(variable_config.ytitles.monthly[this.options.unitsystem]);
-        this._set_data_array('monthly_hist_obs', hist_obs_data);
-        this._set_data_array('monthly_proj_mod', proj_mod_data);
-        this._update_plot_visibilities();
-        this.multigraph.render();
-      }).bind(this));
-  }
-
-
-  async _update_annual_ak() {
-    // get data for GFDL-CM3 and NCAR-CCSM4
-    let hist_sdate = '1970-01-01';
-    let hist_edate = '2005-12-31';
-    let hist_sdate_year = parseInt(String(hist_sdate).slice(0, 4));
-    let hist_edate_year = parseInt(String(hist_edate).slice(0, 4));
-    let mod_edate_year = parseInt(String(this._model_edate).slice(0, 4));
-    return Promise.all([
-      this._fetch_acis_data('snap:GFDL-CM3:rcp85', hist_sdate_year, mod_edate_year),
-      this._fetch_acis_data('snap:NCAR-CCSM4:rcp85', hist_sdate_year, mod_edate_year),
-    ]).then(([
-               gfdl_cm3_rcp85,
-               ncar_ccsm4_rcp85,
-             ]) => {
-      // split into hist mod vs proj mod
-      let hist_mod_data = [];
-      let proj_mod_data = [];
-
-
-      function _rolling_window_average(collection, year, window_size=10){
-       return mean(lodash_range(window_size).map((x)=>get(collection, year - x)).filter((y)=>!!y))
-      }
-
-      for (let key = hist_sdate_year; key <= hist_edate_year; key++) {
-        //year,gfdl_cm3_rcp85, gfdl_cm3_rcp45, ncar_ccsm4_rcp85, ncar_ccsm4_rcp45
-        let y = [_rolling_window_average(gfdl_cm3_rcp85, key), _rolling_window_average(ncar_ccsm4_rcp85, key)];
-
-        hist_mod_data.push([key,min(y), max(y)]);
-      }
-      let proj_edate_year = parseInt(String(this._model_edate).slice(0, 4));
-      for (let key = hist_edate_year + 1; key <= mod_edate_year; key++) {
-        //year,gfdl_cm3_rcp85, gfdl_cm3_rcp45, ncar_ccsm4_rcp85, ncar_ccsm4_rcp45
-        let y = [_rolling_window_average(gfdl_cm3_rcp85, key), _rolling_window_average(ncar_ccsm4_rcp85, key)];
-        proj_mod_data.push([key, min(y), null, max(y), null]);
-      }
-
-      hist_mod_data = this._round_2d_values(hist_mod_data, 1);
-      proj_mod_data = this._round_2d_values(proj_mod_data, 1);
-      // Sort by index before returning
-      hist_mod_data.sort((a, b) => {
-        return (a[0] > b[0]) - (a[0] < b[0])
-      });
-      proj_mod_data.sort((a, b) => {
-        return (a[0] > b[0]) - (a[0] < b[0])
-      });
-
-      this.dataurls.hist_mod = this._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85'], hist_mod_data);
-      this.dataurls.proj_mod = this._format_export_data(['year', 'gfdl_cm3_rcp85', 'gfdl_cm3_rcp45', 'ncar_ccsm4_rcp85', 'ncar_ccsm4_rcp45'], proj_mod_data);
-
-
-      this._hide_spinner();
-
-      let variable_config = find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable);
-      let convfunc = variable_config.dataconverters[this.options.unitsystem];
-      hist_mod_data = this._map_2d_data(hist_mod_data, convfunc);
-      proj_mod_data = this._map_2d_data(proj_mod_data, convfunc);
-
-      let range = this._scale_range(this._datas_range([hist_mod_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
-      this.axes.y.setDataRange(range.min, range.max);
-      this.axes.y.title().content().string(
-        variable_config.ytitles.annual[this.options.presentation][this.options.unitsystem]
-      );
-
-      this._set_data_array('annual_hist_mod_ak', hist_mod_data);
-      this._set_data_array('annual_proj_mod_ak', proj_mod_data);
-
-      this._update_plot_visibilities();
-
-      this.multigraph.render();
-
-    });
-  }
-
-  _update_hist_obs_bar_plot_base(avg) {
-    {
-      // Set the base level for the annual hist_obs bar plot --- this is the y-level
-      // at which the bars are based ("barbase" plot option), as well as the level
-      // that determines the colors of the bars ("min"/"max" property of the "fillcolor"
-      // option -- above this level is red, below it is green).
-      let ref = avg;
-      if (this.options.presentation === "anomaly") {
-        if (this.options.variable === "pcpn") {
-          ref = 100;
-        } else {
-          ref = 0;
-        }
-      }
-      let number_val = new window.multigraph.core.NumberValue(ref);
-      let plot = this.find_plot_instance(null, 'annual', 'hist_obs');
-      if (!plot) {
-        return
-      }
-      plot.renderer().options().barbase().at(0).value(number_val);
-      let j;
-      for (j = 1; j < plot.renderer().options().fillcolor().size(); ++j) {
-        if (plot.renderer().options().fillcolor().at(j).min()) {
-          plot.renderer().options().fillcolor().at(j).min(number_val);
-        }
-        if (plot.renderer().options().fillcolor().at(j).max()) {
-          plot.renderer().options().fillcolor().at(j).max(number_val);
-        }
-      }
-    }
-  }
-
+  /**
+   * The default config for the widget
+   */
   get config_default() {
     return {
       // default values:
@@ -454,6 +1234,9 @@ export class ClimateByLocationWidget {
     };
   }
 
+  /**
+   * The default config template for multigraph
+   */
   get multigraph_config_default() {
     return {
       legend: false,
@@ -551,7 +1334,10 @@ export class ClimateByLocationWidget {
         visible: true,
         labels: {
           label: [
-            {format: "%1d", spacing: [10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1]},
+            {
+              format: "%1d",
+              spacing: [10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1]
+            },
             {format: "%.1f", spacing: [0.5, 0.2, 0.1]},
             {format: "%.2f", spacing: [0.05, 0.02, 0.01]}
           ]
@@ -661,7 +1447,7 @@ export class ClimateByLocationWidget {
       }
 
       // shorthand to create a plot config record
-      function p(plot_config, frequency = null, regime = null, stat = null, scenario = null, timeperiod = null, plot_index = -1) {
+      function p(plot_config, frequency = null, regime = null, stat = null, scenario = null, timeperiod = null, region = null, plot_index = -1) {
         return {
           plot_config: plot_config,
           frequency: frequency,
@@ -669,6 +1455,7 @@ export class ClimateByLocationWidget {
           stat: stat,
           scenario: scenario,
           timeperiod: timeperiod,
+          region: region,
           plot_index: plot_index
         }
       }
@@ -738,8 +1525,8 @@ export class ClimateByLocationWidget {
 
 
         // annual AK plots:
-        p(band_plot("x_annual", "annual_hist_mod_ak_x", "y", "annual_hist_mod_gfdl_cm3_y", "annual_hist_mod_ncar_ccsm4_y", this.options.colors.grays.outerBand), "annual", "annual_ak", "minmax"),
-        p(band_plot("x_annual", "annual_proj_mod_ak_x", "y", "annual_proj_mod_gfdl_cm3_rcp85_y", "annual_proj_mod_ncar_ccsm4_rcp85_y", this.options.colors.reds.outerBand), "annual", "annual_ak", "minmax"),
+        p(band_plot("x_annual", "annual_hist_mod_ak_x", "y", "annual_hist_mod_gfdl_cm3_y", "annual_hist_mod_ncar_ccsm4_y", this.options.colors.grays.outerBand), "annual", "hist_mod", "minmax", null, null, 'ak'),
+        p(band_plot("x_annual", "annual_proj_mod_ak_x", "y", "annual_proj_mod_gfdl_cm3_rcp85_y", "annual_proj_mod_ncar_ccsm4_rcp85_y", this.options.colors.reds.outerBand), "annual", "annual_proj", "minmax", "rcp85", null, 'ak'),
         // p(line_plot("x_annual", "annual_hist_mod_ak_x", "y", "annual_hist_mod_gfdl_cm3_y", this.options.colors.grays.outerBand), "annual", "annual_ak", "minmax"),
         // p(line_plot("x_annual", "annual_hist_mod_ak_x", "y", "annual_hist_mod_ncar_ccsm4_y", this.options.colors.grays.outerBand), "annual", "annual_ak", "minmax"),
         // p(line_plot("x_annual", "annual_proj_mod_ak_x", "y", "annual_proj_mod_gfdl_cm3_rcp85_y", this.options.colors.reds.line), "annual", "annual_ak", "minmax"),
@@ -910,6 +1697,360 @@ export class ClimateByLocationWidget {
     return this._data_config;
   }
 
+  get _months() {
+    return ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+  }
+
+  get _model_edate() {
+    return '2099-12-31'
+  }
+
+  /**
+   * Gets available variable options for a specified combination of frequency and region.
+   *
+   * @param frequency
+   * @param unitsystem
+   * @param region
+   * @returns {{id: *, title: *}[]}
+   */
+  static get_variables(frequency, unitsystem, region) {
+    unitsystem = unitsystem || 'english';
+    return ClimateByLocationWidget.variables.filter((v) => frequency in v.ytitles && ((typeof v.supports_region === "function" ? v.supports_region(region) : true))).map((v) => {
+      return {id: v.id, title: v.title[unitsystem]};
+    });
+  }
+
+  /**
+   * Gets available frequency options for a specified region.
+   *
+   * @param region
+   * @returns {{id: (string), title: (string)}[]}
+   */
+  static get_frequencies(region) {
+    return ClimateByLocationWidget.frequencies.filter((f) => ((typeof f.supports_region === "function" ? f.supports_region(region) : true))).map((v) => {
+      return {id: v.id, title: v.title};
+    });
+  }
+
+  /**
+   * This function is used to toggle features based on whether the selected region is in Alaska or not.
+   *
+   * @param region
+   * @returns {boolean}
+   */
+  static is_ak_region(region) {
+    return String(region).startsWith('02') || region === 'AK'
+  }
+
+  set_options(options) {
+    let old_options = Object.assign({}, this.options);
+    this.options = merge({}, old_options, options);
+    if (this.options.state !== old_options.state && this.options.county === old_options.county) {
+      this.options.county = null;
+    }
+    this._bool_options.forEach((option) => {
+      if (typeof options[option] === "string") {
+        options[option] = options[option].toLowerCase() === "true";
+      }
+    });
+    if (!get(ClimateByLocationWidget, ['frequencies', this.options.frequency, 'supports_region'], () => true)(this.get_region_value())) {
+      this.options.frequency = ClimateByLocationWidget.get_variables(this.get_region_value())[0].id
+    }
+    if (!get(ClimateByLocationWidget, ['variables', this.options.variable, 'supports_region'], () => true)(this.get_region_value())) {
+      this.options.variable = ClimateByLocationWidget.get_variables(this.options.frequency, null, this.get_region_value())[0].id
+    }
+
+    this._update_plot_visibilities();
+
+    if (this.options.yzoom !== old_options.yzoom) {
+      this.axes.y.zoom().allowed(this.options.yzoom);
+    }
+    if (this.options.ypan !== old_options.ypan) {
+      this.axes.y.pan().allowed(this.options.ypan)
+    }
+
+    // if font changed, set it in all the relevant places
+    if (this.options.font !== old_options.font) {
+      let i, j;
+      for (i = 0; i < this.multigraph.graphs().at(0).axes().size(); ++i) {
+        let axis = this.multigraph.graphs().at(0).axes().at(i);
+        if (axis.title()) {
+          axis.title().font("14px" + this.options.font);
+        }
+        for (j = 0; j < axis.labelers().size(); ++j) {
+          axis.labelers().at(j).font("12px" + this.options.font);
+        }
+      }
+    }
+
+    // if frequency, state, county, or variable changed, trigger a larger update cycle (new data + plots maybe changed):
+    if (this.options.frequency !== old_options.frequency ||
+      this.options.state !== old_options.state ||
+      this.options.county !== old_options.county ||
+      this.options.presentation !== old_options.presentation ||
+      this.options.variable !== old_options.variable) {
+      this.update();
+    } else {
+      this.multigraph.render();
+    }
+
+    return this;
+  }
+
+  _reset_dataurls() {
+    this.dataurls = {
+      hist_obs: '',
+      hist_mod: '',
+      proj_mod: ''
+    };
+  }
+
+  /**
+   * Requests the widget update according to its current options. Use `set_options()` to changes options instead.
+   * @returns {Promise<void>}
+   */
+  async update() {
+    if (!!this.options.county || !!this.options.state) {
+      if (this.options.frequency === "annual") {
+        await this._update_annual();
+      } else if (this.options.frequency === "monthly") {
+        await this._update_monthly();
+      } else if (this.options.frequency === "seasonal") {
+        await this._update_seasonal();
+      }
+      // this.multigraph.render();
+    }
+  }
+
+  async _update_annual() {
+    this.axes.x_annual.visible(true);
+    this.axes.x_monthly.visible(false);
+    this.axes.x_seasonal.visible(false);
+
+    this.hide_all_plots();
+
+    this._reset_dataurls();
+    this._show_spinner();
+    if (!ClimateByLocationWidget.is_ak_region(this.get_region_value())) {
+      return Promise.all([
+        this._get_historical_observed_livneh_data(),
+        this._get_historical_loca_model_data(),
+        this._get_projected_loca_model_data()
+      ])
+        .then((([hist_obs_data, hist_mod_data, proj_mod_data]) => {
+          this._hide_spinner();
+
+          let variable_config = find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable);
+          let convfunc = variable_config.dataconverters[this.options.unitsystem];
+          hist_obs_data = this._map_2d_data(hist_obs_data, convfunc);
+          hist_mod_data = this._map_2d_data(hist_mod_data, convfunc);
+          proj_mod_data = this._map_2d_data(proj_mod_data, convfunc);
+
+          let avg = this._average(hist_obs_data, 1961, 1990);
+          if (this.options.presentation === "anomaly") {
+            if (this.options.variable === "pcpn") {
+              hist_obs_data = this._percent_anomalies(hist_obs_data, avg);
+              hist_mod_data = this._percent_anomalies(hist_mod_data, avg);
+              proj_mod_data = this._percent_anomalies(proj_mod_data, avg);
+            } else {
+              hist_obs_data = this._anomalies(hist_obs_data, avg);
+              hist_mod_data = this._anomalies(hist_mod_data, avg);
+              proj_mod_data = this._anomalies(proj_mod_data, avg);
+            }
+          }
+
+          let range = this._scale_range(this._datas_range([hist_obs_data, hist_mod_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
+          this.axes.y.setDataRange(range.min, range.max);
+          this.axes.y.title().content().string(
+            variable_config.ytitles.annual[this.options.presentation][this.options.unitsystem]
+          );
+
+          this._set_data_array('annual_hist_obs', hist_obs_data);
+          this._set_data_array('annual_hist_mod', hist_mod_data);
+          this._set_data_array('annual_proj_mod', proj_mod_data);
+
+          this._update_plot_visibilities();
+
+          this._update_hist_obs_bar_plot_base(avg);
+
+          this.multigraph.render();
+
+        }).bind(this));
+    } else { // AK annual graphs
+      return this._update_annual_ak()
+    }
+  }
+
+  async _update_seasonal() {
+    this.axes.x_annual.visible(false);
+    this.axes.x_monthly.visible(false);
+    this.axes.x_seasonal.visible(true);
+
+    this.hide_all_plots();
+
+    this._reset_dataurls();
+    this._show_spinner();
+    return Promise.all([
+      this._get_historical_observed_livneh_data(),
+      this._get_projected_loca_model_data()
+    ]).then((([hist_obs_data, proj_mod_data]) => {
+      this._hide_spinner();
+      // The incoming data has month values 1,4,7,10.  Here we replace these with the values 0,1,2,3:
+      hist_obs_data.forEach((v) => {
+        v[0] = Math.floor(v[0] / 3);
+      });
+      proj_mod_data.forEach((v) => {
+        v[0] = Math.floor(v[0] / 3);
+      });
+      let variable_config = find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable);
+      let convfunc = variable_config.dataconverters[this.options.unitsystem];
+      hist_obs_data = this._map_2d_data(hist_obs_data, convfunc);
+      proj_mod_data = this._map_2d_data(proj_mod_data, convfunc);
+      let range = this._scale_range(this._datas_range([hist_obs_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
+      this.axes.y.setDataRange(range.min, range.max);
+      this.axes.y.title().content().string(variable_config.ytitles.seasonal[this.options.unitsystem]);
+      this._set_data_array('seasonal_hist_obs', hist_obs_data);
+      this._set_data_array('seasonal_proj_mod', proj_mod_data);
+      this._update_plot_visibilities();
+      this.multigraph.render();
+    }).bind(this));
+  }
+
+  async _update_monthly() {
+    this.axes.x_annual.visible(false);
+    this.axes.x_monthly.visible(true);
+    this.axes.x_seasonal.visible(false);
+
+    this.hide_all_plots();
+
+    this._reset_dataurls();
+    this._show_spinner();
+
+    return Promise.all([
+      this._get_historical_observed_livneh_data(),
+      this._get_projected_loca_model_data()
+    ])
+      .then((([hist_obs_data, proj_mod_data]) => {
+        this._hide_spinner();
+        let variable_config = find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable);
+        let convfunc = variable_config.dataconverters[this.options.unitsystem];
+        hist_obs_data = this._map_2d_data(hist_obs_data, convfunc);
+        proj_mod_data = this._map_2d_data(proj_mod_data, convfunc);
+        let range = this._scale_range(this._datas_range([hist_obs_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
+        this.axes.y.setDataRange(range.min, range.max);
+        this.axes.y.title().content().string(variable_config.ytitles.monthly[this.options.unitsystem]);
+        this._set_data_array('monthly_hist_obs', hist_obs_data);
+        this._set_data_array('monthly_proj_mod', proj_mod_data);
+        this._update_plot_visibilities();
+        this.multigraph.render();
+      }).bind(this));
+  }
+
+  async _update_annual_ak() {
+    // get data for GFDL-CM3 and NCAR-CCSM4
+    let hist_sdate = '1970-01-01';
+    let hist_edate = '2005-12-31';
+    let hist_sdate_year = parseInt(String(hist_sdate).slice(0, 4));
+    let hist_edate_year = parseInt(String(hist_edate).slice(0, 4));
+    let mod_edate_year = parseInt(String(this._model_edate).slice(0, 4));
+    return Promise.all([
+      this._fetch_acis_data('snap:GFDL-CM3:rcp85', hist_sdate_year, mod_edate_year),
+      this._fetch_acis_data('snap:NCAR-CCSM4:rcp85', hist_sdate_year, mod_edate_year),
+    ]).then(([
+               gfdl_cm3_rcp85,
+               ncar_ccsm4_rcp85,
+             ]) => {
+      // split into hist mod vs proj mod
+      let hist_mod_data = [];
+      let proj_mod_data = [];
+
+
+      function _rolling_window_average(collection, year, window_size = 10) {
+        return mean(lodash_range(window_size).map((x) => get(collection, year - x)).filter((y) => !!y))
+      }
+
+      for (let key = hist_sdate_year; key <= hist_edate_year; key++) {
+        //year,gfdl_cm3_rcp85, gfdl_cm3_rcp45, ncar_ccsm4_rcp85, ncar_ccsm4_rcp45
+        let y = [_rolling_window_average(gfdl_cm3_rcp85, key), _rolling_window_average(ncar_ccsm4_rcp85, key)];
+
+        hist_mod_data.push([key, min(y), max(y)]);
+      }
+      let proj_edate_year = parseInt(String(this._model_edate).slice(0, 4));
+      for (let key = hist_edate_year + 1; key <= mod_edate_year; key++) {
+        //year,gfdl_cm3_rcp85, gfdl_cm3_rcp45, ncar_ccsm4_rcp85, ncar_ccsm4_rcp45
+        let y = [_rolling_window_average(gfdl_cm3_rcp85, key), _rolling_window_average(ncar_ccsm4_rcp85, key)];
+        proj_mod_data.push([key, min(y), null, max(y), null]);
+      }
+
+      hist_mod_data = this._round_2d_values(hist_mod_data, 1);
+      proj_mod_data = this._round_2d_values(proj_mod_data, 1);
+      // Sort by index before returning
+      hist_mod_data.sort((a, b) => {
+        return (a[0] > b[0]) - (a[0] < b[0])
+      });
+      proj_mod_data.sort((a, b) => {
+        return (a[0] > b[0]) - (a[0] < b[0])
+      });
+
+      this.dataurls.hist_mod = this._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85'], hist_mod_data);
+      this.dataurls.proj_mod = this._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85',], proj_mod_data);
+
+
+      this._hide_spinner();
+
+      let variable_config = find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable);
+      let convfunc = variable_config.dataconverters[this.options.unitsystem];
+      hist_mod_data = this._map_2d_data(hist_mod_data, convfunc);
+      proj_mod_data = this._map_2d_data(proj_mod_data, convfunc);
+
+      let range = this._scale_range(this._datas_range([hist_mod_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
+      this.axes.y.setDataRange(range.min, range.max);
+      this.axes.y.title().content().string(
+        variable_config.ytitles.annual[this.options.presentation][this.options.unitsystem]
+      );
+
+      this._set_data_array('annual_hist_mod_ak', hist_mod_data);
+      this._set_data_array('annual_proj_mod_ak', proj_mod_data);
+
+      this._update_plot_visibilities();
+
+      this.multigraph.render();
+
+    });
+  }
+
+  _update_hist_obs_bar_plot_base(avg) {
+    {
+      // Set the base level for the annual hist_obs bar plot --- this is the y-level
+      // at which the bars are based ("barbase" plot option), as well as the level
+      // that determines the colors of the bars ("min"/"max" property of the "fillcolor"
+      // option -- above this level is red, below it is green).
+      let ref = avg;
+      if (this.options.presentation === "anomaly") {
+        if (this.options.variable === "pcpn") {
+          ref = 100;
+        } else {
+          ref = 0;
+        }
+      }
+      let number_val = new window.multigraph.core.NumberValue(ref);
+      let plot = this.find_plot_instance(null, 'annual', 'hist_obs');
+      if (!plot) {
+        return
+      }
+      plot.renderer().options().barbase().at(0).value(number_val);
+      let j;
+      for (j = 1; j < plot.renderer().options().fillcolor().size(); ++j) {
+        if (plot.renderer().options().fillcolor().at(j).min()) {
+          plot.renderer().options().fillcolor().at(j).min(number_val);
+        }
+        if (plot.renderer().options().fillcolor().at(j).max()) {
+          plot.renderer().options().fillcolor().at(j).max(number_val);
+        }
+      }
+    }
+  }
+
   /**
    * Updates the data that multigraph has for a given dataset
    * @param id the alias for the dataset
@@ -980,9 +2121,11 @@ export class ClimateByLocationWidget {
       if (this.options.frequency !== plot_config.frequency) {
         return false;
       }
+
       if (plot_config.frequency === "annual") {
-        if (plot_config.regime === 'annual_ak' && this.is_ak_region(this.get_region_value())) {
-          return true
+        // don't show ak plots for non-ak and don't show non-ak plots for ak.
+        if (ClimateByLocationWidget.is_ak_region(this.get_region_value()) ? plot_config.region !== "ak" : plot_config.region === "ak") {
+          return false
         }
         if (plot_config.regime === "hist_obs") {
           return this.options.histobs;
@@ -1035,749 +2178,7 @@ export class ClimateByLocationWidget {
     });
   }
 
-
-  static get variables() {
-    return [
-      {
-        id: "tmax",
-        title: {
-          english: "Average Daily Max Temp",
-          metric: "Average Daily Max Temp"
-        },
-        acis_elements: {
-          annual: {
-            "name": "maxt",
-            "units": "degreeF",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "mean"
-
-          },
-          monthly: {
-            "name": "maxt",
-            "units": "degreeF",
-            "interval": "mly",
-            "duration": "mly",
-            "reduce": "mean"
-          }
-        },
-        dataconverters: {
-          metric: fahrenheit_to_celsius,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Average Daily Max Temp (°F)",
-              metric: "Average Daily Max Temp (°C)"
-            },
-            anomaly: {
-              english: "Average Daily Max Temp departure (°F)",
-              metric: "Average Daily Max Temp departure (°C)"
-            }
-          },
-          monthly: {
-            english: "Average Daily Max Temp (°F)",
-            metric: "Average Daily Max Temp (°C)"
-          },
-          seasonal: {
-            english: "Average Daily Max Temp (°F)",
-            metric: "Average Daily Max Temp (°C)"
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "tmin",
-        title: {
-          english: "Average Daily Min Temp",
-          metric: "Average Daily Min Temp"
-        },
-        acis_elements: {
-          annual: {
-            "name": "mint",
-            "units": "degreeF",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "mean"
-          },
-          monthly: {
-            "name": "mint",
-            "units": "degreeF",
-            "interval": "mly",
-            "duration": "mly",
-            "reduce": "mean"
-
-          }
-        },
-        dataconverters: {
-          metric: fahrenheit_to_celsius,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Average Daily Min Temp (°F)",
-              metric: "Average Daily Min Temp (°C)"
-            },
-            anomaly: {
-              english: "Average Daily Min Temp departure (°F)",
-              metric: "Average Daily Min Temp departure (°C)"
-            }
-          },
-          monthly: {
-            english: "Average Daily Min Temp (°F)",
-            metric: "Average Daily Min Temp (°C)"
-          },
-          seasonal: {
-            english: "Average Daily Min Temp (°F)",
-            metric: "Average Daily Min Temp (°C)"
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "days_tmax_gt_90f",
-        title: {
-          english: " Days per year with max above 90°F",
-          metric: " Days per year with max above 90°F"
-        },
-        acis_elements: {
-          annual: {
-            "name": "maxt",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "cnt_gt_90"
-
-          }
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: " Days per year with max above 90°F",
-              metric: " Days per year with max above 90°F"
-            },
-            anomaly: {
-              english: " Days per year with max above 90°F",
-              metric: " Days per year with max above 90°F"
-            }
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "days_tmax_gt_95f",
-        title: {
-          english: "Days per year with max above 95°F",
-          metric: "Days per year with max above 35°C"
-        },
-        acis_elements: {
-          annual: {
-            "name": "maxt",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "cnt_gt_95"
-
-          }
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Days per year with max above 95°F",
-              metric: "Days per year with max above 95°C"
-            },
-            anomaly: {
-              english: "Days per year with max above 95°F departure",
-              metric: "Days per year with max above 95°C departure"
-            }
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "days_tmax_gt_100f",
-        title: {
-          english: "Days per year with max above 100°F",
-          metric: "Days per year with max above 100°F"
-        },
-        acis_elements: {
-          annual: {
-            "name": "maxt",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "cnt_gt_100"
-
-          }
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Days per year with max above 100°F",
-              metric: "Days per year with max above 100°F"
-            },
-            anomaly: {
-              english: " Days per year with max above 100°F",
-              metric: " Days per year with max above 100°F"
-            }
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "days_tmax_gt_105f",
-        title: {
-          english: "Days per year with max above 105°F",
-          metric: "Days per year with max above 105°F"
-        },
-        acis_elements: {
-          annual: {
-            "name": "maxt",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "cnt_gt_105"
-
-          }
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Days per year with max above 105°F",
-              metric: "Days per year with max above 105°F"
-            },
-            anomaly: {
-              english: "Days per year with max above 105°F departure",
-              metric: "Days per year with max above 105°F departure"
-            }
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "days_tmax_lt_32f",
-        title: {
-          english: "Days per year with max below 32°F (Icing days)",
-          metric: "Days per year with max below 0°C (Icing days)"
-        },
-        acis_elements: {
-          annual: {
-            "name": "maxt",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "cnt_lt_32"
-
-          }
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Days per year with max below 32°F (Icing days)",
-              metric: "Days per year with max below 0°C (Icing days)"
-            },
-            anomaly: {
-              english: "Days per year with max below 32°F departure",
-              metric: "Days per year with max below 0°C departure"
-            }
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "days_tmin_lt_32f",
-        title: {
-          english: "Days per year with min below 32°F (frost days)",
-          metric: "Days per year with min below 0°C (frost days)"
-        },
-        acis_elements: {
-          annual: {
-            "name": "mint",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "cnt_lt_32"
-
-          }
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Days per year with min below 32°F (frost days)",
-              metric: "Days per year with min below 0°C (frost days)"
-            },
-            anomaly: {
-              english: "Days per year with min below 32°F (frost days)",
-              metric: "Days per year with min below 0°C (frost days)"
-            }
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "days_tmin_gt_80f",
-        title: {
-          english: "Days per year with min above 80°F",
-          metric: "Days per year with min above 80°F"
-        },
-        acis_elements: {
-          annual: {
-            "name": "mint",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "cnt_gt_80"
-
-          },
-          monthly: {
-            "name": "mint",
-            "interval": "mly",
-            "duration": "mly",
-            "reduce": "cnt_gt_80"
-
-          }
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Days per year with min above 80°F",
-              metric: "Days per year with min above 80°F"
-            },
-            anomaly: {
-              english: "Days per year with min above 80°F departure",
-              metric: "Days per year with min above 80°F departure"
-            }
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "days_tmin_gt_90f",
-        title: {
-          english: "Days per year with min above 90°F",
-          metric: "Days per year with min above 90°F"
-        },
-        acis_elements: {
-          annual: {
-            "name": "mint",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "cnt_gt_90"
-
-          },
-          monthly: {
-            "name": "mint",
-            "interval": "mly",
-            "duration": "mly",
-            "reduce": "cnt_gt_90"
-
-          }
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Days per year with min above 90°F",
-              metric: "Days per year with min above 90°F"
-            },
-            anomaly: {
-              english: "Days per year with min above 90°F departure",
-              metric: "Days per year with min above 90°F departure"
-            }
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "hdd_65f",
-        title: {
-          english: "Heating Degree Days",
-          metric: "Heating Degree Days"
-        },
-        acis_elements: {
-          annual: {
-            "name": "hdd",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "sum"
-
-          }
-        },
-        dataconverters: {
-          metric: fdd_to_cdd,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Heating Degree Days (°F-days)",
-              metric: "Heating Degree Days (°C-days)"
-            },
-            anomaly: {
-              english: "Heating Degree Days departure (°F-days)",
-              metric: "Heating Degree Days departure (°C-days)"
-            }
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "cdd_65f",
-        title: {
-          english: "Cooling Degree Days",
-          metric: "Cooling Degree Days"
-        },
-        acis_elements: {
-          annual: {
-            "name": "cdd",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "sum"
-
-          }
-        },
-        dataconverters: {
-          metric: fdd_to_cdd,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Cooling Degree Days (°F-days)",
-              metric: "Cooling Degree Days (°C-days)"
-            },
-            anomaly: {
-              english: "Cooling Degree Days departure (°F-days)",
-              metric: "Cooling Degree Days departure (°C-days)"
-            }
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "gdd",
-        title: {
-          english: "Growing Degree Days",
-          metric: "Growing Degree Days"
-        },
-        acis_elements: {
-          annual: {
-            "name": "gdd",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "sum"
-          }
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Growing Degree Days (°F-days)",
-              metric: "Growing Degree Days (°C-days)"
-            },
-            anomaly: {
-              english: "Growing Degree Days departure (°F-days)",
-              metric: "Growing Degree Days departure (°C-days)"
-            }
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "gddmod",
-        title: {
-          english: "Modified Growing Degree Days",
-          metric: "Modified Growing Degree Days"
-        },
-        acis_elements: {
-          annual: {
-            "name": "gdd",
-            "duration": "yly",
-            "limit": [86, 50],
-            "interval": "yly",
-            "reduce": "sum"
-          }
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Modified Growing Degree Days (°F-days)",
-              metric: "Modified Growing Degree Days (°C-days)"
-            },
-            anomaly: {
-              english: "Modified Growing Degree Days departure (°F-days)",
-              metric: "Modified Growing Degree Days departure (°C-days)"
-            }
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "pcpn",
-        title: {
-          english: "Total Precipitation",
-          metric: "Total Precipitation"
-        },
-        acis_elements: {
-          annual: {
-            "name": "pcpn",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "sum",
-            "units": "inch"
-
-          },
-          monthly: {
-            "name": "pcpn",
-            "interval": "mly",
-            "duration": "mly",
-            "reduce": "sum",
-            "units": "inch"
-
-          }
-        },
-        dataconverters: {
-          metric: inches_to_mm,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Total Precipitation (in.)",
-              metric: "Total Precipitation"
-            },
-            anomaly: {
-              english: "Total Precipitation departure (%)",
-              metric: "Total Precipitation departure (%)"
-            }
-          },
-          monthly: {
-            english: "Total Precipitation (in.)",
-            metric: "Total Precipitation"
-          },
-          seasonal: {
-            english: "Total Precipitation (in.)",
-            metric: "Total Precipitation"
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "days_dry_days",
-        title: {
-          english: "Dry Days",
-          metric: "Dry Days"
-        },
-        acis_elements: {
-          annual: {
-            "name": "pcpn",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "cnt_lt_0.01"
-          },
-          monthly: {
-
-            "name": "pcpn",
-            "interval": "mly",
-            "duration": "mly",
-            "reduce": "cnt_lt_0.01"
-
-          }
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Dry Days (days/period)",
-              metric: "Dry Days (days/period)"
-            },
-            anomaly: {
-              english: "Dry Days (days/period)",
-              metric: "Dry Days (days/period)"
-            }
-          },
-          seasonal: {
-            english: "Dry Days (days/period)",
-            metric: "Dry Days (days/period)"
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "days_pcpn_gt_1in",
-        title: {
-          english: "Days per year with more than 1in precip",
-          metric: "Days per year with more than 25.3mm precip"
-        },
-        acis_elements: {
-          annual: {
-            "name": "pcpn",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "cnt_gt_1"
-
-          }
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Days per year with more than 1in precip",
-              metric: "Days per year with more than 25.3mm precip"
-            },
-            anomaly: {
-              english: "Days per year with more than 1in precip departure",
-              metric: "Days per year with more than 25.3mm precip departure"
-            }
-          }
-
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "days_pcpn_gt_2in",
-        title: {
-          english: "Days per year with more than 2in precip",
-          metric: "Days per year with more than 50.8mm precip"
-        },
-        acis_elements: {
-          annual: {
-            "name": "pcpn",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "cnt_gt_2"
-
-          }
-
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Days per year with more than 2in precip",
-              metric: "Days of Precipitation Above 50.8mm"
-            },
-            anomaly: {
-              english: "Days per year with more than 2in precip departure",
-              metric: "Days of Precipitation Above 50.8mm departure"
-            }
-          }
-
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "days_pcpn_gt_3in",
-        title: {
-          english: "Days per year with more than 3in precip",
-          metric: "Days per year with more than 76.2mm precip"
-        },
-        acis_elements: {
-          annual: {
-            "name": "pcpn",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "cnt_gt_3"
-
-          }
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Days per year with more than 3in precip",
-              metric: "Days per year with more than 76.2mm precip"
-            },
-            anomaly: {
-              english: "Days per year with more than 3in precip departure",
-              metric: "Days per year with more than 76.2mm precip departure"
-            }
-          }
-        },
-        supports_region: ()=>true
-      },
-      {
-        id: "days_pcpn_gt_4in",
-        title: {
-          english: "Days per year with more than 4in precip",
-          metric: "Days per year with more than 101.6mm precip"
-        },
-        acis_elements: {
-          annual: {
-            "name": "pcpn",
-            "interval": "yly",
-            "duration": "yly",
-            "reduce": "cnt_gt_4"
-
-          }
-        },
-        dataconverters: {
-          metric: no_conversion,
-          english: no_conversion
-        },
-        ytitles: {
-          annual: {
-            absolute: {
-              english: "Days per year with more than 4in precip",
-              metric: "Days per year with more than 101.6mm precip"
-            },
-            anomaly: {
-              english: "Days per year with more than 4in precip departure",
-              metric: "Days per year with more than 101.6mm precip departure"
-            }
-          }
-        }
-      }
-    ];
-  }
-
-
-  get_region_reduction() {
+  _get_region_reduction() {
     if (this.options.county) {
       return {'area_reduce': 'county_mean'}
     }
@@ -1786,16 +2187,14 @@ export class ClimateByLocationWidget {
     }
   }
 
+  /**
+   * Gets the county or state that is currently selected.
+   */
   get_region_value() {
-    if (this.options.county) {
-      return this.options.county
-    }
-    if (this.options.state) {
-      return this.options.state
-    }
+    return this.options.county || this.options.state || null
   }
 
-  get_region_parameters() {
+  _get_region_parameters() {
     if (this.options.county) {
       return {
         "county": this.options.county
@@ -1806,23 +2205,6 @@ export class ClimateByLocationWidget {
     } else {
       throw new Error('county/state not valid')
     }
-  }
-
-  /**
-   * Gets available variables for a specified combination of frequency and region.
-   *
-   * @param frequency
-   * @param unitsystem
-   * @param region
-   * @returns {{id: *, title: *}[]}
-   */
-  static get_variables(frequency, unitsystem, region) {
-    unitsystem = unitsystem || 'english';
-    return ClimateByLocationWidget.variables.filter((v) => {
-      return frequency in v.ytitles && (!region || (typeof v.supports_region === "function" && v.supports_region(region)));
-    }).map((v) => {
-      return {id: v.id, title: v.title[unitsystem]};
-    });
   }
 
   _map_2d_data(data, f) {
@@ -1878,7 +2260,7 @@ export class ClimateByLocationWidget {
   async _get_historical_observed_livneh_data() {
     let freq = (this.options.frequency === 'annual') ? 'annual' : 'monthly';
     let variableConfig = find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable);
-    let elems = [$.extend(variableConfig['acis_elements'][freq], this.get_region_reduction())];
+    let elems = [$.extend(variableConfig['acis_elements'][freq], this._get_region_reduction())];
     return $.ajax({
       url: this.options.data_api_endpoint,
       type: "POST",
@@ -1891,7 +2273,7 @@ export class ClimateByLocationWidget {
         // "edate": (String(new Date().getFullYear() - 1)),
         "grid": 'livneh',
         "elems": elems
-      }, this.get_region_parameters()))
+      }, this._get_region_parameters()))
     })
       .then(((response) => {
 
@@ -1976,7 +2358,7 @@ export class ClimateByLocationWidget {
 
     let freq = (this.options.frequency === 'annual') ? 'annual' : 'monthly';
 
-    let elems = [$.extend((find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable))['acis_elements'][freq], this.get_region_reduction())];
+    let elems = [$.extend((find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable))['acis_elements'][freq], this._get_region_reduction())];
 
     return $.ajax({
       url: this.options.data_api_endpoint,
@@ -1988,7 +2370,7 @@ export class ClimateByLocationWidget {
         "sdate": String(sdate),
         "edate": String(edate),
         "elems": elems
-      }, this.get_region_parameters()))
+      }, this._get_region_parameters()))
     })
       .then(((response) => {
         let data = {};
@@ -2000,7 +2382,6 @@ export class ClimateByLocationWidget {
         return data;
       }).bind(this));
   }
-
 
   async _get_historical_loca_model_data() {
     // let edate = (String(new Date().getFullYear())) + '-01-01';
@@ -2194,11 +2575,11 @@ export class ClimateByLocationWidget {
       }).bind(this));
   }
 
-  get _months() {
-    return ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
-  }
-
-
+  /**
+   * Transform an anchor element to download the current graph as an image. Return false on failure / no data.
+   * @param link
+   * @returns {boolean}
+   */
   download_image(link) {
     link.href = this.$graphdiv.find('canvas')[0].toDataURL('image/png');
     link.download = [
@@ -2207,9 +2588,19 @@ export class ClimateByLocationWidget {
       this.options.variable,
       "graph"
     ].join('-').replace(/ /g, '_') + '.png';
+    return true;
   }
 
+  /**
+   * Transform an anchor element to download the historic observed data. Return false on failure / no data.
+   * @param link
+   * @returns {boolean}
+   */
   download_hist_obs_data(link) {
+    if (!this.dataurls.hist_obs) {
+      link.href = '#nodata';
+      return false;
+    }
     link.href = this.dataurls.hist_obs;
     link.download = [
       this.options.get_region_label.bind(this)(),
@@ -2217,9 +2608,19 @@ export class ClimateByLocationWidget {
       "hist_obs",
       this.options.variable
     ].join('-').replace(/ /g, '_') + '.csv';
+    return true;
   }
 
+  /**
+   * Transform an anchor element to download the historic modelled data. Return false on failure / no data.
+   * @param link
+   * @returns {boolean}
+   */
   download_hist_mod_data(link) {
+    if (!this.dataurls.hist_mod) {
+      link.href = '#nodata';
+      return false;
+    }
     link.href = this.dataurls.hist_mod;
     link.download = [
       this.options.get_region_label.bind(this)(),
@@ -2227,9 +2628,19 @@ export class ClimateByLocationWidget {
       "hist_mod",
       this.options.variable
     ].join('-').replace(/ /g, '_') + '.csv';
+    return true;
   }
 
+  /**
+   * Transform an anchor element to download the projected modelled data. Return false on failure / no data.
+   * @param link
+   * @returns {boolean}
+   */
   download_proj_mod_data(link) {
+    if (!this.dataurls.proj_mod) {
+      link.href = '#nodata';
+      return false;
+    }
     link.href = this.dataurls.proj_mod;
     link.download = [
       this.options.get_region_label.bind(this)(),
@@ -2237,6 +2648,7 @@ export class ClimateByLocationWidget {
       "proj_mod",
       this.options.variable
     ].join('-').replace(/ /g, '_') + '.csv';
+    return true;
   }
 
   _set_range(axis, min, max) {
@@ -2263,25 +2675,24 @@ export class ClimateByLocationWidget {
     return true;
   }
 
+  /**
+   * This function will set the range of data visible on the graph's x-axis when an annual data graph is displayed (monthly and seasonal data graphs have fixed x-axes).
+   *
+   * @param min
+   * @param max
+   * @returns {boolean}
+   */
   set_x_axis_range(min, max) {
     return this._set_range(this.axes.x_annual, min, max);
   }
 
+  /**
+   * Forces multigraph to resize to its container
+   */
   resize() {
     if (this.multigraph) {
       this.multigraph.resize();
     }
-  }
-
-
-  /**
-   * This function is used to toggle features based on whether the selected region is in Alaska or not.
-   *
-   * @param region
-   * @returns {boolean}
-   */
-  is_ak_region(region) {
-    return String(region).startsWith('02') || region === 'AK'
   }
 
   _average(data, first_year, last_year) {
@@ -2329,7 +2740,6 @@ export class ClimateByLocationWidget {
     });
   }
 
-
   _show_spinner() {
     this._hide_spinner();
     let style = "<style>.cwg-spinner { margin-top: -2.5rem; border-radius: 100%;border-style: solid;border-width: 0.25rem;height: 5rem;width: 5rem;animation: basic 1s infinite linear; border-color: rgba(0, 0, 0, 0.2);border-top-color: rgba(0, 0, 0, 1); }@keyframes basic {0%   { transform: rotate(0); }100% { transform: rotate(359.9deg); }} .cwg-spinner-wrapper {display:flex; align-items: center; justify-content: center; }</style>";
@@ -2347,10 +2757,6 @@ export class ClimateByLocationWidget {
     this.$element.find('.cwg-spinner-wrapper').remove();
   }
 
-  get _model_edate() {
-    return '2099-12-31'
-  }
-
   _format_export_data(column_labels, data, precision_digits = 1) {
     let export_data = data.map((row) => row.filter((cell) => cell !== null));
     export_data.unshift(column_labels);
@@ -2364,15 +2770,12 @@ export class ClimateByLocationWidget {
 
 }
 
-
 //
 // legacy jQuery Widget api for ClimateByLocationWidget
 //
 (function ($) {
-  polyfillStringEndsWith();
-
   if (!$.hasOwnProperty('widget')) {
-    console.error("jQuery Widget not found.");
+    console.log("jQuery Widget not found, disabled support for Climate By Location jQuery api.");
     return
   }
 
@@ -2439,18 +2842,4 @@ function no_conversion(x) {
   return x;
 }
 
-function polyfillStringEndsWith() {
-// String.endsWith() polyfill for browsers that don't implement it
-  if (!String.prototype.endsWith) {
-    String.prototype.endsWith = function (searchString, position) {
-      var subjectString = this.toString();
-      if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
-        position = subjectString.length;
-      }
-      position -= searchString.length;
-      var lastIndex = subjectString.indexOf(searchString, position);
-      return lastIndex !== -1 && lastIndex === position;
-    };
-  }
-}
 
