@@ -14,14 +14,14 @@ This library depends on jQuery 3.2+ being loaded prior to `climate-widget-graph.
 ## Installation
 1. Load the widget and its dependencies using the versions shown below (feel free to skip duplicate jquery dependencies):
 
-    ```html
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-   <script src="climate-widget-graph.js"></script>
-    ```
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+<script src="climate-widget-graph.js"></script>
+```
 
 2.  Call the widget with desired options on a container element:
    
-   	```javascript
+```javascript
    let cbl_instance = new ClimateByLocationWidget({
       'county': '13005', // A 5-character fips code of a US county, as a string.  Required if `state` not specified.
       'state': null, // A 2-character state abbreviation code of a US state, as a string.  Required if `county` not specified. 
@@ -39,7 +39,7 @@ This library depends on jQuery 3.2+ being loaded prior to `climate-widget-graph.
       'presentation': 'absolute', // "absolute" or "anomaly" views. // deprecated
       'dataprefix': 'http://climate-widget-data.nemac.org/data' // The api endpoint from which to request data.
       });
-    ```
+```
 
 4. Update options by calling `cbl_instance.set_options({some_option: new_value})`.
  
@@ -62,7 +62,7 @@ the given frequency in the given region; frequency should be one of the strings 
         
   For example:
 
-  ```javascript
+```javascript
   $('a#download-image-link-id').click(function(event) {
       if (cbl_instance) { // ensure widget exists
           if (!cbl_instance.download_image(this)){
@@ -71,7 +71,7 @@ the given frequency in the given region; frequency should be one of the strings 
       }
       // note that the 'this' argument is important as this function modifies the <a> tag
   });
-  ```
+```
     
 #### `cbl_instance.download_hist_obs_data(anchor_el)`, `cbl_instance.download_hist_mod_data(anchor_el)`, and `cbl_instance.download_proj_mod_data(anchor_el)`
  
