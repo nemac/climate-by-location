@@ -1,20 +1,20 @@
 {
-  "name": "climate-widget-graph",
+  "name": "climate-by-location",
   "version": "2.0.0",
   "description": "This library defines functions that can create and manage interactive climate widget graphs.",
-  "main": "climate-widget-graph.js",
+  "main": "climate-by-location.js",
   "scripts": {
-    "buildold": "uglifyjs vendor/multigraph-nojq-min.js src/main.js -o climate-widget-graph.js -c",
-    "build": "rollup -c && cat vendor/multigraph-nojq-min.js build/climate-widget-graph.js > climate-widget-graph.js",
+    "buildold": "uglifyjs vendor/multigraph-nojq-min.js src/main.js -o climate-by-location.js -c",
+    "build": "rollup -c && cat vendor/multigraph-nojq-min.js build/climate-by-location.js > climate-by-location.js",
     "watch": "nodemon --watch src --exec 'npm run build'",
     "start": "nodemon --watch src --exec 'npm run build && node serve.js'"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nemac/climate-widget-graph.git"
+    "url": "git+https://github.com/nemac/climate-by-location.git"
   },
   "bugs": {
-    "url": "https://github.com/nemac/climate-widget-graph/issues"
+    "url": "https://github.com/nemac/climate-by-location/issues"
   },
   "dependencies": {
     "babel-plugin-transform-object-assign": "^6.22.0",

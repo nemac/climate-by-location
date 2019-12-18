@@ -9,14 +9,14 @@ This module relies on the data services provided by the [Applied Climate Informa
 
 ## Dependencies
 
-This library depends on jQuery 3.2+ being loaded prior to `climate-widget-graph.js`. Using an older version of jQuery can result in unpredictable outputs.
+This library depends on jQuery 3.2+ being loaded prior to `climate-by-location.js`. Using an older version of jQuery can result in unpredictable outputs.
 
 ## Installation
 1. Load the widget and its dependencies using the versions shown below (feel free to skip duplicate jquery dependencies):
 
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-<script src="climate-widget-graph.js"></script>
+<script src="climate-by-location.js"></script>
 ```
 
 2.  Call the widget with desired options on a container element:
@@ -124,3 +124,4 @@ December 2019 release:
 - Fixed several state-breaking bugs around plot visibility
 - Added new pattern for resolving conflicting settings
 - Some preparations for a future change from multigraph to an alternate chart library
+- Renamed `climate-widget-graph.js` to `climate-by-location.js`
