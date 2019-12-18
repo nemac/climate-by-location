@@ -4876,7 +4876,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
      * 'frequency'    : selectedFrequency,    // time frequency of graph to display ("annual", "monthly", or "seasonal")
      * 'timeperiod'   : selectedTimePeriod,   // time period center for monthly/seasonal graphs ("2025", "2050", or "2075"); only
      * relevant for monthly or seasonal frequency)
-     * 'variable'     : selectedVariable,     // name of variable to display; see climate-widget-graph.js for list of variables
+     * 'variable'     : selectedVariable,     // name of variable to display; see climate-by-location.js for list of variables
      * 'scenario'     : selectedScenario,     // name of scenario to display: "both", "rcp45", or "rcp85"
      * 'presentation' : selectedPresentation  // name of presentation; "absolute" or "anomaly" (only relevant for annual frequency)
      * 'div'           :  "div#widget",         // jquery-style selector for the dom element that you want the graph to appear in
@@ -4885,7 +4885,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
      * 'timeperiod'    :  selectedTimePeriod,   // time period center for monthly/seasonal graphs ("2025", "2050", or "2075")
      * 'county'          :  selectedCounty,       // 5-character fips code for county (as a string)
      * 'state'          :  selectedState,       // 2-character abbreviation code for state (as a string)
-     * 'variable'      :  selectedVariable,     // name of variable to display; see climate-widget-graph.js for list of variables
+     * 'variable'      :  selectedVariable,     // name of variable to display; see climate-by-location.js for list of variables
      * 'scenario'      :  selectedScenario,     // name of scenario to display; both, rcp45, or rcp85
      * 'presentation'  :  selectedPresentation  // name of presentation; absolute or anomaly with respect to a baseline value
      * required:

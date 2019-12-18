@@ -8,7 +8,7 @@ This module relies on the dataservices provided by the [Applied Climate Informat
 
 ## Dependencies
 
-This library depends on jQuery 3.2+ and jQuery UI 1.12+ being loaded prior to `climate-widget-graph.js`. Using an older version of jQuery can result in unpredictable outputs.
+This library depends on jQuery 3.2+ and jQuery UI 1.12+ being loaded prior to `climate-by-location.js`. Using an older version of jQuery can result in unpredictable outputs.
 
 ## Installation
 1. Load dependencies using the versions shown below(feel free to skip duplicate jquery dependencies):
@@ -22,7 +22,7 @@ This library depends on jQuery 3.2+ and jQuery UI 1.12+ being loaded prior to `c
 2. Load the widget:
 
     ```html
-    <script src="climate-widget-graph.js"></script>
+    <script src="climate-by-location.js"></script>
     ```
 
 3.  Call the widget with desired options on a container element:
