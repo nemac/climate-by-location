@@ -48,11 +48,17 @@ export default class ClimateByLocationWidget {
    * scenario          ("both")
    * timeperiod        ("2025")
    *
-   * @param element
+   * @param element as jquery object, string query selector, or element object
    * @param options
    */
   constructor(element, options = {}) {
     this.options = merge({}, this.config_default, options);
+    if (typeof element === "string"){
+      element = $(this.element);
+    }
+    if (element instanceof $){
+      element = element[0]
+    }
     this.element = element;
     this.$element = $(this.element);
     if (!element) {

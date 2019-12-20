@@ -43,7 +43,6 @@ This library depends on jQuery 3.2+ and jQuery UI 1.12+ being loaded prior to `c
       'font': 'roboto', // A string giving the font-family to be used for all text in the graph.
       'xrangefunc': null, // Callback for when the user changes the scale on the horizontal annual data axis (horizontal scale changes are not allowed in the monthly or seasonal graphs).  This function will receive two arguments, which are the new minimum and maximum values along the axis. 
       'presentation': 'absolute', // "absolute" or "anomaly" views.
-      'dataprefix': 'http://climate-widget-data.nemac.org/data' // The api endpoint from which to request data.
       });
     ```
 
