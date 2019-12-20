@@ -4902,7 +4902,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
      * scenario          ("both")
      * timeperiod        ("2025")
      *
-     * @param element
+     * @param element as jquery object, string query selector, or element object
      * @param options
      */
     function ClimateByLocationWidget(element) {
@@ -4913,6 +4913,15 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       _classCallCheck(this, ClimateByLocationWidget);
 
       this.options = merge({}, this.config_default, options);
+
+      if (typeof element === "string") {
+        element = $(this.element);
+      }
+
+      if (element instanceof $) {
+        element = element[0];
+      }
+
       this.element = element;
       this.$element = $(this.element);
 

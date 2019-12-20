@@ -1,5 +1,5 @@
 let cbl_instance = undefined;
-
+/* global ClimateByLocationWidget */
 jQuery(document).ready(function ($) {
 
   /**
@@ -32,7 +32,6 @@ jQuery(document).ready(function ($) {
       return
     }
     cbl_instance = new ClimateByLocationWidget($('div#widget')[0], {
-      'dataprefix': 'http://climate-widget-data.nemac.org/data',
       'font': 'Roboto',
       'frequency': $('#frequency').val(),
       'timeperiod': $('#timeperiod').val(),
