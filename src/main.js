@@ -1,18 +1,10 @@
 'use strict';
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-import {
-  find,
-  get,
-  max,
-  mean,
-  merge,
-  min,
-  range as lodash_range,
-  round
-} from 'lodash-es';
-
-
+import {find, get, max, mean, merge, min, range as lodash_range, round} from 'lodash-es';
+// a couple module-level variables
+let all_areas = null;
+let when_areas = null;
 /* globals jQuery, window */
 export default class ClimateByLocationWidget {
   /**
@@ -22,18 +14,14 @@ export default class ClimateByLocationWidget {
    * 'frequency'    : selectedFrequency,    // time frequency of graph to display ("annual", "monthly", or "seasonal")
    * 'timeperiod'   : selectedTimePeriod,   // time period center for monthly/seasonal graphs ("2025", "2050", or "2075"); only
    * relevant for monthly or seasonal frequency)
-   * 'variable'     : selectedVariable,     // name of variable to display; see climate-by-location.js for list of variables
+   * 'variable'     : selectedVariable,     // name of variable to display (use ClimateByLocationWidget.when_variables() to lookup options)
    * 'scenario'     : selectedScenario,     // name of scenario to display: "both", "rcp45", or "rcp85"
    * 'presentation' : selectedPresentation  // name of presentation; "absolute" or "anomaly" (only relevant for annual frequency)
    * 'div'           :  "div#widget",         // jquery-style selector for the dom element that you want the graph to appear in
    * 'font'          : 'Roboto',
    * 'frequency'     :  $('#frequency').val(),    // time frequency of graph to display ("annual", "monthly", or "seasonal")
    * 'timeperiod'    :  selectedTimePeriod,   // time period center for monthly/seasonal graphs ("2025", "2050", or "2075")
-   * 'county'          :  selectedCounty,       // 5-character fips code for county (as a string)
-   * 'state'          :  selectedState,       // 2-character abbreviation code for state (as a string)
-   * 'variable'      :  selectedVariable,     // name of variable to display; see climate-by-location.js for list of variables
-   * 'scenario'      :  selectedScenario,     // name of scenario to display; both, rcp45, or rcp85
-   * 'presentation'  :  selectedPresentation  // name of presentation; absolute or anomaly with respect to a baseline value
+   * 'area_id'          :  selectedAreaId,       // Id obtained from available areas (use ClimateByLocationWidget.when_areas() to lookup areas)
    * required:
    * state or county
    *
@@ -53,10 +41,10 @@ export default class ClimateByLocationWidget {
    */
   constructor(element, options = {}) {
     this.options = merge({}, this.config_default, options);
-    if (typeof element === "string"){
+    if (typeof element === "string") {
       element = $(this.element);
     }
-    if (element instanceof $){
+    if (element instanceof $) {
       element = element[0]
     }
     this.element = element;
@@ -64,7 +52,7 @@ export default class ClimateByLocationWidget {
     if (!element) {
       console.log('Climate By Location widget created with no element. Nothing will be displayed.');
     }
-    this.dataurls = null;
+    this.downloadable_dataurls = null;
     this.multigraph = null;
     this.multigraph_config = merge(this.multigraph_config_default, {
       plots: this.plots_config.map((c) => c.plot_config),
@@ -105,6 +93,8 @@ export default class ClimateByLocationWidget {
       this.update();
     });
   }
+
+  static areas_json_url = '/areas.json';
 
   static get variables() {
     return [
@@ -155,7 +145,7 @@ export default class ClimateByLocationWidget {
             metric: "Average Daily Max Temp (°C)"
           }
         },
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: "tmin",
@@ -204,7 +194,7 @@ export default class ClimateByLocationWidget {
             metric: "Average Daily Min Temp (°C)"
           }
         },
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: "days_tmax_gt_50f",
@@ -237,7 +227,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: ClimateByLocationWidget.is_ak_region
+        supports_area: ClimateByLocationWidget.is_ak_area
       },
       {
         id: "days_tmax_gt_60f",
@@ -270,7 +260,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: ClimateByLocationWidget.is_ak_region
+        supports_area: ClimateByLocationWidget.is_ak_area
       },
       {
         id: "days_tmax_gt_70f",
@@ -303,7 +293,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: ClimateByLocationWidget.is_ak_region
+        supports_area: ClimateByLocationWidget.is_ak_area
       },
       {
         id: "days_tmax_gt_80f",
@@ -336,7 +326,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: ClimateByLocationWidget.is_ak_region
+        supports_area: ClimateByLocationWidget.is_ak_area
       },
       {
         id: "days_tmax_gt_90f",
@@ -369,7 +359,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: "days_tmax_gt_95f",
@@ -402,7 +392,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+        supports_area: (area_id) => !ClimateByLocationWidget.is_ak_area(area_id)
       },
       {
         id: "days_tmax_gt_100f",
@@ -435,7 +425,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+        supports_area: (area_id) => !ClimateByLocationWidget.is_ak_area(area_id)
       },
       {
         id: "days_tmax_gt_105f",
@@ -468,7 +458,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+        supports_area: (area_id) => !ClimateByLocationWidget.is_ak_area(area_id)
       },
       {
         id: "days_tmax_lt_32f",
@@ -501,7 +491,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: "days_tmin_lt_32f",
@@ -534,7 +524,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: "days_tmin_lt_minus_40f",
@@ -567,7 +557,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: ClimateByLocationWidget.is_ak_region
+        supports_area: ClimateByLocationWidget.is_ak_area
       },
       {
         id: "days_tmin_gt_60f",
@@ -607,7 +597,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: ClimateByLocationWidget.is_ak_region
+        supports_area: ClimateByLocationWidget.is_ak_area
       },
       {
         id: "days_tmin_gt_80f",
@@ -647,7 +637,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+        supports_area: (area_id) => !ClimateByLocationWidget.is_ak_area(area_id)
       },
       {
         id: "days_tmin_gt_90f",
@@ -687,7 +677,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+        supports_area: (area_id) => !ClimateByLocationWidget.is_ak_area(area_id)
       },
       {
         id: "hdd_65f",
@@ -720,7 +710,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: "cdd_65f",
@@ -753,7 +743,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: "gdd",
@@ -785,7 +775,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: "gddmod",
@@ -818,7 +808,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: "gdd_32f",
@@ -850,7 +840,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: ClimateByLocationWidget.is_ak_region
+        supports_area: ClimateByLocationWidget.is_ak_area
       },
       {
         id: "hdd_32f",
@@ -882,7 +872,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: ClimateByLocationWidget.is_ak_region
+        supports_area: ClimateByLocationWidget.is_ak_area
       },
       {
         id: "pcpn",
@@ -932,7 +922,7 @@ export default class ClimateByLocationWidget {
             metric: "Total Precipitation"
           }
         },
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: "days_dry_days",
@@ -976,7 +966,7 @@ export default class ClimateByLocationWidget {
             metric: "Dry Days (days/period)"
           }
         },
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: "days_pcpn_gt_0_25in",
@@ -1010,7 +1000,7 @@ export default class ClimateByLocationWidget {
           }
 
         },
-        supports_region: ClimateByLocationWidget.is_ak_region
+        supports_area: ClimateByLocationWidget.is_ak_area
       },
       {
         id: "days_pcpn_gt_1in",
@@ -1044,7 +1034,7 @@ export default class ClimateByLocationWidget {
           }
 
         },
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: "days_pcpn_gt_2in",
@@ -1079,7 +1069,7 @@ export default class ClimateByLocationWidget {
           }
 
         },
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: "days_pcpn_gt_3in",
@@ -1112,7 +1102,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: "days_pcpn_gt_4in",
@@ -1145,7 +1135,7 @@ export default class ClimateByLocationWidget {
             }
           }
         },
-        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+        supports_area: (area_id) => !ClimateByLocationWidget.is_ak_area(area_id)
       }
     ];
   }
@@ -1155,17 +1145,17 @@ export default class ClimateByLocationWidget {
       {
         id: 'annual',
         title: 'Annual',
-        supports_region: () => true
+        supports_area: () => true
       },
       {
         id: 'monthly',
         title: 'Monthly',
-        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+        supports_area: (area_id) => ClimateByLocationWidget.is_conus_area(area_id) || ClimateByLocationWidget.is_island_area(area_id)
       },
       {
         id: 'seasonal',
         title: 'Seasonal',
-        supports_region: (region) => !ClimateByLocationWidget.is_ak_region(region)
+        supports_area: (area_id) => ClimateByLocationWidget.is_conus_area(area_id)
       },
     ]
   }
@@ -1195,6 +1185,7 @@ export default class ClimateByLocationWidget {
       yzoom: true,
       ypan: true,
       data_api_endpoint: 'https://grid2.rcc-acis.org/GridData',
+      island_data_url_template: '/island_data/{area_id}.json',
       colors: {
         reds: {
           line: '#f5442d',
@@ -1214,25 +1205,21 @@ export default class ClimateByLocationWidget {
           //outerBand: "#cccccc"
         },
         opacities: {
-          ann_hist_1090: 0.6,
           ann_hist_minmax: 0.6,
-          ann_proj_1090: 0.5,
           ann_proj_minmax: 0.5,
-          mon_proj_1090: 0.5,
           mon_proj_minmax: 0.5
           //original hard-coded values
-          //ann_hist_1090: 0.5,
           //ann_hist_minmax: 0.7,
-          //ann_proj_1090: 0.3,
           //ann_proj_minmax: 0.3,
-          //mon_proj_1090: 0.3,
           //mon_proj_minmax: 0.3,
         }
       },
       //font: no default for this one; defaults to canvas's default font
-      county: null,
-      state: null,
-      get_region_label: this.get_region_value.bind(this),
+      area_id: null,
+      // county: null, // Deprecated! Use area_id instead.
+      // state: null, // Deprecated! Use area_id instead.
+
+      get_area_label: this.get_area_label.bind(this),
       // Data ranges will get scaled by this factor when setting y axis ranges.
       // Previously was 1.1, but set to 1 now to avoid awkard negative values for
       // things that can never be negative.
@@ -1453,7 +1440,7 @@ export default class ClimateByLocationWidget {
       }
 
       // shorthand to create a plot config record
-      function p(plot_config, frequency = null, regime = null, stat = null, scenario = null, timeperiod = null, region = null, plot_index = -1) {
+      function p(plot_config, frequency = null, regime = null, stat = null, scenario = null, timeperiod = null, area_id = null, plot_index = -1) {
         return {
           plot_config: plot_config,
           frequency: frequency,
@@ -1461,7 +1448,7 @@ export default class ClimateByLocationWidget {
           stat: stat,
           scenario: scenario,
           timeperiod: timeperiod,
-          region: region,
+          area_id: area_id,
           plot_index: plot_index
         }
       }
@@ -1471,11 +1458,8 @@ export default class ClimateByLocationWidget {
         // annual CONUS plots:
         //
         p(band_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_min", "annual_hist_mod_max", this.options.colors.grays.outerBand, this.options.colors.opacities.ann_hist_minmax), "annual", "hist_mod", "minmax"),
-        p(band_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_p10", "annual_hist_mod_p90", this.options.colors.grays.innerBand, this.options.colors.opacities.ann_hist_1090), "annual", "hist_mod", "p1090"),
         p(band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_min_rcp45", "annual_proj_mod_max_rcp45", this.options.colors.blues.outerBand, this.options.colors.opacities.ann_proj_minmax), "annual", "proj_mod", "minmax", "rcp45"),
-        p(band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_p10_rcp45", "annual_proj_mod_p90_rcp45", this.options.colors.blues.innerBand, this.options.colors.opacities.ann_proj_1090), "annual", "proj_mod", "p1090", "rcp45"),
         p(band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_min_rcp85", "annual_proj_mod_max_rcp85", this.options.colors.reds.outerBand, this.options.colors.opacities.ann_proj_minmax), "annual", "proj_mod", "minmax", "rcp85"),
-        p(band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_p10_rcp85", "annual_proj_mod_p90_rcp85", this.options.colors.reds.innerBand, this.options.colors.opacities.ann_proj_1090), "annual", "proj_mod", "p1090", "rcp85"),
         p(bar_plot_based_at("x_annual", "annual_hist_obs_x", "y", "annual_hist_obs_y", 0), "annual", "hist_obs"),
         p(line_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_med", "#000000"), "annual", "hist_mod", "med"),
         p(line_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_med_rcp45", this.options.colors.blues.line), "annual", "proj_mod", "med", "rcp45"),
@@ -1486,41 +1470,33 @@ export default class ClimateByLocationWidget {
         // monthly CONUS plots:
         //
         p(line_plot("x_monthly", "monthly_hist_obs_x", "y", "monthly_hist_obs_med", "#000000"), "monthly", "hist_obs", "med"),
+        // these are available for island areas, but currently disabled for consistency with CONUS area charts.
+        // p(band_plot("x_monthly", "monthly_hist_mod_x", "y", "monthly_hist_mod_min", "monthly_hist_mod_max", this.options.colors.grays.outerBand, this.options.colors.opacities.ann_hist_minmax), "monthly", "hist_mod", "minmax"),
+        // p(line_plot("x_monthly", "monthly_hist_mod_x", "y", "monthly_hist_mod_med", "#000000"), "monthly", "hist_mod", "med"),
         p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2025", "monthly_proj_mod_max_rcp45_2025", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp45", "2025"),
         p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2025", "monthly_proj_mod_max_rcp85_2025", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp85", "2025"),
-        p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2025", "monthly_proj_mod_p90_rcp45_2025", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_1090), "monthly", "proj_mod", "p1090", "rcp45", "2025"),
-        p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2025", "monthly_proj_mod_p90_rcp85_2025", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_1090), "monthly", "proj_mod", "p1090", "rcp85", "2025"),
         p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2025", this.options.colors.blues.outerBand), "monthly", "proj_mod", "med", "rcp45", "2025"),
         p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp85_2025", this.options.colors.reds.line), "monthly", "proj_mod", "med", "rcp85", "2025"),
         p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2050", "monthly_proj_mod_max_rcp45_2050", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp45", "2050"),
         p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2050", "monthly_proj_mod_max_rcp85_2050", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp85", "2050"),
-        p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2050", "monthly_proj_mod_p90_rcp45_2050", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_1090), "monthly", "proj_mod", "p1090", "rcp45", "2050"),
-        p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2050", "monthly_proj_mod_p90_rcp85_2050", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_1090), "monthly", "proj_mod", "p1090", "rcp85", "2050"),
         p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2050", this.options.colors.blues.outerBand), "monthly", "proj_mod", "med", "rcp45", "2050"),
         p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp85_2050", this.options.colors.reds.line), "monthly", "proj_mod", "med", "rcp85", "2050"),
         p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2075", "monthly_proj_mod_max_rcp45_2075", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp45", "2075"),
         p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2075", "monthly_proj_mod_max_rcp85_2075", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp85", "2075"),
-        p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2075", "monthly_proj_mod_p90_rcp45_2075", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_1090), "monthly", "proj_mod", "p1090", "rcp45", "2075"),
-        p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2075", "monthly_proj_mod_p90_rcp85_2075", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_1090), "monthly", "proj_mod", "p1090", "rcp85", "2075"),
+
         p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2075", this.options.colors.blues.outerBand), "monthly", "proj_mod", "med", "rcp45", "2075"),
         p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp85_2075", this.options.colors.reds.line), "monthly", "proj_mod", "med", "rcp85", "2075"),
         //
         // seasonal CONUS plots
         //
         // Uncomment to show historical ranges
-        //range_bar_plot("x_seasonal", "seasonal_hist_obs_x", "y", "seasonal_hist_obs_p10", "seasonal_hist_obs_p90",  "#cccccc", "#cccccc", 0.5, 0.7);
+        //range_bar_plot("x_seasonal", "seasonal_hist_obs_x", "y",  "#cccccc", "#cccccc", 0.5, 0.7);
         p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2025", "seasonal_proj_mod_max_rcp45_2025", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2025"),
         p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2025", "seasonal_proj_mod_max_rcp85_2025", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2025"),
-        p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp45_2025", "seasonal_proj_mod_p90_rcp45_2025", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "p1090", "rcp45", "2025"),
-        p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp85_2025", "seasonal_proj_mod_p90_rcp85_2025", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "p1090", "rcp85", "2025"),
         p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2050", "seasonal_proj_mod_max_rcp45_2050", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2050"),
         p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2050", "seasonal_proj_mod_max_rcp85_2050", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2050"),
-        p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp45_2050", "seasonal_proj_mod_p90_rcp45_2050", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "p1090", "rcp45", "2050"),
-        p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp85_2050", "seasonal_proj_mod_p90_rcp85_2050", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "p1090", "rcp85", "2050"),
         p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2075", "seasonal_proj_mod_max_rcp45_2075", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2075"),
         p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2075", "seasonal_proj_mod_max_rcp85_2075", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2075"),
-        p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp45_2075", "seasonal_proj_mod_p90_rcp45_2075", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "p1090", "rcp45", "2075"),
-        p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp85_2075", "seasonal_proj_mod_p90_rcp85_2075", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "p1090", "rcp85", "2075"),
         p(range_bar_plot("x_seasonal", "seasonal_hist_obs_x", "y", "seasonal_hist_obs_med", "seasonal_hist_obs_med", "#000000", "#000000", 0.5, 1.0), "seasonal", "hist_obs", "med"),
         p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp45_2025", "seasonal_proj_mod_med_rcp45_2025", "#0000ff", "#0000ff", 0.25, 1.0), "seasonal", "proj_mod", "med", "rcp45", "2025"),
         p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp85_2025", "seasonal_proj_mod_med_rcp85_2025", this.options.colors.reds.line, this.options.colors.reds.line, 0.0, 1.0), "seasonal", "proj_mod", "med", "rcp85", "2025"),
@@ -1565,32 +1541,26 @@ export default class ClimateByLocationWidget {
             {id: "annual_hist_obs_y"}],
           values: [[-9999, 0]]
         }),
-        _data_layout_record('annual_hist_mod',
-          {
-            variables: [{id: "annual_hist_mod_x"},
-              {id: "annual_hist_mod_med"},
-              {id: "annual_hist_mod_min"},
-              {id: "annual_hist_mod_max"},
-              {id: "annual_hist_mod_p10"},
-              {id: "annual_hist_mod_p90"}],
-            values: [[-9999, 0, 0, 0, 0, 0, 0]]
-          }),
+        _data_layout_record('annual_hist_mod', {
+          variables: [{id: "annual_hist_mod_x"},
+            {id: "annual_hist_mod_med"},
+            {id: "annual_hist_mod_min"},
+            {id: "annual_hist_mod_max"},
+          ],
+          values: [[-9999, 0, 0, 0, 0, 0, 0]]
+        }),
 
-        _data_layout_record('annual_proj_mod',
-          {
-            variables: [{id: "annual_proj_mod_x"},
-              {id: "annual_proj_mod_med_rcp45"},
-              {id: "annual_proj_mod_min_rcp45"},
-              {id: "annual_proj_mod_max_rcp45"},
-              {id: "annual_proj_mod_p10_rcp45"},
-              {id: "annual_proj_mod_p90_rcp45"},
-              {id: "annual_proj_mod_med_rcp85"},
-              {id: "annual_proj_mod_min_rcp85"},
-              {id: "annual_proj_mod_max_rcp85"},
-              {id: "annual_proj_mod_p10_rcp85"},
-              {id: "annual_proj_mod_p90_rcp85"}],
-            values: [[-9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-          }),
+        _data_layout_record('annual_proj_mod', {
+          variables: [{id: "annual_proj_mod_x"},
+            {id: "annual_proj_mod_med_rcp45"},
+            {id: "annual_proj_mod_min_rcp45"},
+            {id: "annual_proj_mod_max_rcp45"},
+            {id: "annual_proj_mod_med_rcp85"},
+            {id: "annual_proj_mod_min_rcp85"},
+            {id: "annual_proj_mod_max_rcp85"},
+          ],
+          values: [[-9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+        }),
         _data_layout_record('monthly_hist_obs', {
           variables: [{id: "monthly_hist_obs_x"},
             {id: "monthly_hist_obs_mean30"},
@@ -1598,39 +1568,40 @@ export default class ClimateByLocationWidget {
           values: [[-9999, 0, 0]],
           repeat: {period: 12}
         }),
+        _data_layout_record('monthly_hist_mod', {
+          variables: [
+            {id: "monthly_hist_mod_x"},
+            {id: "monthly_hist_mod_med"},
+            {id: "monthly_hist_mod_min"},
+            {id: "monthly_hist_mod_max"},
+          ],
+          values: [[-9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
+          repeat: {period: 12}
+        }),
         _data_layout_record('monthly_proj_mod', {
-          variables: [{id: "monthly_proj_mod_x"},
-            {id: "monthly_proj_mod_max_rcp45_2025"},
+          variables: [
+            {id: "monthly_proj_mod_x"},
+
             {id: "monthly_proj_mod_med_rcp45_2025"},
             {id: "monthly_proj_mod_min_rcp45_2025"},
-            {id: "monthly_proj_mod_p10_rcp45_2025"},
-            {id: "monthly_proj_mod_p90_rcp45_2025"},
-            {id: "monthly_proj_mod_max_rcp85_2025"},
+            {id: "monthly_proj_mod_max_rcp45_2025"},
             {id: "monthly_proj_mod_med_rcp85_2025"},
             {id: "monthly_proj_mod_min_rcp85_2025"},
-            {id: "monthly_proj_mod_p10_rcp85_2025"},
-            {id: "monthly_proj_mod_p90_rcp85_2025"},
-            {id: "monthly_proj_mod_max_rcp45_2050"},
+            {id: "monthly_proj_mod_max_rcp85_2025"},
             {id: "monthly_proj_mod_med_rcp45_2050"},
             {id: "monthly_proj_mod_min_rcp45_2050"},
-            {id: "monthly_proj_mod_p10_rcp45_2050"},
-            {id: "monthly_proj_mod_p90_rcp45_2050"},
-            {id: "monthly_proj_mod_max_rcp85_2050"},
+            {id: "monthly_proj_mod_max_rcp45_2050"},
             {id: "monthly_proj_mod_med_rcp85_2050"},
             {id: "monthly_proj_mod_min_rcp85_2050"},
-            {id: "monthly_proj_mod_p10_rcp85_2050"},
-            {id: "monthly_proj_mod_p90_rcp85_2050"},
-            {id: "monthly_proj_mod_max_rcp45_2075"},
+            {id: "monthly_proj_mod_max_rcp85_2050"},
             {id: "monthly_proj_mod_med_rcp45_2075"},
             {id: "monthly_proj_mod_min_rcp45_2075"},
-            {id: "monthly_proj_mod_p10_rcp45_2075"},
-            {id: "monthly_proj_mod_p90_rcp45_2075"},
-            {id: "monthly_proj_mod_max_rcp85_2075"},
+            {id: "monthly_proj_mod_max_rcp45_2075"},
             {id: "monthly_proj_mod_med_rcp85_2075"},
             {id: "monthly_proj_mod_min_rcp85_2075"},
-            {id: "monthly_proj_mod_p10_rcp85_2075"},
-            {id: "monthly_proj_mod_p90_rcp85_2075"}],
-          values: [[-9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
+            {id: "monthly_proj_mod_max_rcp85_2075"},
+          ],
+          values: [[-9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
           repeat: {period: 12}
         }),
         _data_layout_record('seasonal_hist_obs', {
@@ -1645,34 +1616,23 @@ export default class ClimateByLocationWidget {
             {id: "seasonal_proj_mod_max_rcp45_2025"},
             {id: "seasonal_proj_mod_med_rcp45_2025"},
             {id: "seasonal_proj_mod_min_rcp45_2025"},
-            {id: "seasonal_proj_mod_p10_rcp45_2025"},
-            {id: "seasonal_proj_mod_p90_rcp45_2025"},
             {id: "seasonal_proj_mod_max_rcp85_2025"},
             {id: "seasonal_proj_mod_med_rcp85_2025"},
             {id: "seasonal_proj_mod_min_rcp85_2025"},
-            {id: "seasonal_proj_mod_p10_rcp85_2025"},
-            {id: "seasonal_proj_mod_p90_rcp85_2025"},
             {id: "seasonal_proj_mod_max_rcp45_2050"},
             {id: "seasonal_proj_mod_med_rcp45_2050"},
             {id: "seasonal_proj_mod_min_rcp45_2050"},
-            {id: "seasonal_proj_mod_p10_rcp45_2050"},
-            {id: "seasonal_proj_mod_p90_rcp45_2050"},
             {id: "seasonal_proj_mod_max_rcp85_2050"},
             {id: "seasonal_proj_mod_med_rcp85_2050"},
             {id: "seasonal_proj_mod_min_rcp85_2050"},
-            {id: "seasonal_proj_mod_p10_rcp85_2050"},
-            {id: "seasonal_proj_mod_p90_rcp85_2050"},
             {id: "seasonal_proj_mod_max_rcp45_2075"},
             {id: "seasonal_proj_mod_med_rcp45_2075"},
             {id: "seasonal_proj_mod_min_rcp45_2075"},
-            {id: "seasonal_proj_mod_p10_rcp45_2075"},
-            {id: "seasonal_proj_mod_p90_rcp45_2075"},
             {id: "seasonal_proj_mod_max_rcp85_2075"},
             {id: "seasonal_proj_mod_med_rcp85_2075"},
             {id: "seasonal_proj_mod_min_rcp85_2075"},
-            {id: "seasonal_proj_mod_p10_rcp85_2075"},
-            {id: "seasonal_proj_mod_p90_rcp85_2075"}],
-          values: [[-9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
+          ],
+          values: [[-9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
           repeat: {period: 4}
         }),
         _data_layout_record('annual_hist_mod_ak', {
@@ -1703,67 +1663,179 @@ export default class ClimateByLocationWidget {
     return this._data_config;
   }
 
-  get _months() {
-    return ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
-  }
+  static _months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+
+  static _months_seasons = {
+    "01": "01",
+    "02": "01",
+    "03": "04",
+    "04": "04",
+    "05": "04",
+    "06": "07",
+    "07": "07",
+    "08": "07",
+    "09": "10",
+    "10": "10",
+    "11": "10",
+    "12": "01"
+  };
 
   get _model_edate() {
     return '2099-12-31'
   }
 
   /**
-   * Gets available variable options for a specified combination of frequency and region.
+   * Gets available variable options for a specified combination of frequency and area_id.
    *
    * @param frequency
    * @param unitsystem
-   * @param region
+   * @param area_id
    * @returns {{id: *, title: *}[]}
    */
-  static get_variables(frequency, unitsystem, region) {
+  static when_variables(frequency, unitsystem, area_id) {
+    return ClimateByLocationWidget.when_areas().then(ClimateByLocationWidget.get_variables.bind(this, frequency, unitsystem, area_id))
+  }
+
+  /**
+   * Gets available variable options for a specified combination of frequency and area_id. If areas are not loaded, returns empty
+   *
+   * @param frequency
+   * @param unitsystem
+   * @param area_id
+   * @returns {{id: *, title: *}[]}
+   */
+  static get_variables(frequency, unitsystem, area_id) {
     unitsystem = unitsystem || 'english';
-    return ClimateByLocationWidget.variables.filter((v) => frequency in v.ytitles && ((typeof v.supports_region === "function" ? v.supports_region(region) : true))).map((v) => {
+    return ClimateByLocationWidget.variables.filter((v) => frequency in v.ytitles && ((typeof v.supports_area === "function" ? v.supports_area(area_id) : true))).map((v) => {
       return {id: v.id, title: v.title[unitsystem]};
     });
   }
 
   /**
-   * Gets available frequency options for a specified region.
+   * Gets available frequency options for a specified area.
    *
-   * @param region
+   * @param area_id
    * @returns {{id: (string), title: (string)}[]}
    */
-  static get_frequencies(region) {
-    return ClimateByLocationWidget.frequencies.filter((f) => ((typeof f.supports_region === "function" ? f.supports_region(region) : true))).map((v) => {
+  static when_frequencies(area_id) {
+    return ClimateByLocationWidget.when_areas().then(ClimateByLocationWidget.get_frequencies.bind(this, area_id))
+  }
+
+  /**
+   * Gets available frequency options for a specified area.
+   *
+   * @param area_id
+   * @returns {{id: (string), title: (string)}[]}
+   */
+  static get_frequencies(area_id) {
+    return ClimateByLocationWidget.frequencies.filter((f) => ((typeof f.supports_area === "function" ? f.supports_area(area_id) : true))).map((v) => {
       return {id: v.id, title: v.title};
     });
   }
 
   /**
-   * This function is used to toggle features based on whether the selected region is in Alaska or not.
+   * Gets available areas based on type or the state they belong to (counties only).
+   * @param type {string|null} Area type to filter by. Any of 'state', 'county', 'island'.
+   * @param state {string|null} Two-digit abbreviation of state to filter by. Implies type='state'
+   * @param area_id {string|null} Area id to filter by. Will never return more than 1 result.
+   * @returns Promise<array<{area_id, area_label, area_type, state}>>
+   */
+  static when_areas(type = null, state = null, area_id = null) {
+    if (all_areas === null && when_areas === null) {
+      when_areas = (new Promise((resolve) => $.ajax({
+        url: ClimateByLocationWidget.areas_json_url,
+        type: "GET",
+        contentType: "application/json; charset=utf-8",
+        timeout: 30000,
+      }).then(resolve))).then((response) => {
+        if (!response) {
+          throw new Error("Failed to retrieve areas!");
+        }
+        all_areas = response;
+      });
+    }
+    return when_areas.then(ClimateByLocationWidget.get_areas.bind(this, type, state, area_id))
+  }
+
+  /**
+   * Gets available areas based on type or the state they belong to (counties only). If called before areas are loaded, returns empty.
+   * @param type {string|null} Area type to filter by. Any of 'state', 'county', 'island'.
+   * @param state {string|null} Two-digit abbreviation of state to filter by. Implies type='state'
+   * @param area_id {string|null} Area id to filter by. Will never return more than 1 result.
+   * @returns array<{area_id, area_label, area_type, state}>
+   */
+  static get_areas(type = null, state = null, area_id = null) {
+    if (!all_areas) {
+      console.warn('Areas not yet loaded! Use when_areas() for async access to areas.')
+      return [];
+    }
+    if (!!area_id) {
+      area_id = String(area_id).toLowerCase();
+      return all_areas.filter((area) => String(area.area_id).toLowerCase() === area_id)
+    }
+    if (!!state) {
+      state = String(state).toUpperCase();
+      return all_areas.filter((area) => area['area_type'] === 'county' && area.state === state);
+    }
+    if (!!type) {
+      type = String(type).toLowerCase();
+      if (!['state', 'county', 'island'].includes(type)) {
+        throw Error(`Invalid area type "${type}", valid types are 'state','county', and 'island'`);
+      }
+      return all_areas.filter((area) => area['area_type'] === type)
+    }
+    return all_areas;
+  }
+
+  /**
+   * This function is used to toggle features based on whether the selected area_id is in Alaska or not.
    *
-   * @param region
+   * @param area_id
    * @returns {boolean}
    */
-  static is_ak_region(region) {
-    return String(region).startsWith('02') || region === 'AK'
+  static is_ak_area(area_id) {
+    return String(area_id).startsWith('02') || area_id === 'AK'
   }
+
+  /**
+   * This function is used to toggle features based on whether the selected area_id is an island or other non-conus area.
+   *
+   * @param area_id
+   * @returns {boolean}
+   */
+  static is_island_area(area_id) {
+    return get(ClimateByLocationWidget.get_areas(null, null, area_id), [0, 'area_type']) === 'island'
+  }
+
+  /**
+   * This function is used to toggle features based on whether the selected area_id is a CONUS area.
+   *
+   * @param area_id
+   * @returns {boolean}
+   */
+  static is_conus_area(area_id) {
+    const non_conus_states = ['HI', 'AK'];
+    if (non_conus_states.includes(area_id)) {
+      return false
+    }
+    const area = ClimateByLocationWidget.get_areas(null, null, area_id);
+    return (!(get(area, [0, 'area_type']) === 'island') && !(get(area, [0, 'area_type']) === 'county' && non_conus_states.includes(get(area, [0, 'state']))))
+  }
+
 
   set_options(options) {
     let old_options = Object.assign({}, this.options);
     this.options = merge({}, old_options, options);
-    if (this.options.state !== old_options.state && this.options.county === old_options.county) {
-      this.options.county = null;
-    }
     this._bool_options.forEach((option) => {
       if (typeof options[option] === "string") {
         options[option] = options[option].toLowerCase() === "true";
       }
     });
-    if (!get(ClimateByLocationWidget, ['frequencies', this.options.frequency, 'supports_region'], () => true)(this.get_region_value())) {
-      this.options.frequency = ClimateByLocationWidget.get_variables(this.get_region_value())[0].id
+    if (!get(ClimateByLocationWidget, ['frequencies', this.options.frequency, 'supports_area'], () => true)(this.get_area_id())) {
+      this.options.frequency = ClimateByLocationWidget.get_variables(this.get_area_id())[0].id
     }
-    if (!get(ClimateByLocationWidget, ['variables', this.options.variable, 'supports_region'], () => true)(this.get_region_value())) {
-      this.options.variable = ClimateByLocationWidget.get_variables(this.options.frequency, null, this.get_region_value())[0].id
+    if (!get(ClimateByLocationWidget, ['variables', this.options.variable, 'supports_area'], () => true)(this.get_area_id())) {
+      this.options.variable = ClimateByLocationWidget.get_variables(this.options.frequency, null, this.get_area_id())[0].id
     }
 
     this._update_plot_visibilities();
@@ -1791,10 +1863,9 @@ export default class ClimateByLocationWidget {
 
     // if frequency, state, county, or variable changed, trigger a larger update cycle (new data + plots maybe changed):
     if (this.options.frequency !== old_options.frequency ||
-      this.options.state !== old_options.state ||
-      this.options.county !== old_options.county ||
-      this.options.presentation !== old_options.presentation ||
-      this.options.variable !== old_options.variable) {
+        this.options.area_id !== old_options.area_id ||
+        this.options.presentation !== old_options.presentation ||
+        this.options.variable !== old_options.variable) {
       this.update();
     } else {
       this.multigraph.render();
@@ -1803,8 +1874,8 @@ export default class ClimateByLocationWidget {
     return this;
   }
 
-  _reset_dataurls() {
-    this.dataurls = {
+  _reset_downloadable_dataurls() {
+    this.downloadable_dataurls = {
       hist_obs: '',
       hist_mod: '',
       proj_mod: ''
@@ -1816,33 +1887,50 @@ export default class ClimateByLocationWidget {
    * @returns {Promise<void>}
    */
   async update() {
-    if (!!this.options.county || !!this.options.state) {
-      if (this.options.frequency === "annual") {
-        await this._update_annual();
-      } else if (this.options.frequency === "monthly") {
-        await this._update_monthly();
-      } else if (this.options.frequency === "seasonal") {
-        await this._update_seasonal();
-      }
-      // this.multigraph.render();
-    }
-  }
 
-  async _update_annual() {
-    this.axes.x_annual.visible(true);
+    this._show_spinner();
+    this._reset_downloadable_dataurls();
+    this.axes.x_annual.visible(false);
     this.axes.x_monthly.visible(false);
     this.axes.x_seasonal.visible(false);
 
     this.hide_all_plots();
+    if (!!this.options.area_id && !!this.options.variable && !!this.options.frequency) {
+      if (this.options.frequency === "annual") {
+        this.axes.x_annual.visible(true);
 
-    this._reset_dataurls();
-    this._show_spinner();
-    if (!ClimateByLocationWidget.is_ak_region(this.get_region_value())) {
-      return Promise.all([
-        this._get_historical_observed_livneh_data(),
-        this._get_historical_loca_model_data(),
-        this._get_projected_loca_model_data()
-      ])
+        if (ClimateByLocationWidget.is_ak_area(this.get_area_id())) {
+          await this._update_annual_ak()
+        } else if (ClimateByLocationWidget.is_island_area(this.get_area_id())) {
+          await this._update_annual_island();
+        } else {
+          await this._update_annual_conus();
+        }
+      } else if (this.options.frequency === "monthly") {
+        this.axes.x_monthly.visible(true);
+
+        if (ClimateByLocationWidget.is_ak_area(this.get_area_id())) {
+          return
+        } else if (ClimateByLocationWidget.is_island_area(this.get_area_id())) {
+          await this._update_monthly_island();
+        } else {
+          await this._update_monthly_conus();
+        }
+      } else if (this.options.frequency === "seasonal") {
+        this.axes.x_seasonal.visible(true);
+
+        await this._update_seasonal_conus();
+      }
+    }
+  }
+
+
+  async _update_annual_conus() {
+    return Promise.all([
+      this._get_historical_observed_livneh_data(),
+      this._get_historical_loca_model_data(),
+      this._get_projected_loca_model_data()
+    ])
         .then((([hist_obs_data, hist_mod_data, proj_mod_data]) => {
           this._hide_spinner();
 
@@ -1868,7 +1956,7 @@ export default class ClimateByLocationWidget {
           let range = this._scale_range(this._datas_range([hist_obs_data, hist_mod_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
           this.axes.y.setDataRange(range.min, range.max);
           this.axes.y.title().content().string(
-            variable_config.ytitles.annual[this.options.presentation][this.options.unitsystem]
+              variable_config.ytitles.annual[this.options.presentation][this.options.unitsystem]
           );
 
           this._set_data_array('annual_hist_obs', hist_obs_data);
@@ -1882,20 +1970,158 @@ export default class ClimateByLocationWidget {
           this.multigraph.render();
 
         }).bind(this));
-    } else { // AK annual graphs
-      return this._update_annual_ak()
-    }
   }
 
-  async _update_seasonal() {
-    this.axes.x_annual.visible(false);
-    this.axes.x_monthly.visible(false);
-    this.axes.x_seasonal.visible(true);
+  async _update_annual_island() {
+    let data = await this._fetch_island_data();
+    this._hide_spinner();
 
-    this.hide_all_plots();
+    let hist_mod_series = data.find((series) => series.scenario === 'historical')
+    let rcp45_mod_series = data.find((series) => series.scenario === 'rcp45')
+    let rcp85_mod_series = data.find((series) => series.scenario === 'rcp85')
 
-    this._reset_dataurls();
-    this._show_spinner();
+    // reshape hist data to an array of [[year,mean,min,max], ...] (to match how update_annual_conus shapes it's data)
+    const hist_sdate_year = Number.parseInt(hist_mod_series.sdate.substr(0, 4));
+    let hist_mod_data = hist_mod_series.annual_data.all_mean.reduce((_data, v, i) => {
+      _data.push([hist_sdate_year + i, v, hist_mod_series.annual_data.all_min[i], hist_mod_series.annual_data.all_max[i]])
+      return _data;
+    }, [])
+    // reshape proj data to an array of [[year,rcp45mean,rcp45min,rcp45max,rcp85mean,rcp85min,rcp85max], ...] (to match how update_annual_conus shapes it's data)
+    const proj_sdate_year = Number.parseInt(rcp45_mod_series.sdate.substr(0, 4));
+    let proj_mod_data = rcp45_mod_series.annual_data.all_mean.reduce((_data, v, i) => {
+      _data.push([proj_sdate_year + i, v, rcp45_mod_series.annual_data.all_min[i], rcp45_mod_series.annual_data.all_max[i], rcp85_mod_series.annual_data.all_mean[i], rcp85_mod_series.annual_data.all_min[i], rcp85_mod_series.annual_data.all_max[i]])
+      return _data;
+    }, [])
+
+    let variable_config = find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable);
+    let convfunc = variable_config.dataconverters[this.options.unitsystem];
+    hist_mod_data = this._map_2d_data(hist_mod_data, convfunc);
+    proj_mod_data = this._map_2d_data(proj_mod_data, convfunc);
+
+    let avg = this._average(hist_mod_data, Number.parseInt(hist_mod_series.sdate.substr(0, 4)), Number.parseInt(hist_mod_series.edate.substr(0, 4)));
+    if (this.options.presentation === "anomaly") {
+      if (this.options.variable === "pcpn") {
+        proj_mod_data = this._percent_anomalies(proj_mod_data, avg);
+      } else {
+        proj_mod_data = this._anomalies(proj_mod_data, avg);
+      }
+    }
+
+    let range = this._scale_range(this._datas_range([hist_mod_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
+    this.axes.y.setDataRange(range.min, range.max);
+    this.axes.y.title().content().string(
+        variable_config.ytitles.annual[this.options.presentation][this.options.unitsystem]
+    );
+    // format download data.
+    this.downloadable_dataurls.hist_mod = this._format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data);
+    this.downloadable_dataurls.proj_mod = this._format_export_data(['year', 'rcp45_mean', 'rcp45_min', 'rcp45_max', 'rcp85_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data);
+
+    this._set_data_array('annual_hist_mod', hist_mod_data);
+    this._set_data_array('annual_proj_mod', proj_mod_data);
+
+    this._update_plot_visibilities();
+
+    this.multigraph.render();
+  }
+
+  async _update_monthly_island() {
+    let data = await this._fetch_island_data();
+    this._hide_spinner();
+
+    let hist_mod_series = data.find((series) => series.scenario === 'historical')
+    let rcp45_mod_series = data.find((series) => series.scenario === 'rcp45')
+    let rcp85_mod_series = data.find((series) => series.scenario === 'rcp85')
+
+    let variable_config = find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable);
+    const _to_units = variable_config.dataconverters[this.options.unitsystem];
+    
+
+    let hist_mod_data = [];
+    for (const month of ClimateByLocationWidget._months) {
+      //year,mean,min,max
+      hist_mod_data.push([month, _to_units(mean(hist_mod_series.monthly_data.all_mean[month])), _to_units(mean(hist_mod_series.monthly_data.all_min[month])), _to_units(mean(hist_mod_series.monthly_data.all_max[month]))])
+    }
+
+
+    const proj_sdate_year = Number.parseInt(rcp85_mod_series.sdate.substr(0, 4));
+    let proj_mod_data = [];
+    for (const month of ClimateByLocationWidget._months) {
+      let _month_data = [];
+      for (const year_range of [2025, 2050, 2075]) {
+        let year_range_min_idx = year_range - 15 - proj_sdate_year;
+        for (const [scenario, scenario_monthly_data] of [['rcp45', rcp45_mod_series.monthly_data], ['rcp85', rcp85_mod_series.monthly_data]]) {
+          for (const value_name of ['mean', 'min', 'max']) {
+            _month_data.push(_to_units(mean(scenario_monthly_data['all_' + value_name][month].slice(year_range_min_idx, year_range_min_idx+30))))
+          }
+        }
+      }
+      proj_mod_data.push([month, ..._month_data]);
+    }
+
+    if (this.options.frequency === 'seasonal'){
+      hist_mod_data = Object.values(ClimateByLocationWidget._months_seasons).map((_m)=>hist_mod_data[Number.parseInt(_m) - 1])
+      proj_mod_data = Object.values(ClimateByLocationWidget._months_seasons).map((_m)=>proj_mod_data[Number.parseInt(_m) - 1])
+    }
+
+    this.downloadable_dataurls.hist_mod = this._format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data);
+
+    this.downloadable_dataurls.proj_mod = this._format_export_data(['month','2025_rcp45_mean', '2025_rcp45_min',  '2025_rcp45_max',  '2025_rcp85_mean', '2025_rcp85_min','2025_rcp85_max',   '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max','2050_rcp85_mean', '2050_rcp85_min','2050_rcp85_max',  '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data);
+
+    
+    let range = this._scale_range(this._datas_range([hist_mod_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
+    this.axes.y.setDataRange(range.min, range.max);
+    this.axes.y.title().content().string(variable_config.ytitles.monthly[this.options.unitsystem]);
+    this._set_data_array('monthly_hist_mod', hist_mod_data);
+    this._set_data_array('monthly_proj_mod', proj_mod_data);
+    this._update_plot_visibilities();
+    this.multigraph.render();
+
+  }
+
+
+  /**
+   * Retrieves island data and pre-filters it to just the variable we're interested in.
+   * @return {Promise<array<{area_id,scenario,sdate,area_label,gcm_coords,area_type,variable,annual_data:{all_max, all_mean,all_min}, monthly_data:{all_max, all_mean,all_min}}>>}
+   * @private
+   */
+  async _fetch_island_data() {
+    return (new Promise((resolve) => $.ajax({
+      url: this.options.island_data_url_template.replace('{area_id}', this.options.area_id),
+      type: "GET",
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      // data: JSON.stringify($.extend({
+      //   "grid": grid,
+      //   "sdate": String(sdate),
+      //   "edate": String(edate),
+      //   "elems": elems
+      // }, this._get_acis_area_parameters()))
+    }).then(resolve)))
+        .then(((response) => {
+          let variable = this.options.variable
+          if (variable === 'days_dry_days') {
+            variable = 'dryday'
+          } else if (variable.startsWith('days_t')) {
+            variable = variable.replace(/days_(.+?)_.+?_([0-9]+)f/, "$1$2F")
+          } else if (variable.startsWith('days_pcpn')) {
+            variable = variable.replace(/.+?([0-9]+)in/, "pr$1in")
+          } else if (variable.endsWith('_65f')) {
+            variable = variable.replace('_65f', '');
+          } else if (variable === 'gddmod') {
+            variable = 'mgdd';
+          } else if (variable === 'pcpn') {
+            variable = 'precipitation';
+          }
+          const data = response.data.filter((series) => series.area_id === this.options.area_id && series.variable === variable)
+          if (data.length === 0) {
+            throw new Error(`No data found for area "${this.options.area_id}" and variable "${variable}"`)
+          }
+          return data
+        }).bind(this));
+  }
+
+  async _update_seasonal_conus() {
+
     return Promise.all([
       this._get_historical_observed_livneh_data(),
       this._get_projected_loca_model_data()
@@ -1922,34 +2148,25 @@ export default class ClimateByLocationWidget {
     }).bind(this));
   }
 
-  async _update_monthly() {
-    this.axes.x_annual.visible(false);
-    this.axes.x_monthly.visible(true);
-    this.axes.x_seasonal.visible(false);
-
-    this.hide_all_plots();
-
-    this._reset_dataurls();
-    this._show_spinner();
-
+  async _update_monthly_conus() {
     return Promise.all([
       this._get_historical_observed_livneh_data(),
       this._get_projected_loca_model_data()
     ])
-      .then((([hist_obs_data, proj_mod_data]) => {
-        this._hide_spinner();
-        let variable_config = find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable);
-        let convfunc = variable_config.dataconverters[this.options.unitsystem];
-        hist_obs_data = this._map_2d_data(hist_obs_data, convfunc);
-        proj_mod_data = this._map_2d_data(proj_mod_data, convfunc);
-        let range = this._scale_range(this._datas_range([hist_obs_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
-        this.axes.y.setDataRange(range.min, range.max);
-        this.axes.y.title().content().string(variable_config.ytitles.monthly[this.options.unitsystem]);
-        this._set_data_array('monthly_hist_obs', hist_obs_data);
-        this._set_data_array('monthly_proj_mod', proj_mod_data);
-        this._update_plot_visibilities();
-        this.multigraph.render();
-      }).bind(this));
+        .then((([hist_obs_data, proj_mod_data]) => {
+          this._hide_spinner();
+          let variable_config = find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable);
+          let convfunc = variable_config.dataconverters[this.options.unitsystem];
+          hist_obs_data = this._map_2d_data(hist_obs_data, convfunc);
+          proj_mod_data = this._map_2d_data(proj_mod_data, convfunc);
+          let range = this._scale_range(this._datas_range([hist_obs_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
+          this.axes.y.setDataRange(range.min, range.max);
+          this.axes.y.title().content().string(variable_config.ytitles.monthly[this.options.unitsystem]);
+          this._set_data_array('monthly_hist_obs', hist_obs_data);
+          this._set_data_array('monthly_proj_mod', proj_mod_data);
+          this._update_plot_visibilities();
+          this.multigraph.render();
+        }).bind(this));
   }
 
   async _update_annual_ak() {
@@ -1998,8 +2215,8 @@ export default class ClimateByLocationWidget {
         return (a[0] > b[0]) - (a[0] < b[0])
       });
 
-      this.dataurls.hist_mod = this._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85'], hist_mod_data);
-      this.dataurls.proj_mod = this._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85',], proj_mod_data);
+      this.downloadable_dataurls.hist_mod = this._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85'], hist_mod_data);
+      this.downloadable_dataurls.proj_mod = this._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85',], proj_mod_data);
 
 
       this._hide_spinner();
@@ -2012,7 +2229,7 @@ export default class ClimateByLocationWidget {
       let range = this._scale_range(this._datas_range([hist_mod_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
       this.axes.y.setDataRange(range.min, range.max);
       this.axes.y.title().content().string(
-        variable_config.ytitles.annual[this.options.presentation][this.options.unitsystem]
+          variable_config.ytitles.annual[this.options.presentation][this.options.unitsystem]
       );
 
       this._set_data_array('annual_hist_mod_ak', hist_mod_data);
@@ -2083,11 +2300,11 @@ export default class ClimateByLocationWidget {
   find_plot_config(frequency = null, regime = null, stat = null, scenario = null, timeperiod = null) {
     return find(this.plots_config, (plot_config) => {
       return (
-        (frequency === plot_config.frequency) &&
-        (regime === plot_config.regime) &&
-        (stat === plot_config.stat) &&
-        (scenario === plot_config.scenario) &&
-        (timeperiod === plot_config.timeperiod)
+          (frequency === plot_config.frequency) &&
+          (regime === plot_config.regime) &&
+          (stat === plot_config.stat) &&
+          (scenario === plot_config.scenario) &&
+          (timeperiod === plot_config.timeperiod)
       )
     })
   }
@@ -2130,10 +2347,10 @@ export default class ClimateByLocationWidget {
 
       if (plot_config.frequency === "annual") {
         // don't show ak plots for non-ak and don't show non-ak plots for ak.
-        if (ClimateByLocationWidget.is_ak_region(this.get_region_value()) ? plot_config.region !== "ak" : plot_config.region === "ak") {
+        if (ClimateByLocationWidget.is_ak_area(this.get_area_id()) ? plot_config.area_id !== "ak" : plot_config.area_id === "ak") {
           return false
         }
-        if (plot_config.regime === "hist_obs") {
+        if (plot_config.regime === "hist_obs" && !ClimateByLocationWidget.is_island_area(this.get_area_id())) {
           return this.options.histobs;
         }
         if (plot_config.regime === "hist_mod") {
@@ -2157,10 +2374,10 @@ export default class ClimateByLocationWidget {
 
       } else {
         if (plot_config.regime === "hist_obs") {
-          return this.options.histobs;
+          return ClimateByLocationWidget.is_island_area(this.get_area_id()) ? false:this.options.histobs;
         }
         if (plot_config.regime === "hist_mod") {
-          return false;
+          return ClimateByLocationWidget.is_island_area(this.get_area_id()) && this.options.histmod;
         }
         if (this.options.timeperiod !== plot_config.timeperiod) {
           return false;
@@ -2184,33 +2401,46 @@ export default class ClimateByLocationWidget {
     });
   }
 
-  _get_region_reduction() {
-    if (this.options.county) {
+  _get_acis_area_reduction() {
+    const area = this.get_area();
+    if (area.area_type === 'county') {
       return {'area_reduce': 'county_mean'}
     }
-    if (this.options.state) {
+    if (area.area_type === 'state') {
       return {'area_reduce': 'state_mean'}
     }
+    throw new Error('Area is not supported by ACIS!')
+  }
+
+  /**
+   * Gets the id of the area / county / state that is currently selected.
+   */
+  get_area_id() {
+    return this.options.area_id || null
   }
 
   /**
    * Gets the county or state that is currently selected.
    */
-  get_region_value() {
-    return this.options.county || this.options.state || null
+  get_area_label() {
+    return get(this.get_area(), 'area_label', null) || this.get_area_id();
   }
 
-  _get_region_parameters() {
-    if (this.options.county) {
+  get_area() {
+    return get(ClimateByLocationWidget.get_areas(null, null, this.get_area_id()), 0, null)
+  }
+
+  _get_acis_area_parameters() {
+    const area = this.get_area();
+    if (area.area_type === 'county') {
       return {
-        "county": this.options.county
+        "county": area.area_id
       }
     }
-    if (this.options.state) {
-      return {"state": this.options.state}
-    } else {
-      throw new Error('county/state not valid')
+    if (area.area_type === 'state') {
+      return {"state": area.area_id}
     }
+    throw new Error('Area is not supported by ACIS!')
   }
 
   _map_2d_data(data, f) {
@@ -2266,8 +2496,8 @@ export default class ClimateByLocationWidget {
   async _get_historical_observed_livneh_data() {
     let freq = (this.options.frequency === 'annual') ? 'annual' : 'monthly';
     let variableConfig = find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable);
-    let elems = [$.extend(variableConfig['acis_elements'][freq], this._get_region_reduction())];
-    return $.ajax({
+    let elems = [$.extend(variableConfig['acis_elements'][freq], this._get_acis_area_reduction())];
+    return (new Promise((resolve) => $.ajax({
       url: this.options.data_api_endpoint,
       type: "POST",
       contentType: "application/json; charset=utf-8",
@@ -2279,94 +2509,94 @@ export default class ClimateByLocationWidget {
         // "edate": (String(new Date().getFullYear() - 1)),
         "grid": 'livneh',
         "elems": elems
-      }, this._get_region_parameters()))
-    })
-      .then(((response) => {
+      }, this._get_acis_area_parameters()))
+    }).then(resolve)))
+        .then(((response) => {
 
-        let data;
+          let data;
 
-        if (this.options.frequency === 'annual') {
-          data = [];
-          response.data.forEach(((record) => {
-            if (undefined !== record[1][this.get_region_value()] && String(record[1][this.get_region_value()]) !== '-999' && String(record[1][this.get_region_value()]) !== '') {
-              data.push([record[0], round((record[1][this.get_region_value()]), 1)]);
-            }
-          }).bind(this));
-          this.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa(('year,' + find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable).id + '\n' + data.join('\n')));
-          return data
-        } else if (this.options.frequency === 'monthly' || this.options.frequency === 'seasonal') {
-          //then build output of [[month(1-12), weighted mean]].
-          data = {
-            '01': [],
-            '02': [],
-            '03': [],
-            '04': [],
-            '05': [],
-            '06': [],
-            '07': [],
-            '08': [],
-            '09': [],
-            '10': [],
-            '11': [],
-            '12': []
-          };
-          response.data.forEach(((record) => {
-            if (undefined !== record[1][this.get_region_value()]) {
-              data[record[0].slice(-2)].push(parseFloat(record[1][this.get_region_value()]));
-            }
-          }).bind(this));
-          //group monthly data by season
-          if (this.options.frequency === 'seasonal') {
-            let seasons = {
-              "01": ["12", "01", "02"],
-              "04": ["03", "04", "05"],
-              "07": ["06", "07", "08"],
-              "10": ["09", "10", "11"]
+          if (this.options.frequency === 'annual') {
+            data = [];
+            response.data.forEach(((record) => {
+              if (undefined !== record[1][this.get_area_id()] && String(record[1][this.get_area_id()]) !== '-999' && String(record[1][this.get_area_id()]) !== '') {
+                data.push([record[0], round((record[1][this.get_area_id()]), 1)]);
+              }
+            }).bind(this));
+            this.downloadable_dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa(('year,' + find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable).id + '\n' + data.join('\n')));
+            return data
+          } else if (this.options.frequency === 'monthly' || this.options.frequency === 'seasonal') {
+            //then build output of [[month(1-12), weighted mean]].
+            data = {
+              '01': [],
+              '02': [],
+              '03': [],
+              '04': [],
+              '05': [],
+              '06': [],
+              '07': [],
+              '08': [],
+              '09': [],
+              '10': [],
+              '11': [],
+              '12': []
             };
-            data = Object.keys(seasons).reduce((acc, season) => {
-              acc[season] = [].concat(data[seasons[season][0]], data[seasons[season][1]], data[seasons[season][2]]);
+            response.data.forEach(((record) => {
+              if (undefined !== record[1][this.get_area_id()]) {
+                data[record[0].slice(-2)].push(parseFloat(record[1][this.get_area_id()]));
+              }
+            }).bind(this));
+            //group monthly data by season
+            if (this.options.frequency === 'seasonal') {
+              let seasons = {
+                "01": ["12", "01", "02"],
+                "04": ["03", "04", "05"],
+                "07": ["06", "07", "08"],
+                "10": ["09", "10", "11"]
+              };
+              data = Object.keys(seasons).reduce((acc, season) => {
+                acc[season] = [].concat(data[seasons[season][0]], data[seasons[season][1]], data[seasons[season][2]]);
+                return acc;
+              }, {});
+            }
+            let mean = Object.keys(data).reduce((acc, key) => {
+              acc[key] = round((data[key].reduce((a, b) => {
+                return a + b;
+              }) / data[key].length), 1);
               return acc;
             }, {});
+            // let median = Object.keys(data).reduce( (acc, key) => {
+            //   data[key].sort( (a, b) => {
+            //     return a - b;
+            //   });
+            //   let half = Math.floor(data[key].length / 2);
+            //   if (data[key].length % 2)
+            //     acc[key] = Math.round(data[key][half]* 10) / 10;
+            //   else
+            //     acc[key] = round(((data[key][half - 1] + data[key][half]) / 2.0), 1);
+            //   return acc;
+            // }, {});
+            //return [[month, weighted mean]]
+            data = Object.keys(data).reduce((acc, key) => {
+              acc.push([parseInt(key), null, mean[key]]);
+              return acc;
+            }, []).sort((a, b) => {
+              return parseInt(a[0]) - parseInt(b[0])
+            });
+
+            this.downloadable_dataurls.hist_obs = this._format_export_data(['month', 'weighted_mean'], data);
+            return data;
+
           }
-          let mean = Object.keys(data).reduce((acc, key) => {
-            acc[key] = round((data[key].reduce((a, b) => {
-              return a + b;
-            }) / data[key].length), 1);
-            return acc;
-          }, {});
-          // let median = Object.keys(data).reduce( (acc, key) => {
-          //   data[key].sort( (a, b) => {
-          //     return a - b;
-          //   });
-          //   let half = Math.floor(data[key].length / 2);
-          //   if (data[key].length % 2)
-          //     acc[key] = Math.round(data[key][half]* 10) / 10;
-          //   else
-          //     acc[key] = round(((data[key][half - 1] + data[key][half]) / 2.0), 1);
-          //   return acc;
-          // }, {});
-          //return [[month, weighted mean]]
-          data = Object.keys(data).reduce((acc, key) => {
-            acc.push([parseInt(key), null, mean[key]]);
-            return acc;
-          }, []).sort((a, b) => {
-            return parseInt(a[0]) - parseInt(b[0])
-          });
-
-          this.dataurls.hist_obs = this._format_export_data(['month', 'weighted_mean'], data);
-          return data;
-
-        }
-      }).bind(this));
+        }).bind(this));
   }
 
   async _fetch_acis_data(grid, sdate, edate) {
 
     let freq = (this.options.frequency === 'annual') ? 'annual' : 'monthly';
 
-    let elems = [$.extend((find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable))['acis_elements'][freq], this._get_region_reduction())];
+    let elems = [$.extend((find(ClimateByLocationWidget.variables, (c) => c.id === this.options.variable))['acis_elements'][freq], this._get_acis_area_reduction())];
 
-    return $.ajax({
+    return (new Promise((resolve) => $.ajax({
       url: this.options.data_api_endpoint,
       type: "POST",
       contentType: "application/json; charset=utf-8",
@@ -2376,17 +2606,17 @@ export default class ClimateByLocationWidget {
         "sdate": String(sdate),
         "edate": String(edate),
         "elems": elems
-      }, this._get_region_parameters()))
-    })
-      .then(((response) => {
-        let data = {};
-        response.data.forEach(((record) => {
-          if (undefined !== record[1][this.get_region_value()] && String(record[1][this.get_region_value()]) !== '-999' && String(record[1][this.get_region_value()]) !== '') {
-            data[record[0]] = record[1][this.get_region_value()]
-          }
+      }, this._get_acis_area_parameters()))
+    }).then(resolve)))
+        .then(((response) => {
+          let data = {};
+          response.data.forEach(((record) => {
+            if (undefined !== record[1][this.get_area_id()] && String(record[1][this.get_area_id()]) !== '-999' && String(record[1][this.get_area_id()]) !== '') {
+              data[record[0]] = record[1][this.get_area_id()]
+            }
+          }).bind(this));
+          return data;
         }).bind(this));
-        return data;
-      }).bind(this));
   }
 
   async _get_historical_loca_model_data() {
@@ -2397,24 +2627,24 @@ export default class ClimateByLocationWidget {
       this._fetch_acis_data('loca:allMin:rcp85', '1950-01-01', edate),
       this._fetch_acis_data('loca:allMax:rcp85', '1950-01-01', edate)
     ])
-      .then((([wMean, min, max]) => {
-        let data = [];
+        .then((([wMean, min, max]) => {
+          let data = [];
 
-        for (let key = 1950; key <= 2006; key++) {
-          let values = {};
-          values.wMean = wMean.hasOwnProperty(key) ? round(wMean[key], 1) : null;
-          values.min = min.hasOwnProperty(key) ? round(min[key], 1) : null;
-          values.max = max.hasOwnProperty(key) ? round(max[key], 1) : null;
-          //year,mean,min,max,?,?
-          data.push([String(key), values.wMean, values.min, values.max, null, null]);
-        }
-        // Sort before returning
-        data.sort((a, b) => {
-          return (a[0] > b[0]) - (a[0] < b[0])
-        });
-        this.dataurls.hist_mod = this._format_export_data(['year', 'weighted_mean', 'min', 'max'], data);
-        return data
-      }).bind(this));
+          for (let key = 1950; key <= 2006; key++) {
+            let values = {};
+            values.wMean = wMean.hasOwnProperty(key) ? round(wMean[key], 1) : null;
+            values.min = min.hasOwnProperty(key) ? round(min[key], 1) : null;
+            values.max = max.hasOwnProperty(key) ? round(max[key], 1) : null;
+            //year,mean,min,max,?,?
+            data.push([String(key), values.wMean, values.min, values.max]);
+          }
+          // Sort before returning
+          data.sort((a, b) => {
+            return (a[0] > b[0]) - (a[0] < b[0])
+          });
+          this.downloadable_dataurls.hist_mod = this._format_export_data(['year', 'weighted_mean', 'min', 'max'], data);
+          return data
+        }).bind(this));
   }
 
   async _get_projected_loca_model_data() {
@@ -2427,158 +2657,138 @@ export default class ClimateByLocationWidget {
       sdate = '2010-01-01';
     }
 
-    return Promise.all([
+    const [wMean45, min45, max45, wMean85, min85, max85] = await Promise.all([
       this._fetch_acis_data('loca:wMean:rcp45', sdate, this._model_edate),
       this._fetch_acis_data('loca:allMin:rcp45', sdate, this._model_edate),
       this._fetch_acis_data('loca:allMax:rcp45', sdate, this._model_edate),
       this._fetch_acis_data('loca:wMean:rcp85', sdate, this._model_edate),
       this._fetch_acis_data('loca:allMin:rcp85', sdate, this._model_edate),
       this._fetch_acis_data('loca:allMax:rcp85', sdate, this._model_edate)
-    ])
-      .then((([wMean45, min45, max45, wMean85, min85, max85]) => {
-        let data;
-        let months_seasons = {
-          "01": "01",
-          "02": "01",
-          "03": "04",
-          "04": "04",
-          "05": "04",
-          "06": "07",
-          "07": "07",
-          "08": "07",
-          "09": "10",
-          "10": "10",
-          "11": "10",
-          "12": "01"
-        };
-        if (this.options.frequency === 'annual') {
-          data = [];
-          // Extract values
-          for (let key = 2006; key < 2100; key++) {
-            let values = {};
-            values.wMean45 = wMean45.hasOwnProperty(key) ? round(wMean45[key], 1) : null;
-            values.min45 = min45.hasOwnProperty(key) ? round(min45[key], 1) : null;
-            values.max45 = max45.hasOwnProperty(key) ? round(max45[key], 1) : null;
-            values.wMean85 = wMean85.hasOwnProperty(key) ? round(wMean85[key], 1) : null;
-            values.min85 = min85.hasOwnProperty(key) ? round(min85[key], 1) : null;
-            values.max85 = max85.hasOwnProperty(key) ? round(max85[key], 1) : null;
-            //year,rcp45mean,rcp45min,rcp45max,rcp45p10,rcp45p90,rcp85mean,rcp85min,rcp85max,rcp85p10,rcp85p90
-            data.push([String(key), values.wMean45, values.min45, values.max45, null, null, values.wMean85, values.min85, values.max85, null, null]);
-          }
-          // Sort before returning
-          data.sort((a, b) => {
-            return (a[0] > b[0]) - (a[0] < b[0])
-          });
-          this.dataurls.proj_mod = this._format_export_data(['year', 'rcp45_weighted_mean', 'rcp45_min', 'rcp45_max', 'rcp85_weighted mean', 'rcp85_min', 'rcp85_max'], data);
+    ]);
 
-          return data
-        } else if (this.options.frequency === 'monthly' || this.options.frequency === 'seasonal') {
-          data = {};
-          [2025, 2050, 2075].forEach((yearRange) => {
-            data[yearRange] = {};
-            this._months.forEach((month) => {
-              let season_month = month;
-              if (this.options.frequency === 'seasonal') {
-                //for seasonal group by season, not month.
-                season_month = months_seasons[month];
-              }
-              if (undefined === data[yearRange][season_month]) {
-                data[yearRange][season_month] = {};
-              }
-              let datasets = {
-                'wMean45': wMean45,
-                'wMean85': wMean85,
-                'min45': min45,
-                'max45': max45,
-                'min85': min85,
-                'max85': max85
-              };
-              Object.keys(datasets).forEach((dataset) => {
-                if (undefined === data[yearRange][season_month][dataset]) {
-                  data[yearRange][season_month][dataset] = [];
-                }
-                for (let year = yearRange - 15; year < yearRange + 15; year++) {
-                  let year_month = String(year) + '-' + String(month);
-                  if (datasets[dataset].hasOwnProperty(year_month)) {
-                    data[yearRange][season_month][dataset].push(datasets[dataset][year_month]);
-                  }
-                }
-              });
-            });
-          });
-          // mean values by month
-          Object.keys(data).forEach((yearRange) => {
-            Object.keys(data[yearRange]).forEach((month) => {
-              ['wMean45', 'wMean85', 'min45', 'min85', 'max45', 'max85'].forEach((valueName) => {
-                let length = data[yearRange][month][valueName].length;
-                let sum = data[yearRange][month][valueName].reduce((acc, value) => {
-                  return acc + value;
-                }, 0);
-                data[yearRange][month][valueName] = sum / length;
-              });
-            });
-          });
-          // reformat to expected output
-          // [ month,2025rcp45_max,2025rcp45_weighted_mean,2025rcp45_min,2025rcp45_p10,2025rcp45_p90,2025rcp85_max,2025rcp85_weighted_mean,2025rcp85_min,2025rcp85_p10,2025rcp85_p90,2050rcp45_max,2050rcp45_weighted_mean,2050rcp45_min,2050rcp45_p10,2050rcp45_p90,2050rcp85_max,2050rcp85_weighted_mean,2050rcp85_min,2050rcp85_p10,2050rcp85_p90,2075rcp45_max,2075rcp45_weighted_mean,2075rcp45_min,2075rcp45_p10,2075rcp45_p90,2075rcp85_max,2075rcp85_weighted_mean,2075rcp85_min,2075rcp85_p10,2075rcp85_p90 ]
-          let dataByMonth = {};
-          let months = this._months;
-          if (this.options.frequency === 'seasonal') {
-            months = ['01', '04', '07', '10']
-          }
-          months.forEach((month) => {
-            dataByMonth[month] = {};
-            [2025, 2050, 2075].forEach((yearRange) => {
-              ['45', '85'].forEach((scenario) => {
-                ['max', 'wMean', 'min'].forEach((valueName) => {
-                  dataByMonth[month][String(yearRange) + 'rcp' + String(scenario) + '_' + String(valueName)] = data[yearRange][month][String(valueName) + String(scenario)];
-                });
-              });
-            });
-          });
-          let result = [];
-          Object.keys(dataByMonth).forEach((month) => {
-            result.push([month,
-              dataByMonth[month]['2025rcp45_max'],
-              dataByMonth[month]['2025rcp45_wMean'],
-              dataByMonth[month]['2025rcp45_min'],
-              null,
-              null,
-              dataByMonth[month]['2025rcp85_max'],
-              dataByMonth[month]['2025rcp85_wMean'],
-              dataByMonth[month]['2025rcp85_min'],
-              null,
-              null,
-              dataByMonth[month]['2050rcp45_max'],
-              dataByMonth[month]['2050rcp45_wMean'],
-              dataByMonth[month]['2050rcp45_min'],
-              null,
-              null,
-              dataByMonth[month]['2050rcp85_max'],
-              dataByMonth[month]['2050rcp85_wMean'],
-              dataByMonth[month]['2050rcp85_min'],
-              null,
-              null,
-              dataByMonth[month]['2075rcp45_max'],
-              dataByMonth[month]['2075rcp45_wMean'],
-              dataByMonth[month]['2075rcp45_min'],
-              null,
-              null,
-              dataByMonth[month]['2075rcp85_max'],
-              dataByMonth[month]['2075rcp85_wMean'],
-              dataByMonth[month]['2075rcp85_min'],
-              null,
-              null]);
-          });
+    if (this.options.frequency === 'annual') {
+      return this.transform_acis_loca_annual(wMean45, min45, max45, wMean85, min85, max85);
+    } else if (this.options.frequency === 'monthly' || this.options.frequency === 'seasonal') {
+      return this.transform_acis_loca_monthly_seasonal(wMean45, min45, max45, wMean85, min85, max85)
+    }
+  }
 
-          // Sort before returning
-          result.sort((a, b) => {
-            return (a[0] > b[0]) - (a[0] < b[0])
-          });
-
-          this.dataurls.proj_mod = this._format_export_data(['month', '2025_rcp45_max', '2025_rcp45_weighted_mean', '2025_rcp45_min', '2025_rcp85_max', '2025_rcp85_weighted_mean', '2025_rcp85_min', '2050_rcp45_max', '2050_rcp45_weighted_mean', '2050_rcp45_min', '2050_rcp85_max', '2050_rcp85_weighted_mean', '2050_rcp85_min', '2075_rcp45_max', '2075_rcp45_weighted_mean', '2075_rcp45_min', '2075_rcp85_max', '2075_rcp85_weighted_mean', '2075_rcp85_min'], result);
-          return result
+  transform_acis_loca_monthly_seasonal(wMean45, min45, max45, wMean85, min85, max85) {
+    let data = {};
+    [2025, 2050, 2075].forEach((yearRange) => {
+      data[yearRange] = {};
+      ClimateByLocationWidget._months.forEach((month) => {
+        let season_month = month;
+        if (this.options.frequency === 'seasonal') {
+          //for seasonal group by season, not month.
+          season_month = ClimateByLocationWidget._months_seasons[month];
         }
-      }).bind(this));
+        if (undefined === data[yearRange][season_month]) {
+          data[yearRange][season_month] = {};
+        }
+        let datasets = {
+          'wMean45': wMean45,
+          'wMean85': wMean85,
+          'min45': min45,
+          'max45': max45,
+          'min85': min85,
+          'max85': max85
+        };
+        Object.keys(datasets).forEach((dataset) => {
+          if (undefined === data[yearRange][season_month][dataset]) {
+            data[yearRange][season_month][dataset] = [];
+          }
+          for (let year = yearRange - 15; year < yearRange + 15; year++) {
+            let year_month = String(year) + '-' + String(month);
+            if (datasets[dataset].hasOwnProperty(year_month)) {
+              data[yearRange][season_month][dataset].push(datasets[dataset][year_month]);
+            }
+          }
+        });
+      });
+    });
+    // mean values by month
+    Object.keys(data).forEach((yearRange) => {
+      Object.keys(data[yearRange]).forEach((month) => {
+        ['wMean45', 'wMean85', 'min45', 'min85', 'max45', 'max85'].forEach((valueName) => {
+          let length = data[yearRange][month][valueName].length;
+          let sum = data[yearRange][month][valueName].reduce((acc, value) => {
+            return acc + value;
+          }, 0);
+          data[yearRange][month][valueName] = sum / length;
+        });
+      });
+    });
+    // reformat to expected output
+    // [ month,2025rcp45_max,2025rcp45_weighted_mean,2025rcp45_min,2025rcp85_max,2025rcp85_weighted_mean,2025rcp85_min,2050rcp45_max,2050rcp45_weighted_mean,2050rcp45_min,2050rcp85_max,2050rcp85_weighted_mean,2050rcp85_min,2075rcp45_max,2075rcp45_weighted_mean,2075rcp45_min,2075rcp85_max,2075rcp85_weighted_mean,2075rcp85_min ]
+    let dataByMonth = {};
+    let months = ClimateByLocationWidget._months;
+    if (this.options.frequency === 'seasonal') {
+      months = ['01', '04', '07', '10']
+    }
+    months.forEach((month) => {
+      dataByMonth[month] = {};
+      [2025, 2050, 2075].forEach((yearRange) => {
+        ['45', '85'].forEach((scenario) => {
+          ['max', 'wMean', 'min'].forEach((valueName) => {
+            dataByMonth[month][String(yearRange) + 'rcp' + String(scenario) + '_' + String(valueName)] = data[yearRange][month][String(valueName) + String(scenario)];
+          });
+        });
+      });
+    });
+    let result = [];
+    Object.keys(dataByMonth).forEach((month) => {
+      result.push([month,
+        dataByMonth[month]['2025rcp45_wMean'],
+        dataByMonth[month]['2025rcp45_min'],
+        dataByMonth[month]['2025rcp45_max'],
+        dataByMonth[month]['2025rcp85_wMean'],
+        dataByMonth[month]['2025rcp85_min'],
+        dataByMonth[month]['2025rcp85_max'],
+        dataByMonth[month]['2050rcp45_wMean'],
+        dataByMonth[month]['2050rcp45_min'],
+        dataByMonth[month]['2050rcp45_max'],
+        dataByMonth[month]['2050rcp85_wMean'],
+        dataByMonth[month]['2050rcp85_min'],
+        dataByMonth[month]['2050rcp85_max'],
+        dataByMonth[month]['2075rcp45_wMean'],
+        dataByMonth[month]['2075rcp45_min'],
+        dataByMonth[month]['2075rcp45_max'],
+        dataByMonth[month]['2075rcp85_wMean'],
+        dataByMonth[month]['2075rcp85_min'],
+        dataByMonth[month]['2075rcp85_max'],
+      ]);
+    });
+
+    // Sort before returning
+    result.sort((a, b) => {
+      return (a[0] > b[0]) - (a[0] < b[0])
+    });
+
+    this.downloadable_dataurls.proj_mod = this._format_export_data(['month',  '2025_rcp45_weighted_mean', '2025_rcp45_min','2025_rcp45_max', '2025_rcp85_weighted_mean', '2025_rcp85_min','2025_rcp85_max',  '2050_rcp45_weighted_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_weighted_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_max', '2075_rcp45_weighted_mean', '2075_rcp45_min',  '2075_rcp45_max',  '2075_rcp85_weighted_mean', '2075_rcp85_min','2075_rcp85_max'], result);
+    return result;
+  }
+
+  transform_acis_loca_annual(wMean45, min45, max45, wMean85, min85, max85) {
+    let data = [];
+    // Extract values
+    for (let key = 2006; key < 2100; key++) {
+      let values = {};
+      values.wMean45 = wMean45.hasOwnProperty(key) ? round(wMean45[key], 1) : null;
+      values.min45 = min45.hasOwnProperty(key) ? round(min45[key], 1) : null;
+      values.max45 = max45.hasOwnProperty(key) ? round(max45[key], 1) : null;
+      values.wMean85 = wMean85.hasOwnProperty(key) ? round(wMean85[key], 1) : null;
+      values.min85 = min85.hasOwnProperty(key) ? round(min85[key], 1) : null;
+      values.max85 = max85.hasOwnProperty(key) ? round(max85[key], 1) : null;
+      //year,rcp45mean,rcp45min,rcp45max,rcp85mean,rcp85min,rcp85max
+      data.push([String(key), values.wMean45, values.min45, values.max45, values.wMean85, values.min85, values.max85]);
+    }
+    // Sort before returning
+    data.sort((a, b) => {
+      return (a[0] > b[0]) - (a[0] < b[0])
+    });
+    this.downloadable_dataurls.proj_mod = this._format_export_data(['year', 'rcp45_weighted_mean', 'rcp45_min', 'rcp45_max', 'rcp85_weighted mean', 'rcp85_min', 'rcp85_max'], data);
+    return data;
   }
 
   /**
@@ -2589,7 +2799,7 @@ export default class ClimateByLocationWidget {
   download_image(link) {
     link.href = this.$graphdiv.find('canvas')[0].toDataURL('image/png');
     link.download = [
-      this.options.get_region_label.bind(this)(),
+      this.options.get_area_label.bind(this)(),
       this.options.frequency,
       this.options.variable,
       "graph"
@@ -2603,13 +2813,13 @@ export default class ClimateByLocationWidget {
    * @returns {boolean}
    */
   download_hist_obs_data(link) {
-    if (!this.dataurls.hist_obs) {
+    if (!this.downloadable_dataurls.hist_obs) {
       link.href = '#nodata';
       return false;
     }
-    link.href = this.dataurls.hist_obs;
+    link.href = this.downloadable_dataurls.hist_obs;
     link.download = [
-      this.options.get_region_label.bind(this)(),
+      this.options.get_area_label.bind(this)(),
       this.options.frequency,
       "hist_obs",
       this.options.variable
@@ -2623,13 +2833,13 @@ export default class ClimateByLocationWidget {
    * @returns {boolean}
    */
   download_hist_mod_data(link) {
-    if (!this.dataurls.hist_mod) {
+    if (!this.downloadable_dataurls.hist_mod) {
       link.href = '#nodata';
       return false;
     }
-    link.href = this.dataurls.hist_mod;
+    link.href = this.downloadable_dataurls.hist_mod;
     link.download = [
-      this.options.get_region_label.bind(this)(),
+      this.options.get_area_label.bind(this)(),
       this.options.frequency,
       "hist_mod",
       this.options.variable
@@ -2643,13 +2853,13 @@ export default class ClimateByLocationWidget {
    * @returns {boolean}
    */
   download_proj_mod_data(link) {
-    if (!this.dataurls.proj_mod) {
+    if (!this.downloadable_dataurls.proj_mod) {
       link.href = '#nodata';
       return false;
     }
-    link.href = this.dataurls.proj_mod;
+    link.href = this.downloadable_dataurls.proj_mod;
     link.download = [
-      this.options.get_region_label.bind(this)(),
+      this.options.get_area_label.bind(this)(),
       this.options.frequency,
       "proj_mod",
       this.options.variable
@@ -2808,8 +3018,8 @@ export default class ClimateByLocationWidget {
       return this.climate_by_location_widget.set_x_axis_range(min, max);
     },
 
-    get_variables: function (frequency, unitsystem, region) {
-      return ClimateByLocationWidget.get_variables(frequency, unitsystem, region)
+    get_variables: function (frequency, unitsystem, area_id) {
+      return ClimateByLocationWidget.get_variables(frequency, unitsystem, area_id)
     },
 
     download_image: function (link) {

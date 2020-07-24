@@ -72,6 +72,21 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
     return Constructor;
   }
 
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
   function _slicedToArray(arr, i) {
     return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
   }
@@ -4864,6 +4879,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
    */
   var round = createRound('round');
 
+  var all_areas = null;
+  var _when_areas = null;
   /* globals jQuery, window */
 
   var ClimateByLocationWidget =
@@ -4876,18 +4893,14 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
      * 'frequency'    : selectedFrequency,    // time frequency of graph to display ("annual", "monthly", or "seasonal")
      * 'timeperiod'   : selectedTimePeriod,   // time period center for monthly/seasonal graphs ("2025", "2050", or "2075"); only
      * relevant for monthly or seasonal frequency)
-     * 'variable'     : selectedVariable,     // name of variable to display; see climate-by-location.js for list of variables
+     * 'variable'     : selectedVariable,     // name of variable to display (use ClimateByLocationWidget.when_variables() to lookup options)
      * 'scenario'     : selectedScenario,     // name of scenario to display: "both", "rcp45", or "rcp85"
      * 'presentation' : selectedPresentation  // name of presentation; "absolute" or "anomaly" (only relevant for annual frequency)
      * 'div'           :  "div#widget",         // jquery-style selector for the dom element that you want the graph to appear in
      * 'font'          : 'Roboto',
      * 'frequency'     :  $('#frequency').val(),    // time frequency of graph to display ("annual", "monthly", or "seasonal")
      * 'timeperiod'    :  selectedTimePeriod,   // time period center for monthly/seasonal graphs ("2025", "2050", or "2075")
-     * 'county'          :  selectedCounty,       // 5-character fips code for county (as a string)
-     * 'state'          :  selectedState,       // 2-character abbreviation code for state (as a string)
-     * 'variable'      :  selectedVariable,     // name of variable to display; see climate-by-location.js for list of variables
-     * 'scenario'      :  selectedScenario,     // name of scenario to display; both, rcp45, or rcp85
-     * 'presentation'  :  selectedPresentation  // name of presentation; absolute or anomaly with respect to a baseline value
+     * 'area_id'          :  selectedAreaId,       // Id obtained from available areas (use ClimateByLocationWidget.when_areas() to lookup areas)
      * required:
      * state or county
      *
@@ -4929,7 +4942,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         console.log('Climate By Location widget created with no element. Nothing will be displayed.');
       }
 
-      this.dataurls = null;
+      this.downloadable_dataurls = null;
       this.multigraph = null;
       this.multigraph_config = merge(this.multigraph_config_default, {
         plots: this.plots_config.map(function (c) {
@@ -4984,26 +4997,22 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         var old_options = Object.assign({}, this.options);
         this.options = merge({}, old_options, options);
 
-        if (this.options.state !== old_options.state && this.options.county === old_options.county) {
-          this.options.county = null;
-        }
-
         this._bool_options.forEach(function (option) {
           if (typeof options[option] === "string") {
             options[option] = options[option].toLowerCase() === "true";
           }
         });
 
-        if (!get(ClimateByLocationWidget, ['frequencies', this.options.frequency, 'supports_region'], function () {
+        if (!get(ClimateByLocationWidget, ['frequencies', this.options.frequency, 'supports_area'], function () {
           return true;
-        })(this.get_region_value())) {
-          this.options.frequency = ClimateByLocationWidget.get_variables(this.get_region_value())[0].id;
+        })(this.get_area_id())) {
+          this.options.frequency = ClimateByLocationWidget.get_variables(this.get_area_id())[0].id;
         }
 
-        if (!get(ClimateByLocationWidget, ['variables', this.options.variable, 'supports_region'], function () {
+        if (!get(ClimateByLocationWidget, ['variables', this.options.variable, 'supports_area'], function () {
           return true;
-        })(this.get_region_value())) {
-          this.options.variable = ClimateByLocationWidget.get_variables(this.options.frequency, null, this.get_region_value())[0].id;
+        })(this.get_area_id())) {
+          this.options.variable = ClimateByLocationWidget.get_variables(this.options.frequency, null, this.get_area_id())[0].id;
         }
 
         this._update_plot_visibilities();
@@ -5034,7 +5043,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         } // if frequency, state, county, or variable changed, trigger a larger update cycle (new data + plots maybe changed):
 
 
-        if (this.options.frequency !== old_options.frequency || this.options.state !== old_options.state || this.options.county !== old_options.county || this.options.presentation !== old_options.presentation || this.options.variable !== old_options.variable) {
+        if (this.options.frequency !== old_options.frequency || this.options.area_id !== old_options.area_id || this.options.presentation !== old_options.presentation || this.options.variable !== old_options.variable) {
           this.update();
         } else {
           this.multigraph.render();
@@ -5043,9 +5052,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         return this;
       }
     }, {
-      key: "_reset_dataurls",
-      value: function _reset_dataurls() {
-        this.dataurls = {
+      key: "_reset_downloadable_dataurls",
+      value: function _reset_downloadable_dataurls() {
+        this.downloadable_dataurls = {
           hist_obs: '',
           hist_mod: '',
           proj_mod: ''
@@ -5066,46 +5075,107 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             while (1) {
               switch (_context.prev = _context.next) {
                 case 0:
-                  if (!(!!this.options.county || !!this.options.state)) {
-                    _context.next = 14;
+                  this._show_spinner();
+
+                  this._reset_downloadable_dataurls();
+
+                  this.axes.x_annual.visible(false);
+                  this.axes.x_monthly.visible(false);
+                  this.axes.x_seasonal.visible(false);
+                  this.hide_all_plots();
+
+                  if (!(!!this.options.area_id && !!this.options.variable && !!this.options.frequency)) {
+                    _context.next = 42;
                     break;
                   }
 
                   if (!(this.options.frequency === "annual")) {
-                    _context.next = 6;
+                    _context.next = 23;
                     break;
                   }
 
-                  _context.next = 4;
-                  return this._update_annual();
+                  this.axes.x_annual.visible(true);
 
-                case 4:
-                  _context.next = 14;
-                  break;
-
-                case 6:
-                  if (!(this.options.frequency === "monthly")) {
-                    _context.next = 11;
-                    break;
-                  }
-
-                  _context.next = 9;
-                  return this._update_monthly();
-
-                case 9:
-                  _context.next = 14;
-                  break;
-
-                case 11:
-                  if (!(this.options.frequency === "seasonal")) {
+                  if (!ClimateByLocationWidget.is_ak_area(this.get_area_id())) {
                     _context.next = 14;
                     break;
                   }
 
-                  _context.next = 14;
-                  return this._update_seasonal();
+                  _context.next = 12;
+                  return this._update_annual_ak();
+
+                case 12:
+                  _context.next = 21;
+                  break;
 
                 case 14:
+                  if (!ClimateByLocationWidget.is_island_area(this.get_area_id())) {
+                    _context.next = 19;
+                    break;
+                  }
+
+                  _context.next = 17;
+                  return this._update_annual_island();
+
+                case 17:
+                  _context.next = 21;
+                  break;
+
+                case 19:
+                  _context.next = 21;
+                  return this._update_annual_conus();
+
+                case 21:
+                  _context.next = 42;
+                  break;
+
+                case 23:
+                  if (!(this.options.frequency === "monthly")) {
+                    _context.next = 38;
+                    break;
+                  }
+
+                  this.axes.x_monthly.visible(true);
+
+                  if (!ClimateByLocationWidget.is_ak_area(this.get_area_id())) {
+                    _context.next = 29;
+                    break;
+                  }
+
+                  return _context.abrupt("return");
+
+                case 29:
+                  if (!ClimateByLocationWidget.is_island_area(this.get_area_id())) {
+                    _context.next = 34;
+                    break;
+                  }
+
+                  _context.next = 32;
+                  return this._update_monthly_island();
+
+                case 32:
+                  _context.next = 36;
+                  break;
+
+                case 34:
+                  _context.next = 36;
+                  return this._update_monthly_conus();
+
+                case 36:
+                  _context.next = 42;
+                  break;
+
+                case 38:
+                  if (!(this.options.frequency === "seasonal")) {
+                    _context.next = 42;
+                    break;
+                  }
+
+                  this.axes.x_seasonal.visible(true);
+                  _context.next = 42;
+                  return this._update_seasonal_conus();
+
+                case 42:
                 case "end":
                   return _context.stop();
               }
@@ -5120,9 +5190,9 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         return update;
       }()
     }, {
-      key: "_update_annual",
+      key: "_update_annual_conus",
       value: function () {
-        var _update_annual2 = _asyncToGenerator(
+        var _update_annual_conus2 = _asyncToGenerator(
         /*#__PURE__*/
         regeneratorRuntime.mark(function _callee2() {
           var _this2 = this;
@@ -5131,20 +5201,6 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             while (1) {
               switch (_context2.prev = _context2.next) {
                 case 0:
-                  this.axes.x_annual.visible(true);
-                  this.axes.x_monthly.visible(false);
-                  this.axes.x_seasonal.visible(false);
-                  this.hide_all_plots();
-
-                  this._reset_dataurls();
-
-                  this._show_spinner();
-
-                  if (ClimateByLocationWidget.is_ak_region(this.get_region_value())) {
-                    _context2.next = 10;
-                    break;
-                  }
-
                   return _context2.abrupt("return", Promise.all([this._get_historical_observed_livneh_data(), this._get_historical_loca_model_data(), this._get_projected_loca_model_data()]).then(function (_ref) {
                     var _ref2 = _slicedToArray(_ref, 3),
                         hist_obs_data = _ref2[0],
@@ -5194,10 +5250,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                     _this2.multigraph.render();
                   }.bind(this)));
 
-                case 10:
-                  return _context2.abrupt("return", this._update_annual_ak());
-
-                case 11:
+                case 1:
                 case "end":
                   return _context2.stop();
               }
@@ -5205,39 +5258,373 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           }, _callee2, this);
         }));
 
-        function _update_annual() {
-          return _update_annual2.apply(this, arguments);
+        function _update_annual_conus() {
+          return _update_annual_conus2.apply(this, arguments);
         }
 
-        return _update_annual;
+        return _update_annual_conus;
       }()
     }, {
-      key: "_update_seasonal",
+      key: "_update_annual_island",
       value: function () {
-        var _update_seasonal2 = _asyncToGenerator(
+        var _update_annual_island2 = _asyncToGenerator(
         /*#__PURE__*/
         regeneratorRuntime.mark(function _callee3() {
           var _this3 = this;
 
+          var data, hist_mod_series, rcp45_mod_series, rcp85_mod_series, hist_sdate_year, hist_mod_data, proj_sdate_year, proj_mod_data, variable_config, convfunc, avg, range;
           return regeneratorRuntime.wrap(function _callee3$(_context3) {
             while (1) {
               switch (_context3.prev = _context3.next) {
                 case 0:
-                  this.axes.x_annual.visible(false);
-                  this.axes.x_monthly.visible(false);
-                  this.axes.x_seasonal.visible(true);
-                  this.hide_all_plots();
+                  _context3.next = 2;
+                  return this._fetch_island_data();
 
-                  this._reset_dataurls();
+                case 2:
+                  data = _context3.sent;
 
-                  this._show_spinner();
+                  this._hide_spinner();
 
-                  return _context3.abrupt("return", Promise.all([this._get_historical_observed_livneh_data(), this._get_projected_loca_model_data()]).then(function (_ref3) {
+                  hist_mod_series = data.find(function (series) {
+                    return series.scenario === 'historical';
+                  });
+                  rcp45_mod_series = data.find(function (series) {
+                    return series.scenario === 'rcp45';
+                  });
+                  rcp85_mod_series = data.find(function (series) {
+                    return series.scenario === 'rcp85';
+                  }); // reshape hist data to an array of [[year,mean,min,max], ...] (to match how update_annual_conus shapes it's data)
+
+                  hist_sdate_year = Number.parseInt(hist_mod_series.sdate.substr(0, 4));
+                  hist_mod_data = hist_mod_series.annual_data.all_mean.reduce(function (_data, v, i) {
+                    _data.push([hist_sdate_year + i, v, hist_mod_series.annual_data.all_min[i], hist_mod_series.annual_data.all_max[i]]);
+
+                    return _data;
+                  }, []); // reshape proj data to an array of [[year,rcp45mean,rcp45min,rcp45max,rcp85mean,rcp85min,rcp85max], ...] (to match how update_annual_conus shapes it's data)
+
+                  proj_sdate_year = Number.parseInt(rcp45_mod_series.sdate.substr(0, 4));
+                  proj_mod_data = rcp45_mod_series.annual_data.all_mean.reduce(function (_data, v, i) {
+                    _data.push([proj_sdate_year + i, v, rcp45_mod_series.annual_data.all_min[i], rcp45_mod_series.annual_data.all_max[i], rcp85_mod_series.annual_data.all_mean[i], rcp85_mod_series.annual_data.all_min[i], rcp85_mod_series.annual_data.all_max[i]]);
+
+                    return _data;
+                  }, []);
+                  variable_config = find(ClimateByLocationWidget.variables, function (c) {
+                    return c.id === _this3.options.variable;
+                  });
+                  convfunc = variable_config.dataconverters[this.options.unitsystem];
+                  hist_mod_data = this._map_2d_data(hist_mod_data, convfunc);
+                  proj_mod_data = this._map_2d_data(proj_mod_data, convfunc);
+                  avg = this._average(hist_mod_data, Number.parseInt(hist_mod_series.sdate.substr(0, 4)), Number.parseInt(hist_mod_series.edate.substr(0, 4)));
+
+                  if (this.options.presentation === "anomaly") {
+                    if (this.options.variable === "pcpn") {
+                      proj_mod_data = this._percent_anomalies(proj_mod_data, avg);
+                    } else {
+                      proj_mod_data = this._anomalies(proj_mod_data, avg);
+                    }
+                  }
+
+                  range = this._scale_range(this._datas_range([hist_mod_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
+                  this.axes.y.setDataRange(range.min, range.max);
+                  this.axes.y.title().content().string(variable_config.ytitles.annual[this.options.presentation][this.options.unitsystem]); // format download data.
+
+                  this.downloadable_dataurls.hist_mod = this._format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data);
+                  this.downloadable_dataurls.proj_mod = this._format_export_data(['year', 'rcp45_mean', 'rcp45_min', 'rcp45_max', 'rcp85_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data);
+
+                  this._set_data_array('annual_hist_mod', hist_mod_data);
+
+                  this._set_data_array('annual_proj_mod', proj_mod_data);
+
+                  this._update_plot_visibilities();
+
+                  this.multigraph.render();
+
+                case 26:
+                case "end":
+                  return _context3.stop();
+              }
+            }
+          }, _callee3, this);
+        }));
+
+        function _update_annual_island() {
+          return _update_annual_island2.apply(this, arguments);
+        }
+
+        return _update_annual_island;
+      }()
+    }, {
+      key: "_update_monthly_island",
+      value: function () {
+        var _update_monthly_island2 = _asyncToGenerator(
+        /*#__PURE__*/
+        regeneratorRuntime.mark(function _callee4() {
+          var _this4 = this;
+
+          var data, hist_mod_series, rcp45_mod_series, rcp85_mod_series, variable_config, _to_units, hist_mod_data, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, month, proj_sdate_year, proj_mod_data, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, _month, _month_data, _i, _arr, year_range, year_range_min_idx, _i2, _arr2, _arr2$_i, scenario, scenario_monthly_data, _i3, _arr3, value_name, range;
+
+          return regeneratorRuntime.wrap(function _callee4$(_context4) {
+            while (1) {
+              switch (_context4.prev = _context4.next) {
+                case 0:
+                  _context4.next = 2;
+                  return this._fetch_island_data();
+
+                case 2:
+                  data = _context4.sent;
+
+                  this._hide_spinner();
+
+                  hist_mod_series = data.find(function (series) {
+                    return series.scenario === 'historical';
+                  });
+                  rcp45_mod_series = data.find(function (series) {
+                    return series.scenario === 'rcp45';
+                  });
+                  rcp85_mod_series = data.find(function (series) {
+                    return series.scenario === 'rcp85';
+                  });
+                  variable_config = find(ClimateByLocationWidget.variables, function (c) {
+                    return c.id === _this4.options.variable;
+                  });
+                  _to_units = variable_config.dataconverters[this.options.unitsystem];
+                  hist_mod_data = [];
+                  _iteratorNormalCompletion = true;
+                  _didIteratorError = false;
+                  _iteratorError = undefined;
+                  _context4.prev = 13;
+
+                  for (_iterator = ClimateByLocationWidget._months[Symbol.iterator](); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    month = _step.value;
+                    //year,mean,min,max
+                    hist_mod_data.push([month, _to_units(mean(hist_mod_series.monthly_data.all_mean[month])), _to_units(mean(hist_mod_series.monthly_data.all_min[month])), _to_units(mean(hist_mod_series.monthly_data.all_max[month]))]);
+                  }
+
+                  _context4.next = 21;
+                  break;
+
+                case 17:
+                  _context4.prev = 17;
+                  _context4.t0 = _context4["catch"](13);
+                  _didIteratorError = true;
+                  _iteratorError = _context4.t0;
+
+                case 21:
+                  _context4.prev = 21;
+                  _context4.prev = 22;
+
+                  if (!_iteratorNormalCompletion && _iterator.return != null) {
+                    _iterator.return();
+                  }
+
+                case 24:
+                  _context4.prev = 24;
+
+                  if (!_didIteratorError) {
+                    _context4.next = 27;
+                    break;
+                  }
+
+                  throw _iteratorError;
+
+                case 27:
+                  return _context4.finish(24);
+
+                case 28:
+                  return _context4.finish(21);
+
+                case 29:
+                  proj_sdate_year = Number.parseInt(rcp85_mod_series.sdate.substr(0, 4));
+                  proj_mod_data = [];
+                  _iteratorNormalCompletion2 = true;
+                  _didIteratorError2 = false;
+                  _iteratorError2 = undefined;
+                  _context4.prev = 34;
+
+                  for (_iterator2 = ClimateByLocationWidget._months[Symbol.iterator](); !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    _month = _step2.value;
+                    _month_data = [];
+
+                    for (_i = 0, _arr = [2025, 2050, 2075]; _i < _arr.length; _i++) {
+                      year_range = _arr[_i];
+                      year_range_min_idx = year_range - 15 - proj_sdate_year;
+
+                      for (_i2 = 0, _arr2 = [['rcp45', rcp45_mod_series.monthly_data], ['rcp85', rcp85_mod_series.monthly_data]]; _i2 < _arr2.length; _i2++) {
+                        _arr2$_i = _slicedToArray(_arr2[_i2], 2), scenario = _arr2$_i[0], scenario_monthly_data = _arr2$_i[1];
+
+                        for (_i3 = 0, _arr3 = ['mean', 'min', 'max']; _i3 < _arr3.length; _i3++) {
+                          value_name = _arr3[_i3];
+
+                          _month_data.push(_to_units(mean(scenario_monthly_data['all_' + value_name][_month].slice(year_range_min_idx, year_range_min_idx + 30))));
+                        }
+                      }
+                    }
+
+                    proj_mod_data.push([_month].concat(_month_data));
+                  }
+
+                  _context4.next = 42;
+                  break;
+
+                case 38:
+                  _context4.prev = 38;
+                  _context4.t1 = _context4["catch"](34);
+                  _didIteratorError2 = true;
+                  _iteratorError2 = _context4.t1;
+
+                case 42:
+                  _context4.prev = 42;
+                  _context4.prev = 43;
+
+                  if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+                    _iterator2.return();
+                  }
+
+                case 45:
+                  _context4.prev = 45;
+
+                  if (!_didIteratorError2) {
+                    _context4.next = 48;
+                    break;
+                  }
+
+                  throw _iteratorError2;
+
+                case 48:
+                  return _context4.finish(45);
+
+                case 49:
+                  return _context4.finish(42);
+
+                case 50:
+                  if (this.options.frequency === 'seasonal') {
+                    hist_mod_data = Object.values(ClimateByLocationWidget._months_seasons).map(function (_m) {
+                      return hist_mod_data[Number.parseInt(_m) - 1];
+                    });
+                    proj_mod_data = Object.values(ClimateByLocationWidget._months_seasons).map(function (_m) {
+                      return proj_mod_data[Number.parseInt(_m) - 1];
+                    });
+                  }
+
+                  this.downloadable_dataurls.hist_mod = this._format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data);
+                  this.downloadable_dataurls.proj_mod = this._format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data);
+                  range = this._scale_range(this._datas_range([hist_mod_data, proj_mod_data]), this.options.yAxisRangeScaleFactor);
+                  this.axes.y.setDataRange(range.min, range.max);
+                  this.axes.y.title().content().string(variable_config.ytitles.monthly[this.options.unitsystem]);
+
+                  this._set_data_array('monthly_hist_mod', hist_mod_data);
+
+                  this._set_data_array('monthly_proj_mod', proj_mod_data);
+
+                  this._update_plot_visibilities();
+
+                  this.multigraph.render();
+
+                case 60:
+                case "end":
+                  return _context4.stop();
+              }
+            }
+          }, _callee4, this, [[13, 17, 21, 29], [22,, 24, 28], [34, 38, 42, 50], [43,, 45, 49]]);
+        }));
+
+        function _update_monthly_island() {
+          return _update_monthly_island2.apply(this, arguments);
+        }
+
+        return _update_monthly_island;
+      }()
+      /**
+       * Retrieves island data and pre-filters it to just the variable we're interested in.
+       * @return {Promise<array<{area_id,scenario,sdate,area_label,gcm_coords,area_type,variable,annual_data:{all_max, all_mean,all_min}, monthly_data:{all_max, all_mean,all_min}}>>}
+       * @private
+       */
+
+    }, {
+      key: "_fetch_island_data",
+      value: function () {
+        var _fetch_island_data2 = _asyncToGenerator(
+        /*#__PURE__*/
+        regeneratorRuntime.mark(function _callee5() {
+          var _this5 = this;
+
+          return regeneratorRuntime.wrap(function _callee5$(_context5) {
+            while (1) {
+              switch (_context5.prev = _context5.next) {
+                case 0:
+                  return _context5.abrupt("return", new Promise(function (resolve) {
+                    return $.ajax({
+                      url: _this5.options.island_data_url_template.replace('{area_id}', _this5.options.area_id),
+                      type: "GET",
+                      contentType: "application/json; charset=utf-8",
+                      dataType: "json" // data: JSON.stringify($.extend({
+                      //   "grid": grid,
+                      //   "sdate": String(sdate),
+                      //   "edate": String(edate),
+                      //   "elems": elems
+                      // }, this._get_acis_area_parameters()))
+
+                    }).then(resolve);
+                  }).then(function (response) {
+                    var variable = _this5.options.variable;
+
+                    if (variable === 'days_dry_days') {
+                      variable = 'dryday';
+                    } else if (variable.startsWith('days_t')) {
+                      variable = variable.replace(/days_(.+?)_.+?_([0-9]+)f/, "$1$2F");
+                    } else if (variable.startsWith('days_pcpn')) {
+                      variable = variable.replace(/.+?([0-9]+)in/, "pr$1in");
+                    } else if (variable.endsWith('_65f')) {
+                      variable = variable.replace('_65f', '');
+                    } else if (variable === 'gddmod') {
+                      variable = 'mgdd';
+                    } else if (variable === 'pcpn') {
+                      variable = 'precipitation';
+                    }
+
+                    var data = response.data.filter(function (series) {
+                      return series.area_id === _this5.options.area_id && series.variable === variable;
+                    });
+
+                    if (data.length === 0) {
+                      throw new Error("No data found for area \"".concat(_this5.options.area_id, "\" and variable \"").concat(variable, "\""));
+                    }
+
+                    return data;
+                  }.bind(this)));
+
+                case 1:
+                case "end":
+                  return _context5.stop();
+              }
+            }
+          }, _callee5, this);
+        }));
+
+        function _fetch_island_data() {
+          return _fetch_island_data2.apply(this, arguments);
+        }
+
+        return _fetch_island_data;
+      }()
+    }, {
+      key: "_update_seasonal_conus",
+      value: function () {
+        var _update_seasonal_conus2 = _asyncToGenerator(
+        /*#__PURE__*/
+        regeneratorRuntime.mark(function _callee6() {
+          var _this6 = this;
+
+          return regeneratorRuntime.wrap(function _callee6$(_context6) {
+            while (1) {
+              switch (_context6.prev = _context6.next) {
+                case 0:
+                  return _context6.abrupt("return", Promise.all([this._get_historical_observed_livneh_data(), this._get_projected_loca_model_data()]).then(function (_ref3) {
                     var _ref4 = _slicedToArray(_ref3, 2),
                         hist_obs_data = _ref4[0],
                         proj_mod_data = _ref4[1];
 
-                    _this3._hide_spinner(); // The incoming data has month values 1,4,7,10.  Here we replace these with the values 0,1,2,3:
+                    _this6._hide_spinner(); // The incoming data has month values 1,4,7,10.  Here we replace these with the values 0,1,2,3:
 
 
                     hist_obs_data.forEach(function (v) {
@@ -5247,117 +5634,108 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                       v[0] = Math.floor(v[0] / 3);
                     });
                     var variable_config = find(ClimateByLocationWidget.variables, function (c) {
-                      return c.id === _this3.options.variable;
+                      return c.id === _this6.options.variable;
                     });
-                    var convfunc = variable_config.dataconverters[_this3.options.unitsystem];
-                    hist_obs_data = _this3._map_2d_data(hist_obs_data, convfunc);
-                    proj_mod_data = _this3._map_2d_data(proj_mod_data, convfunc);
+                    var convfunc = variable_config.dataconverters[_this6.options.unitsystem];
+                    hist_obs_data = _this6._map_2d_data(hist_obs_data, convfunc);
+                    proj_mod_data = _this6._map_2d_data(proj_mod_data, convfunc);
 
-                    var range = _this3._scale_range(_this3._datas_range([hist_obs_data, proj_mod_data]), _this3.options.yAxisRangeScaleFactor);
+                    var range = _this6._scale_range(_this6._datas_range([hist_obs_data, proj_mod_data]), _this6.options.yAxisRangeScaleFactor);
 
-                    _this3.axes.y.setDataRange(range.min, range.max);
+                    _this6.axes.y.setDataRange(range.min, range.max);
 
-                    _this3.axes.y.title().content().string(variable_config.ytitles.seasonal[_this3.options.unitsystem]);
+                    _this6.axes.y.title().content().string(variable_config.ytitles.seasonal[_this6.options.unitsystem]);
 
-                    _this3._set_data_array('seasonal_hist_obs', hist_obs_data);
+                    _this6._set_data_array('seasonal_hist_obs', hist_obs_data);
 
-                    _this3._set_data_array('seasonal_proj_mod', proj_mod_data);
+                    _this6._set_data_array('seasonal_proj_mod', proj_mod_data);
 
-                    _this3._update_plot_visibilities();
+                    _this6._update_plot_visibilities();
 
-                    _this3.multigraph.render();
+                    _this6.multigraph.render();
                   }.bind(this)));
 
-                case 7:
+                case 1:
                 case "end":
-                  return _context3.stop();
+                  return _context6.stop();
               }
             }
-          }, _callee3, this);
+          }, _callee6, this);
         }));
 
-        function _update_seasonal() {
-          return _update_seasonal2.apply(this, arguments);
+        function _update_seasonal_conus() {
+          return _update_seasonal_conus2.apply(this, arguments);
         }
 
-        return _update_seasonal;
+        return _update_seasonal_conus;
       }()
     }, {
-      key: "_update_monthly",
+      key: "_update_monthly_conus",
       value: function () {
-        var _update_monthly2 = _asyncToGenerator(
+        var _update_monthly_conus2 = _asyncToGenerator(
         /*#__PURE__*/
-        regeneratorRuntime.mark(function _callee4() {
-          var _this4 = this;
+        regeneratorRuntime.mark(function _callee7() {
+          var _this7 = this;
 
-          return regeneratorRuntime.wrap(function _callee4$(_context4) {
+          return regeneratorRuntime.wrap(function _callee7$(_context7) {
             while (1) {
-              switch (_context4.prev = _context4.next) {
+              switch (_context7.prev = _context7.next) {
                 case 0:
-                  this.axes.x_annual.visible(false);
-                  this.axes.x_monthly.visible(true);
-                  this.axes.x_seasonal.visible(false);
-                  this.hide_all_plots();
-
-                  this._reset_dataurls();
-
-                  this._show_spinner();
-
-                  return _context4.abrupt("return", Promise.all([this._get_historical_observed_livneh_data(), this._get_projected_loca_model_data()]).then(function (_ref5) {
+                  return _context7.abrupt("return", Promise.all([this._get_historical_observed_livneh_data(), this._get_projected_loca_model_data()]).then(function (_ref5) {
                     var _ref6 = _slicedToArray(_ref5, 2),
                         hist_obs_data = _ref6[0],
                         proj_mod_data = _ref6[1];
 
-                    _this4._hide_spinner();
+                    _this7._hide_spinner();
 
                     var variable_config = find(ClimateByLocationWidget.variables, function (c) {
-                      return c.id === _this4.options.variable;
+                      return c.id === _this7.options.variable;
                     });
-                    var convfunc = variable_config.dataconverters[_this4.options.unitsystem];
-                    hist_obs_data = _this4._map_2d_data(hist_obs_data, convfunc);
-                    proj_mod_data = _this4._map_2d_data(proj_mod_data, convfunc);
+                    var convfunc = variable_config.dataconverters[_this7.options.unitsystem];
+                    hist_obs_data = _this7._map_2d_data(hist_obs_data, convfunc);
+                    proj_mod_data = _this7._map_2d_data(proj_mod_data, convfunc);
 
-                    var range = _this4._scale_range(_this4._datas_range([hist_obs_data, proj_mod_data]), _this4.options.yAxisRangeScaleFactor);
+                    var range = _this7._scale_range(_this7._datas_range([hist_obs_data, proj_mod_data]), _this7.options.yAxisRangeScaleFactor);
 
-                    _this4.axes.y.setDataRange(range.min, range.max);
+                    _this7.axes.y.setDataRange(range.min, range.max);
 
-                    _this4.axes.y.title().content().string(variable_config.ytitles.monthly[_this4.options.unitsystem]);
+                    _this7.axes.y.title().content().string(variable_config.ytitles.monthly[_this7.options.unitsystem]);
 
-                    _this4._set_data_array('monthly_hist_obs', hist_obs_data);
+                    _this7._set_data_array('monthly_hist_obs', hist_obs_data);
 
-                    _this4._set_data_array('monthly_proj_mod', proj_mod_data);
+                    _this7._set_data_array('monthly_proj_mod', proj_mod_data);
 
-                    _this4._update_plot_visibilities();
+                    _this7._update_plot_visibilities();
 
-                    _this4.multigraph.render();
+                    _this7.multigraph.render();
                   }.bind(this)));
 
-                case 7:
+                case 1:
                 case "end":
-                  return _context4.stop();
+                  return _context7.stop();
               }
             }
-          }, _callee4, this);
+          }, _callee7, this);
         }));
 
-        function _update_monthly() {
-          return _update_monthly2.apply(this, arguments);
+        function _update_monthly_conus() {
+          return _update_monthly_conus2.apply(this, arguments);
         }
 
-        return _update_monthly;
+        return _update_monthly_conus;
       }()
     }, {
       key: "_update_annual_ak",
       value: function () {
         var _update_annual_ak2 = _asyncToGenerator(
         /*#__PURE__*/
-        regeneratorRuntime.mark(function _callee5() {
-          var _this5 = this;
+        regeneratorRuntime.mark(function _callee8() {
+          var _this8 = this;
 
           var hist_sdate, hist_edate, hist_sdate_year, hist_edate_year, mod_edate_year;
-          return regeneratorRuntime.wrap(function _callee5$(_context5) {
+          return regeneratorRuntime.wrap(function _callee8$(_context8) {
             while (1) {
-              switch (_context5.prev = _context5.next) {
+              switch (_context8.prev = _context8.next) {
                 case 0:
                   // get data for GFDL-CM3 and NCAR-CCSM4
                   hist_sdate = '1970-01-01';
@@ -5365,7 +5743,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                   hist_sdate_year = parseInt(String(hist_sdate).slice(0, 4));
                   hist_edate_year = parseInt(String(hist_edate).slice(0, 4));
                   mod_edate_year = parseInt(String(this._model_edate).slice(0, 4));
-                  return _context5.abrupt("return", Promise.all([this._fetch_acis_data('snap:GFDL-CM3:rcp85', hist_sdate_year, mod_edate_year), this._fetch_acis_data('snap:NCAR-CCSM4:rcp85', hist_sdate_year, mod_edate_year)]).then(function (_ref7) {
+                  return _context8.abrupt("return", Promise.all([this._fetch_acis_data('snap:GFDL-CM3:rcp85', hist_sdate_year, mod_edate_year), this._fetch_acis_data('snap:NCAR-CCSM4:rcp85', hist_sdate_year, mod_edate_year)]).then(function (_ref7) {
                     var _ref8 = _slicedToArray(_ref7, 2),
                         gfdl_cm3_rcp85 = _ref8[0],
                         ncar_ccsm4_rcp85 = _ref8[1];
@@ -5389,7 +5767,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                       hist_mod_data.push([key, min(y), max(y)]);
                     }
 
-                    var proj_edate_year = parseInt(String(_this5._model_edate).slice(0, 4));
+                    var proj_edate_year = parseInt(String(_this8._model_edate).slice(0, 4));
 
                     for (var _key = hist_edate_year + 1; _key <= mod_edate_year; _key++) {
                       //year,gfdl_cm3_rcp85, gfdl_cm3_rcp45, ncar_ccsm4_rcp85, ncar_ccsm4_rcp45
@@ -5397,8 +5775,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                       proj_mod_data.push([_key, min(_y), null, max(_y), null]);
                     }
 
-                    hist_mod_data = _this5._round_2d_values(hist_mod_data, 1);
-                    proj_mod_data = _this5._round_2d_values(proj_mod_data, 1); // Sort by index before returning
+                    hist_mod_data = _this8._round_2d_values(hist_mod_data, 1);
+                    proj_mod_data = _this8._round_2d_values(proj_mod_data, 1); // Sort by index before returning
 
                     hist_mod_data.sort(function (a, b) {
                       return (a[0] > b[0]) - (a[0] < b[0]);
@@ -5406,39 +5784,39 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                     proj_mod_data.sort(function (a, b) {
                       return (a[0] > b[0]) - (a[0] < b[0]);
                     });
-                    _this5.dataurls.hist_mod = _this5._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85'], hist_mod_data);
-                    _this5.dataurls.proj_mod = _this5._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85'], proj_mod_data);
+                    _this8.downloadable_dataurls.hist_mod = _this8._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85'], hist_mod_data);
+                    _this8.downloadable_dataurls.proj_mod = _this8._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85'], proj_mod_data);
 
-                    _this5._hide_spinner();
+                    _this8._hide_spinner();
 
                     var variable_config = find(ClimateByLocationWidget.variables, function (c) {
-                      return c.id === _this5.options.variable;
+                      return c.id === _this8.options.variable;
                     });
-                    var convfunc = variable_config.dataconverters[_this5.options.unitsystem];
-                    hist_mod_data = _this5._map_2d_data(hist_mod_data, convfunc);
-                    proj_mod_data = _this5._map_2d_data(proj_mod_data, convfunc);
+                    var convfunc = variable_config.dataconverters[_this8.options.unitsystem];
+                    hist_mod_data = _this8._map_2d_data(hist_mod_data, convfunc);
+                    proj_mod_data = _this8._map_2d_data(proj_mod_data, convfunc);
 
-                    var range$1 = _this5._scale_range(_this5._datas_range([hist_mod_data, proj_mod_data]), _this5.options.yAxisRangeScaleFactor);
+                    var range$1 = _this8._scale_range(_this8._datas_range([hist_mod_data, proj_mod_data]), _this8.options.yAxisRangeScaleFactor);
 
-                    _this5.axes.y.setDataRange(range$1.min, range$1.max);
+                    _this8.axes.y.setDataRange(range$1.min, range$1.max);
 
-                    _this5.axes.y.title().content().string(variable_config.ytitles.annual[_this5.options.presentation][_this5.options.unitsystem]);
+                    _this8.axes.y.title().content().string(variable_config.ytitles.annual[_this8.options.presentation][_this8.options.unitsystem]);
 
-                    _this5._set_data_array('annual_hist_mod_ak', hist_mod_data);
+                    _this8._set_data_array('annual_hist_mod_ak', hist_mod_data);
 
-                    _this5._set_data_array('annual_proj_mod_ak', proj_mod_data);
+                    _this8._set_data_array('annual_proj_mod_ak', proj_mod_data);
 
-                    _this5._update_plot_visibilities();
+                    _this8._update_plot_visibilities();
 
-                    _this5.multigraph.render();
+                    _this8.multigraph.render();
                   }));
 
                 case 6:
                 case "end":
-                  return _context5.stop();
+                  return _context8.stop();
               }
             }
-          }, _callee5, this);
+          }, _callee8, this);
         }));
 
         function _update_annual_ak() {
@@ -5559,10 +5937,10 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
     }, {
       key: "hide_all_plots",
       value: function hide_all_plots() {
-        var _this6 = this;
+        var _this9 = this;
 
         this.plots_config.forEach(function (plot_config) {
-          var plot = _this6.find_plot_instance(plot_config.plot_index);
+          var plot = _this9.find_plot_instance(plot_config.plot_index);
 
           if (!!plot) {
             plot.visible(false);
@@ -5572,72 +5950,72 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
     }, {
       key: "_update_plot_visibilities",
       value: function _update_plot_visibilities() {
-        var _this7 = this;
+        var _this10 = this;
 
         var is_plot_visible = function is_plot_visible(plot_config) {
-          if (_this7.options.frequency !== plot_config.frequency) {
+          if (_this10.options.frequency !== plot_config.frequency) {
             return false;
           }
 
           if (plot_config.frequency === "annual") {
             // don't show ak plots for non-ak and don't show non-ak plots for ak.
-            if (ClimateByLocationWidget.is_ak_region(_this7.get_region_value()) ? plot_config.region !== "ak" : plot_config.region === "ak") {
+            if (ClimateByLocationWidget.is_ak_area(_this10.get_area_id()) ? plot_config.area_id !== "ak" : plot_config.area_id === "ak") {
               return false;
             }
 
-            if (plot_config.regime === "hist_obs") {
-              return _this7.options.histobs;
+            if (plot_config.regime === "hist_obs" && !ClimateByLocationWidget.is_island_area(_this10.get_area_id())) {
+              return _this10.options.histobs;
             }
 
             if (plot_config.regime === "hist_mod") {
               if (plot_config.stat === "med") {
-                return _this7.options.histmod && _this7.options.hmedian;
+                return _this10.options.histmod && _this10.options.hmedian;
               } else {
-                if (_this7.options.hrange !== plot_config.stat && _this7.options.hrange !== "both") {
+                if (_this10.options.hrange !== plot_config.stat && _this10.options.hrange !== "both") {
                   return false;
                 }
 
-                return _this7.options.histmod;
+                return _this10.options.histmod;
               }
             } // frequency==="annual" && regime==="proj_mod":
 
 
-            if (_this7.options.scenario !== plot_config.scenario && _this7.options.scenario !== "both") {
+            if (_this10.options.scenario !== plot_config.scenario && _this10.options.scenario !== "both") {
               return false;
             }
 
             if (plot_config.stat === "med") {
-              return _this7.options.pmedian;
+              return _this10.options.pmedian;
             }
 
-            return !(_this7.options.prange !== plot_config.stat && _this7.options.prange !== "both");
+            return !(_this10.options.prange !== plot_config.stat && _this10.options.prange !== "both");
           } else {
             if (plot_config.regime === "hist_obs") {
-              return _this7.options.histobs;
+              return ClimateByLocationWidget.is_island_area(_this10.get_area_id()) ? false : _this10.options.histobs;
             }
 
             if (plot_config.regime === "hist_mod") {
+              return ClimateByLocationWidget.is_island_area(_this10.get_area_id()) && _this10.options.histmod;
+            }
+
+            if (_this10.options.timeperiod !== plot_config.timeperiod) {
               return false;
             }
 
-            if (_this7.options.timeperiod !== plot_config.timeperiod) {
-              return false;
-            }
-
-            if (_this7.options.scenario !== plot_config.scenario && _this7.options.scenario !== "both") {
+            if (_this10.options.scenario !== plot_config.scenario && _this10.options.scenario !== "both") {
               return false;
             }
 
             if (plot_config.stat === "med") {
-              return _this7.options.pmedian;
+              return _this10.options.pmedian;
             }
 
-            return !(_this7.options.prange !== plot_config.stat && _this7.options.prange !== "both");
+            return !(_this10.options.prange !== plot_config.stat && _this10.options.prange !== "both");
           }
         };
 
         this.plots_config.forEach(function (plot_config) {
-          var plot = _this7.find_plot_instance(plot_config.plot_index);
+          var plot = _this10.find_plot_instance(plot_config.plot_index);
 
           if (!!plot) {
             plot.visible(is_plot_visible(plot_config));
@@ -5645,45 +6023,65 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         });
       }
     }, {
-      key: "_get_region_reduction",
-      value: function _get_region_reduction() {
-        if (this.options.county) {
+      key: "_get_acis_area_reduction",
+      value: function _get_acis_area_reduction() {
+        var area = this.get_area();
+
+        if (area.area_type === 'county') {
           return {
             'area_reduce': 'county_mean'
           };
         }
 
-        if (this.options.state) {
+        if (area.area_type === 'state') {
           return {
             'area_reduce': 'state_mean'
           };
         }
+
+        throw new Error('Area is not supported by ACIS!');
+      }
+      /**
+       * Gets the id of the area / county / state that is currently selected.
+       */
+
+    }, {
+      key: "get_area_id",
+      value: function get_area_id() {
+        return this.options.area_id || null;
       }
       /**
        * Gets the county or state that is currently selected.
        */
 
     }, {
-      key: "get_region_value",
-      value: function get_region_value() {
-        return this.options.county || this.options.state || null;
+      key: "get_area_label",
+      value: function get_area_label() {
+        return get(this.get_area(), 'area_label', null) || this.get_area_id();
       }
     }, {
-      key: "_get_region_parameters",
-      value: function _get_region_parameters() {
-        if (this.options.county) {
+      key: "get_area",
+      value: function get_area() {
+        return get(ClimateByLocationWidget.get_areas(null, null, this.get_area_id()), 0, null);
+      }
+    }, {
+      key: "_get_acis_area_parameters",
+      value: function _get_acis_area_parameters() {
+        var area = this.get_area();
+
+        if (area.area_type === 'county') {
           return {
-            "county": this.options.county
+            "county": area.area_id
           };
         }
 
-        if (this.options.state) {
+        if (area.area_type === 'state') {
           return {
-            "state": this.options.state
+            "state": area.area_id
           };
-        } else {
-          throw new Error('county/state not valid');
         }
+
+        throw new Error('Area is not supported by ACIS!');
       }
     }, {
       key: "_map_2d_data",
@@ -5750,47 +6148,49 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       value: function () {
         var _get_historical_observed_livneh_data2 = _asyncToGenerator(
         /*#__PURE__*/
-        regeneratorRuntime.mark(function _callee6() {
-          var _this8 = this;
+        regeneratorRuntime.mark(function _callee9() {
+          var _this11 = this;
 
           var freq, variableConfig, elems;
-          return regeneratorRuntime.wrap(function _callee6$(_context6) {
+          return regeneratorRuntime.wrap(function _callee9$(_context9) {
             while (1) {
-              switch (_context6.prev = _context6.next) {
+              switch (_context9.prev = _context9.next) {
                 case 0:
                   freq = this.options.frequency === 'annual' ? 'annual' : 'monthly';
                   variableConfig = find(ClimateByLocationWidget.variables, function (c) {
-                    return c.id === _this8.options.variable;
+                    return c.id === _this11.options.variable;
                   });
-                  elems = [$.extend(variableConfig['acis_elements'][freq], this._get_region_reduction())];
-                  return _context6.abrupt("return", $.ajax({
-                    url: this.options.data_api_endpoint,
-                    type: "POST",
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    timeout: 60000,
-                    data: JSON.stringify($.extend({
-                      "sdate": "1950-01-01",
-                      "edate": "2013-12-31",
-                      // "edate": (String(new Date().getFullYear() - 1)),
-                      "grid": 'livneh',
-                      "elems": elems
-                    }, this._get_region_parameters()))
+                  elems = [$.extend(variableConfig['acis_elements'][freq], this._get_acis_area_reduction())];
+                  return _context9.abrupt("return", new Promise(function (resolve) {
+                    return $.ajax({
+                      url: _this11.options.data_api_endpoint,
+                      type: "POST",
+                      contentType: "application/json; charset=utf-8",
+                      dataType: "json",
+                      timeout: 60000,
+                      data: JSON.stringify($.extend({
+                        "sdate": "1950-01-01",
+                        "edate": "2013-12-31",
+                        // "edate": (String(new Date().getFullYear() - 1)),
+                        "grid": 'livneh',
+                        "elems": elems
+                      }, _this11._get_acis_area_parameters()))
+                    }).then(resolve);
                   }).then(function (response) {
                     var data;
 
-                    if (_this8.options.frequency === 'annual') {
+                    if (_this11.options.frequency === 'annual') {
                       data = [];
                       response.data.forEach(function (record) {
-                        if (undefined !== record[1][_this8.get_region_value()] && String(record[1][_this8.get_region_value()]) !== '-999' && String(record[1][_this8.get_region_value()]) !== '') {
-                          data.push([record[0], round(record[1][_this8.get_region_value()], 1)]);
+                        if (undefined !== record[1][_this11.get_area_id()] && String(record[1][_this11.get_area_id()]) !== '-999' && String(record[1][_this11.get_area_id()]) !== '') {
+                          data.push([record[0], round(record[1][_this11.get_area_id()], 1)]);
                         }
-                      }.bind(_this8));
-                      _this8.dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa('year,' + find(ClimateByLocationWidget.variables, function (c) {
-                        return c.id === _this8.options.variable;
+                      }.bind(_this11));
+                      _this11.downloadable_dataurls.hist_obs = 'data:text/csv;base64,' + window.btoa('year,' + find(ClimateByLocationWidget.variables, function (c) {
+                        return c.id === _this11.options.variable;
                       }).id + '\n' + data.join('\n'));
                       return data;
-                    } else if (_this8.options.frequency === 'monthly' || _this8.options.frequency === 'seasonal') {
+                    } else if (_this11.options.frequency === 'monthly' || _this11.options.frequency === 'seasonal') {
                       //then build output of [[month(1-12), weighted mean]].
                       data = {
                         '01': [],
@@ -5807,12 +6207,12 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                         '12': []
                       };
                       response.data.forEach(function (record) {
-                        if (undefined !== record[1][_this8.get_region_value()]) {
-                          data[record[0].slice(-2)].push(parseFloat(record[1][_this8.get_region_value()]));
+                        if (undefined !== record[1][_this11.get_area_id()]) {
+                          data[record[0].slice(-2)].push(parseFloat(record[1][_this11.get_area_id()]));
                         }
-                      }.bind(_this8)); //group monthly data by season
+                      }.bind(_this11)); //group monthly data by season
 
-                      if (_this8.options.frequency === 'seasonal') {
+                      if (_this11.options.frequency === 'seasonal') {
                         var seasons = {
                           "01": ["12", "01", "02"],
                           "04": ["03", "04", "05"],
@@ -5850,17 +6250,17 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                       }, []).sort(function (a, b) {
                         return parseInt(a[0]) - parseInt(b[0]);
                       });
-                      _this8.dataurls.hist_obs = _this8._format_export_data(['month', 'weighted_mean'], data);
+                      _this11.downloadable_dataurls.hist_obs = _this11._format_export_data(['month', 'weighted_mean'], data);
                       return data;
                     }
                   }.bind(this)));
 
                 case 4:
                 case "end":
-                  return _context6.stop();
+                  return _context9.stop();
               }
             }
-          }, _callee6, this);
+          }, _callee9, this);
         }));
 
         function _get_historical_observed_livneh_data() {
@@ -5874,45 +6274,47 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       value: function () {
         var _fetch_acis_data2 = _asyncToGenerator(
         /*#__PURE__*/
-        regeneratorRuntime.mark(function _callee7(grid, sdate, edate) {
-          var _this9 = this;
+        regeneratorRuntime.mark(function _callee10(grid, sdate, edate) {
+          var _this12 = this;
 
           var freq, elems;
-          return regeneratorRuntime.wrap(function _callee7$(_context7) {
+          return regeneratorRuntime.wrap(function _callee10$(_context10) {
             while (1) {
-              switch (_context7.prev = _context7.next) {
+              switch (_context10.prev = _context10.next) {
                 case 0:
                   freq = this.options.frequency === 'annual' ? 'annual' : 'monthly';
                   elems = [$.extend(find(ClimateByLocationWidget.variables, function (c) {
-                    return c.id === _this9.options.variable;
-                  })['acis_elements'][freq], this._get_region_reduction())];
-                  return _context7.abrupt("return", $.ajax({
-                    url: this.options.data_api_endpoint,
-                    type: "POST",
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    data: JSON.stringify($.extend({
-                      "grid": grid,
-                      "sdate": String(sdate),
-                      "edate": String(edate),
-                      "elems": elems
-                    }, this._get_region_parameters()))
+                    return c.id === _this12.options.variable;
+                  })['acis_elements'][freq], this._get_acis_area_reduction())];
+                  return _context10.abrupt("return", new Promise(function (resolve) {
+                    return $.ajax({
+                      url: _this12.options.data_api_endpoint,
+                      type: "POST",
+                      contentType: "application/json; charset=utf-8",
+                      dataType: "json",
+                      data: JSON.stringify($.extend({
+                        "grid": grid,
+                        "sdate": String(sdate),
+                        "edate": String(edate),
+                        "elems": elems
+                      }, _this12._get_acis_area_parameters()))
+                    }).then(resolve);
                   }).then(function (response) {
                     var data = {};
                     response.data.forEach(function (record) {
-                      if (undefined !== record[1][_this9.get_region_value()] && String(record[1][_this9.get_region_value()]) !== '-999' && String(record[1][_this9.get_region_value()]) !== '') {
-                        data[record[0]] = record[1][_this9.get_region_value()];
+                      if (undefined !== record[1][_this12.get_area_id()] && String(record[1][_this12.get_area_id()]) !== '-999' && String(record[1][_this12.get_area_id()]) !== '') {
+                        data[record[0]] = record[1][_this12.get_area_id()];
                       }
-                    }.bind(_this9));
+                    }.bind(_this12));
                     return data;
                   }.bind(this)));
 
                 case 3:
                 case "end":
-                  return _context7.stop();
+                  return _context10.stop();
               }
             }
-          }, _callee7, this);
+          }, _callee10, this);
         }));
 
         function _fetch_acis_data(_x, _x2, _x3) {
@@ -5926,17 +6328,17 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       value: function () {
         var _get_historical_loca_model_data2 = _asyncToGenerator(
         /*#__PURE__*/
-        regeneratorRuntime.mark(function _callee8() {
-          var _this10 = this;
+        regeneratorRuntime.mark(function _callee11() {
+          var _this13 = this;
 
           var edate;
-          return regeneratorRuntime.wrap(function _callee8$(_context8) {
+          return regeneratorRuntime.wrap(function _callee11$(_context11) {
             while (1) {
-              switch (_context8.prev = _context8.next) {
+              switch (_context11.prev = _context11.next) {
                 case 0:
                   // let edate = (String(new Date().getFullYear())) + '-01-01';
                   edate = '2006-12-31';
-                  return _context8.abrupt("return", Promise.all([this._fetch_acis_data('loca:wMean:rcp85', '1950-01-01', edate), this._fetch_acis_data('loca:allMin:rcp85', '1950-01-01', edate), this._fetch_acis_data('loca:allMax:rcp85', '1950-01-01', edate)]).then(function (_ref9) {
+                  return _context11.abrupt("return", Promise.all([this._fetch_acis_data('loca:wMean:rcp85', '1950-01-01', edate), this._fetch_acis_data('loca:allMin:rcp85', '1950-01-01', edate), this._fetch_acis_data('loca:allMax:rcp85', '1950-01-01', edate)]).then(function (_ref9) {
                     var _ref10 = _slicedToArray(_ref9, 3),
                         wMean = _ref10[0],
                         min = _ref10[1],
@@ -5950,23 +6352,23 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                       values.min = min.hasOwnProperty(key) ? round(min[key], 1) : null;
                       values.max = max.hasOwnProperty(key) ? round(max[key], 1) : null; //year,mean,min,max,?,?
 
-                      data.push([String(key), values.wMean, values.min, values.max, null, null]);
+                      data.push([String(key), values.wMean, values.min, values.max]);
                     } // Sort before returning
 
 
                     data.sort(function (a, b) {
                       return (a[0] > b[0]) - (a[0] < b[0]);
                     });
-                    _this10.dataurls.hist_mod = _this10._format_export_data(['year', 'weighted_mean', 'min', 'max'], data);
+                    _this13.downloadable_dataurls.hist_mod = _this13._format_export_data(['year', 'weighted_mean', 'min', 'max'], data);
                     return data;
                   }.bind(this)));
 
                 case 2:
                 case "end":
-                  return _context8.stop();
+                  return _context11.stop();
               }
             }
-          }, _callee8, this);
+          }, _callee11, this);
         }));
 
         function _get_historical_loca_model_data() {
@@ -5980,13 +6382,12 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       value: function () {
         var _get_projected_loca_model_data2 = _asyncToGenerator(
         /*#__PURE__*/
-        regeneratorRuntime.mark(function _callee9() {
-          var _this11 = this;
+        regeneratorRuntime.mark(function _callee12() {
+          var sdate, _ref11, _ref12, wMean45, min45, max45, wMean85, min85, max85;
 
-          var sdate;
-          return regeneratorRuntime.wrap(function _callee9$(_context9) {
+          return regeneratorRuntime.wrap(function _callee12$(_context12) {
             while (1) {
-              switch (_context9.prev = _context9.next) {
+              switch (_context12.prev = _context12.next) {
                 case 0:
                   if (this.options.frequency === 'annual') {
                     // sdate = (String(new Date().getFullYear())) + '-01-01';
@@ -5995,142 +6396,40 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
                     sdate = '2010-01-01';
                   }
 
-                  return _context9.abrupt("return", Promise.all([this._fetch_acis_data('loca:wMean:rcp45', sdate, this._model_edate), this._fetch_acis_data('loca:allMin:rcp45', sdate, this._model_edate), this._fetch_acis_data('loca:allMax:rcp45', sdate, this._model_edate), this._fetch_acis_data('loca:wMean:rcp85', sdate, this._model_edate), this._fetch_acis_data('loca:allMin:rcp85', sdate, this._model_edate), this._fetch_acis_data('loca:allMax:rcp85', sdate, this._model_edate)]).then(function (_ref11) {
-                    var _ref12 = _slicedToArray(_ref11, 6),
-                        wMean45 = _ref12[0],
-                        min45 = _ref12[1],
-                        max45 = _ref12[2],
-                        wMean85 = _ref12[3],
-                        min85 = _ref12[4],
-                        max85 = _ref12[5];
+                  _context12.next = 3;
+                  return Promise.all([this._fetch_acis_data('loca:wMean:rcp45', sdate, this._model_edate), this._fetch_acis_data('loca:allMin:rcp45', sdate, this._model_edate), this._fetch_acis_data('loca:allMax:rcp45', sdate, this._model_edate), this._fetch_acis_data('loca:wMean:rcp85', sdate, this._model_edate), this._fetch_acis_data('loca:allMin:rcp85', sdate, this._model_edate), this._fetch_acis_data('loca:allMax:rcp85', sdate, this._model_edate)]);
 
-                    var data;
-                    var months_seasons = {
-                      "01": "01",
-                      "02": "01",
-                      "03": "04",
-                      "04": "04",
-                      "05": "04",
-                      "06": "07",
-                      "07": "07",
-                      "08": "07",
-                      "09": "10",
-                      "10": "10",
-                      "11": "10",
-                      "12": "01"
-                    };
+                case 3:
+                  _ref11 = _context12.sent;
+                  _ref12 = _slicedToArray(_ref11, 6);
+                  wMean45 = _ref12[0];
+                  min45 = _ref12[1];
+                  max45 = _ref12[2];
+                  wMean85 = _ref12[3];
+                  min85 = _ref12[4];
+                  max85 = _ref12[5];
 
-                    if (_this11.options.frequency === 'annual') {
-                      data = []; // Extract values
+                  if (!(this.options.frequency === 'annual')) {
+                    _context12.next = 15;
+                    break;
+                  }
 
-                      for (var key = 2006; key < 2100; key++) {
-                        var values = {};
-                        values.wMean45 = wMean45.hasOwnProperty(key) ? round(wMean45[key], 1) : null;
-                        values.min45 = min45.hasOwnProperty(key) ? round(min45[key], 1) : null;
-                        values.max45 = max45.hasOwnProperty(key) ? round(max45[key], 1) : null;
-                        values.wMean85 = wMean85.hasOwnProperty(key) ? round(wMean85[key], 1) : null;
-                        values.min85 = min85.hasOwnProperty(key) ? round(min85[key], 1) : null;
-                        values.max85 = max85.hasOwnProperty(key) ? round(max85[key], 1) : null; //year,rcp45mean,rcp45min,rcp45max,rcp45p10,rcp45p90,rcp85mean,rcp85min,rcp85max,rcp85p10,rcp85p90
+                  return _context12.abrupt("return", this.transform_acis_loca_annual(wMean45, min45, max45, wMean85, min85, max85));
 
-                        data.push([String(key), values.wMean45, values.min45, values.max45, null, null, values.wMean85, values.min85, values.max85, null, null]);
-                      } // Sort before returning
+                case 15:
+                  if (!(this.options.frequency === 'monthly' || this.options.frequency === 'seasonal')) {
+                    _context12.next = 17;
+                    break;
+                  }
 
+                  return _context12.abrupt("return", this.transform_acis_loca_monthly_seasonal(wMean45, min45, max45, wMean85, min85, max85));
 
-                      data.sort(function (a, b) {
-                        return (a[0] > b[0]) - (a[0] < b[0]);
-                      });
-                      _this11.dataurls.proj_mod = _this11._format_export_data(['year', 'rcp45_weighted_mean', 'rcp45_min', 'rcp45_max', 'rcp85_weighted mean', 'rcp85_min', 'rcp85_max'], data);
-                      return data;
-                    } else if (_this11.options.frequency === 'monthly' || _this11.options.frequency === 'seasonal') {
-                      data = {};
-                      [2025, 2050, 2075].forEach(function (yearRange) {
-                        data[yearRange] = {};
-
-                        _this11._months.forEach(function (month) {
-                          var season_month = month;
-
-                          if (_this11.options.frequency === 'seasonal') {
-                            //for seasonal group by season, not month.
-                            season_month = months_seasons[month];
-                          }
-
-                          if (undefined === data[yearRange][season_month]) {
-                            data[yearRange][season_month] = {};
-                          }
-
-                          var datasets = {
-                            'wMean45': wMean45,
-                            'wMean85': wMean85,
-                            'min45': min45,
-                            'max45': max45,
-                            'min85': min85,
-                            'max85': max85
-                          };
-                          Object.keys(datasets).forEach(function (dataset) {
-                            if (undefined === data[yearRange][season_month][dataset]) {
-                              data[yearRange][season_month][dataset] = [];
-                            }
-
-                            for (var year = yearRange - 15; year < yearRange + 15; year++) {
-                              var year_month = String(year) + '-' + String(month);
-
-                              if (datasets[dataset].hasOwnProperty(year_month)) {
-                                data[yearRange][season_month][dataset].push(datasets[dataset][year_month]);
-                              }
-                            }
-                          });
-                        });
-                      }); // mean values by month
-
-                      Object.keys(data).forEach(function (yearRange) {
-                        Object.keys(data[yearRange]).forEach(function (month) {
-                          ['wMean45', 'wMean85', 'min45', 'min85', 'max45', 'max85'].forEach(function (valueName) {
-                            var length = data[yearRange][month][valueName].length;
-                            var sum = data[yearRange][month][valueName].reduce(function (acc, value) {
-                              return acc + value;
-                            }, 0);
-                            data[yearRange][month][valueName] = sum / length;
-                          });
-                        });
-                      }); // reformat to expected output
-                      // [ month,2025rcp45_max,2025rcp45_weighted_mean,2025rcp45_min,2025rcp45_p10,2025rcp45_p90,2025rcp85_max,2025rcp85_weighted_mean,2025rcp85_min,2025rcp85_p10,2025rcp85_p90,2050rcp45_max,2050rcp45_weighted_mean,2050rcp45_min,2050rcp45_p10,2050rcp45_p90,2050rcp85_max,2050rcp85_weighted_mean,2050rcp85_min,2050rcp85_p10,2050rcp85_p90,2075rcp45_max,2075rcp45_weighted_mean,2075rcp45_min,2075rcp45_p10,2075rcp45_p90,2075rcp85_max,2075rcp85_weighted_mean,2075rcp85_min,2075rcp85_p10,2075rcp85_p90 ]
-
-                      var dataByMonth = {};
-                      var months = _this11._months;
-
-                      if (_this11.options.frequency === 'seasonal') {
-                        months = ['01', '04', '07', '10'];
-                      }
-
-                      months.forEach(function (month) {
-                        dataByMonth[month] = {};
-                        [2025, 2050, 2075].forEach(function (yearRange) {
-                          ['45', '85'].forEach(function (scenario) {
-                            ['max', 'wMean', 'min'].forEach(function (valueName) {
-                              dataByMonth[month][String(yearRange) + 'rcp' + String(scenario) + '_' + String(valueName)] = data[yearRange][month][String(valueName) + String(scenario)];
-                            });
-                          });
-                        });
-                      });
-                      var result = [];
-                      Object.keys(dataByMonth).forEach(function (month) {
-                        result.push([month, dataByMonth[month]['2025rcp45_max'], dataByMonth[month]['2025rcp45_wMean'], dataByMonth[month]['2025rcp45_min'], null, null, dataByMonth[month]['2025rcp85_max'], dataByMonth[month]['2025rcp85_wMean'], dataByMonth[month]['2025rcp85_min'], null, null, dataByMonth[month]['2050rcp45_max'], dataByMonth[month]['2050rcp45_wMean'], dataByMonth[month]['2050rcp45_min'], null, null, dataByMonth[month]['2050rcp85_max'], dataByMonth[month]['2050rcp85_wMean'], dataByMonth[month]['2050rcp85_min'], null, null, dataByMonth[month]['2075rcp45_max'], dataByMonth[month]['2075rcp45_wMean'], dataByMonth[month]['2075rcp45_min'], null, null, dataByMonth[month]['2075rcp85_max'], dataByMonth[month]['2075rcp85_wMean'], dataByMonth[month]['2075rcp85_min'], null, null]);
-                      }); // Sort before returning
-
-                      result.sort(function (a, b) {
-                        return (a[0] > b[0]) - (a[0] < b[0]);
-                      });
-                      _this11.dataurls.proj_mod = _this11._format_export_data(['month', '2025_rcp45_max', '2025_rcp45_weighted_mean', '2025_rcp45_min', '2025_rcp85_max', '2025_rcp85_weighted_mean', '2025_rcp85_min', '2050_rcp45_max', '2050_rcp45_weighted_mean', '2050_rcp45_min', '2050_rcp85_max', '2050_rcp85_weighted_mean', '2050_rcp85_min', '2075_rcp45_max', '2075_rcp45_weighted_mean', '2075_rcp45_min', '2075_rcp85_max', '2075_rcp85_weighted_mean', '2075_rcp85_min'], result);
-                      return result;
-                    }
-                  }.bind(this)));
-
-                case 2:
+                case 17:
                 case "end":
-                  return _context9.stop();
+                  return _context12.stop();
               }
             }
-          }, _callee9, this);
+          }, _callee12, this);
         }));
 
         function _get_projected_loca_model_data() {
@@ -6139,6 +6438,116 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
 
         return _get_projected_loca_model_data;
       }()
+    }, {
+      key: "transform_acis_loca_monthly_seasonal",
+      value: function transform_acis_loca_monthly_seasonal(wMean45, min45, max45, wMean85, min85, max85) {
+        var _this14 = this;
+
+        var data = {};
+        [2025, 2050, 2075].forEach(function (yearRange) {
+          data[yearRange] = {};
+
+          ClimateByLocationWidget._months.forEach(function (month) {
+            var season_month = month;
+
+            if (_this14.options.frequency === 'seasonal') {
+              //for seasonal group by season, not month.
+              season_month = ClimateByLocationWidget._months_seasons[month];
+            }
+
+            if (undefined === data[yearRange][season_month]) {
+              data[yearRange][season_month] = {};
+            }
+
+            var datasets = {
+              'wMean45': wMean45,
+              'wMean85': wMean85,
+              'min45': min45,
+              'max45': max45,
+              'min85': min85,
+              'max85': max85
+            };
+            Object.keys(datasets).forEach(function (dataset) {
+              if (undefined === data[yearRange][season_month][dataset]) {
+                data[yearRange][season_month][dataset] = [];
+              }
+
+              for (var year = yearRange - 15; year < yearRange + 15; year++) {
+                var year_month = String(year) + '-' + String(month);
+
+                if (datasets[dataset].hasOwnProperty(year_month)) {
+                  data[yearRange][season_month][dataset].push(datasets[dataset][year_month]);
+                }
+              }
+            });
+          });
+        }); // mean values by month
+
+        Object.keys(data).forEach(function (yearRange) {
+          Object.keys(data[yearRange]).forEach(function (month) {
+            ['wMean45', 'wMean85', 'min45', 'min85', 'max45', 'max85'].forEach(function (valueName) {
+              var length = data[yearRange][month][valueName].length;
+              var sum = data[yearRange][month][valueName].reduce(function (acc, value) {
+                return acc + value;
+              }, 0);
+              data[yearRange][month][valueName] = sum / length;
+            });
+          });
+        }); // reformat to expected output
+        // [ month,2025rcp45_max,2025rcp45_weighted_mean,2025rcp45_min,2025rcp85_max,2025rcp85_weighted_mean,2025rcp85_min,2050rcp45_max,2050rcp45_weighted_mean,2050rcp45_min,2050rcp85_max,2050rcp85_weighted_mean,2050rcp85_min,2075rcp45_max,2075rcp45_weighted_mean,2075rcp45_min,2075rcp85_max,2075rcp85_weighted_mean,2075rcp85_min ]
+
+        var dataByMonth = {};
+        var months = ClimateByLocationWidget._months;
+
+        if (this.options.frequency === 'seasonal') {
+          months = ['01', '04', '07', '10'];
+        }
+
+        months.forEach(function (month) {
+          dataByMonth[month] = {};
+          [2025, 2050, 2075].forEach(function (yearRange) {
+            ['45', '85'].forEach(function (scenario) {
+              ['max', 'wMean', 'min'].forEach(function (valueName) {
+                dataByMonth[month][String(yearRange) + 'rcp' + String(scenario) + '_' + String(valueName)] = data[yearRange][month][String(valueName) + String(scenario)];
+              });
+            });
+          });
+        });
+        var result = [];
+        Object.keys(dataByMonth).forEach(function (month) {
+          result.push([month, dataByMonth[month]['2025rcp45_wMean'], dataByMonth[month]['2025rcp45_min'], dataByMonth[month]['2025rcp45_max'], dataByMonth[month]['2025rcp85_wMean'], dataByMonth[month]['2025rcp85_min'], dataByMonth[month]['2025rcp85_max'], dataByMonth[month]['2050rcp45_wMean'], dataByMonth[month]['2050rcp45_min'], dataByMonth[month]['2050rcp45_max'], dataByMonth[month]['2050rcp85_wMean'], dataByMonth[month]['2050rcp85_min'], dataByMonth[month]['2050rcp85_max'], dataByMonth[month]['2075rcp45_wMean'], dataByMonth[month]['2075rcp45_min'], dataByMonth[month]['2075rcp45_max'], dataByMonth[month]['2075rcp85_wMean'], dataByMonth[month]['2075rcp85_min'], dataByMonth[month]['2075rcp85_max']]);
+        }); // Sort before returning
+
+        result.sort(function (a, b) {
+          return (a[0] > b[0]) - (a[0] < b[0]);
+        });
+        this.downloadable_dataurls.proj_mod = this._format_export_data(['month', '2025_rcp45_weighted_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_weighted_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_weighted_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_weighted_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_max', '2075_rcp45_weighted_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_weighted_mean', '2075_rcp85_min', '2075_rcp85_max'], result);
+        return result;
+      }
+    }, {
+      key: "transform_acis_loca_annual",
+      value: function transform_acis_loca_annual(wMean45, min45, max45, wMean85, min85, max85) {
+        var data = []; // Extract values
+
+        for (var key = 2006; key < 2100; key++) {
+          var values = {};
+          values.wMean45 = wMean45.hasOwnProperty(key) ? round(wMean45[key], 1) : null;
+          values.min45 = min45.hasOwnProperty(key) ? round(min45[key], 1) : null;
+          values.max45 = max45.hasOwnProperty(key) ? round(max45[key], 1) : null;
+          values.wMean85 = wMean85.hasOwnProperty(key) ? round(wMean85[key], 1) : null;
+          values.min85 = min85.hasOwnProperty(key) ? round(min85[key], 1) : null;
+          values.max85 = max85.hasOwnProperty(key) ? round(max85[key], 1) : null; //year,rcp45mean,rcp45min,rcp45max,rcp85mean,rcp85min,rcp85max
+
+          data.push([String(key), values.wMean45, values.min45, values.max45, values.wMean85, values.min85, values.max85]);
+        } // Sort before returning
+
+
+        data.sort(function (a, b) {
+          return (a[0] > b[0]) - (a[0] < b[0]);
+        });
+        this.downloadable_dataurls.proj_mod = this._format_export_data(['year', 'rcp45_weighted_mean', 'rcp45_min', 'rcp45_max', 'rcp85_weighted mean', 'rcp85_min', 'rcp85_max'], data);
+        return data;
+      }
       /**
        * Transform an anchor element to download the current graph as an image. Return false on failure / no data.
        * @param link
@@ -6149,7 +6558,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       key: "download_image",
       value: function download_image(link) {
         link.href = this.$graphdiv.find('canvas')[0].toDataURL('image/png');
-        link.download = [this.options.get_region_label.bind(this)(), this.options.frequency, this.options.variable, "graph"].join('-').replace(/ /g, '_') + '.png';
+        link.download = [this.options.get_area_label.bind(this)(), this.options.frequency, this.options.variable, "graph"].join('-').replace(/ /g, '_') + '.png';
         return true;
       }
       /**
@@ -6161,13 +6570,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
     }, {
       key: "download_hist_obs_data",
       value: function download_hist_obs_data(link) {
-        if (!this.dataurls.hist_obs) {
+        if (!this.downloadable_dataurls.hist_obs) {
           link.href = '#nodata';
           return false;
         }
 
-        link.href = this.dataurls.hist_obs;
-        link.download = [this.options.get_region_label.bind(this)(), this.options.frequency, "hist_obs", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
+        link.href = this.downloadable_dataurls.hist_obs;
+        link.download = [this.options.get_area_label.bind(this)(), this.options.frequency, "hist_obs", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
         return true;
       }
       /**
@@ -6179,13 +6588,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
     }, {
       key: "download_hist_mod_data",
       value: function download_hist_mod_data(link) {
-        if (!this.dataurls.hist_mod) {
+        if (!this.downloadable_dataurls.hist_mod) {
           link.href = '#nodata';
           return false;
         }
 
-        link.href = this.dataurls.hist_mod;
-        link.download = [this.options.get_region_label.bind(this)(), this.options.frequency, "hist_mod", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
+        link.href = this.downloadable_dataurls.hist_mod;
+        link.download = [this.options.get_area_label.bind(this)(), this.options.frequency, "hist_mod", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
         return true;
       }
       /**
@@ -6197,13 +6606,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
     }, {
       key: "download_proj_mod_data",
       value: function download_proj_mod_data(link) {
-        if (!this.dataurls.proj_mod) {
+        if (!this.downloadable_dataurls.proj_mod) {
           link.href = '#nodata';
           return false;
         }
 
-        link.href = this.dataurls.proj_mod;
-        link.download = [this.options.get_region_label.bind(this)(), this.options.frequency, "proj_mod", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
+        link.href = this.downloadable_dataurls.proj_mod;
+        link.download = [this.options.get_area_label.bind(this)(), this.options.frequency, "proj_mod", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
         return true;
       }
     }, {
@@ -6388,6 +6797,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           yzoom: true,
           ypan: true,
           data_api_endpoint: 'https://grid2.rcc-acis.org/GridData',
+          island_data_url_template: '/island_data/{area_id}.json',
           colors: {
             reds: {
               line: '#f5442d',
@@ -6407,25 +6817,20 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
 
             },
             opacities: {
-              ann_hist_1090: 0.6,
               ann_hist_minmax: 0.6,
-              ann_proj_1090: 0.5,
               ann_proj_minmax: 0.5,
-              mon_proj_1090: 0.5,
               mon_proj_minmax: 0.5 //original hard-coded values
-              //ann_hist_1090: 0.5,
               //ann_hist_minmax: 0.7,
-              //ann_proj_1090: 0.3,
               //ann_proj_minmax: 0.3,
-              //mon_proj_1090: 0.3,
               //mon_proj_minmax: 0.3,
 
             }
           },
           //font: no default for this one; defaults to canvas's default font
-          county: null,
-          state: null,
-          get_region_label: this.get_region_value.bind(this),
+          area_id: null,
+          // county: null, // Deprecated! Use area_id instead.
+          // state: null, // Deprecated! Use area_id instead.
+          get_area_label: this.get_area_label.bind(this),
           // Data ranges will get scaled by this factor when setting y axis ranges.
           // Previously was 1.1, but set to 1 now to avoid awkard negative values for
           // things that can never be negative.
@@ -6686,7 +7091,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             var stat = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
             var scenario = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
             var timeperiod = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
-            var region = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : null;
+            var area_id = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : null;
             var plot_index = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : -1;
             return {
               plot_config: plot_config,
@@ -6695,7 +7100,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               stat: stat,
               scenario: scenario,
               timeperiod: timeperiod,
-              region: region,
+              area_id: area_id,
               plot_index: plot_index
             };
           };
@@ -6703,15 +7108,18 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           this._plots_config = [//
           // annual CONUS plots:
           //
-          p(band_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_min", "annual_hist_mod_max", this.options.colors.grays.outerBand, this.options.colors.opacities.ann_hist_minmax), "annual", "hist_mod", "minmax"), p(band_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_p10", "annual_hist_mod_p90", this.options.colors.grays.innerBand, this.options.colors.opacities.ann_hist_1090), "annual", "hist_mod", "p1090"), p(band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_min_rcp45", "annual_proj_mod_max_rcp45", this.options.colors.blues.outerBand, this.options.colors.opacities.ann_proj_minmax), "annual", "proj_mod", "minmax", "rcp45"), p(band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_p10_rcp45", "annual_proj_mod_p90_rcp45", this.options.colors.blues.innerBand, this.options.colors.opacities.ann_proj_1090), "annual", "proj_mod", "p1090", "rcp45"), p(band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_min_rcp85", "annual_proj_mod_max_rcp85", this.options.colors.reds.outerBand, this.options.colors.opacities.ann_proj_minmax), "annual", "proj_mod", "minmax", "rcp85"), p(band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_p10_rcp85", "annual_proj_mod_p90_rcp85", this.options.colors.reds.innerBand, this.options.colors.opacities.ann_proj_1090), "annual", "proj_mod", "p1090", "rcp85"), p(bar_plot_based_at("x_annual", "annual_hist_obs_x", "y", "annual_hist_obs_y", 0), "annual", "hist_obs"), p(line_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_med", "#000000"), "annual", "hist_mod", "med"), p(line_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_med_rcp45", this.options.colors.blues.line), "annual", "proj_mod", "med", "rcp45"), p(line_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_med_rcp85", this.options.colors.reds.line), "annual", "proj_mod", "med", "rcp85"), //
+          p(band_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_min", "annual_hist_mod_max", this.options.colors.grays.outerBand, this.options.colors.opacities.ann_hist_minmax), "annual", "hist_mod", "minmax"), p(band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_min_rcp45", "annual_proj_mod_max_rcp45", this.options.colors.blues.outerBand, this.options.colors.opacities.ann_proj_minmax), "annual", "proj_mod", "minmax", "rcp45"), p(band_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_min_rcp85", "annual_proj_mod_max_rcp85", this.options.colors.reds.outerBand, this.options.colors.opacities.ann_proj_minmax), "annual", "proj_mod", "minmax", "rcp85"), p(bar_plot_based_at("x_annual", "annual_hist_obs_x", "y", "annual_hist_obs_y", 0), "annual", "hist_obs"), p(line_plot("x_annual", "annual_hist_mod_x", "y", "annual_hist_mod_med", "#000000"), "annual", "hist_mod", "med"), p(line_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_med_rcp45", this.options.colors.blues.line), "annual", "proj_mod", "med", "rcp45"), p(line_plot("x_annual", "annual_proj_mod_x", "y", "annual_proj_mod_med_rcp85", this.options.colors.reds.line), "annual", "proj_mod", "med", "rcp85"), //
           // monthly CONUS plots:
           //
-          p(line_plot("x_monthly", "monthly_hist_obs_x", "y", "monthly_hist_obs_med", "#000000"), "monthly", "hist_obs", "med"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2025", "monthly_proj_mod_max_rcp45_2025", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp45", "2025"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2025", "monthly_proj_mod_max_rcp85_2025", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp85", "2025"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2025", "monthly_proj_mod_p90_rcp45_2025", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_1090), "monthly", "proj_mod", "p1090", "rcp45", "2025"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2025", "monthly_proj_mod_p90_rcp85_2025", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_1090), "monthly", "proj_mod", "p1090", "rcp85", "2025"), p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2025", this.options.colors.blues.outerBand), "monthly", "proj_mod", "med", "rcp45", "2025"), p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp85_2025", this.options.colors.reds.line), "monthly", "proj_mod", "med", "rcp85", "2025"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2050", "monthly_proj_mod_max_rcp45_2050", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp45", "2050"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2050", "monthly_proj_mod_max_rcp85_2050", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp85", "2050"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2050", "monthly_proj_mod_p90_rcp45_2050", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_1090), "monthly", "proj_mod", "p1090", "rcp45", "2050"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2050", "monthly_proj_mod_p90_rcp85_2050", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_1090), "monthly", "proj_mod", "p1090", "rcp85", "2050"), p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2050", this.options.colors.blues.outerBand), "monthly", "proj_mod", "med", "rcp45", "2050"), p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp85_2050", this.options.colors.reds.line), "monthly", "proj_mod", "med", "rcp85", "2050"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2075", "monthly_proj_mod_max_rcp45_2075", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp45", "2075"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2075", "monthly_proj_mod_max_rcp85_2075", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp85", "2075"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp45_2075", "monthly_proj_mod_p90_rcp45_2075", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_1090), "monthly", "proj_mod", "p1090", "rcp45", "2075"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_p10_rcp85_2075", "monthly_proj_mod_p90_rcp85_2075", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_1090), "monthly", "proj_mod", "p1090", "rcp85", "2075"), p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2075", this.options.colors.blues.outerBand), "monthly", "proj_mod", "med", "rcp45", "2075"), p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp85_2075", this.options.colors.reds.line), "monthly", "proj_mod", "med", "rcp85", "2075"), //
+          p(line_plot("x_monthly", "monthly_hist_obs_x", "y", "monthly_hist_obs_med", "#000000"), "monthly", "hist_obs", "med"), // these are available for island areas, but currently disabled for consistency with CONUS area charts.
+          // p(band_plot("x_monthly", "monthly_hist_mod_x", "y", "monthly_hist_mod_min", "monthly_hist_mod_max", this.options.colors.grays.outerBand, this.options.colors.opacities.ann_hist_minmax), "monthly", "hist_mod", "minmax"),
+          // p(line_plot("x_monthly", "monthly_hist_mod_x", "y", "monthly_hist_mod_med", "#000000"), "monthly", "hist_mod", "med"),
+          p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2025", "monthly_proj_mod_max_rcp45_2025", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp45", "2025"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2025", "monthly_proj_mod_max_rcp85_2025", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp85", "2025"), p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2025", this.options.colors.blues.outerBand), "monthly", "proj_mod", "med", "rcp45", "2025"), p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp85_2025", this.options.colors.reds.line), "monthly", "proj_mod", "med", "rcp85", "2025"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2050", "monthly_proj_mod_max_rcp45_2050", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp45", "2050"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2050", "monthly_proj_mod_max_rcp85_2050", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp85", "2050"), p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2050", this.options.colors.blues.outerBand), "monthly", "proj_mod", "med", "rcp45", "2050"), p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp85_2050", this.options.colors.reds.line), "monthly", "proj_mod", "med", "rcp85", "2050"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp45_2075", "monthly_proj_mod_max_rcp45_2075", this.options.colors.blues.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp45", "2075"), p(band_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_min_rcp85_2075", "monthly_proj_mod_max_rcp85_2075", this.options.colors.reds.innerBand, this.options.colors.opacities.mon_proj_minmax), "monthly", "proj_mod", "minmax", "rcp85", "2075"), p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp45_2075", this.options.colors.blues.outerBand), "monthly", "proj_mod", "med", "rcp45", "2075"), p(line_plot("x_monthly", "monthly_proj_mod_x", "y", "monthly_proj_mod_med_rcp85_2075", this.options.colors.reds.line), "monthly", "proj_mod", "med", "rcp85", "2075"), //
           // seasonal CONUS plots
           //
           // Uncomment to show historical ranges
-          //range_bar_plot("x_seasonal", "seasonal_hist_obs_x", "y", "seasonal_hist_obs_p10", "seasonal_hist_obs_p90",  "#cccccc", "#cccccc", 0.5, 0.7);
-          p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2025", "seasonal_proj_mod_max_rcp45_2025", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2025", "seasonal_proj_mod_max_rcp85_2025", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp45_2025", "seasonal_proj_mod_p90_rcp45_2025", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "p1090", "rcp45", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp85_2025", "seasonal_proj_mod_p90_rcp85_2025", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "p1090", "rcp85", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2050", "seasonal_proj_mod_max_rcp45_2050", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2050", "seasonal_proj_mod_max_rcp85_2050", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp45_2050", "seasonal_proj_mod_p90_rcp45_2050", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "p1090", "rcp45", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp85_2050", "seasonal_proj_mod_p90_rcp85_2050", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "p1090", "rcp85", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2075", "seasonal_proj_mod_max_rcp45_2075", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2075"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2075", "seasonal_proj_mod_max_rcp85_2075", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2075"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp45_2075", "seasonal_proj_mod_p90_rcp45_2075", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "p1090", "rcp45", "2075"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_p10_rcp85_2075", "seasonal_proj_mod_p90_rcp85_2075", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "p1090", "rcp85", "2075"), p(range_bar_plot("x_seasonal", "seasonal_hist_obs_x", "y", "seasonal_hist_obs_med", "seasonal_hist_obs_med", "#000000", "#000000", 0.5, 1.0), "seasonal", "hist_obs", "med"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp45_2025", "seasonal_proj_mod_med_rcp45_2025", "#0000ff", "#0000ff", 0.25, 1.0), "seasonal", "proj_mod", "med", "rcp45", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp85_2025", "seasonal_proj_mod_med_rcp85_2025", this.options.colors.reds.line, this.options.colors.reds.line, 0.0, 1.0), "seasonal", "proj_mod", "med", "rcp85", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp45_2050", "seasonal_proj_mod_med_rcp45_2050", "#0000ff", "#0000ff", 0.25, 1.0), "seasonal", "proj_mod", "med", "rcp45", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp85_2050", "seasonal_proj_mod_med_rcp85_2050", this.options.colors.reds.line, this.options.colors.reds.line, 0.0, 1.0), "seasonal", "proj_mod", "med", "rcp85", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp45_2075", "seasonal_proj_mod_med_rcp45_2075", "#0000ff", "#0000ff", 0.25, 1.0), "seasonal", "proj_mod", "med", "rcp45", "2075"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp85_2075", "seasonal_proj_mod_med_rcp85_2075", this.options.colors.reds.line, this.options.colors.reds.line, 0.0, 1.0), "seasonal", "proj_mod", "med", "rcp85", "2075"), // annual AK plots:
+          //range_bar_plot("x_seasonal", "seasonal_hist_obs_x", "y",  "#cccccc", "#cccccc", 0.5, 0.7);
+          p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2025", "seasonal_proj_mod_max_rcp45_2025", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2025", "seasonal_proj_mod_max_rcp85_2025", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2050", "seasonal_proj_mod_max_rcp45_2050", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2050", "seasonal_proj_mod_max_rcp85_2050", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp45_2075", "seasonal_proj_mod_max_rcp45_2075", this.options.colors.blues.innerBand, this.options.colors.blues.innerBand, 0.25, 0.4), "seasonal", "proj_mod", "minmax", "rcp45", "2075"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_min_rcp85_2075", "seasonal_proj_mod_max_rcp85_2075", this.options.colors.reds.innerBand, this.options.colors.reds.innerBand, 0.0, 0.4), "seasonal", "proj_mod", "minmax", "rcp85", "2075"), p(range_bar_plot("x_seasonal", "seasonal_hist_obs_x", "y", "seasonal_hist_obs_med", "seasonal_hist_obs_med", "#000000", "#000000", 0.5, 1.0), "seasonal", "hist_obs", "med"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp45_2025", "seasonal_proj_mod_med_rcp45_2025", "#0000ff", "#0000ff", 0.25, 1.0), "seasonal", "proj_mod", "med", "rcp45", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp85_2025", "seasonal_proj_mod_med_rcp85_2025", this.options.colors.reds.line, this.options.colors.reds.line, 0.0, 1.0), "seasonal", "proj_mod", "med", "rcp85", "2025"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp45_2050", "seasonal_proj_mod_med_rcp45_2050", "#0000ff", "#0000ff", 0.25, 1.0), "seasonal", "proj_mod", "med", "rcp45", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp85_2050", "seasonal_proj_mod_med_rcp85_2050", this.options.colors.reds.line, this.options.colors.reds.line, 0.0, 1.0), "seasonal", "proj_mod", "med", "rcp85", "2050"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp45_2075", "seasonal_proj_mod_med_rcp45_2075", "#0000ff", "#0000ff", 0.25, 1.0), "seasonal", "proj_mod", "med", "rcp45", "2075"), p(range_bar_plot("x_seasonal", "seasonal_proj_mod_x", "y", "seasonal_proj_mod_med_rcp85_2075", "seasonal_proj_mod_med_rcp85_2075", this.options.colors.reds.line, this.options.colors.reds.line, 0.0, 1.0), "seasonal", "proj_mod", "med", "rcp85", "2075"), // annual AK plots:
           p(band_plot("x_annual", "annual_hist_mod_ak_x", "y", "annual_hist_mod_gfdl_cm3_y", "annual_hist_mod_ncar_ccsm4_y", this.options.colors.grays.outerBand, this.options.colors.opacities.ann_hist_minmax), "annual", "hist_mod", "minmax", null, null, 'ak'), p(band_plot("x_annual", "annual_proj_mod_ak_x", "y", "annual_proj_mod_gfdl_cm3_rcp85_y", "annual_proj_mod_ncar_ccsm4_rcp85_y", this.options.colors.reds.outerBand, this.options.colors.opacities.ann_proj_minmax), "annual", "annual_proj", "minmax", "rcp85", null, 'ak')]; // assign indexes based on array position.
 
           this._plots_config = this._plots_config.map(function (plot_config, idx) {
@@ -6753,10 +7161,6 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               id: "annual_hist_mod_min"
             }, {
               id: "annual_hist_mod_max"
-            }, {
-              id: "annual_hist_mod_p10"
-            }, {
-              id: "annual_hist_mod_p90"
             }],
             values: [[-9999, 0, 0, 0, 0, 0, 0]]
           }), _data_layout_record('annual_proj_mod', {
@@ -6769,19 +7173,11 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             }, {
               id: "annual_proj_mod_max_rcp45"
             }, {
-              id: "annual_proj_mod_p10_rcp45"
-            }, {
-              id: "annual_proj_mod_p90_rcp45"
-            }, {
               id: "annual_proj_mod_med_rcp85"
             }, {
               id: "annual_proj_mod_min_rcp85"
             }, {
               id: "annual_proj_mod_max_rcp85"
-            }, {
-              id: "annual_proj_mod_p10_rcp85"
-            }, {
-              id: "annual_proj_mod_p90_rcp85"
             }],
             values: [[-9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
           }), _data_layout_record('monthly_hist_obs', {
@@ -6796,71 +7192,61 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             repeat: {
               period: 12
             }
+          }), _data_layout_record('monthly_hist_mod', {
+            variables: [{
+              id: "monthly_hist_mod_x"
+            }, {
+              id: "monthly_hist_mod_med"
+            }, {
+              id: "monthly_hist_mod_min"
+            }, {
+              id: "monthly_hist_mod_max"
+            }],
+            values: [[-9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
+            repeat: {
+              period: 12
+            }
           }), _data_layout_record('monthly_proj_mod', {
             variables: [{
               id: "monthly_proj_mod_x"
-            }, {
-              id: "monthly_proj_mod_max_rcp45_2025"
             }, {
               id: "monthly_proj_mod_med_rcp45_2025"
             }, {
               id: "monthly_proj_mod_min_rcp45_2025"
             }, {
-              id: "monthly_proj_mod_p10_rcp45_2025"
-            }, {
-              id: "monthly_proj_mod_p90_rcp45_2025"
-            }, {
-              id: "monthly_proj_mod_max_rcp85_2025"
+              id: "monthly_proj_mod_max_rcp45_2025"
             }, {
               id: "monthly_proj_mod_med_rcp85_2025"
             }, {
               id: "monthly_proj_mod_min_rcp85_2025"
             }, {
-              id: "monthly_proj_mod_p10_rcp85_2025"
-            }, {
-              id: "monthly_proj_mod_p90_rcp85_2025"
-            }, {
-              id: "monthly_proj_mod_max_rcp45_2050"
+              id: "monthly_proj_mod_max_rcp85_2025"
             }, {
               id: "monthly_proj_mod_med_rcp45_2050"
             }, {
               id: "monthly_proj_mod_min_rcp45_2050"
             }, {
-              id: "monthly_proj_mod_p10_rcp45_2050"
-            }, {
-              id: "monthly_proj_mod_p90_rcp45_2050"
-            }, {
-              id: "monthly_proj_mod_max_rcp85_2050"
+              id: "monthly_proj_mod_max_rcp45_2050"
             }, {
               id: "monthly_proj_mod_med_rcp85_2050"
             }, {
               id: "monthly_proj_mod_min_rcp85_2050"
             }, {
-              id: "monthly_proj_mod_p10_rcp85_2050"
-            }, {
-              id: "monthly_proj_mod_p90_rcp85_2050"
-            }, {
-              id: "monthly_proj_mod_max_rcp45_2075"
+              id: "monthly_proj_mod_max_rcp85_2050"
             }, {
               id: "monthly_proj_mod_med_rcp45_2075"
             }, {
               id: "monthly_proj_mod_min_rcp45_2075"
             }, {
-              id: "monthly_proj_mod_p10_rcp45_2075"
-            }, {
-              id: "monthly_proj_mod_p90_rcp45_2075"
-            }, {
-              id: "monthly_proj_mod_max_rcp85_2075"
+              id: "monthly_proj_mod_max_rcp45_2075"
             }, {
               id: "monthly_proj_mod_med_rcp85_2075"
             }, {
               id: "monthly_proj_mod_min_rcp85_2075"
             }, {
-              id: "monthly_proj_mod_p10_rcp85_2075"
-            }, {
-              id: "monthly_proj_mod_p90_rcp85_2075"
+              id: "monthly_proj_mod_max_rcp85_2075"
             }],
-            values: [[-9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
+            values: [[-9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
             repeat: {
               period: 12
             }
@@ -6886,19 +7272,11 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             }, {
               id: "seasonal_proj_mod_min_rcp45_2025"
             }, {
-              id: "seasonal_proj_mod_p10_rcp45_2025"
-            }, {
-              id: "seasonal_proj_mod_p90_rcp45_2025"
-            }, {
               id: "seasonal_proj_mod_max_rcp85_2025"
             }, {
               id: "seasonal_proj_mod_med_rcp85_2025"
             }, {
               id: "seasonal_proj_mod_min_rcp85_2025"
-            }, {
-              id: "seasonal_proj_mod_p10_rcp85_2025"
-            }, {
-              id: "seasonal_proj_mod_p90_rcp85_2025"
             }, {
               id: "seasonal_proj_mod_max_rcp45_2050"
             }, {
@@ -6906,19 +7284,11 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             }, {
               id: "seasonal_proj_mod_min_rcp45_2050"
             }, {
-              id: "seasonal_proj_mod_p10_rcp45_2050"
-            }, {
-              id: "seasonal_proj_mod_p90_rcp45_2050"
-            }, {
               id: "seasonal_proj_mod_max_rcp85_2050"
             }, {
               id: "seasonal_proj_mod_med_rcp85_2050"
             }, {
               id: "seasonal_proj_mod_min_rcp85_2050"
-            }, {
-              id: "seasonal_proj_mod_p10_rcp85_2050"
-            }, {
-              id: "seasonal_proj_mod_p90_rcp85_2050"
             }, {
               id: "seasonal_proj_mod_max_rcp45_2075"
             }, {
@@ -6926,21 +7296,13 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
             }, {
               id: "seasonal_proj_mod_min_rcp45_2075"
             }, {
-              id: "seasonal_proj_mod_p10_rcp45_2075"
-            }, {
-              id: "seasonal_proj_mod_p90_rcp45_2075"
-            }, {
               id: "seasonal_proj_mod_max_rcp85_2075"
             }, {
               id: "seasonal_proj_mod_med_rcp85_2075"
             }, {
               id: "seasonal_proj_mod_min_rcp85_2075"
-            }, {
-              id: "seasonal_proj_mod_p10_rcp85_2075"
-            }, {
-              id: "seasonal_proj_mod_p90_rcp85_2075"
             }],
-            values: [[-9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
+            values: [[-9999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
             repeat: {
               period: 4
             }
@@ -6976,30 +7338,39 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         return this._data_config;
       }
     }, {
-      key: "_months",
-      get: function get() {
-        return ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
-      }
-    }, {
       key: "_model_edate",
       get: function get() {
         return '2099-12-31';
       }
       /**
-       * Gets available variable options for a specified combination of frequency and region.
+       * Gets available variable options for a specified combination of frequency and area_id.
        *
        * @param frequency
        * @param unitsystem
-       * @param region
+       * @param area_id
        * @returns {{id: *, title: *}[]}
        */
 
     }], [{
+      key: "when_variables",
+      value: function when_variables(frequency, unitsystem, area_id) {
+        return ClimateByLocationWidget.when_areas().then(ClimateByLocationWidget.get_variables.bind(this, frequency, unitsystem, area_id));
+      }
+      /**
+       * Gets available variable options for a specified combination of frequency and area_id. If areas are not loaded, returns empty
+       *
+       * @param frequency
+       * @param unitsystem
+       * @param area_id
+       * @returns {{id: *, title: *}[]}
+       */
+
+    }, {
       key: "get_variables",
-      value: function get_variables(frequency, unitsystem, region) {
+      value: function get_variables(frequency, unitsystem, area_id) {
         unitsystem = unitsystem || 'english';
         return ClimateByLocationWidget.variables.filter(function (v) {
-          return frequency in v.ytitles && (typeof v.supports_region === "function" ? v.supports_region(region) : true);
+          return frequency in v.ytitles && (typeof v.supports_area === "function" ? v.supports_area(area_id) : true);
         }).map(function (v) {
           return {
             id: v.id,
@@ -7008,17 +7379,29 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         });
       }
       /**
-       * Gets available frequency options for a specified region.
+       * Gets available frequency options for a specified area.
        *
-       * @param region
+       * @param area_id
+       * @returns {{id: (string), title: (string)}[]}
+       */
+
+    }, {
+      key: "when_frequencies",
+      value: function when_frequencies(area_id) {
+        return ClimateByLocationWidget.when_areas().then(ClimateByLocationWidget.get_frequencies.bind(this, area_id));
+      }
+      /**
+       * Gets available frequency options for a specified area.
+       *
+       * @param area_id
        * @returns {{id: (string), title: (string)}[]}
        */
 
     }, {
       key: "get_frequencies",
-      value: function get_frequencies(region) {
+      value: function get_frequencies(area_id) {
         return ClimateByLocationWidget.frequencies.filter(function (f) {
-          return typeof f.supports_region === "function" ? f.supports_region(region) : true;
+          return typeof f.supports_area === "function" ? f.supports_area(area_id) : true;
         }).map(function (v) {
           return {
             id: v.id,
@@ -7027,16 +7410,129 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         });
       }
       /**
-       * This function is used to toggle features based on whether the selected region is in Alaska or not.
+       * Gets available areas based on type or the state they belong to (counties only).
+       * @param type {string|null} Area type to filter by. Any of 'state', 'county', 'island'.
+       * @param state {string|null} Two-digit abbreviation of state to filter by. Implies type='state'
+       * @param area_id {string|null} Area id to filter by. Will never return more than 1 result.
+       * @returns Promise<array<{area_id, area_label, area_type, state}>>
+       */
+
+    }, {
+      key: "when_areas",
+      value: function when_areas() {
+        var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+        var state = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+        var area_id = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+        if (all_areas === null && _when_areas === null) {
+          _when_areas = new Promise(function (resolve) {
+            return $.ajax({
+              url: ClimateByLocationWidget.areas_json_url,
+              type: "GET",
+              contentType: "application/json; charset=utf-8",
+              timeout: 30000
+            }).then(resolve);
+          }).then(function (response) {
+            if (!response) {
+              throw new Error("Failed to retrieve areas!");
+            }
+
+            all_areas = response;
+          });
+        }
+
+        return _when_areas.then(ClimateByLocationWidget.get_areas.bind(this, type, state, area_id));
+      }
+      /**
+       * Gets available areas based on type or the state they belong to (counties only). If called before areas are loaded, returns empty.
+       * @param type {string|null} Area type to filter by. Any of 'state', 'county', 'island'.
+       * @param state {string|null} Two-digit abbreviation of state to filter by. Implies type='state'
+       * @param area_id {string|null} Area id to filter by. Will never return more than 1 result.
+       * @returns array<{area_id, area_label, area_type, state}>
+       */
+
+    }, {
+      key: "get_areas",
+      value: function get_areas() {
+        var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+        var state = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+        var area_id = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+        if (!all_areas) {
+          console.warn('Areas not yet loaded! Use when_areas() for async access to areas.');
+          return [];
+        }
+
+        if (!!area_id) {
+          area_id = String(area_id).toLowerCase();
+          return all_areas.filter(function (area) {
+            return String(area.area_id).toLowerCase() === area_id;
+          });
+        }
+
+        if (!!state) {
+          state = String(state).toUpperCase();
+          return all_areas.filter(function (area) {
+            return area['area_type'] === 'county' && area.state === state;
+          });
+        }
+
+        if (!!type) {
+          type = String(type).toLowerCase();
+
+          if (!['state', 'county', 'island'].includes(type)) {
+            throw Error("Invalid area type \"".concat(type, "\", valid types are 'state','county', and 'island'"));
+          }
+
+          return all_areas.filter(function (area) {
+            return area['area_type'] === type;
+          });
+        }
+
+        return all_areas;
+      }
+      /**
+       * This function is used to toggle features based on whether the selected area_id is in Alaska or not.
        *
-       * @param region
+       * @param area_id
        * @returns {boolean}
        */
 
     }, {
-      key: "is_ak_region",
-      value: function is_ak_region(region) {
-        return String(region).startsWith('02') || region === 'AK';
+      key: "is_ak_area",
+      value: function is_ak_area(area_id) {
+        return String(area_id).startsWith('02') || area_id === 'AK';
+      }
+      /**
+       * This function is used to toggle features based on whether the selected area_id is an island or other non-conus area.
+       *
+       * @param area_id
+       * @returns {boolean}
+       */
+
+    }, {
+      key: "is_island_area",
+      value: function is_island_area(area_id) {
+        return get(ClimateByLocationWidget.get_areas(null, null, area_id), [0, 'area_type']) === 'island';
+      }
+      /**
+       * This function is used to toggle features based on whether the selected area_id is a CONUS area.
+       *
+       * @param area_id
+       * @returns {boolean}
+       */
+
+    }, {
+      key: "is_conus_area",
+      value: function is_conus_area(area_id) {
+        var non_conus_states = ['HI', 'AK'];
+
+        if (non_conus_states.includes(area_id)) {
+          return false;
+        }
+
+        var area = ClimateByLocationWidget.get_areas(null, null, area_id);
+        return !(get(area, [0, 'area_type']) === 'island') && !(get(area, [0, 'area_type']) === 'county' && non_conus_states.includes(get(area, [0, 'state'])));
       }
     }, {
       key: "variables",
@@ -7087,7 +7583,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               metric: "Average Daily Max Temp (°C)"
             }
           },
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
@@ -7136,7 +7632,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               metric: "Average Daily Min Temp (°C)"
             }
           },
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
@@ -7169,7 +7665,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: ClimateByLocationWidget.is_ak_region
+          supports_area: ClimateByLocationWidget.is_ak_area
         }, {
           id: "days_tmax_gt_60f",
           title: {
@@ -7200,7 +7696,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: ClimateByLocationWidget.is_ak_region
+          supports_area: ClimateByLocationWidget.is_ak_area
         }, {
           id: "days_tmax_gt_70f",
           title: {
@@ -7231,7 +7727,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: ClimateByLocationWidget.is_ak_region
+          supports_area: ClimateByLocationWidget.is_ak_area
         }, {
           id: "days_tmax_gt_80f",
           title: {
@@ -7262,7 +7758,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: ClimateByLocationWidget.is_ak_region
+          supports_area: ClimateByLocationWidget.is_ak_area
         }, {
           id: "days_tmax_gt_90f",
           title: {
@@ -7293,7 +7789,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
@@ -7326,8 +7822,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region(region) {
-            return !ClimateByLocationWidget.is_ak_region(region);
+          supports_area: function supports_area(area_id) {
+            return !ClimateByLocationWidget.is_ak_area(area_id);
           }
         }, {
           id: "days_tmax_gt_100f",
@@ -7359,8 +7855,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region(region) {
-            return !ClimateByLocationWidget.is_ak_region(region);
+          supports_area: function supports_area(area_id) {
+            return !ClimateByLocationWidget.is_ak_area(area_id);
           }
         }, {
           id: "days_tmax_gt_105f",
@@ -7392,8 +7888,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region(region) {
-            return !ClimateByLocationWidget.is_ak_region(region);
+          supports_area: function supports_area(area_id) {
+            return !ClimateByLocationWidget.is_ak_area(area_id);
           }
         }, {
           id: "days_tmax_lt_32f",
@@ -7425,7 +7921,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
@@ -7458,7 +7954,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
@@ -7491,7 +7987,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: ClimateByLocationWidget.is_ak_region
+          supports_area: ClimateByLocationWidget.is_ak_area
         }, {
           id: "days_tmin_gt_60f",
           title: {
@@ -7528,7 +8024,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: ClimateByLocationWidget.is_ak_region
+          supports_area: ClimateByLocationWidget.is_ak_area
         }, {
           id: "days_tmin_gt_80f",
           title: {
@@ -7565,8 +8061,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region(region) {
-            return !ClimateByLocationWidget.is_ak_region(region);
+          supports_area: function supports_area(area_id) {
+            return !ClimateByLocationWidget.is_ak_area(area_id);
           }
         }, {
           id: "days_tmin_gt_90f",
@@ -7604,8 +8100,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region(region) {
-            return !ClimateByLocationWidget.is_ak_region(region);
+          supports_area: function supports_area(area_id) {
+            return !ClimateByLocationWidget.is_ak_area(area_id);
           }
         }, {
           id: "hdd_65f",
@@ -7637,7 +8133,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
@@ -7670,7 +8166,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
@@ -7703,7 +8199,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
@@ -7737,7 +8233,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
@@ -7770,7 +8266,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: ClimateByLocationWidget.is_ak_region
+          supports_area: ClimateByLocationWidget.is_ak_area
         }, {
           id: "hdd_32f",
           title: {
@@ -7801,7 +8297,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: ClimateByLocationWidget.is_ak_region
+          supports_area: ClimateByLocationWidget.is_ak_area
         }, {
           id: "pcpn",
           title: {
@@ -7848,7 +8344,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               metric: "Total Precipitation"
             }
           },
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
@@ -7891,7 +8387,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               metric: "Dry Days (days/period)"
             }
           },
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
@@ -7924,7 +8420,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: ClimateByLocationWidget.is_ak_region
+          supports_area: ClimateByLocationWidget.is_ak_area
         }, {
           id: "days_pcpn_gt_1in",
           title: {
@@ -7955,7 +8451,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
@@ -7988,7 +8484,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
@@ -8021,7 +8517,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
@@ -8054,8 +8550,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
               }
             }
           },
-          supports_region: function supports_region(region) {
-            return !ClimateByLocationWidget.is_ak_region(region);
+          supports_area: function supports_area(area_id) {
+            return !ClimateByLocationWidget.is_ak_area(area_id);
           }
         }];
       }
@@ -8065,20 +8561,20 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
         return [{
           id: 'annual',
           title: 'Annual',
-          supports_region: function supports_region() {
+          supports_area: function supports_area() {
             return true;
           }
         }, {
           id: 'monthly',
           title: 'Monthly',
-          supports_region: function supports_region(region) {
-            return !ClimateByLocationWidget.is_ak_region(region);
+          supports_area: function supports_area(area_id) {
+            return ClimateByLocationWidget.is_conus_area(area_id) || ClimateByLocationWidget.is_island_area(area_id);
           }
         }, {
           id: 'seasonal',
           title: 'Seasonal',
-          supports_region: function supports_region(region) {
-            return !ClimateByLocationWidget.is_ak_region(region);
+          supports_area: function supports_area(area_id) {
+            return ClimateByLocationWidget.is_conus_area(area_id);
           }
         }];
       }
@@ -8086,6 +8582,28 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
 
     return ClimateByLocationWidget;
   }(); //
+  // legacy jQuery Widget api for ClimateByLocationWidget
+  //
+
+
+  _defineProperty(ClimateByLocationWidget, "areas_json_url", '/areas.json');
+
+  _defineProperty(ClimateByLocationWidget, "_months", ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']);
+
+  _defineProperty(ClimateByLocationWidget, "_months_seasons", {
+    "01": "01",
+    "02": "01",
+    "03": "04",
+    "04": "04",
+    "05": "04",
+    "06": "07",
+    "07": "07",
+    "08": "07",
+    "09": "10",
+    "10": "10",
+    "11": "10",
+    "12": "01"
+  });
 
   (function ($) {
     if (!$.hasOwnProperty('widget')) {
@@ -8112,8 +8630,8 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
       setXRange: function setXRange(min, max) {
         return this.climate_by_location_widget.set_x_axis_range(min, max);
       },
-      get_variables: function get_variables(frequency, unitsystem, region) {
-        return ClimateByLocationWidget.get_variables(frequency, unitsystem, region);
+      get_variables: function get_variables(frequency, unitsystem, area_id) {
+        return ClimateByLocationWidget.get_variables(frequency, unitsystem, area_id);
       },
       download_image: function download_image(link) {
         this.climate_by_location_widget.download_image(link);
