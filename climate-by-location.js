@@ -6797,7 +6797,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
           yzoom: true,
           ypan: true,
           data_api_endpoint: 'https://grid2.rcc-acis.org/GridData',
-          island_data_url_template: '/island_data/{area_id}.json',
+          island_data_url_template: 'island_data/{area_id}.json',
           colors: {
             reds: {
               line: '#f5442d',
@@ -8586,7 +8586,7 @@ require("./plot.js")($);require("./renderer.js")($);require("./axis_title.js");r
   //
 
 
-  _defineProperty(ClimateByLocationWidget, "areas_json_url", '/areas.json');
+  _defineProperty(ClimateByLocationWidget, "areas_json_url", 'areas.json');
 
   _defineProperty(ClimateByLocationWidget, "_months", ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']);
 

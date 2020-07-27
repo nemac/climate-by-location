@@ -94,7 +94,7 @@ export default class ClimateByLocationWidget {
     });
   }
 
-  static areas_json_url = '/areas.json';
+  static areas_json_url = 'areas.json';
 
   static get variables() {
     return [
@@ -1185,7 +1185,7 @@ export default class ClimateByLocationWidget {
       yzoom: true,
       ypan: true,
       data_api_endpoint: 'https://grid2.rcc-acis.org/GridData',
-      island_data_url_template: '/island_data/{area_id}.json',
+      island_data_url_template: 'island_data/{area_id}.json',
       colors: {
         reds: {
           line: '#f5442d',
