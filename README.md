@@ -1,6 +1,7 @@
-# Climate By Location (formerly Climate Widget Graph)
+# Climate By Location
+(formerly Climate Widget Graph)
 
-This library defines functions that create and manage interactive climate graphs. 
+This library defines functions that create and manage interactive climate graphs. [View the demo at climate-by-location.nemac.org](climate-by-location.nemac.org)
 
 This version requires jQuery, but does not depend on jQuery UI. For the legacy jQuery API, see [the jquery api documentation](jquery_readme.md)
 
@@ -23,20 +24,16 @@ This library depends on jQuery 3.2+ being loaded prior to `climate-by-location.j
    
 ```javascript
    let cbl_instance = new ClimateByLocationWidget({
-      'county': '13005', // A 5-character fips code of a US county, as a string.  Required if `state` not specified.
-      'state': null, // A 2-character state abbreviation code of a US state, as a string.  Required if `county` not specified. 
+      'area_id': '', // The id for the county, state, or other area to visualize. Use ClimateByLocationWidget.when_areas() to get available areas.
       'variable': 'tmax', // The id of the variable to display; see climate_widget.variables() below for a way to get a list of variable ids.  Optional; defaults to "tmax".
-      'scenario': 'both', //  One of the strings "rcp45", "rcp85", or "both", indicating which scenario(s) to display for projection data.  Optional; defaults to "both".
       'frequency': 'annual', // One of the strings "annual", "monthly", or "seasonal", indicating which type of data to display.  Optional; defaults to "annual".
-      'timeperiod': '2025', //One of the strings "2025", "2050", or "2075" (strings not numbers!), indicating which 30-year period of projection data to show for monthly or seasonal data.  Ignored for annual data.
-      'pmedian': true, // true or false, indicating whether to show the median line(s) for model projection data 
-      'hmedian': true, // true or false, indicating whether to show the median line(s) for annual historical model data (applies to annual data only; there is no historical model data for monthly or seasonal data)
+      'timeperiod': '2025', //One of the strings "2025", "2050", or "2075", indicating which 30-year period of projection data to show for monthly or seasonal data.  Ignored for annual data.
+      'scenario': 'both', //  One of the strings "rcp45", "rcp85", or "both", indicating which scenario(s) to display for projection data.  Optional; defaults to "both".
       'histobs': true, // true or false, indicating whether to show historical observed data
       'histmod': true, // true or false, indicating whether to show annual historical model data (applies to annual data only; there is no historical model data for monthly or seasonal data) 
       'yzoom': true, // true or false, indicating whether to allow the user to zoom along the graph's y-axis; 
       'font': 'roboto', // A string giving the font-family to be used for all text in the graph.
       'xrangefunc': null, // Callback for when the user changes the scale on the horizontal annual data axis (horizontal scale changes are not allowed in the monthly or seasonal graphs).  This function will receive two arguments, which are the new minimum and maximum values along the axis. 
-      'presentation': 'absolute', // "absolute" or "anomaly" views. // deprecated
       });
 ```
 
@@ -49,13 +46,23 @@ directory.
 
 ### Widget Methods
 
-#### `ClimateByLocationWidget.get_variables(frequency, unitsystem, region)`
+#### `ClimateByLocationWidget.when_areas(area_type, state, area_id)` (static)
 
-This method returns an array of the ids and titles of all the climate variables for
-the given frequency in the given region; frequency should be one of the strings "annual",
-"monthly", or "seasonal", unitsystem should be "metric" or "english", and region should be a fips code for a state or county (or borough for Alaska).
+This method returns a promise which resolves with an array of objects like `{ "area_id": "37021", "area_type": "county", "area_label": "Buncombe County", "state": "NC" }`. For non-county areas the `state` value is not present. The `area_type` parameter may be one of 'county', 'state', or 'island', or null. The `state` parameter may be a two-letter state abbreviation, or none. The `area_id` parameter may be any single id for an area (useful when looking up labels / states for a specific area).
 
-#### `cbl_instance.download_image(anchor_el)` 
+Note that HI is not available as a 'state' and is instead broken into two 'island' areas.
+
+#### `ClimateByLocationWidget.when_variables(frequency, unitsystem, area_id)` (static)
+
+This method returns a promise which resolves with an array of the ids and titles of all the climate variables for
+the given frequency in the given region; `frequency` should be one of the strings 'annual',
+'monthly', or 'seasonal', unitsystem should be "metric" or "english", and `area_id` should be an id from an area obtained via `ClimateByLocationWidget.when_areas()`.
+
+#### `ClimateByLocationWidget.when_frequencies(area_id)` (static)
+
+This method returns a promise which resolves with an array of the ids and titles of all frequencies ('annual, 'monthly', or 'seasonal') for the given area, as not all areas support all frequencies.
+
+#### `cbl_instance.download_image(anchor_el)` (instance)
  
   This function that the containing application may call in its click event handling code for an `<a>` element, in order to modify that `<a>` element so that clicking on it will download the current canvas image. The first argument should be the `<a>` element to modify.
         
@@ -65,22 +72,22 @@ the given frequency in the given region; frequency should be one of the strings 
   $('a#download-image-link-id').click(function(event) {
       if (cbl_instance) { // ensure widget exists
           if (!cbl_instance.download_image(this)){
-              event.stopPropagation(); // stop the event if there was a failure
+              event.stopPropagation(); // stop the event if there was a failure / no data is available.
           }
       }
       // note that the 'this' argument is important as this function modifies the <a> tag
   });
 ```
     
-#### `cbl_instance.download_hist_obs_data(anchor_el)`, `cbl_instance.download_hist_mod_data(anchor_el)`, and `cbl_instance.download_proj_mod_data(anchor_el)`
+#### `cbl_instance.download_hist_obs_data(anchor_el)`, `cbl_instance.download_hist_mod_data(anchor_el)`, and `cbl_instance.download_proj_mod_data(anchor_el)` (instance)
  
   These functions modify an `<a>` element with data urls for the time series data that drives the graph. These functions behave the same as `download_image`. Note that monthly/seasonal presentations do not use historical modeled data, so calling `download_hist_mod_data` will return `false`.   
       
-#### `cbl_instance.set_x_axis_range(min, max)`
+#### `cbl_instance.set_x_axis_range(min, max)` (instance)
  
  This function will set the range of data visible on the graph's x-axis when an annual data graph is displayed (monthly and seasonal data graphs have fixed x-axes).  It takes two arguments, which are the desired minimum and maximum values for the axis. Returns either true or false, depending on whether the specified range is allowed according to whatever pan and/or zoom limits have been specified for the axis:  if the specified range is allowed, the axis is adjusted and true is returned; if the specified range is not allowed, the axis is unchanged and false is returned.
       
-#### `cbl_instance.resize()`
+#### `cbl_instance.resize()` (instance)
  This function will cause the graph to resize itself to fit the `<div>` that contains it; you can call this function to adjust the size of the graph if the `<div>` changes size after the graph has been displayed. `resize` takes no arguments; just call it like `cwg.resize()` and the graph will adjust to fit its container.
 
 #### Variables
@@ -115,7 +122,13 @@ Note that outside the contiguous US, some of these variables may be shown differ
 
 ## Changelog
 
-December 2019 release:
+(2.3.0):
+- Added support for island states and territories, in addition to CONUS and Alaska areas already supported.
+- Added new `when_areas()` to facilitate listing of areas / area ids by type or (for counties) state. 
+- Deprecated the `state` and `county` options. Use `area_id` instead.
+ 
+
+(2.2.0) December 2019 release:
 - Revamped API to use more ES6 / native JS
 - Deprecated the jQuery UI based API
 - Added new pattern for region-specific functionality
