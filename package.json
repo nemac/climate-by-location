@@ -17,21 +17,22 @@
     "url": "https://github.com/nemac/climate-by-location/issues"
   },
   "dependencies": {
-    "babel-plugin-transform-object-assign": "^6.22.0",
-    "babel-polyfill": "^6.26.0",
-    "node-static": "^0.7.11"
+    "@rollup/plugin-node-resolve": "^8.4.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.5.5",
+    "@babel/core": "^7.10.5",
     "@babel/plugin-proposal-class-properties": "^7.10.4",
-    "@babel/plugin-transform-runtime": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
+    "@babel/plugin-transform-runtime": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
+    "@jspm/core": "^1.1.1",
+    "@rollup/plugin-babel": "^5.1.0",
     "babel-plugin-transform-es2015-literals": "^6.22.0",
+    "babel-plugin-transform-object-assign": "^6.22.0",
     "babel-plugin-transform-regenerator": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
     "lodash-es": "^4.17.15",
-    "nodemon": "^2.0.2",
-    "rollup": "^1.20.3",
-    "rollup-plugin-babel": "^4.3.3",
-    "rollup-plugin-node-resolve": "^5.2.0"
+    "node-static": "~0.7.11",
+    "nodemon": "^2.0.4",
+    "rollup": "^2.23.0"
   }
 }
