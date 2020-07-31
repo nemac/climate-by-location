@@ -9,9 +9,10 @@ This module relies on the data services provided by the [Applied Climate Informa
 1. Load the widget and dependencies:
 
 ```html
-
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.6.11/core.min.js" integrity="sha512-TfdDRAa9DmMqSYW/UwWmezKavKBwQO1Ek/JKDTnh7dLdU3kAw31zUS2rtl6ulgvGJWkMEPaR5Heu5nA/Aqb49g==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.54.7/plotly-basic.min.js" integrity="sha512-uWFGQaJgmsVg6uyMv7wQ9W0fvlqsK3cRIs/mVMc5Tox68S74OjdZI6Va/Pkc1+fLh6uh+fP8oO8My9n1AgWIAA==" crossorigin="anonymous"></script>
+
 <script src="climate-by-location.js"></script>
 ```
 
@@ -19,16 +20,17 @@ This module relies on the data services provided by the [Applied Climate Informa
    
 ```javascript
    let cbl_instance = new ClimateByLocationWidget(my_element, {
-      'area_id': '', // The id for the county, state, or other area to visualize. Use ClimateByLocationWidget.when_areas() to get available areas.
-      'variable': 'tmax', // The id of the variable to display; see climate_widget.variables() below for a way to get a list of variable ids. Optional; defaults to "tmax".
-      'frequency': 'annual', // One of the strings "annual" or "monthly", indicating which type of data to display. Optional; defaults to "annual".
-      'monthly_timeperiod': '2025', //One of the strings "2025", "2050", or "2075", indicating which 30-year period of projection data to show for monthly or seasonal data. Ignored for annual data.
-       'show_legend': false // Whether or not to show the built-in legend. Defaults to false.
-       'show_historical_observed': true, // Whether or not to show historical observed data if available.
-       'show_historical_modeled': true, // Whether or not to show historical modeled data if available.
-       'show_projected_rcp45': true, // Whether or not to show projected modeled RCP4.5 data if available.
-       'show_projected_rcp85': true, // Whether or not to show projected modeled RCP8.5 data if available.
-       'responsive': true // Whether or not to listen to window resize events and auto-resize the graph. Can only be set on instantiation.
+        'area_id': '', // The id for the county, state, or other area to visualize. Use ClimateByLocationWidget.when_areas() to get available areas.
+        'variable': 'tmax', // The id of the variable to display; see climate_widget.variables() below for a way to get a list of variable ids. Optional; defaults to "tmax".
+        'frequency': 'annual', // One of the strings "annual" or "monthly", indicating which type of data to display. Optional; defaults to "annual".
+        'monthly_timeperiod': '2025', //One of the strings "2025", "2050", or "2075", indicating which 30-year period of projection data to show for monthly or seasonal data. Ignored for annual data.
+        'unitsystem': 'english', // Unit system to use for data presentation ("english", "metric")
+        'show_legend': false, // Whether or not to show the built-in legend. Defaults to false.
+        'show_historical_observed': true, // Whether or not to show historical observed data if available.
+        'show_historical_modeled': true, // Whether or not to show historical modeled data if available.
+        'show_projected_rcp45': true, // Whether or not to show projected modeled RCP4.5 data if available.
+        'show_projected_rcp85': true, // Whether or not to show projected modeled RCP8.5 data if available.
+        'responsive': true // Whether or not to listen to window resize events and auto-resize the graph. Can only be set on instantiation.
       });
 ```
 
@@ -55,7 +57,7 @@ the given frequency in the given region; `frequency` should be one of the string
 
 #### `ClimateByLocationWidget.when_frequencies(area_id)` (static)
 
-This method returns a promise which resolves with an array of the ids and titles of all _frequencies ('annual, 'monthly', or 'seasonal') for the given area, as not all areas support all _frequencies.
+This method returns a promise which resolves with an array of the ids and titles of all frequencies ('annual, 'monthly', or 'seasonal') for the given area, as not all areas support all frequencies.
 
 #### `cbl_instance.download_image()` (instance)
  
@@ -79,7 +81,13 @@ This method returns a promise which resolves with an array of the ids and titles
       
 #### `cbl_instance.set_x_axis_range(min, max)` (instance)
  
- This function will set the range of data visible on the graph's x-axis when an annual data graph is displayed (monthly and seasonal data graphs have fixed x-axes).  It takes two arguments, which are the desired minimum and maximum values for the axis. Returns either true or false, depending on whether the specified range is allowed according to whatever pan and/or zoom limits have been specified for the axis:  if the specified range is allowed, the axis is adjusted and true is returned; if the specified range is not allowed, the axis is unchanged and false is returned.
+This function will set the range of data visible on the graph's x-axis without refreshing the rest of the graph. Note that "annual" and "monthly" have different ranges. 
+
+Add a listener to `x_axis_range_change`
+ 
+ #### `cbl_instance.set_y_axis_range(min, max)` (instance)
+  
+Same basic function as `set_x_axis_range`, except that 
       
 #### `cbl_instance.resize()` (instance)
  This function will cause the graph to resize itself to fit the `<div>` that contains it; you can call this function to adjust the size of the graph if the `<div>` changes size after the graph has been displayed. `resize` takes no arguments; just call it like `cwg.resize()` and the graph will adjust to fit its container.

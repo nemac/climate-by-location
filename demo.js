@@ -158,7 +158,6 @@ jQuery(document).ready(function ($) {
           $('#other_areas option[value="' + area['area_id'] + '"]').prop('selected', 'selected');
           init_climate_by_location();
         }
-
       }
     });
   });
@@ -302,11 +301,6 @@ jQuery(document).ready(function ($) {
 
   // init slider defaults
   update_year_slider();
-  WebFont.load({
-    google: {
-      families: ['Pacifico', 'Roboto']
-    }
-  });
 
 
 })

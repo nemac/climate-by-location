@@ -16,7 +16,7 @@ export default class ClimateByLocationWidget {
    * @param {string} options.frequency - time frequency of graph to display ("annual", "monthly")
    * @param {string} options.variable - name of variable to display (use ClimateByLocationWidget.when_variables() to lookup options)
    * @param {number} options.monthly_timeperiod - time period center for monthly graphs ("2025", "2050", or "2075")
-   * @param {number} options.unitsystem -
+   * @param {number} options.unitsystem - unit system to use for data presentation ("english", "metric")
    * @param {array<number, number>} options.x_axis_range - Sets the range of the x-axis.
    * @param {array<number, number>} options.y_axis_range - Sets the range of the y-axis.
    * @param {string} options.font - Defaults to 'Roboto'.
@@ -992,7 +992,7 @@ export default class ClimateByLocationWidget {
       let _month_data = [];
       for (const year_range of ClimateByLocationWidget._monthly_timeperiods) {
         let year_range_min_idx = year_range - 15 - proj_sdate_year;
-        for (const [scenario_column_offset] of [0, 3]) { // rcp45, rcp85
+        for (const scenario_column_offset of [0, 3]) { // rcp45, rcp85
           for (const value_i of [0, 1, 2]) { //mean, min, max
             _month_data.push(mean(proj_mod_month_values[month].slice(year_range_min_idx, year_range_min_idx + 30).map(a => a[1 + scenario_column_offset + value_i])))
           }
