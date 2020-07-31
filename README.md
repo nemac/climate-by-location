@@ -1,39 +1,34 @@
 # Climate By Location
-(formerly Climate Widget Graph)
 
 This library defines functions that create and manage interactive climate graphs. [View the demo at climate-by-location.nemac.org](climate-by-location.nemac.org)
-
-This version requires jQuery, but does not depend on jQuery UI. For the legacy jQuery API, see [the jquery api documentation](jquery_readme.md)
 
 ## Powered by ACIS
 This module relies on the data services provided by the [Applied Climate Information System (ACIS)](http://www.rcc-acis.org/index.html).
 
-## Dependencies
-
-This library depends on jQuery 3.2+ being loaded prior to `climate-by-location.js`. Using an older version of jQuery can result in unpredictable outputs.
-
 ## Installation
-1. Load the widget and its dependencies using the versions shown below (feel free to skip duplicate jquery dependencies):
+1. Load the widget and dependencies:
 
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.6.11/core.min.js" integrity="sha512-TfdDRAa9DmMqSYW/UwWmezKavKBwQO1Ek/JKDTnh7dLdU3kAw31zUS2rtl6ulgvGJWkMEPaR5Heu5nA/Aqb49g==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.54.7/plotly-basic.min.js" integrity="sha512-uWFGQaJgmsVg6uyMv7wQ9W0fvlqsK3cRIs/mVMc5Tox68S74OjdZI6Va/Pkc1+fLh6uh+fP8oO8My9n1AgWIAA==" crossorigin="anonymous"></script>
 <script src="climate-by-location.js"></script>
 ```
 
 2.  Call the widget with desired options on a container element:
    
 ```javascript
-   let cbl_instance = new ClimateByLocationWidget({
+   let cbl_instance = new ClimateByLocationWidget(my_element, {
       'area_id': '', // The id for the county, state, or other area to visualize. Use ClimateByLocationWidget.when_areas() to get available areas.
-      'variable': 'tmax', // The id of the variable to display; see climate_widget.variables() below for a way to get a list of variable ids.  Optional; defaults to "tmax".
-      'frequency': 'annual', // One of the strings "annual", "monthly", or "seasonal", indicating which type of data to display.  Optional; defaults to "annual".
-      'timeperiod': '2025', //One of the strings "2025", "2050", or "2075", indicating which 30-year period of projection data to show for monthly or seasonal data.  Ignored for annual data.
-      'scenario': 'both', //  One of the strings "rcp45", "rcp85", or "both", indicating which scenario(s) to display for projection data.  Optional; defaults to "both".
-      'histobs': true, // true or false, indicating whether to show historical observed data
-      'histmod': true, // true or false, indicating whether to show annual historical model data (applies to annual data only; there is no historical model data for monthly or seasonal data) 
-      'yzoom': true, // true or false, indicating whether to allow the user to zoom along the graph's y-axis; 
-      'font': 'roboto', // A string giving the font-family to be used for all text in the graph.
-      'xrangefunc': null, // Callback for when the user changes the scale on the horizontal annual data axis (horizontal scale changes are not allowed in the monthly or seasonal graphs).  This function will receive two arguments, which are the new minimum and maximum values along the axis. 
+      'variable': 'tmax', // The id of the variable to display; see climate_widget.variables() below for a way to get a list of variable ids. Optional; defaults to "tmax".
+      'frequency': 'annual', // One of the strings "annual" or "monthly", indicating which type of data to display. Optional; defaults to "annual".
+      'monthly_timeperiod': '2025', //One of the strings "2025", "2050", or "2075", indicating which 30-year period of projection data to show for monthly or seasonal data. Ignored for annual data.
+       'show_legend': false // Whether or not to show the built-in legend. Defaults to false.
+       'show_historical_observed': true, // Whether or not to show historical observed data if available.
+       'show_historical_modeled': true, // Whether or not to show historical modeled data if available.
+       'show_projected_rcp45': true, // Whether or not to show projected modeled RCP4.5 data if available.
+       'show_projected_rcp85': true, // Whether or not to show projected modeled RCP8.5 data if available.
+       'responsive': true // Whether or not to listen to window resize events and auto-resize the graph. Can only be set on instantiation.
       });
 ```
 
@@ -60,28 +55,27 @@ the given frequency in the given region; `frequency` should be one of the string
 
 #### `ClimateByLocationWidget.when_frequencies(area_id)` (static)
 
-This method returns a promise which resolves with an array of the ids and titles of all frequencies ('annual, 'monthly', or 'seasonal') for the given area, as not all areas support all frequencies.
+This method returns a promise which resolves with an array of the ids and titles of all _frequencies ('annual, 'monthly', or 'seasonal') for the given area, as not all areas support all _frequencies.
 
-#### `cbl_instance.download_image(anchor_el)` (instance)
+#### `cbl_instance.download_image()` (instance)
  
-  This function that the containing application may call in its click event handling code for an `<a>` element, in order to modify that `<a>` element so that clicking on it will download the current canvas image. The first argument should be the `<a>` element to modify.
-        
-  For example:
-
-```javascript
-  $('a#download-image-link-id').click(function(event) {
-      if (cbl_instance) { // ensure widget exists
-          if (!cbl_instance.download_image(this)){
-              event.stopPropagation(); // stop the event if there was a failure / no data is available.
-          }
-      }
-      // note that the 'this' argument is important as this function modifies the <a> tag
-  });
-```
+ This function generates an image based on the current graph and downloads it. Should be called from within a click event handler to avoid it being blocked as a popup.
     
 #### `cbl_instance.download_hist_obs_data(anchor_el)`, `cbl_instance.download_hist_mod_data(anchor_el)`, and `cbl_instance.download_proj_mod_data(anchor_el)` (instance)
  
-  These functions modify an `<a>` element with data urls for the time series data that drives the graph. These functions behave the same as `download_image`. Note that monthly/seasonal presentations do not use historical modeled data, so calling `download_hist_mod_data` will return `false`.   
+  These functions modify an `<a>` element with data urls for the time series data that drives the graph. Note that monthly/seasonal presentations do not use historical modeled data, so calling `download_hist_mod_data` will return `false`.   
+  
+    Example usage:
+  
+  ```javascript
+    $('a#download-hist-obs-link-id').click(function(event) {
+        if (cbl_instance) { // ensure widget exists
+            if (!cbl_instance.download_hist_obs_data(this)){  // note that the 'this' here is a reference to the <a> tag
+                event.stopPropagation(); // stop the event if there was a failure / no data is available and display an error message.
+            }
+        }
+    });
+  ```
       
 #### `cbl_instance.set_x_axis_range(min, max)` (instance)
  
@@ -122,6 +116,19 @@ Note that outside the contiguous US, some of these variables may be shown differ
 
 ## Changelog
 
+(3.0.0):
+- Replaced MultiGraph with [Plotly](https://plotly.com/javascript/)!
+- Added support for built-in legend via `show_legend` (defaults to `false`).
+- Added hover interactions to show values under mouse cursor!
+- Removed dependency on jQuery. 
+- Removed jQuery API.
+- Added recommended dependency [core-js](https://github.com/zloirock/core-js) to provide more backwards compatibility with older browsers.
+- Added new event `x_axis_range_change` to facilitate update range controls.
+- Split option 'scenario' to two boolean options 'show_projected_rcp45' and 'show_projected_rcp85'.
+- Renamed options for better readability : 'histobs' -> 'show_historical_observed', 'histmod'-> 'show_historical_modeled', 'timeperiod'->'monthly_timeperiod'
+- Fixed an issue when downloading AK data where values from GFDL-CM3 and NCAR-CCSM4 were being conflated.
+- Lots of code cleanup following the removal of jQuery and MultiGraph.
+
 (2.3.0):
 - Added support for island states and territories, in addition to CONUS and Alaska areas already supported.
 - Added new `when_areas()` to facilitate listing of areas / area ids by type or (for counties) state. 
@@ -129,11 +136,11 @@ Note that outside the contiguous US, some of these variables may be shown differ
  
 
 (2.2.0) December 2019 release:
-- Revamped API to use more ES6 / native JS
-- Deprecated the jQuery UI based API
-- Added new pattern for region-specific functionality
-- Added support for new Alaska variables
-- Fixed several state-breaking bugs around plot visibility
-- Added new pattern for resolving conflicting settings
-- Some preparations for a future change from multigraph to an alternate chart library
-- Renamed `climate-widget-graph.js` to `climate-by-location.js`
+- Revamped API to use more ES6 / native JS.
+- Deprecated the jQuery UI based API.
+- Added new pattern for region-specific functionality.
+- Added support for new Alaska variables.
+- Fixed several state-breaking bugs around plot visibility.
+- Added new pattern for resolving conflicting settings.
+- Some preparations for a future change from multigraph to an alternate chart library.
+- Renamed `climate-widget-graph.js` to `climate-by-location.js`.

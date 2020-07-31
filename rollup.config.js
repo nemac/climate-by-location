@@ -1,7 +1,6 @@
 // rollup.config.js
-import resolve from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
-
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 export default {
   input: 'src/main.js',
   output: {
@@ -10,7 +9,7 @@ export default {
     name: 'ClimateByLocationWidget'
   },
   plugins: [
-    resolve(),
+    nodeResolve(),
     babel({
       exclude: 'node_modules/**' // only transpile our source code
     })

@@ -28,8 +28,13 @@ jQuery(document).ready(function ($) {
         $('#state').val('');
       }
     }
-    update_frequency_options(!!area ? area['area_id'] : null, cbl_instance.options['frequency'], cbl_instance.options['timeperiod']);
+    update_frequency_options(!!area ? area['area_id'] : null, cbl_instance.options['frequency'], cbl_instance.options['monthly_timeperiod']);
     update_variable_options(cbl_instance.options['frequency'], !!area ? area['area_id'] : null, cbl_instance.options['variable']);
+
+    // update the slider when the chart range changes
+    $(cbl_instance.element).on('x_axis_range_change', (e) => {
+      update_year_slider(e.detail[0], e.detail[1], e.detail[2], e.detail[3])
+    });
   }
 
   /**
@@ -42,17 +47,9 @@ jQuery(document).ready(function ($) {
     cbl_instance = new ClimateByLocationWidget($('div#widget')[0], {
       'font': 'Roboto',
       'frequency': $('#frequency').val(),
-      'timeperiod': $('#timeperiod').val(),
-      // 'presentation': $('#presentation').val(), // deprecated
+      'monthly_timeperiod': $('#timeperiod').val(),
       'area_id': $('#other_areas').val() || $('#county').val() || $('#state').val(),
       'variable': $('#variable').val(),
-      'scenario': $('#scenario').val(),
-      'xrangefunc': function (min, max) {
-        // Force the slider thumbs to adjust to the appropriate place
-        $("#slider-range").slider("option", "values", [min, max]);
-      },
-      'pmedian': true,
-      'hmedian': true
     });
   }
 
@@ -68,38 +65,25 @@ jQuery(document).ready(function ($) {
     });
   }
 
-  function update_frequency_options(area_id, frequency = null, timeperiod) {
+  function update_frequency_options(area_id, frequency = null, monthly_timeperiod) {
     ClimateByLocationWidget.when_frequencies(area_id).then((frequencies) => {
       $("select#frequency").empty();
       $(frequencies.map(v => (`<option value="${v.id}">${v.title}</option>`)).join("")).appendTo($("select#frequency"));
       if (!!frequency) {
         $("select#frequency").val(frequency)
       }
-      if (!!timeperiod) {
-        $("select#timeperiod").val(timeperiod)
+      if (!!monthly_timeperiod) {
+        $("select#timeperiod").val(monthly_timeperiod)
       }
 
       frequency = $('#frequency').val();
       if (frequency === "annual") {
         $('#timeperiod-wrapper').hide();
         $('#slider-range').show();
-        $('#x-axis-pan-note').hide();
-        // $('#download_hist_mod_data_li').show();
-        // $('#presentation-wrapper').show(); // deprecated
       }
       if (frequency === "monthly") {
         $('#timeperiod-wrapper').show();
         $('#slider-range').hide();
-        $('#x-axis-pan-note').show();
-        // $('#download_hist_mod_data_li').hide();
-        // $('#presentation-wrapper').hide();  // deprecated
-      }
-      if (frequency === "seasonal") {
-        $('#timeperiod-wrapper').show();
-        $('#slider-range').hide();
-        $('#x-axis-pan-note').show();
-        // $('#download_hist_mod_data_li').hide();
-        // $('#presentation-wrapper').hide(); // deprecated
       }
     });
   }
@@ -122,6 +106,9 @@ jQuery(document).ready(function ($) {
 
   $('#county').change(() => {
     if ($('#county').val() === '') {
+      if ($('#state').val() !== '') {
+        $('#state').trigger('change')
+      }
       return;
     }
 
@@ -155,20 +142,23 @@ jQuery(document).ready(function ($) {
     $("#countysearch").autocomplete({
       source: areas.map((area) => ({label: area.area_label, value: area.area_id})),
       select: function (event, ui) {
-        const area = ClimateByLocationWidget.get_areas(null, null, ui.item.value)
+        const area = ClimateByLocationWidget.find_area(null, null, ui.item.value);
         if (area['area_type'] === 'state') {
           $('#state option[value="' + area['area_id'] + '"]').prop('selected', 'selected');
           update_county_options()
+          init_climate_by_location();
         } else if (area['area_type'] === 'county') {
           $('#state option[value="' + area['state'] + '"]').prop('selected', 'selected');
           update_county_options().then(() => {
             $('#county option[value="' + area['area_id'] + '"]').prop('selected', 'selected');
+            init_climate_by_location();
           });
         } else if (area['area_type'] === 'island') {
           $('#state option[value=""]').prop('selected', 'selected');
           $('#other_areas option[value="' + area['area_id'] + '"]').prop('selected', 'selected');
+          init_climate_by_location();
         }
-        init_climate_by_location();
+
       }
     });
   });
@@ -206,20 +196,13 @@ jQuery(document).ready(function ($) {
     update_controls();
   });
 
-// deprecated
-// $('#presentation').change(function () {
-//   if (cbl_instance) {
-//     cbl_instance.set_options({presentation: $('#presentation').val()});
-//   }
-// });
-
 
   $('#timeperiod').change(function () {
     if (!cbl_instance) {
       return;
     }
     cbl_instance.set_options({
-      timeperiod: $('#timeperiod').val()
+      monthly_timeperiod: $('#timeperiod').val()
     });
     update_controls();
   });
@@ -233,38 +216,19 @@ jQuery(document).ready(function ($) {
     });
     update_controls();
   });
-  $('#histmod, #histobs').change(() => {
+  $('#histmod, #histobs, #rcp85, #rcp45').change(() => {
     if (!cbl_instance) {
       return;
     }
     cbl_instance.set_options({
-      histobs: $('#histobs').prop('checked'),
-      histmod: $('#histmod').prop('checked')
+      show_historical_observed: $('#histobs').prop('checked'),
+      show_historical_modeled: $('#histmod').prop('checked'),
+      show_projected_rcp45: $('#rcp45').prop('checked'),
+      show_projected_rcp85: $('#rcp85').prop('checked')
     });
     update_controls();
   });
 
-  $('#rcp85, #rcp45').change(() => {
-    if (!cbl_instance) {
-      return;
-    }
-    let scenario;
-    if ($('#rcp85').prop('checked')) {
-      if ($('#rcp45').prop('checked')) {
-        scenario = 'both';
-      } else {
-        scenario = 'rcp85';
-      }
-    } else if ($('#rcp45').prop('checked')) {
-      scenario = 'rcp45';
-    } else {
-      scenario = '';
-    }
-    cbl_instance.set_options({
-      scenario: scenario
-    });
-    update_controls();
-  });
   $('#download-button').click(function () {
     if (!cbl_instance) {
       return;
@@ -281,16 +245,17 @@ jQuery(document).ready(function ($) {
     if (!cbl_instance) {
       return;
     }
-    cbl_instance.download_image(this)
+    cbl_instance.download_image();
+    e.preventDefault();
   });
   $('#download_hist_obs_data').click(function (e) {
     if (!cbl_instance) {
       return;
     }
     if (!cbl_instance.download_hist_obs_data(this)) {
-      e.stopPropagation()
+      e.preventDefault()
       $('#download_error').text('There is no historical observed data available for the current selection.').show(200)
-      window.setTimeout(()=>{
+      window.setTimeout(() => {
         $('#download_error').hide(750)
       }, 3000)
     }
@@ -300,9 +265,9 @@ jQuery(document).ready(function ($) {
       return;
     }
     if (!cbl_instance.download_hist_mod_data(this)) {
-      e.stopPropagation()
+      e.preventDefault()
       $('#download_error').text('There is no historical modeled data available for the current selection.').show()
-      window.setTimeout(()=>{
+      window.setTimeout(() => {
         $('#download_error').hide()
       }, 3000)
     }
@@ -312,28 +277,31 @@ jQuery(document).ready(function ($) {
       return;
     }
     if (!cbl_instance.download_proj_mod_data(this)) {
-      e.stopPropagation()
+      e.preventDefault()
       $('#download_error').text('There is no projected modeled data available for the current selection.').show()
-      window.setTimeout(()=>{
+      window.setTimeout(() => {
         $('#download_error').hide()
       }, 3000)
     }
   });
 
 
-  $("#slider-range").slider({
-    range: true,
-    min: 1950,
-    max: 2099,
-    values: [1950, 2099],
-    slide: function (event, ui) {
-      // return the return value returned by set_x_axis_range, to keep
-      // the slider thumb(s) from moving into a disallowed range
-      return cbl_instance.set_x_axis_range(ui.values[0], ui.values[1]);
-    }
-  });
+  function update_year_slider(min = 1950, max = 2099, current_min = 1950, current_max = 2099) {
+    $("#slider-range").slider({
+      range: true,
+      min: min,
+      max: max,
+      values: [current_min, current_max],
+      slide: function (event, ui) {
+        // return the return value returned by set_x_axis_range, to keep
+        // the slider thumb(s) from moving into a disallowed range
+        return cbl_instance.set_x_axis_range(ui.values[0], ui.values[1]);
+      }
+    });
+  }
 
-
+  // init slider defaults
+  update_year_slider();
   WebFont.load({
     google: {
       families: ['Pacifico', 'Roboto']
