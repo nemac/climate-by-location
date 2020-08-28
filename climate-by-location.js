@@ -6317,7 +6317,7 @@
                     chart_data['rcp85_max'].push(round(proj_mod_data[_m][5 + col_offset], precision));
                   }
 
-                  _this$_update_axes_ra7 = this._update_axes_ranges(month_indexes, month_indexes[month_indexes.length - 1], min([min(chart_data['hist_min']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_max']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])])), _this$_update_axes_ra8 = _slicedToArray(_this$_update_axes_ra7, 4), x_range_min = _this$_update_axes_ra8[0], x_range_max = _this$_update_axes_ra8[1], y_range_min = _this$_update_axes_ra8[2], y_range_max = _this$_update_axes_ra8[3];
+                  _this$_update_axes_ra7 = this._update_axes_ranges(month_indexes, month_indexes[month_indexes.length - 1], min([min(chart_data['hist_obs']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_obs']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])])), _this$_update_axes_ra8 = _slicedToArray(_this$_update_axes_ra7, 4), x_range_min = _this$_update_axes_ra8[0], x_range_max = _this$_update_axes_ra8[1], y_range_min = _this$_update_axes_ra8[2], y_range_max = _this$_update_axes_ra8[3];
                   Plotly.react(this.graphdiv, [{
                     x: chart_data['month'],
                     y: chart_data['rcp45_min'],
@@ -7276,11 +7276,11 @@
         var _this9 = this;
 
         if (!!this.options.x_axis_range) {
-          this.options.x_axis_range = [Number.max(x_range_min, get(this.options, ['x_axis_range', 0], x_range_min)), Number.min(x_range_max, get(this.options, ['x_axis_range', 1], x_range_max))];
+          this.options.x_axis_range = [Math.max(x_range_min, get(this.options, ['x_axis_range', 0], x_range_min)), Math.min(x_range_max, get(this.options, ['x_axis_range', 1], x_range_max))];
         }
 
         if (!!this.options.y_axis_range) {
-          this.options.y_axis_range = [Number.max(y_range_min, get(this.options, ['y_axis_range', 0], y_range_min)), Number.min(y_range_max, get(this.options, ['y_axis_range', 1], y_range_max))];
+          this.options.y_axis_range = [Math.max(y_range_min, get(this.options, ['y_axis_range', 0], y_range_min)), Math.min(y_range_max, get(this.options, ['y_axis_range', 1], y_range_max))];
         }
 
         if (Number.isFinite(x_range_min) && Number.isFinite(x_range_max)) {
