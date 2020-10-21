@@ -1,1 +1,7 @@
 node_modules
+*.sh
+*.7z
+*.zip
+*.iml
+*.py
+.idea/

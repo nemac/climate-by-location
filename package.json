@@ -4,9 +4,9 @@
   "description": "This library defines functions that can create and manage interactive climate widget graphs.",
   "main": "climate-by-location.js",
   "scripts": {
-    "build": "rollup -c && cat build/climate-by-location.js > climate-by-location.js",
-    "watch": "nodemon --watch src --exec 'npm run build'",
-    "start": "nodemon --watch src --exec 'npm run build && node serve.js'"
+    "build-dev": "rollup -c && cat build/climate-by-location.js > climate-by-location.js",
+    "build": "rollup -c --environment=\"build_env:prod\" && cat build/climate-by-location.js > climate-by-location.js",
+    "start": "node serve.js"
   },
   "repository": {
     "type": "git",
@@ -21,19 +21,25 @@
     "unfetch": "^4.1.0"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^8.4.0",
-    "@babel/core": "^7.10.5",
+    "@babel/cli": "^7.12.1",
+    "@babel/core": "^7.12.3",
     "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/plugin-transform-arrow-functions": "^7.12.1",
+    "@babel/plugin-transform-object-assign": "^7.12.1",
+    "@babel/plugin-transform-regenerator": "^7.12.1",
     "@babel/plugin-transform-runtime": "^7.10.5",
-    "@babel/preset-env": "^7.10.4",
-    "@rollup/plugin-babel": "^5.1.0",
-    "babel-plugin-transform-es2015-literals": "^6.22.0",
-    "babel-plugin-transform-object-assign": "^6.22.0",
-    "babel-plugin-transform-regenerator": "^6.26.0",
+    "@babel/plugin-transform-template-literals": "^7.12.1",
+    "@babel/preset-env": "^7.12.1",
+    "@rollup/plugin-babel": "^5.2.1",
+    "@rollup/plugin-node-resolve": "^9.0.0",
     "babel-polyfill": "^6.26.0",
     "lodash-es": "^4.17.15",
     "node-static": "~0.7.11",
     "nodemon": "^2.0.4",
     "rollup": "^2.23.0"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
   }
 }

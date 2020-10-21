@@ -4,64 +4,6 @@
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.ClimateByLocationWidget = factory());
 }(this, (function () { 'use strict';
 
-  function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
-    try {
-      var info = gen[key](arg);
-      var value = info.value;
-    } catch (error) {
-      reject(error);
-      return;
-    }
-
-    if (info.done) {
-      resolve(value);
-    } else {
-      Promise.resolve(value).then(_next, _throw);
-    }
-  }
-
-  function _asyncToGenerator(fn) {
-    return function () {
-      var self = this,
-          args = arguments;
-      return new Promise(function (resolve, reject) {
-        var gen = fn.apply(self, args);
-
-        function _next(value) {
-          asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
-        }
-
-        function _throw(err) {
-          asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
-        }
-
-        _next(undefined);
-      });
-    };
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }
-
-  function _createClass(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties(Constructor, staticProps);
-    return Constructor;
-  }
-
   function _defineProperty(obj, key, value) {
     if (key in obj) {
       Object.defineProperty(obj, key, {
@@ -77,911 +19,7 @@
     return obj;
   }
 
-  function _slicedToArray(arr, i) {
-    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
-  }
-
-  function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
-  }
-
-  function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
-  }
-
-  function _arrayWithHoles(arr) {
-    if (Array.isArray(arr)) return arr;
-  }
-
-  function _iterableToArray(iter) {
-    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
-  }
-
-  function _iterableToArrayLimit(arr, i) {
-    if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return;
-    var _arr = [];
-    var _n = true;
-    var _d = false;
-    var _e = undefined;
-
-    try {
-      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-        _arr.push(_s.value);
-
-        if (i && _arr.length === i) break;
-      }
-    } catch (err) {
-      _d = true;
-      _e = err;
-    } finally {
-      try {
-        if (!_n && _i["return"] != null) _i["return"]();
-      } finally {
-        if (_d) throw _e;
-      }
-    }
-
-    return _arr;
-  }
-
-  function _unsupportedIterableToArray(o, minLen) {
-    if (!o) return;
-    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-    var n = Object.prototype.toString.call(o).slice(8, -1);
-    if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(o);
-    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-  }
-
-  function _arrayLikeToArray(arr, len) {
-    if (len == null || len > arr.length) len = arr.length;
-
-    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-
-    return arr2;
-  }
-
-  function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-  }
-
-  function _nonIterableRest() {
-    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-  }
-
-  function _createForOfIteratorHelper(o, allowArrayLike) {
-    var it;
-
-    if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
-      if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
-        if (it) o = it;
-        var i = 0;
-
-        var F = function () {};
-
-        return {
-          s: F,
-          n: function () {
-            if (i >= o.length) return {
-              done: true
-            };
-            return {
-              done: false,
-              value: o[i++]
-            };
-          },
-          e: function (e) {
-            throw e;
-          },
-          f: F
-        };
-      }
-
-      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-    }
-
-    var normalCompletion = true,
-        didErr = false,
-        err;
-    return {
-      s: function () {
-        it = o[Symbol.iterator]();
-      },
-      n: function () {
-        var step = it.next();
-        normalCompletion = step.done;
-        return step;
-      },
-      e: function (e) {
-        didErr = true;
-        err = e;
-      },
-      f: function () {
-        try {
-          if (!normalCompletion && it.return != null) it.return();
-        } finally {
-          if (didErr) throw err;
-        }
-      }
-    };
-  }
-
-  function unfetch(url, options) {
-  	options = options || {};
-  	return new Promise( (resolve, reject) => {
-  		const request = new XMLHttpRequest();
-  		const keys = [];
-  		const all = [];
-  		const headers = {};
-
-  		const response = () => ({
-  			ok: (request.status/100|0) == 2,		// 200-299
-  			statusText: request.statusText,
-  			status: request.status,
-  			url: request.responseURL,
-  			text: () => Promise.resolve(request.responseText),
-  			json: () => Promise.resolve(JSON.parse(request.responseText)),
-  			blob: () => Promise.resolve(new Blob([request.response])),
-  			clone: response,
-  			headers: {
-  				keys: () => keys,
-  				entries: () => all,
-  				get: n => headers[n.toLowerCase()],
-  				has: n => n.toLowerCase() in headers
-  			}
-  		});
-
-  		request.open(options.method || 'get', url, true);
-
-  		request.onload = () => {
-  			request.getAllResponseHeaders().replace(/^(.*?):[^\S\n]*([\s\S]*?)$/gm, (m, key, value) => {
-  				keys.push(key = key.toLowerCase());
-  				all.push([key, value]);
-  				headers[key] = headers[key] ? `${headers[key]},${value}` : value;
-  			});
-  			resolve(response());
-  		};
-
-  		request.onerror = reject;
-
-  		request.withCredentials = options.credentials=='include';
-
-  		for (const i in options.headers) {
-  			request.setRequestHeader(i, options.headers[i]);
-  		}
-
-  		request.send(options.body || null);
-  	});
-  }
-
-  if (!self.fetch) self.fetch = unfetch;
-
-  /**
-   * Copyright (c) 2014-present, Facebook, Inc.
-   *
-   * This source code is licensed under the MIT license found in the
-   * LICENSE file in the root directory of this source tree.
-   */
-
-  !(function(global) {
-
-    var Op = Object.prototype;
-    var hasOwn = Op.hasOwnProperty;
-    var undefined$1; // More compressible than void 0.
-    var $Symbol = typeof Symbol === "function" ? Symbol : {};
-    var iteratorSymbol = $Symbol.iterator || "@@iterator";
-    var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
-    var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
-
-    var inModule = typeof module === "object";
-    var runtime = global.regeneratorRuntime;
-    if (runtime) {
-      if (inModule) {
-        // If regeneratorRuntime is defined globally and we're in a module,
-        // make the exports object identical to regeneratorRuntime.
-        module.exports = runtime;
-      }
-      // Don't bother evaluating the rest of this file if the runtime was
-      // already defined globally.
-      return;
-    }
-
-    // Define the runtime globally (as expected by generated code) as either
-    // module.exports (if we're in a module) or a new, empty object.
-    runtime = global.regeneratorRuntime = inModule ? module.exports : {};
-
-    function wrap(innerFn, outerFn, self, tryLocsList) {
-      // If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
-      var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
-      var generator = Object.create(protoGenerator.prototype);
-      var context = new Context(tryLocsList || []);
-
-      // The ._invoke method unifies the implementations of the .next,
-      // .throw, and .return methods.
-      generator._invoke = makeInvokeMethod(innerFn, self, context);
-
-      return generator;
-    }
-    runtime.wrap = wrap;
-
-    // Try/catch helper to minimize deoptimizations. Returns a completion
-    // record like context.tryEntries[i].completion. This interface could
-    // have been (and was previously) designed to take a closure to be
-    // invoked without arguments, but in all the cases we care about we
-    // already have an existing method we want to call, so there's no need
-    // to create a new function object. We can even get away with assuming
-    // the method takes exactly one argument, since that happens to be true
-    // in every case, so we don't have to touch the arguments object. The
-    // only additional allocation required is the completion record, which
-    // has a stable shape and so hopefully should be cheap to allocate.
-    function tryCatch(fn, obj, arg) {
-      try {
-        return { type: "normal", arg: fn.call(obj, arg) };
-      } catch (err) {
-        return { type: "throw", arg: err };
-      }
-    }
-
-    var GenStateSuspendedStart = "suspendedStart";
-    var GenStateSuspendedYield = "suspendedYield";
-    var GenStateExecuting = "executing";
-    var GenStateCompleted = "completed";
-
-    // Returning this object from the innerFn has the same effect as
-    // breaking out of the dispatch switch statement.
-    var ContinueSentinel = {};
-
-    // Dummy constructor functions that we use as the .constructor and
-    // .constructor.prototype properties for functions that return Generator
-    // objects. For full spec compliance, you may wish to configure your
-    // minifier not to mangle the names of these two functions.
-    function Generator() {}
-    function GeneratorFunction() {}
-    function GeneratorFunctionPrototype() {}
-
-    // This is a polyfill for %IteratorPrototype% for environments that
-    // don't natively support it.
-    var IteratorPrototype = {};
-    IteratorPrototype[iteratorSymbol] = function () {
-      return this;
-    };
-
-    var getProto = Object.getPrototypeOf;
-    var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
-    if (NativeIteratorPrototype &&
-        NativeIteratorPrototype !== Op &&
-        hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
-      // This environment has a native %IteratorPrototype%; use it instead
-      // of the polyfill.
-      IteratorPrototype = NativeIteratorPrototype;
-    }
-
-    var Gp = GeneratorFunctionPrototype.prototype =
-      Generator.prototype = Object.create(IteratorPrototype);
-    GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
-    GeneratorFunctionPrototype.constructor = GeneratorFunction;
-    GeneratorFunctionPrototype[toStringTagSymbol] =
-      GeneratorFunction.displayName = "GeneratorFunction";
-
-    // Helper for defining the .next, .throw, and .return methods of the
-    // Iterator interface in terms of a single ._invoke method.
-    function defineIteratorMethods(prototype) {
-      ["next", "throw", "return"].forEach(function(method) {
-        prototype[method] = function(arg) {
-          return this._invoke(method, arg);
-        };
-      });
-    }
-
-    runtime.isGeneratorFunction = function(genFun) {
-      var ctor = typeof genFun === "function" && genFun.constructor;
-      return ctor
-        ? ctor === GeneratorFunction ||
-          // For the native GeneratorFunction constructor, the best we can
-          // do is to check its .name property.
-          (ctor.displayName || ctor.name) === "GeneratorFunction"
-        : false;
-    };
-
-    runtime.mark = function(genFun) {
-      if (Object.setPrototypeOf) {
-        Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
-      } else {
-        genFun.__proto__ = GeneratorFunctionPrototype;
-        if (!(toStringTagSymbol in genFun)) {
-          genFun[toStringTagSymbol] = "GeneratorFunction";
-        }
-      }
-      genFun.prototype = Object.create(Gp);
-      return genFun;
-    };
-
-    // Within the body of any async function, `await x` is transformed to
-    // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
-    // `hasOwn.call(value, "__await")` to determine if the yielded value is
-    // meant to be awaited.
-    runtime.awrap = function(arg) {
-      return { __await: arg };
-    };
-
-    function AsyncIterator(generator) {
-      function invoke(method, arg, resolve, reject) {
-        var record = tryCatch(generator[method], generator, arg);
-        if (record.type === "throw") {
-          reject(record.arg);
-        } else {
-          var result = record.arg;
-          var value = result.value;
-          if (value &&
-              typeof value === "object" &&
-              hasOwn.call(value, "__await")) {
-            return Promise.resolve(value.__await).then(function(value) {
-              invoke("next", value, resolve, reject);
-            }, function(err) {
-              invoke("throw", err, resolve, reject);
-            });
-          }
-
-          return Promise.resolve(value).then(function(unwrapped) {
-            // When a yielded Promise is resolved, its final value becomes
-            // the .value of the Promise<{value,done}> result for the
-            // current iteration. If the Promise is rejected, however, the
-            // result for this iteration will be rejected with the same
-            // reason. Note that rejections of yielded Promises are not
-            // thrown back into the generator function, as is the case
-            // when an awaited Promise is rejected. This difference in
-            // behavior between yield and await is important, because it
-            // allows the consumer to decide what to do with the yielded
-            // rejection (swallow it and continue, manually .throw it back
-            // into the generator, abandon iteration, whatever). With
-            // await, by contrast, there is no opportunity to examine the
-            // rejection reason outside the generator function, so the
-            // only option is to throw it from the await expression, and
-            // let the generator function handle the exception.
-            result.value = unwrapped;
-            resolve(result);
-          }, reject);
-        }
-      }
-
-      var previousPromise;
-
-      function enqueue(method, arg) {
-        function callInvokeWithMethodAndArg() {
-          return new Promise(function(resolve, reject) {
-            invoke(method, arg, resolve, reject);
-          });
-        }
-
-        return previousPromise =
-          // If enqueue has been called before, then we want to wait until
-          // all previous Promises have been resolved before calling invoke,
-          // so that results are always delivered in the correct order. If
-          // enqueue has not been called before, then it is important to
-          // call invoke immediately, without waiting on a callback to fire,
-          // so that the async generator function has the opportunity to do
-          // any necessary setup in a predictable way. This predictability
-          // is why the Promise constructor synchronously invokes its
-          // executor callback, and why async functions synchronously
-          // execute code before the first await. Since we implement simple
-          // async functions in terms of async generators, it is especially
-          // important to get this right, even though it requires care.
-          previousPromise ? previousPromise.then(
-            callInvokeWithMethodAndArg,
-            // Avoid propagating failures to Promises returned by later
-            // invocations of the iterator.
-            callInvokeWithMethodAndArg
-          ) : callInvokeWithMethodAndArg();
-      }
-
-      // Define the unified helper method that is used to implement .next,
-      // .throw, and .return (see defineIteratorMethods).
-      this._invoke = enqueue;
-    }
-
-    defineIteratorMethods(AsyncIterator.prototype);
-    AsyncIterator.prototype[asyncIteratorSymbol] = function () {
-      return this;
-    };
-    runtime.AsyncIterator = AsyncIterator;
-
-    // Note that simple async functions are implemented on top of
-    // AsyncIterator objects; they just return a Promise for the value of
-    // the final result produced by the iterator.
-    runtime.async = function(innerFn, outerFn, self, tryLocsList) {
-      var iter = new AsyncIterator(
-        wrap(innerFn, outerFn, self, tryLocsList)
-      );
-
-      return runtime.isGeneratorFunction(outerFn)
-        ? iter // If outerFn is a generator, return the full iterator.
-        : iter.next().then(function(result) {
-            return result.done ? result.value : iter.next();
-          });
-    };
-
-    function makeInvokeMethod(innerFn, self, context) {
-      var state = GenStateSuspendedStart;
-
-      return function invoke(method, arg) {
-        if (state === GenStateExecuting) {
-          throw new Error("Generator is already running");
-        }
-
-        if (state === GenStateCompleted) {
-          if (method === "throw") {
-            throw arg;
-          }
-
-          // Be forgiving, per 25.3.3.3.3 of the spec:
-          // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
-          return doneResult();
-        }
-
-        context.method = method;
-        context.arg = arg;
-
-        while (true) {
-          var delegate = context.delegate;
-          if (delegate) {
-            var delegateResult = maybeInvokeDelegate(delegate, context);
-            if (delegateResult) {
-              if (delegateResult === ContinueSentinel) continue;
-              return delegateResult;
-            }
-          }
-
-          if (context.method === "next") {
-            // Setting context._sent for legacy support of Babel's
-            // function.sent implementation.
-            context.sent = context._sent = context.arg;
-
-          } else if (context.method === "throw") {
-            if (state === GenStateSuspendedStart) {
-              state = GenStateCompleted;
-              throw context.arg;
-            }
-
-            context.dispatchException(context.arg);
-
-          } else if (context.method === "return") {
-            context.abrupt("return", context.arg);
-          }
-
-          state = GenStateExecuting;
-
-          var record = tryCatch(innerFn, self, context);
-          if (record.type === "normal") {
-            // If an exception is thrown from innerFn, we leave state ===
-            // GenStateExecuting and loop back for another invocation.
-            state = context.done
-              ? GenStateCompleted
-              : GenStateSuspendedYield;
-
-            if (record.arg === ContinueSentinel) {
-              continue;
-            }
-
-            return {
-              value: record.arg,
-              done: context.done
-            };
-
-          } else if (record.type === "throw") {
-            state = GenStateCompleted;
-            // Dispatch the exception by looping back around to the
-            // context.dispatchException(context.arg) call above.
-            context.method = "throw";
-            context.arg = record.arg;
-          }
-        }
-      };
-    }
-
-    // Call delegate.iterator[context.method](context.arg) and handle the
-    // result, either by returning a { value, done } result from the
-    // delegate iterator, or by modifying context.method and context.arg,
-    // setting context.delegate to null, and returning the ContinueSentinel.
-    function maybeInvokeDelegate(delegate, context) {
-      var method = delegate.iterator[context.method];
-      if (method === undefined$1) {
-        // A .throw or .return when the delegate iterator has no .throw
-        // method always terminates the yield* loop.
-        context.delegate = null;
-
-        if (context.method === "throw") {
-          if (delegate.iterator.return) {
-            // If the delegate iterator has a return method, give it a
-            // chance to clean up.
-            context.method = "return";
-            context.arg = undefined$1;
-            maybeInvokeDelegate(delegate, context);
-
-            if (context.method === "throw") {
-              // If maybeInvokeDelegate(context) changed context.method from
-              // "return" to "throw", let that override the TypeError below.
-              return ContinueSentinel;
-            }
-          }
-
-          context.method = "throw";
-          context.arg = new TypeError(
-            "The iterator does not provide a 'throw' method");
-        }
-
-        return ContinueSentinel;
-      }
-
-      var record = tryCatch(method, delegate.iterator, context.arg);
-
-      if (record.type === "throw") {
-        context.method = "throw";
-        context.arg = record.arg;
-        context.delegate = null;
-        return ContinueSentinel;
-      }
-
-      var info = record.arg;
-
-      if (! info) {
-        context.method = "throw";
-        context.arg = new TypeError("iterator result is not an object");
-        context.delegate = null;
-        return ContinueSentinel;
-      }
-
-      if (info.done) {
-        // Assign the result of the finished delegate to the temporary
-        // variable specified by delegate.resultName (see delegateYield).
-        context[delegate.resultName] = info.value;
-
-        // Resume execution at the desired location (see delegateYield).
-        context.next = delegate.nextLoc;
-
-        // If context.method was "throw" but the delegate handled the
-        // exception, let the outer generator proceed normally. If
-        // context.method was "next", forget context.arg since it has been
-        // "consumed" by the delegate iterator. If context.method was
-        // "return", allow the original .return call to continue in the
-        // outer generator.
-        if (context.method !== "return") {
-          context.method = "next";
-          context.arg = undefined$1;
-        }
-
-      } else {
-        // Re-yield the result returned by the delegate method.
-        return info;
-      }
-
-      // The delegate iterator is finished, so forget it and continue with
-      // the outer generator.
-      context.delegate = null;
-      return ContinueSentinel;
-    }
-
-    // Define Generator.prototype.{next,throw,return} in terms of the
-    // unified ._invoke helper method.
-    defineIteratorMethods(Gp);
-
-    Gp[toStringTagSymbol] = "Generator";
-
-    // A Generator should always return itself as the iterator object when the
-    // @@iterator function is called on it. Some browsers' implementations of the
-    // iterator prototype chain incorrectly implement this, causing the Generator
-    // object to not be returned from this call. This ensures that doesn't happen.
-    // See https://github.com/facebook/regenerator/issues/274 for more details.
-    Gp[iteratorSymbol] = function() {
-      return this;
-    };
-
-    Gp.toString = function() {
-      return "[object Generator]";
-    };
-
-    function pushTryEntry(locs) {
-      var entry = { tryLoc: locs[0] };
-
-      if (1 in locs) {
-        entry.catchLoc = locs[1];
-      }
-
-      if (2 in locs) {
-        entry.finallyLoc = locs[2];
-        entry.afterLoc = locs[3];
-      }
-
-      this.tryEntries.push(entry);
-    }
-
-    function resetTryEntry(entry) {
-      var record = entry.completion || {};
-      record.type = "normal";
-      delete record.arg;
-      entry.completion = record;
-    }
-
-    function Context(tryLocsList) {
-      // The root entry object (effectively a try statement without a catch
-      // or a finally block) gives us a place to store values thrown from
-      // locations where there is no enclosing try statement.
-      this.tryEntries = [{ tryLoc: "root" }];
-      tryLocsList.forEach(pushTryEntry, this);
-      this.reset(true);
-    }
-
-    runtime.keys = function(object) {
-      var keys = [];
-      for (var key in object) {
-        keys.push(key);
-      }
-      keys.reverse();
-
-      // Rather than returning an object with a next method, we keep
-      // things simple and return the next function itself.
-      return function next() {
-        while (keys.length) {
-          var key = keys.pop();
-          if (key in object) {
-            next.value = key;
-            next.done = false;
-            return next;
-          }
-        }
-
-        // To avoid creating an additional object, we just hang the .value
-        // and .done properties off the next function object itself. This
-        // also ensures that the minifier will not anonymize the function.
-        next.done = true;
-        return next;
-      };
-    };
-
-    function values(iterable) {
-      if (iterable) {
-        var iteratorMethod = iterable[iteratorSymbol];
-        if (iteratorMethod) {
-          return iteratorMethod.call(iterable);
-        }
-
-        if (typeof iterable.next === "function") {
-          return iterable;
-        }
-
-        if (!isNaN(iterable.length)) {
-          var i = -1, next = function next() {
-            while (++i < iterable.length) {
-              if (hasOwn.call(iterable, i)) {
-                next.value = iterable[i];
-                next.done = false;
-                return next;
-              }
-            }
-
-            next.value = undefined$1;
-            next.done = true;
-
-            return next;
-          };
-
-          return next.next = next;
-        }
-      }
-
-      // Return an iterator with no values.
-      return { next: doneResult };
-    }
-    runtime.values = values;
-
-    function doneResult() {
-      return { value: undefined$1, done: true };
-    }
-
-    Context.prototype = {
-      constructor: Context,
-
-      reset: function(skipTempReset) {
-        this.prev = 0;
-        this.next = 0;
-        // Resetting context._sent for legacy support of Babel's
-        // function.sent implementation.
-        this.sent = this._sent = undefined$1;
-        this.done = false;
-        this.delegate = null;
-
-        this.method = "next";
-        this.arg = undefined$1;
-
-        this.tryEntries.forEach(resetTryEntry);
-
-        if (!skipTempReset) {
-          for (var name in this) {
-            // Not sure about the optimal order of these conditions:
-            if (name.charAt(0) === "t" &&
-                hasOwn.call(this, name) &&
-                !isNaN(+name.slice(1))) {
-              this[name] = undefined$1;
-            }
-          }
-        }
-      },
-
-      stop: function() {
-        this.done = true;
-
-        var rootEntry = this.tryEntries[0];
-        var rootRecord = rootEntry.completion;
-        if (rootRecord.type === "throw") {
-          throw rootRecord.arg;
-        }
-
-        return this.rval;
-      },
-
-      dispatchException: function(exception) {
-        if (this.done) {
-          throw exception;
-        }
-
-        var context = this;
-        function handle(loc, caught) {
-          record.type = "throw";
-          record.arg = exception;
-          context.next = loc;
-
-          if (caught) {
-            // If the dispatched exception was caught by a catch block,
-            // then let that catch block handle the exception normally.
-            context.method = "next";
-            context.arg = undefined$1;
-          }
-
-          return !! caught;
-        }
-
-        for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-          var entry = this.tryEntries[i];
-          var record = entry.completion;
-
-          if (entry.tryLoc === "root") {
-            // Exception thrown outside of any try block that could handle
-            // it, so set the completion value of the entire function to
-            // throw the exception.
-            return handle("end");
-          }
-
-          if (entry.tryLoc <= this.prev) {
-            var hasCatch = hasOwn.call(entry, "catchLoc");
-            var hasFinally = hasOwn.call(entry, "finallyLoc");
-
-            if (hasCatch && hasFinally) {
-              if (this.prev < entry.catchLoc) {
-                return handle(entry.catchLoc, true);
-              } else if (this.prev < entry.finallyLoc) {
-                return handle(entry.finallyLoc);
-              }
-
-            } else if (hasCatch) {
-              if (this.prev < entry.catchLoc) {
-                return handle(entry.catchLoc, true);
-              }
-
-            } else if (hasFinally) {
-              if (this.prev < entry.finallyLoc) {
-                return handle(entry.finallyLoc);
-              }
-
-            } else {
-              throw new Error("try statement without catch or finally");
-            }
-          }
-        }
-      },
-
-      abrupt: function(type, arg) {
-        for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-          var entry = this.tryEntries[i];
-          if (entry.tryLoc <= this.prev &&
-              hasOwn.call(entry, "finallyLoc") &&
-              this.prev < entry.finallyLoc) {
-            var finallyEntry = entry;
-            break;
-          }
-        }
-
-        if (finallyEntry &&
-            (type === "break" ||
-             type === "continue") &&
-            finallyEntry.tryLoc <= arg &&
-            arg <= finallyEntry.finallyLoc) {
-          // Ignore the finally entry if control is not jumping to a
-          // location outside the try/catch block.
-          finallyEntry = null;
-        }
-
-        var record = finallyEntry ? finallyEntry.completion : {};
-        record.type = type;
-        record.arg = arg;
-
-        if (finallyEntry) {
-          this.method = "next";
-          this.next = finallyEntry.finallyLoc;
-          return ContinueSentinel;
-        }
-
-        return this.complete(record);
-      },
-
-      complete: function(record, afterLoc) {
-        if (record.type === "throw") {
-          throw record.arg;
-        }
-
-        if (record.type === "break" ||
-            record.type === "continue") {
-          this.next = record.arg;
-        } else if (record.type === "return") {
-          this.rval = this.arg = record.arg;
-          this.method = "return";
-          this.next = "end";
-        } else if (record.type === "normal" && afterLoc) {
-          this.next = afterLoc;
-        }
-
-        return ContinueSentinel;
-      },
-
-      finish: function(finallyLoc) {
-        for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-          var entry = this.tryEntries[i];
-          if (entry.finallyLoc === finallyLoc) {
-            this.complete(entry.completion, entry.afterLoc);
-            resetTryEntry(entry);
-            return ContinueSentinel;
-          }
-        }
-      },
-
-      "catch": function(tryLoc) {
-        for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-          var entry = this.tryEntries[i];
-          if (entry.tryLoc === tryLoc) {
-            var record = entry.completion;
-            if (record.type === "throw") {
-              var thrown = record.arg;
-              resetTryEntry(entry);
-            }
-            return thrown;
-          }
-        }
-
-        // The context.catch method must only be called with a location
-        // argument that corresponds to a known catch block.
-        throw new Error("illegal catch attempt");
-      },
-
-      delegateYield: function(iterable, resultName, nextLoc) {
-        this.delegate = {
-          iterator: values(iterable),
-          resultName: resultName,
-          nextLoc: nextLoc
-        };
-
-        if (this.method === "next") {
-          // Deliberately forget the last sent value so that we don't
-          // accidentally pass it on to the delegate.
-          this.arg = undefined$1;
-        }
-
-        return ContinueSentinel;
-      }
-    };
-  })(
-    // In sloppy mode, unbound `this` refers to the global object, fallback to
-    // Function constructor if we're in global strict mode. That is sadly a form
-    // of indirect eval which violates Content Security Policy.
-    (function() { return this })() || Function("return this")()
-  );
+  self.fetch||(self.fetch=function(e,n){return n=n||{},new Promise(function(t,s){var r=new XMLHttpRequest,o=[],u=[],i={},a=function(){return {ok:2==(r.status/100|0),statusText:r.statusText,status:r.status,url:r.responseURL,text:function(){return Promise.resolve(r.responseText)},json:function(){return Promise.resolve(r.responseText).then(JSON.parse)},blob:function(){return Promise.resolve(new Blob([r.response]))},clone:a,headers:{keys:function(){return o},entries:function(){return u},get:function(e){return i[e.toLowerCase()]},has:function(e){return e.toLowerCase()in i}}}};for(var c in r.open(n.method||"get",e,!0),r.onload=function(){r.getAllResponseHeaders().replace(/^(.*?):[^\S\n]*([\s\S]*?)$/gm,function(e,n,t){o.push(n=n.toLowerCase()),u.push([n,t]),i[n]=i[n]?i[n]+","+t:t;}),t(a());},r.onerror=s,r.withCredentials="include"==n.credentials,n.headers)r.setRequestHeader(c,n.headers[c]);r.send(n.body||null);})});
 
   /** Detect free variable `global` from Node.js. */
   var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
@@ -993,7 +31,7 @@
   var root = freeGlobal || freeSelf || Function('return this')();
 
   /** Built-in value references. */
-  var Symbol$1 = root.Symbol;
+  var Symbol = root.Symbol;
 
   /** Used for built-in method references. */
   var objectProto = Object.prototype;
@@ -1009,7 +47,7 @@
   var nativeObjectToString = objectProto.toString;
 
   /** Built-in value references. */
-  var symToStringTag = Symbol$1 ? Symbol$1.toStringTag : undefined;
+  var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
 
   /**
    * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
@@ -1064,7 +102,7 @@
       undefinedTag = '[object Undefined]';
 
   /** Built-in value references. */
-  var symToStringTag$1 = Symbol$1 ? Symbol$1.toStringTag : undefined;
+  var symToStringTag$1 = Symbol ? Symbol.toStringTag : undefined;
 
   /**
    * The base implementation of `getTag` without fallbacks for buggy environments.
@@ -1184,7 +222,7 @@
   var INFINITY = 1 / 0;
 
   /** Used to convert symbols to primitives and strings. */
-  var symbolProto = Symbol$1 ? Symbol$1.prototype : undefined,
+  var symbolProto = Symbol ? Symbol.prototype : undefined,
       symbolToString = symbolProto ? symbolProto.toString : undefined;
 
   /**
@@ -3781,7 +2819,7 @@
       dataViewTag$2 = '[object DataView]';
 
   /** Used to convert symbols to primitives and strings. */
-  var symbolProto$1 = Symbol$1 ? Symbol$1.prototype : undefined,
+  var symbolProto$1 = Symbol ? Symbol.prototype : undefined,
       symbolValueOf = symbolProto$1 ? symbolProto$1.valueOf : undefined;
 
   /**
@@ -5042,11 +4080,11 @@
    */
   var round = createRound('round');
 
-  var all_areas = null;
-  var _when_areas = null;
+  let all_areas = null;
+  let when_areas = null;
   /* globals jQuery, window, Plotly, fetch */
 
-  var ClimateByLocationWidget = /*#__PURE__*/function () {
+  class ClimateByLocationWidget {
     /**
      * @param {Element|string|jQuery} element as jquery object, string query selector, or element object
      * @param {Object} options
@@ -5065,11 +4103,7 @@
      * @param {boolean} options.show_projected_rcp85 - Whether or not to show projected modeled RCP8.5 data if available.
      * @param {boolean} options.responsive - Whether or not to listen to window resize events and auto-resize the graph. Can only be set on instantiation.
      */
-    function ClimateByLocationWidget(element) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      _classCallCheck(this, ClimateByLocationWidget);
-
+    constructor(element, options = {}) {
       this.options = {
         // default values:
         area_id: null,
@@ -5153,3396 +4187,2795 @@
      */
 
 
-    _createClass(ClimateByLocationWidget, [{
-      key: "get_variable_config",
-      value: function get_variable_config() {
-        var _this = this;
+    get_variable_config() {
+      return find(ClimateByLocationWidget._variables, c => c.id === this.options.variable);
+    }
+    /**
+     * Gets the county or state that is currently selected.
+     */
 
-        return find(ClimateByLocationWidget._variables, function (c) {
-          return c.id === _this.options.variable;
-        });
+
+    get_area_label() {
+      return get(this.get_area(), 'area_label', null) || this.options.area_id;
+    }
+    /**
+     * Gets the area object for the area that is currently selected.
+     * @return {{area_id, area_label, area_type, state}}
+     */
+
+
+    get_area() {
+      return get(ClimateByLocationWidget.get_areas(null, null, this.options.area_id), 0, null);
+    }
+
+    set_options(options) {
+      let old_options = Object.assign({}, this.options);
+      this.options = merge({}, old_options, options);
+
+      ClimateByLocationWidget._bool_options.forEach(option => {
+        if (typeof options[option] === "string") {
+          options[option] = options[option].toLowerCase() === "true";
+        }
+      });
+
+      if (!get(ClimateByLocationWidget, ['_frequencies', this.options.frequency, 'supports_area'], () => true)(this.options.area_id)) {
+        this.options.frequency = ClimateByLocationWidget.get_variables(this.options.area_id)[0].id;
       }
-      /**
-       * Gets the county or state that is currently selected.
-       */
 
-    }, {
-      key: "get_area_label",
-      value: function get_area_label() {
-        return get(this.get_area(), 'area_label', null) || this.options.area_id;
+      if (!get(ClimateByLocationWidget, ['variables', this.options.variable, 'supports_area'], () => true)(this.options.area_id)) {
+        this.options.variable = ClimateByLocationWidget.get_variables(this.options.frequency, null, this.options.area_id)[0].id;
+      } // if frequency, state, county, or variable changed, trigger a larger update cycle (new data + plots maybe changed):
+
+
+      if (this.options.frequency !== old_options.frequency || this.options.area_id !== old_options.area_id || this.options.variable !== old_options.variable || this.options.monthly_timeperiod !== old_options.monthly_timeperiod) {
+        this.update();
+      } else {
+        if ((this.options.show_projected_rcp45 !== old_options.show_projected_rcp45 || this.options.show_projected_rcp85 !== old_options.show_projected_rcp85 || this.options.show_historical_observed !== old_options.show_historical_observed || this.options.show_historical_modeled !== old_options.show_historical_modeled) && this._update_visibility !== null) {
+          this._update_visibility();
+        }
+
+        if (this.options.x_axis_range !== old_options.x_axis_range) {
+          this.set_x_axis_range(...this.options.x_axis_range);
+        }
       }
-      /**
-       * Gets the area object for the area that is currently selected.
-       * @return {{area_id, area_label, area_type, state}}
-       */
 
-    }, {
-      key: "get_area",
-      value: function get_area() {
-        return get(ClimateByLocationWidget.get_areas(null, null, this.options.area_id), 0, null);
-      }
-    }, {
-      key: "set_options",
-      value: function set_options(options) {
-        var old_options = Object.assign({}, this.options);
-        this.options = merge({}, old_options, options);
+      return this;
+    }
+    /**
+     * This function will set the range of data visible on the graph's x-axis without refreshing the rest of the graph.
+     *
+     * @param min
+     * @param max
+     * @returns {boolean}
+     */
 
-        ClimateByLocationWidget._bool_options.forEach(function (option) {
-          if (typeof options[option] === "string") {
-            options[option] = options[option].toLowerCase() === "true";
+
+    set_x_axis_range(min, max) {
+      return (this.options.x_axis_range = [min, max]) && Plotly.relayout(this.graphdiv, {
+        'xaxis.range': this.options.x_axis_range
+      }) && this.options.x_axis_range;
+    }
+    /**
+     * Requests the widget update according to its current options. Use `set_options()` to change options instead.
+     * @returns {Promise<void>}
+     */
+
+
+    async update() {
+      this._show_spinner();
+
+      this._reset_downloadable_dataurls(); // todo re-implement plot clearing?
+      // this.hide_all_plots();
+
+
+      if (!!this.options.area_id && !!this.options.variable && !!this.options.frequency) {
+        if (this.options.frequency === "annual") {
+          if (ClimateByLocationWidget.is_ak_area(this.options.area_id)) {
+            await this._update_annual_ak();
+          } else if (ClimateByLocationWidget.is_island_area(this.options.area_id)) {
+            await this._update_annual_island();
+          } else {
+            await this._update_annual_conus();
           }
-        });
-
-        if (!get(ClimateByLocationWidget, ['_frequencies', this.options.frequency, 'supports_area'], function () {
-          return true;
-        })(this.options.area_id)) {
-          this.options.frequency = ClimateByLocationWidget.get_variables(this.options.area_id)[0].id;
-        }
-
-        if (!get(ClimateByLocationWidget, ['variables', this.options.variable, 'supports_area'], function () {
-          return true;
-        })(this.options.area_id)) {
-          this.options.variable = ClimateByLocationWidget.get_variables(this.options.frequency, null, this.options.area_id)[0].id;
-        } // if frequency, state, county, or variable changed, trigger a larger update cycle (new data + plots maybe changed):
-
-
-        if (this.options.frequency !== old_options.frequency || this.options.area_id !== old_options.area_id || this.options.variable !== old_options.variable || this.options.monthly_timeperiod !== old_options.monthly_timeperiod) {
-          this.update();
-        } else {
-          if ((this.options.show_projected_rcp45 !== old_options.show_projected_rcp45 || this.options.show_projected_rcp85 !== old_options.show_projected_rcp85 || this.options.show_historical_observed !== old_options.show_historical_observed || this.options.show_historical_modeled !== old_options.show_historical_modeled) && this._update_visibility !== null) {
-            this._update_visibility();
-          }
-
-          if (this.options.x_axis_range !== old_options.x_axis_range) {
-            this.set_x_axis_range.apply(this, _toConsumableArray(this.options.x_axis_range));
+        } else if (this.options.frequency === "monthly") {
+          if (ClimateByLocationWidget.is_ak_area(this.options.area_id)) ; else if (ClimateByLocationWidget.is_island_area(this.options.area_id)) {
+            await this._update_monthly_island();
+          } else {
+            await this._update_monthly_conus();
           }
         }
-
-        return this;
       }
-      /**
-       * This function will set the range of data visible on the graph's x-axis without refreshing the rest of the graph.
-       *
-       * @param min
-       * @param max
-       * @returns {boolean}
-       */
-
-    }, {
-      key: "set_x_axis_range",
-      value: function set_x_axis_range(min, max) {
-        return (this.options.x_axis_range = [min, max]) && Plotly.relayout(this.graphdiv, {
-          'xaxis.range': this.options.x_axis_range
-        }) && this.options.x_axis_range;
-      }
-      /**
-       * Requests the widget update according to its current options. Use `set_options()` to change options instead.
-       * @returns {Promise<void>}
-       */
-
-    }, {
-      key: "update",
-      value: function () {
-        var _update = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-          return regeneratorRuntime.wrap(function _callee$(_context) {
-            while (1) {
-              switch (_context.prev = _context.next) {
-                case 0:
-                  this._show_spinner();
-
-                  this._reset_downloadable_dataurls(); // todo re-implement plot clearing?
-                  // this.hide_all_plots();
+    }
+    /**
+     * Registers an event handler for the specified event. Equivalent to `instance.element.addEventListener(type, listener)`
+     */
 
 
-                  if (!(!!this.options.area_id && !!this.options.variable && !!this.options.frequency)) {
-                    _context.next = 29;
-                    break;
-                  }
+    on(type, listener) {
+      return this.element.addEventListener(type, listener);
+    }
+    /**
+     * Forces chart to resize.
+     */
 
-                  if (!(this.options.frequency === "annual")) {
-                    _context.next = 18;
-                    break;
-                  }
 
-                  if (!ClimateByLocationWidget.is_ak_area(this.options.area_id)) {
-                    _context.next = 9;
-                    break;
-                  }
-
-                  _context.next = 7;
-                  return this._update_annual_ak();
-
-                case 7:
-                  _context.next = 16;
-                  break;
-
-                case 9:
-                  if (!ClimateByLocationWidget.is_island_area(this.options.area_id)) {
-                    _context.next = 14;
-                    break;
-                  }
-
-                  _context.next = 12;
-                  return this._update_annual_island();
-
-                case 12:
-                  _context.next = 16;
-                  break;
-
-                case 14:
-                  _context.next = 16;
-                  return this._update_annual_conus();
-
-                case 16:
-                  _context.next = 29;
-                  break;
-
-                case 18:
-                  if (!(this.options.frequency === "monthly")) {
-                    _context.next = 29;
-                    break;
-                  }
-
-                  if (!ClimateByLocationWidget.is_ak_area(this.options.area_id)) {
-                    _context.next = 22;
-                    break;
-                  }
-
-                  _context.next = 29;
-                  break;
-
-                case 22:
-                  if (!ClimateByLocationWidget.is_island_area(this.options.area_id)) {
-                    _context.next = 27;
-                    break;
-                  }
-
-                  _context.next = 25;
-                  return this._update_monthly_island();
-
-                case 25:
-                  _context.next = 29;
-                  break;
-
-                case 27:
-                  _context.next = 29;
-                  return this._update_monthly_conus();
-
-                case 29:
-                case "end":
-                  return _context.stop();
-              }
-            }
-          }, _callee, this);
-        }));
-
-        function update() {
-          return _update.apply(this, arguments);
-        }
-
-        return update;
-      }()
-      /**
-       * Registers an event handler for the specified event. Equivalent to `instance.element.addEventListener(type, listener)`
-       */
-
-    }, {
-      key: "on",
-      value: function on(type, listener) {
-        return this.element.addEventListener(type, listener);
-      }
-      /**
-       * Forces chart to resize.
-       */
-
-    }, {
-      key: "resize",
-      value: function resize() {
-        var _this2 = this;
-
-        window.requestAnimationFrame(function () {
-          Plotly.relayout(_this2.graphdiv, {
-            'xaxis.autorange': true,
-            'yaxis.autorange': true
-          });
+    resize() {
+      window.requestAnimationFrame(() => {
+        Plotly.relayout(this.graphdiv, {
+          'xaxis.autorange': true,
+          'yaxis.autorange': true
         });
+      });
+    }
+    /**
+     * Generates an image of the chart and downloads it.
+     * @returns {Promise}
+     */
+
+
+    download_image() {
+      let {
+        width,
+        height
+      } = window.getComputedStyle(this.element);
+      width = Number.parseFloat(width) * 1.2;
+      height = Number.parseFloat(height) * 1.2;
+      return Plotly.downloadImage(this.graphdiv, {
+        format: 'png',
+        width: width,
+        height: height,
+        filename: [this.options.get_area_label.bind(this)(), this.options.frequency, this.options.variable, "graph"].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
+      });
+    }
+    /**
+     * Transform an anchor element to download the historic observed data. Return false on failure / no data.
+     * @param link
+     * @returns {boolean}
+     */
+
+
+    download_hist_obs_data(link) {
+      if (!this.downloadable_dataurls.hist_obs) {
+        link.href = '#nodata';
+        return false;
       }
-      /**
-       * Generates an image of the chart and downloads it.
-       * @returns {Promise}
-       */
 
-    }, {
-      key: "download_image",
-      value: function download_image() {
-        var _window$getComputedSt = window.getComputedStyle(this.element),
-            width = _window$getComputedSt.width,
-            height = _window$getComputedSt.height;
+      link.href = this.downloadable_dataurls.hist_obs;
+      link.download = [this.options.get_area_label.bind(this)(), this.options.frequency, "hist_obs", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
+      return true;
+    }
+    /**
+     * Transform an anchor element to download the historic modelled data. Return false on failure / no data.
+     * @param link
+     * @returns {boolean}
+     */
 
-        width = Number.parseFloat(width) * 1.2;
-        height = Number.parseFloat(height) * 1.2;
-        return Plotly.downloadImage(this.graphdiv, {
-          format: 'png',
-          width: width,
-          height: height,
-          filename: [this.options.get_area_label.bind(this)(), this.options.frequency, this.options.variable, "graph"].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
-        });
+
+    download_hist_mod_data(link) {
+      if (!this.downloadable_dataurls.hist_mod) {
+        link.href = '#nodata';
+        return false;
       }
-      /**
-       * Transform an anchor element to download the historic observed data. Return false on failure / no data.
-       * @param link
-       * @returns {boolean}
-       */
 
-    }, {
-      key: "download_hist_obs_data",
-      value: function download_hist_obs_data(link) {
-        if (!this.downloadable_dataurls.hist_obs) {
-          link.href = '#nodata';
-          return false;
-        }
+      link.href = this.downloadable_dataurls.hist_mod;
+      link.download = [this.options.get_area_label.bind(this)(), this.options.frequency, "hist_mod", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
+      return true;
+    }
+    /**
+     * Transform an anchor element to download the projected modelled data. Return false on failure / no data.
+     * @param link
+     * @returns {boolean}
+     */
 
-        link.href = this.downloadable_dataurls.hist_obs;
-        link.download = [this.options.get_area_label.bind(this)(), this.options.frequency, "hist_obs", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
-        return true;
+
+    download_proj_mod_data(link) {
+      if (!this.downloadable_dataurls.proj_mod) {
+        link.href = '#nodata';
+        return false;
       }
-      /**
-       * Transform an anchor element to download the historic modelled data. Return false on failure / no data.
-       * @param link
-       * @returns {boolean}
-       */
 
-    }, {
-      key: "download_hist_mod_data",
-      value: function download_hist_mod_data(link) {
-        if (!this.downloadable_dataurls.hist_mod) {
-          link.href = '#nodata';
-          return false;
+      link.href = this.downloadable_dataurls.proj_mod;
+      link.download = [this.options.get_area_label.bind(this)(), this.options.frequency, "proj_mod", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
+      return true;
+    }
+    /*
+     * Private methods
+     */
+
+    /**
+     * Creates/updates an annual graph for the CONUS.
+     * @return {Promise<void>}
+     * @private
+     */
+
+
+    async _update_annual_conus() {
+      const [hist_obs_data, hist_mod_data, proj_mod_data] = await Promise.all([this._get_historical_observed_livneh_data(), this._get_historical_annual_loca_model_data(), this._get_projected_loca_model_data()]);
+      const variable_config = this.get_variable_config();
+      this.downloadable_dataurls.hist_obs = this._format_export_data(['year', variable_config.id], hist_obs_data);
+      this.downloadable_dataurls.hist_mod = this._format_export_data(['year', 'weighted_mean', 'min', 'max'], hist_mod_data);
+      this.downloadable_dataurls.proj_mod = this._format_export_data(['year', 'rcp45_weighted_mean', 'rcp45_min', 'rcp45_max', 'rcp85_weighted_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data); // unpack arrays
+
+      const chart_data = {
+        'hist_obs_base': [],
+        'hist_obs_year': [],
+        'hist_obs': [],
+        'hist_obs_diff': [],
+        'hist_year': [],
+        'hist_mean': [],
+        'hist_min': [],
+        'hist_max': [],
+        'hist_max_diff': [],
+        'proj_year': [],
+        'rcp45_mean': [],
+        'rcp45_min': [],
+        'rcp45_max': [],
+        'rcp85_mean': [],
+        'rcp85_min': [],
+        'rcp85_max': []
+      };
+      const precision = 1;
+
+      for (let i = 0; i < hist_obs_data.length; i++) {
+        chart_data['hist_obs_year'].push(round(hist_obs_data[i][0], precision));
+        chart_data['hist_obs'].push(round(hist_obs_data[i][1], precision));
+
+        if (1961 <= hist_obs_data[i][0] <= 1990) {
+          chart_data['hist_obs_base'].push(round(hist_obs_data[i][1], precision));
         }
-
-        link.href = this.downloadable_dataurls.hist_mod;
-        link.download = [this.options.get_area_label.bind(this)(), this.options.frequency, "hist_mod", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
-        return true;
       }
-      /**
-       * Transform an anchor element to download the projected modelled data. Return false on failure / no data.
-       * @param link
-       * @returns {boolean}
-       */
 
-    }, {
-      key: "download_proj_mod_data",
-      value: function download_proj_mod_data(link) {
-        if (!this.downloadable_dataurls.proj_mod) {
-          link.href = '#nodata';
-          return false;
-        }
+      const hist_obs_bar_base = mean(chart_data['hist_obs_base']);
 
-        link.href = this.downloadable_dataurls.proj_mod;
-        link.download = [this.options.get_area_label.bind(this)(), this.options.frequency, "proj_mod", this.options.variable].join('-').replace(/ /g, '_') + '.csv';
-        return true;
+      for (let i = 0; i < hist_obs_data.length; i++) {
+        chart_data['hist_obs_diff'].push(round(hist_obs_data[i][1] - hist_obs_bar_base, precision));
       }
-      /*
-       * Private methods
-       */
 
-    }, {
-      key: "_update_annual_conus",
-      value: function () {
-        var _update_annual_conus2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
-          var _this3 = this;
-
-          var _yield$Promise$all, _yield$Promise$all2, hist_obs_data, hist_mod_data, proj_mod_data, variable_config, chart_data, precision, i, hist_obs_bar_base, _i, _i2, _i3, _this$_update_axes_ra, _this$_update_axes_ra2, x_range_min, x_range_max, y_range_min, y_range_max;
-
-          return regeneratorRuntime.wrap(function _callee2$(_context2) {
-            while (1) {
-              switch (_context2.prev = _context2.next) {
-                case 0:
-                  _context2.next = 2;
-                  return Promise.all([this._get_historical_observed_livneh_data(), this._get_historical_annual_loca_model_data(), this._get_projected_loca_model_data()]);
-
-                case 2:
-                  _yield$Promise$all = _context2.sent;
-                  _yield$Promise$all2 = _slicedToArray(_yield$Promise$all, 3);
-                  hist_obs_data = _yield$Promise$all2[0];
-                  hist_mod_data = _yield$Promise$all2[1];
-                  proj_mod_data = _yield$Promise$all2[2];
-                  variable_config = this.get_variable_config();
-                  this.downloadable_dataurls.hist_obs = this._format_export_data(['year', variable_config.id], hist_obs_data);
-                  this.downloadable_dataurls.hist_mod = this._format_export_data(['year', 'weighted_mean', 'min', 'max'], hist_mod_data);
-                  this.downloadable_dataurls.proj_mod = this._format_export_data(['year', 'rcp45_weighted_mean', 'rcp45_min', 'rcp45_max', 'rcp85_weighted_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data); // unpack arrays
-
-                  chart_data = {
-                    'hist_obs_base': [],
-                    'hist_obs_year': [],
-                    'hist_obs': [],
-                    'hist_obs_diff': [],
-                    'hist_year': [],
-                    'hist_mean': [],
-                    'hist_min': [],
-                    'hist_max': [],
-                    'hist_max_diff': [],
-                    'proj_year': [],
-                    'rcp45_mean': [],
-                    'rcp45_min': [],
-                    'rcp45_max': [],
-                    'rcp85_mean': [],
-                    'rcp85_min': [],
-                    'rcp85_max': []
-                  };
-                  precision = 1;
-
-                  for (i = 0; i < hist_obs_data.length; i++) {
-                    chart_data['hist_obs_year'].push(round(hist_obs_data[i][0], precision));
-                    chart_data['hist_obs'].push(round(hist_obs_data[i][1], precision));
-
-                    if (1961 <= hist_obs_data[i][0] <= 1990) {
-                      chart_data['hist_obs_base'].push(round(hist_obs_data[i][1], precision));
-                    }
-                  }
-
-                  hist_obs_bar_base = mean(chart_data['hist_obs_base']);
-
-                  for (_i = 0; _i < hist_obs_data.length; _i++) {
-                    chart_data['hist_obs_diff'].push(round(hist_obs_data[_i][1] - hist_obs_bar_base, precision));
-                  }
-
-                  for (_i2 = 0; _i2 < hist_mod_data.length; _i2++) {
-                    chart_data['hist_year'].push(hist_mod_data[_i2][0]);
-                    chart_data['hist_mean'].push(round(hist_mod_data[_i2][1], precision));
-                    chart_data['hist_min'].push(round(hist_mod_data[_i2][2], precision));
-                    chart_data['hist_max'].push(round(hist_mod_data[_i2][3], precision));
-                  } // repeat 2005 data point to fill gap
-
-
-                  chart_data['proj_year'].push(hist_mod_data[hist_mod_data.length - 1][0]);
-                  chart_data['rcp45_mean'].push(round(hist_mod_data[hist_mod_data.length - 1][1], precision));
-                  chart_data['rcp45_min'].push(round(hist_mod_data[hist_mod_data.length - 1][2], precision));
-                  chart_data['rcp45_max'].push(round(hist_mod_data[hist_mod_data.length - 1][3], precision));
-                  chart_data['rcp85_mean'].push(round(hist_mod_data[hist_mod_data.length - 1][1], precision));
-                  chart_data['rcp85_min'].push(round(hist_mod_data[hist_mod_data.length - 1][2], precision));
-                  chart_data['rcp85_max'].push(round(hist_mod_data[hist_mod_data.length - 1][3], precision));
-
-                  for (_i3 = 0; _i3 < proj_mod_data.length; _i3++) {
-                    chart_data['proj_year'].push(proj_mod_data[_i3][0]);
-                    chart_data['rcp45_mean'].push(round(proj_mod_data[_i3][1], precision));
-                    chart_data['rcp45_min'].push(round(proj_mod_data[_i3][2], precision));
-                    chart_data['rcp45_max'].push(round(proj_mod_data[_i3][3], precision));
-                    chart_data['rcp85_mean'].push(round(proj_mod_data[_i3][4], precision));
-                    chart_data['rcp85_min'].push(round(proj_mod_data[_i3][5], precision));
-                    chart_data['rcp85_max'].push(round(proj_mod_data[_i3][6], precision));
-                  }
-
-                  _this$_update_axes_ra = this._update_axes_ranges(min([min(chart_data['hist_year']), min(chart_data['proj_year'])]), max([max(chart_data['hist_year']), max(chart_data['proj_year'])]), min([min(chart_data['hist_min']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_max']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])])), _this$_update_axes_ra2 = _slicedToArray(_this$_update_axes_ra, 4), x_range_min = _this$_update_axes_ra2[0], x_range_max = _this$_update_axes_ra2[1], y_range_min = _this$_update_axes_ra2[2], y_range_max = _this$_update_axes_ra2[3];
-                  Plotly.react(this.graphdiv, [{
-                    name: 'Modeled minimum (historical)',
-                    x: chart_data['hist_year'],
-                    y: chart_data['hist_min'],
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'none',
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_hist_minmax
-                    },
-                    legendgroup: 'hist',
-                    visible: !!this.options.show_historical_modeled ? true : 'legendonly'
-                  }, {
-                    x: chart_data['hist_year'],
-                    // y: chart_data['hist_max_diff'],
-                    y: chart_data['hist_max'],
-                    // text: chart_data['hist_max'],
-                    // hoverinfo: 'text',
-                    name: 'Modeled maximum (historical)',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'tonexty',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_hist_minmax
-                    },
-                    legendgroup: 'hist',
-                    visible: !!this.options.show_historical_modeled ? true : 'legendonly'
-                  }, // {
-                  //   x: chart_data['hist_year'],
-                  //   y: chart_data['hist_mean'],
-                  //   type: 'scatter',
-                  //   mode: 'lines',
-                  //   name: 'Historical Mean',
-                  //   line: {color: '#000000'},
-                  //   legendgroup: 'hist',
-                  //   visible: !!this.options.show_historical_modeled ? true : 'legendonly',
-                  // },
-                  {
-                    x: chart_data['proj_year'],
-                    y: chart_data['rcp45_min'],
-                    name: 'Modeled minimum (RCP 4.5 projection)',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'none',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp45',
-                    visible: this.options.show_projected_rcp45 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['proj_year'],
-                    y: chart_data['rcp45_max'],
-                    name: 'Modeled maximum (RCP 4.5 projection)',
-                    fill: 'tonexty',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp45',
-                    visible: this.options.show_projected_rcp45 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['proj_year'],
-                    y: chart_data['rcp85_min'],
-                    name: 'Modeled minimum (RCP 8.5 projection)',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'none',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp85',
-                    visible: this.options.show_projected_rcp85 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['proj_year'],
-                    y: chart_data['rcp85_max'],
-                    name: 'Modeled maximum (RCP 8.5 projection)',
-                    fill: 'tonexty',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp85',
-                    visible: this.options.show_projected_rcp85 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['hist_obs_year'],
-                    y: chart_data['hist_obs_diff'],
-                    type: 'bar',
-                    yaxis: 'y2',
-                    base: hist_obs_bar_base,
-                    name: 'Historical Observed',
-                    line: {
-                      color: this.options.colors.hist.line,
-                      width: 0.5
-                    },
-                    marker: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.hist.bar, this.options.colors.opacity.hist_obs)
-                    },
-                    legendgroup: 'histobs',
-                    visible: !!this.options.show_historical_observed ? true : 'legendonly'
-                  }, {
-                    x: chart_data['proj_year'],
-                    y: chart_data['rcp45_mean'],
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Modeled mean (RCP 4.5 projections, weighted)',
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)
-                    },
-                    visible: this.options.show_projected_rcp45 ? true : 'legendonly',
-                    legendgroup: 'rcp45',
-                    yaxis: 'y3'
-                  }, {
-                    x: chart_data['proj_year'],
-                    y: chart_data['rcp85_mean'],
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Modeled mean (RCP 8.5 projections, weighted)',
-                    visible: this.options.show_projected_rcp85 ? true : 'legendonly',
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)
-                    },
-                    legendgroup: 'rcp85',
-                    yaxis: 'y3'
-                  }], // layout
-                  {
-                    autosize: true,
-                    margin: {
-                      l: 50,
-                      t: 12,
-                      r: 12,
-                      b: 60
-                    },
-                    showlegend: this.options.show_legend,
-                    legend: {
-                      "orientation": "h"
-                    },
-                    xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
-                    yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config),
-                    yaxis2: {
-                      type: 'linear',
-                      matches: 'y',
-                      overlaying: 'y',
-                      showline: false,
-                      showgrid: false,
-                      showticklabels: false,
-                      nticks: 0
-                    },
-                    yaxis3: {
-                      type: 'linear',
-                      matches: 'y',
-                      overlaying: 'y',
-                      showline: false,
-                      showgrid: false,
-                      showticklabels: false,
-                      nticks: 0
-                    }
-                  }, // options
-                  this._get_plotly_options());
-
-                  this._update_visibility = function () {
-                    Plotly.restyle(_this3.graphdiv, {
-                      visible: [!!_this3.options.show_historical_modeled ? true : 'legendonly', !!_this3.options.show_historical_modeled ? true : 'legendonly', // !!this.options.show_historical_modeled ? true : 'legendonly',
-                      !!_this3.options.show_projected_rcp45 ? true : 'legendonly', !!_this3.options.show_projected_rcp45 ? true : 'legendonly', !!_this3.options.show_projected_rcp85 ? true : 'legendonly', !!_this3.options.show_projected_rcp85 ? true : 'legendonly', !!_this3.options.show_historical_observed ? true : 'legendonly', !!_this3.options.show_projected_rcp45 ? true : 'legendonly', !!_this3.options.show_projected_rcp85 ? true : 'legendonly']
-                    });
-                  };
-
-                  this._when_chart = new Promise(function (resolve) {
-                    _this3.graphdiv.on('plotly_afterplot', function (gd) {
-                      resolve(gd);
-                    });
-                  });
-
-                  this._when_chart.then(this._hide_spinner.bind(this));
-
-                case 30:
-                case "end":
-                  return _context2.stop();
-              }
-            }
-          }, _callee2, this);
-        }));
-
-        function _update_annual_conus() {
-          return _update_annual_conus2.apply(this, arguments);
-        }
-
-        return _update_annual_conus;
-      }()
-    }, {
-      key: "_update_annual_ak",
-      value: function () {
-        var _update_annual_ak2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-          var _this4 = this;
-
-          var hist_sdate_year, hist_edate_year, proj_edate_year, variable_config, _this$options, variable, frequency, area_id, unit_conversion_fn, _yield$Promise$all3, _yield$Promise$all4, _yield$Promise$all4$, gfdl_cm3_rcp85_years, gfdl_cm3_rcp85, _yield$Promise$all4$2, ncar_ccsm4_rcp85_years, ncar_ccsm4_rcp85, hist_mod_data, proj_mod_data, rolling_window, i, _i4, chart_data, precision, _i5, _i6, _this$_update_axes_ra3, _this$_update_axes_ra4, x_range_min, x_range_max, y_range_min, y_range_max;
-
-          return regeneratorRuntime.wrap(function _callee3$(_context3) {
-            while (1) {
-              switch (_context3.prev = _context3.next) {
-                case 0:
-                  // get data for GFDL-CM3 and NCAR-CCSM4
-                  hist_sdate_year = 1970; // let hist_sdate = hist_sdate_year + '-01-01';
-
-                  hist_edate_year = 2005; // let hist_edate = hist_edate_year + '-12-31';
-
-                  proj_edate_year = 2099;
-                  variable_config = this.get_variable_config();
-                  _this$options = this.options, variable = _this$options.variable, frequency = _this$options.frequency, area_id = _this$options.area_id;
-                  unit_conversion_fn = variable_config.unit_conversions[this.options.unitsystem];
-                  _context3.next = 8;
-                  return Promise.all([this._fetch_acis_data('snap:GFDL-CM3:rcp85', hist_sdate_year, proj_edate_year, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('snap:NCAR-CCSM4:rcp85', hist_sdate_year, proj_edate_year, variable, frequency, area_id, unit_conversion_fn)]);
-
-                case 8:
-                  _yield$Promise$all3 = _context3.sent;
-                  _yield$Promise$all4 = _slicedToArray(_yield$Promise$all3, 2);
-                  _yield$Promise$all4$ = _slicedToArray(_yield$Promise$all4[0], 2);
-                  gfdl_cm3_rcp85_years = _yield$Promise$all4$[0];
-                  gfdl_cm3_rcp85 = _yield$Promise$all4$[1];
-                  _yield$Promise$all4$2 = _slicedToArray(_yield$Promise$all4[1], 2);
-                  ncar_ccsm4_rcp85_years = _yield$Promise$all4$2[0];
-                  ncar_ccsm4_rcp85 = _yield$Promise$all4$2[1];
-
-                  if (!(!isEqual(gfdl_cm3_rcp85_years, ncar_ccsm4_rcp85_years) || Number.parseInt(gfdl_cm3_rcp85_years[0]) !== hist_sdate_year || Number.parseInt(ncar_ccsm4_rcp85_years[0]) !== hist_sdate_year || Number.parseInt(gfdl_cm3_rcp85_years[gfdl_cm3_rcp85_years.length - 1]) !== proj_edate_year || Number.parseInt(ncar_ccsm4_rcp85_years[ncar_ccsm4_rcp85_years.length - 1]) !== proj_edate_year)) {
-                    _context3.next = 18;
-                    break;
-                  }
-
-                  throw new Error("Unexpected annual data!");
-
-                case 18:
-                  // split into hist mod vs proj mod
-                  hist_mod_data = [];
-                  proj_mod_data = [];
-                  rolling_window = 10;
-
-                  for (i = 0; i < hist_edate_year - hist_sdate_year + 1; i++) {
-                    //year,gfdl_cm3_rcp85,ncar_ccsm4_rcp85
-                    hist_mod_data.push([i + hist_sdate_year, ClimateByLocationWidget._rolling_window_average(gfdl_cm3_rcp85, i), ClimateByLocationWidget._rolling_window_average(ncar_ccsm4_rcp85, i)]);
-                  }
-
-                  for (_i4 = hist_edate_year - hist_sdate_year; _i4 <= proj_edate_year - hist_sdate_year + 1; _i4++) {
-                    //year,gfdl_cm3_rcp85,ncar_ccsm4_rcp85
-                    proj_mod_data.push([_i4 + hist_sdate_year, ClimateByLocationWidget._rolling_window_average(gfdl_cm3_rcp85, _i4), ClimateByLocationWidget._rolling_window_average(ncar_ccsm4_rcp85, _i4)]);
-                  }
-
-                  this.downloadable_dataurls.hist_mod = this._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85', "*Note that the values shown have had a ".concat(rolling_window, "-year rolling window average applied.")], hist_mod_data);
-                  this.downloadable_dataurls.proj_mod = this._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85', "*Note that the values shown have had a ".concat(rolling_window, "-year rolling window average applied.")], proj_mod_data);
-                  chart_data = {
-                    'hist_year': [],
-                    'hist_min': [],
-                    'hist_max': [],
-                    'proj_year': [],
-                    'rcp85_min': [],
-                    'rcp85_max': []
-                  };
-                  precision = 1;
-
-                  for (_i5 = 0; _i5 < hist_mod_data.length; _i5++) {
-                    chart_data['hist_year'].push(hist_mod_data[_i5][0]);
-                    chart_data['hist_min'].push(round(Math.min(hist_mod_data[_i5][1], hist_mod_data[_i5][2]), precision));
-                    chart_data['hist_max'].push(round(Math.max(hist_mod_data[_i5][1], hist_mod_data[_i5][2]), precision));
-                  } // repeat 2005 data point to fill gap
-
-
-                  chart_data['proj_year'].push(hist_mod_data[hist_mod_data.length - 1][0]);
-                  chart_data['rcp85_min'].push(round(Math.min(hist_mod_data[hist_mod_data.length - 1][1], hist_mod_data[hist_mod_data.length - 1][2]), precision));
-                  chart_data['rcp85_max'].push(round(Math.max(hist_mod_data[hist_mod_data.length - 1][1], hist_mod_data[hist_mod_data.length - 1][2]), precision));
-
-                  for (_i6 = 0; _i6 < proj_mod_data.length; _i6++) {
-                    chart_data['proj_year'].push(proj_mod_data[_i6][0]);
-                    chart_data['rcp85_min'].push(round(Math.min(proj_mod_data[_i6][1], proj_mod_data[_i6][2]), precision));
-                    chart_data['rcp85_max'].push(round(Math.max(proj_mod_data[_i6][1], proj_mod_data[_i6][2]), precision));
-                  }
-
-                  _this$_update_axes_ra3 = this._update_axes_ranges(min([min(chart_data['hist_year']), min(chart_data['proj_year'])]), max([max(chart_data['hist_year']), max(chart_data['proj_year'])]), min([min(chart_data['hist_min']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_max']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])])), _this$_update_axes_ra4 = _slicedToArray(_this$_update_axes_ra3, 4), x_range_min = _this$_update_axes_ra4[0], x_range_max = _this$_update_axes_ra4[1], y_range_min = _this$_update_axes_ra4[2], y_range_max = _this$_update_axes_ra4[3];
-                  Plotly.react(this.graphdiv, [{
-                    name: 'Modeled minimum (historical)',
-                    x: chart_data['hist_year'],
-                    y: chart_data['hist_min'],
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'none',
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_hist_minmax
-                    },
-                    legendgroup: 'hist',
-                    visible: !!this.options.show_historical_modeled ? true : 'legendonly'
-                  }, {
-                    x: chart_data['hist_year'],
-                    y: chart_data['hist_max'],
-                    name: 'Modeled maximum (historical)',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'tonexty',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, 1),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
-                      width: 0,
-                      opacity: 1
-                    },
-                    legendgroup: 'hist',
-                    visible: !!this.options.show_historical_modeled ? true : 'legendonly'
-                  }, {
-                    x: chart_data['proj_year'],
-                    y: chart_data['rcp85_min'],
-                    name: 'Modeled minimum (RCP 8.5)',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'none',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, 1),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: 1
-                    },
-                    legendgroup: 'rcp85',
-                    visible: this.options.show_projected_rcp85 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['proj_year'],
-                    y: chart_data['rcp85_max'],
-                    name: 'Modeled maximum (RCP 8.5)',
-                    fill: 'tonexty',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, 1),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: 1
-                    },
-                    legendgroup: 'rcp85',
-                    visible: this.options.show_projected_rcp85 ? true : 'legendonly'
-                  }], // layout
-                  {
-                    autosize: true,
-                    margin: {
-                      l: 50,
-                      t: 12,
-                      r: 12,
-                      b: 60
-                    },
-                    showlegend: this.options.show_legend,
-                    legend: {
-                      "orientation": "h"
-                    },
-                    xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
-                    yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
-                  }, // options
-                  this._get_plotly_options());
-
-                  this._update_visibility = function () {
-                    Plotly.restyle(_this4.graphdiv, {
-                      visible: [!!_this4.options.show_historical_modeled ? true : 'legendonly', !!_this4.options.show_historical_modeled ? true : 'legendonly', !!_this4.options.show_projected_rcp85 ? true : 'legendonly', !!_this4.options.show_projected_rcp85 ? true : 'legendonly']
-                    });
-                  };
-
-                  this._when_chart = new Promise(function (resolve) {
-                    _this4.graphdiv.on('plotly_afterplot', function (gd) {
-                      resolve(gd);
-                    });
-                  });
-
-                  this._when_chart.then(this._hide_spinner.bind(this));
-
-                case 37:
-                case "end":
-                  return _context3.stop();
-              }
-            }
-          }, _callee3, this);
-        }));
-
-        function _update_annual_ak() {
-          return _update_annual_ak2.apply(this, arguments);
-        }
-
-        return _update_annual_ak;
-      }()
-    }, {
-      key: "_update_annual_island",
-      value: function () {
-        var _update_annual_island2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
-          var _this5 = this;
-
-          var data, hist_mod_series, rcp45_mod_series, rcp85_mod_series, variable_config, unit_conversion_fn, hist_sdate_year, hist_mod_data, proj_sdate_year, proj_mod_data, chart_data, precision, i, _i7, _this$_update_axes_ra5, _this$_update_axes_ra6, x_range_min, x_range_max, y_range_min, y_range_max;
-
-          return regeneratorRuntime.wrap(function _callee4$(_context4) {
-            while (1) {
-              switch (_context4.prev = _context4.next) {
-                case 0:
-                  _context4.next = 2;
-                  return this._fetch_island_data(this.options.variable, this.options.area_id);
-
-                case 2:
-                  data = _context4.sent;
-                  hist_mod_series = data.find(function (series) {
-                    return series.scenario === 'historical';
-                  });
-                  rcp45_mod_series = data.find(function (series) {
-                    return series.scenario === 'rcp45';
-                  });
-                  rcp85_mod_series = data.find(function (series) {
-                    return series.scenario === 'rcp85';
-                  });
-                  variable_config = this.get_variable_config();
-                  unit_conversion_fn = variable_config.unit_conversions[this.options.unitsystem]; // reshape hist data to an array of [[year,mean,min,max], ...] (to match how update_annual_conus shapes it's data)
-
-                  hist_sdate_year = Number.parseInt(hist_mod_series.sdate.substr(0, 4));
-                  hist_mod_data = hist_mod_series.annual_data.all_mean.reduce(function (_data, v, i) {
-                    _data.push([hist_sdate_year + i, unit_conversion_fn(v), unit_conversion_fn(hist_mod_series.annual_data.all_min[i]), unit_conversion_fn(hist_mod_series.annual_data.all_max[i])]);
-
-                    return _data;
-                  }, []); // reshape proj data to an array of [[year,rcp45mean,rcp45min,rcp45max,rcp85mean,rcp85min,rcp85max], ...] (to match how update_annual_conus shapes it's data)
-
-                  proj_sdate_year = Number.parseInt(rcp45_mod_series.sdate.substr(0, 4));
-                  proj_mod_data = rcp45_mod_series.annual_data.all_mean.reduce(function (_data, v, i) {
-                    _data.push([proj_sdate_year + i, unit_conversion_fn(v), unit_conversion_fn(rcp45_mod_series.annual_data.all_min[i]), unit_conversion_fn(rcp45_mod_series.annual_data.all_max[i]), unit_conversion_fn(rcp85_mod_series.annual_data.all_mean[i]), unit_conversion_fn(rcp85_mod_series.annual_data.all_min[i]), unit_conversion_fn(rcp85_mod_series.annual_data.all_max[i])]);
-
-                    return _data;
-                  }, []); // format download data.
-
-                  this.downloadable_dataurls.hist_mod = this._format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data);
-                  this.downloadable_dataurls.proj_mod = this._format_export_data(['year', 'rcp45_mean', 'rcp45_min', 'rcp45_max', 'rcp85_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data);
-                  chart_data = {
-                    'hist_year': [],
-                    'hist_mean': [],
-                    'hist_min': [],
-                    'hist_max': [],
-                    'hist_max_diff': [],
-                    'proj_year': [],
-                    'rcp45_mean': [],
-                    'rcp45_min': [],
-                    'rcp45_max': [],
-                    'rcp85_mean': [],
-                    'rcp85_min': [],
-                    'rcp85_max': []
-                  };
-                  precision = 1;
-
-                  for (i = 0; i < hist_mod_data.length; i++) {
-                    chart_data['hist_year'].push(hist_mod_data[i][0]);
-                    chart_data['hist_mean'].push(hist_mod_data[i][1]);
-                    chart_data['hist_min'].push(hist_mod_data[i][2]);
-                    chart_data['hist_max'].push(hist_mod_data[i][3]);
-                  } // repeat 2005 data point to fill gap
-
-
-                  chart_data['proj_year'].push(hist_mod_data[hist_mod_data.length - 1][0]);
-                  chart_data['rcp45_mean'].push(round(hist_mod_data[hist_mod_data.length - 1][1], precision));
-                  chart_data['rcp45_min'].push(round(hist_mod_data[hist_mod_data.length - 1][2], precision));
-                  chart_data['rcp45_max'].push(round(hist_mod_data[hist_mod_data.length - 1][3], precision));
-                  chart_data['rcp85_mean'].push(round(hist_mod_data[hist_mod_data.length - 1][1], precision));
-                  chart_data['rcp85_min'].push(round(hist_mod_data[hist_mod_data.length - 1][2], precision));
-                  chart_data['rcp85_max'].push(round(hist_mod_data[hist_mod_data.length - 1][3], precision));
-
-                  for (_i7 = 0; _i7 < proj_mod_data.length; _i7++) {
-                    chart_data['proj_year'].push(proj_mod_data[_i7][0]);
-                    chart_data['rcp45_mean'].push(round(proj_mod_data[_i7][1], precision));
-                    chart_data['rcp45_min'].push(round(proj_mod_data[_i7][2], precision));
-                    chart_data['rcp45_max'].push(round(proj_mod_data[_i7][3], precision));
-                    chart_data['rcp85_mean'].push(round(proj_mod_data[_i7][4], precision));
-                    chart_data['rcp85_min'].push(round(proj_mod_data[_i7][5], precision));
-                    chart_data['rcp85_max'].push(round(proj_mod_data[_i7][6], precision));
-                  }
-
-                  _this$_update_axes_ra5 = this._update_axes_ranges(min([min(chart_data['hist_year']), min(chart_data['proj_year'])]), max([max(chart_data['hist_year']), max(chart_data['proj_year'])]), min([min(chart_data['hist_min']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_max']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])])), _this$_update_axes_ra6 = _slicedToArray(_this$_update_axes_ra5, 4), x_range_min = _this$_update_axes_ra6[0], x_range_max = _this$_update_axes_ra6[1], y_range_min = _this$_update_axes_ra6[2], y_range_max = _this$_update_axes_ra6[3];
-                  Plotly.react(this.graphdiv, [{
-                    name: 'Modeled minimum (historical)',
-                    x: chart_data['hist_year'],
-                    y: chart_data['hist_min'],
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'none',
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_hist_minmax
-                    },
-                    legendgroup: 'hist',
-                    visible: !!this.options.show_historical_modeled ? true : 'legendonly'
-                  }, {
-                    x: chart_data['hist_year'],
-                    // y: chart_data['hist_max_diff'],
-                    y: chart_data['hist_max'],
-                    // text: chart_data['hist_max'],
-                    // hoverinfo: 'text',
-                    name: 'Modeled maximum (historical)',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'tonexty',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_hist_minmax
-                    },
-                    legendgroup: 'hist',
-                    visible: !!this.options.show_historical_modeled ? true : 'legendonly'
-                  }, // {
-                  //   x: chart_data['hist_year'],
-                  //   y: chart_data['hist_mean'],
-                  //   type: 'scatter',
-                  //   mode: 'lines',
-                  //   name: 'Historical Mean',
-                  //   line: {color: '#000000'},
-                  //   legendgroup: 'hist',
-                  //   visible: !!this.options.show_historical_modeled ? true : 'legendonly',
-                  // },
-                  {
-                    x: chart_data['proj_year'],
-                    y: chart_data['rcp45_min'],
-                    name: 'Modeled minimum (RCP 4.5 projection)',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'none',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp45',
-                    visible: this.options.show_projected_rcp45 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['proj_year'],
-                    y: chart_data['rcp45_max'],
-                    name: 'Modeled maximum (RCP 4.5 projection)',
-                    fill: 'tonexty',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp45',
-                    visible: this.options.show_projected_rcp45 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['proj_year'],
-                    y: chart_data['rcp85_min'],
-                    name: 'Modeled minimum (RCP 8.5 projection)',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'none',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp85',
-                    visible: this.options.show_projected_rcp85 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['proj_year'],
-                    y: chart_data['rcp85_max'],
-                    name: 'Modeled maximum (RCP 8.5 projection)',
-                    fill: 'tonexty',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp85',
-                    visible: this.options.show_projected_rcp85 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['proj_year'],
-                    y: chart_data['rcp45_mean'],
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Modeled mean (RCP 4.5 projection)',
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)
-                    },
-                    visible: this.options.show_projected_rcp45 ? true : 'legendonly',
-                    legendgroup: 'rcp45'
-                  }, {
-                    x: chart_data['proj_year'],
-                    y: chart_data['rcp85_mean'],
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Modeled mean (RCP 8.5 projection)',
-                    visible: this.options.show_projected_rcp85 ? true : 'legendonly',
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)
-                    },
-                    legendgroup: 'rcp85'
-                  }], // layout
-                  {
-                    autosize: true,
-                    margin: {
-                      l: 50,
-                      t: 12,
-                      r: 12,
-                      b: 60
-                    },
-                    showlegend: this.options.show_legend,
-                    legend: {
-                      "orientation": "h"
-                    },
-                    xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
-                    yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
-                  }, // options
-                  this._get_plotly_options());
-
-                  this._update_visibility = function () {
-                    Plotly.restyle(_this5.graphdiv, {
-                      visible: [!!_this5.options.show_historical_modeled ? true : 'legendonly', !!_this5.options.show_historical_modeled ? true : 'legendonly', // !!this.options.show_historical_modeled ? true : 'legendonly',
-                      !!_this5.options.show_projected_rcp45 ? true : 'legendonly', !!_this5.options.show_projected_rcp45 ? true : 'legendonly', !!_this5.options.show_projected_rcp85 ? true : 'legendonly', !!_this5.options.show_projected_rcp85 ? true : 'legendonly', !!_this5.options.show_projected_rcp45 ? true : 'legendonly', !!_this5.options.show_projected_rcp85 ? true : 'legendonly']
-                    });
-                  };
-
-                  this._when_chart = new Promise(function (resolve) {
-                    _this5.graphdiv.on('plotly_afterplot', function (gd) {
-                      resolve(gd);
-                    });
-                  });
-
-                  this._when_chart.then(this._hide_spinner.bind(this));
-
-                case 30:
-                case "end":
-                  return _context4.stop();
-              }
-            }
-          }, _callee4, this);
-        }));
-
-        function _update_annual_island() {
-          return _update_annual_island2.apply(this, arguments);
-        }
-
-        return _update_annual_island;
-      }()
-    }, {
-      key: "_update_monthly_conus",
-      value: function () {
-        var _update_monthly_conus2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
-          var _this6 = this;
-
-          var _yield$Promise$all5, _yield$Promise$all6, hist_obs_month_values, proj_mod_month_values, variable_config, hist_obs_sdate_year, hist_obs_edate_year, hist_obs_data, _iterator, _step, month, proj_sdate_year, proj_mod_data, _iterator2, _step2, _month, _month_data, _iterator3, _step3, year_range, year_range_min_idx, _loop, _i9, _arr, chart_data, precision, monthly_timeperiod, col_offset, month_indexes, _i8, _month_indexes, m, _m, _this$_update_axes_ra7, _this$_update_axes_ra8, x_range_min, x_range_max, y_range_min, y_range_max;
-
-          return regeneratorRuntime.wrap(function _callee5$(_context5) {
-            while (1) {
-              switch (_context5.prev = _context5.next) {
-                case 0:
-                  _context5.next = 2;
-                  return Promise.all([this._get_historical_observed_livneh_data(), this._get_projected_loca_model_data()]);
-
-                case 2:
-                  _yield$Promise$all5 = _context5.sent;
-                  _yield$Promise$all6 = _slicedToArray(_yield$Promise$all5, 2);
-                  hist_obs_month_values = _yield$Promise$all6[0];
-                  proj_mod_month_values = _yield$Promise$all6[1];
-                  variable_config = this.get_variable_config();
-                  hist_obs_sdate_year = hist_obs_month_values['01'][0][0];
-                  hist_obs_edate_year = hist_obs_month_values['01'][hist_obs_month_values['01'].length - 1][0];
-                  hist_obs_data = [];
-                  _iterator = _createForOfIteratorHelper(ClimateByLocationWidget._months);
-
-                  try {
-                    for (_iterator.s(); !(_step = _iterator.n()).done;) {
-                      month = _step.value;
-                      hist_obs_data.push([month, mean(hist_obs_month_values[month].map(function (a) {
-                        return a[1];
-                      }))]);
-                    } // reshape from {month: [year, rcp45_mean, rcp45_min, rcp45_max, rcp85_mean, rcp85_min, rcp85_max]} to ['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max']
-
-                  } catch (err) {
-                    _iterator.e(err);
-                  } finally {
-                    _iterator.f();
-                  }
-
-                  proj_sdate_year = proj_mod_month_values['01'][0][0]; // const proj_edate_year = proj_mod_month_values['01'][proj_mod_month_values['01'].length - 1][0];
-
-                  proj_mod_data = [];
-                  _iterator2 = _createForOfIteratorHelper(ClimateByLocationWidget._months);
-
-                  try {
-                    for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-                      _month = _step2.value;
-                      _month_data = [];
-                      _iterator3 = _createForOfIteratorHelper(ClimateByLocationWidget._monthly_timeperiods);
-
-                      try {
-                        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-                          year_range = _step3.value;
-                          year_range_min_idx = year_range - 15 - proj_sdate_year;
-
-                          _loop = function _loop() {
-                            var scenario_column_offset = _arr[_i9];
-
-                            var _loop2 = function _loop2() {
-                              var value_i = _arr2[_i10];
-
-                              //mean, min, max
-                              _month_data.push(mean(proj_mod_month_values[_month].slice(year_range_min_idx, year_range_min_idx + 30).map(function (a) {
-                                return a[1 + scenario_column_offset + value_i];
-                              })));
-                            };
-
-                            // rcp45, rcp85
-                            for (var _i10 = 0, _arr2 = [0, 1, 2]; _i10 < _arr2.length; _i10++) {
-                              _loop2();
-                            }
-                          };
-
-                          for (_i9 = 0, _arr = [0, 3]; _i9 < _arr.length; _i9++) {
-                            _loop();
-                          }
-                        }
-                      } catch (err) {
-                        _iterator3.e(err);
-                      } finally {
-                        _iterator3.f();
-                      }
-
-                      proj_mod_data.push([_month].concat(_month_data));
-                    }
-                  } catch (err) {
-                    _iterator2.e(err);
-                  } finally {
-                    _iterator2.f();
-                  }
-
-                  this.downloadable_dataurls.hist_obs = this._format_export_data(['month', 'mean', "* Note that the mean is based on monthly data for years  ".concat(hist_obs_sdate_year, "-").concat(hist_obs_edate_year)], hist_obs_data);
-                  this.downloadable_dataurls.proj_mod = this._format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data);
-                  chart_data = {
-                    'month': [],
-                    'month_label': [],
-                    'hist_obs': [],
-                    'rcp45_mean': [],
-                    'rcp45_min': [],
-                    'rcp45_max': [],
-                    'rcp85_mean': [],
-                    'rcp85_min': [],
-                    'rcp85_max': []
-                  };
-                  precision = 1;
-                  monthly_timeperiod = Number.parseInt(this.options.monthly_timeperiod);
-                  col_offset = 1 + ClimateByLocationWidget._monthly_timeperiods.indexOf(monthly_timeperiod) * 6; // for some reason unknown to me, the following month cycle is shown.
-
-                  month_indexes = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
-
-                  for (_i8 = 0, _month_indexes = month_indexes; _i8 < _month_indexes.length; _i8++) {
-                    m = _month_indexes[_i8];
-                    _m = m % 12;
-                    chart_data['month'].push(m);
-                    chart_data['month_label'].push(ClimateByLocationWidget._months_labels[_m]);
-                    chart_data['hist_obs'].push(round(hist_obs_data[_m][1], precision));
-                    chart_data['rcp45_mean'].push(round(proj_mod_data[_m][col_offset], precision));
-                    chart_data['rcp45_min'].push(round(proj_mod_data[_m][1 + col_offset], precision));
-                    chart_data['rcp45_max'].push(round(proj_mod_data[_m][2 + col_offset], precision));
-                    chart_data['rcp85_mean'].push(round(proj_mod_data[_m][3 + col_offset], precision));
-                    chart_data['rcp85_min'].push(round(proj_mod_data[_m][4 + col_offset], precision));
-                    chart_data['rcp85_max'].push(round(proj_mod_data[_m][5 + col_offset], precision));
-                  }
-
-                  _this$_update_axes_ra7 = this._update_axes_ranges(month_indexes, month_indexes[month_indexes.length - 1], min([min(chart_data['hist_obs']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_obs']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])])), _this$_update_axes_ra8 = _slicedToArray(_this$_update_axes_ra7, 4), x_range_min = _this$_update_axes_ra8[0], x_range_max = _this$_update_axes_ra8[1], y_range_min = _this$_update_axes_ra8[2], y_range_max = _this$_update_axes_ra8[3];
-                  Plotly.react(this.graphdiv, [{
-                    x: chart_data['month'],
-                    y: chart_data['rcp45_min'],
-                    name: 'Modeled minimum (RCP 4.5 projection)',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'none',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp45',
-                    visible: this.options.show_projected_rcp45 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['month'],
-                    y: chart_data['rcp45_max'],
-                    name: 'Modeled maximum (RCP 4.5 projection)',
-                    fill: 'tonexty',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp45',
-                    visible: this.options.show_projected_rcp45 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['month'],
-                    y: chart_data['rcp85_min'],
-                    name: 'Modeled minimum (RCP 8.5 projection)',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'none',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp85',
-                    visible: this.options.show_projected_rcp85 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['month'],
-                    y: chart_data['rcp85_max'],
-                    name: 'Modeled maximum (RCP 8.5 projection)',
-                    fill: 'tonexty',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp85',
-                    visible: this.options.show_projected_rcp85 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['month'],
-                    y: chart_data['hist_obs'],
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: "Observed History (".concat(hist_obs_sdate_year, "-").concat(hist_obs_edate_year, " monthly mean)"),
-                    line: {
-                      color: this.options.colors.hist.line
-                    },
-                    legendgroup: 'histobs',
-                    visible: !!this.options.show_historical_observed ? true : 'legendonly'
-                  }, {
-                    x: chart_data['month'],
-                    y: chart_data['rcp45_mean'],
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Modeled mean (RCP 4.5 projection)',
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)
-                    },
-                    visible: this.options.show_projected_rcp45 ? true : 'legendonly',
-                    legendgroup: 'rcp45'
-                  }, {
-                    x: chart_data['month'],
-                    y: chart_data['rcp85_mean'],
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Modeled mean (RCP 8.5 projection)',
-                    visible: this.options.show_projected_rcp85 ? true : 'legendonly',
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)
-                    },
-                    legendgroup: 'rcp85'
-                  }], // layout
-                  {
-                    autosize: true,
-                    margin: {
-                      l: 50,
-                      t: 12,
-                      r: 12,
-                      b: 60
-                    },
-                    showlegend: this.options.show_legend,
-                    legend: {
-                      "orientation": "h"
-                    },
-                    xaxis: Object.assign(this._get_x_axis_layout(x_range_min, x_range_max), {
-                      tickmode: 'array',
-                      tickvals: month_indexes,
-                      ticktext: chart_data['month_label']
-                    }),
-                    yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
-                  }, // options
-                  this._get_plotly_options());
-
-                  this._update_visibility = function () {
-                    Plotly.restyle(_this6.graphdiv, {
-                      visible: [!!_this6.options.show_historical_modeled ? true : 'legendonly', !!_this6.options.show_historical_modeled ? true : 'legendonly', !!_this6.options.show_projected_rcp45 ? true : 'legendonly', !!_this6.options.show_projected_rcp45 ? true : 'legendonly', !!_this6.options.show_projected_rcp85 ? true : 'legendonly', !!_this6.options.show_projected_rcp85 ? true : 'legendonly', !!_this6.options.show_projected_rcp45 ? true : 'legendonly', !!_this6.options.show_projected_rcp85 ? true : 'legendonly']
-                    });
-                  };
-
-                  this._when_chart = new Promise(function (resolve) {
-                    _this6.graphdiv.on('plotly_afterplot', function (gd) {
-                      resolve(gd);
-                    });
-                  });
-
-                  this._when_chart.then(this._hide_spinner.bind(this));
-
-                case 29:
-                case "end":
-                  return _context5.stop();
-              }
-            }
-          }, _callee5, this);
-        }));
-
-        function _update_monthly_conus() {
-          return _update_monthly_conus2.apply(this, arguments);
-        }
-
-        return _update_monthly_conus;
-      }()
-    }, {
-      key: "_update_monthly_island",
-      value: function () {
-        var _update_monthly_island2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
-          var _this7 = this;
-
-          var data, hist_mod_series, rcp45_mod_series, rcp85_mod_series, variable_config, unit_conversion_fn, hist_mod_data, _iterator4, _step4, month, proj_sdate_year, proj_mod_data, _iterator5, _step5, _month2, _month_data2, _iterator6, _step6, year_range, _year_range_min_idx, _i12, _arr3, scenario_monthly_data, _i13, _arr4, value_name, chart_data, precision, monthly_timeperiod, col_offset, month_indexes, _i11, _month_indexes2, m, _m, _this$_update_axes_ra9, _this$_update_axes_ra10, x_range_min, x_range_max, y_range_min, y_range_max;
-
-          return regeneratorRuntime.wrap(function _callee6$(_context6) {
-            while (1) {
-              switch (_context6.prev = _context6.next) {
-                case 0:
-                  _context6.next = 2;
-                  return this._fetch_island_data(this.options.variable, this.options.area_id);
-
-                case 2:
-                  data = _context6.sent;
-                  hist_mod_series = data.find(function (series) {
-                    return series.scenario === 'historical';
-                  });
-                  rcp45_mod_series = data.find(function (series) {
-                    return series.scenario === 'rcp45';
-                  });
-                  rcp85_mod_series = data.find(function (series) {
-                    return series.scenario === 'rcp85';
-                  });
-                  variable_config = this.get_variable_config();
-                  unit_conversion_fn = variable_config.unit_conversions[this.options.unitsystem];
-                  hist_mod_data = [];
-                  _iterator4 = _createForOfIteratorHelper(ClimateByLocationWidget._months);
-
-                  try {
-                    for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-                      month = _step4.value;
-                      //year,mean,min,max
-                      hist_mod_data.push([month, unit_conversion_fn(mean(hist_mod_series.monthly_data.all_mean[month])), unit_conversion_fn(mean(hist_mod_series.monthly_data.all_min[month])), unit_conversion_fn(mean(hist_mod_series.monthly_data.all_max[month]))]);
-                    }
-                  } catch (err) {
-                    _iterator4.e(err);
-                  } finally {
-                    _iterator4.f();
-                  }
-
-                  proj_sdate_year = Number.parseInt(rcp85_mod_series.sdate.substr(0, 4));
-                  proj_mod_data = [];
-                  _iterator5 = _createForOfIteratorHelper(ClimateByLocationWidget._months);
-
-                  try {
-                    for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-                      _month2 = _step5.value;
-                      _month_data2 = [];
-                      _iterator6 = _createForOfIteratorHelper(ClimateByLocationWidget._monthly_timeperiods);
-
-                      try {
-                        for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
-                          year_range = _step6.value;
-                          _year_range_min_idx = year_range - 15 - proj_sdate_year;
-
-                          for (_i12 = 0, _arr3 = [rcp45_mod_series.monthly_data, rcp85_mod_series.monthly_data]; _i12 < _arr3.length; _i12++) {
-                            scenario_monthly_data = _arr3[_i12];
-
-                            for (_i13 = 0, _arr4 = ['mean', 'min', 'max']; _i13 < _arr4.length; _i13++) {
-                              value_name = _arr4[_i13];
-
-                              _month_data2.push(unit_conversion_fn(mean(scenario_monthly_data['all_' + value_name][_month2].slice(_year_range_min_idx, _year_range_min_idx + 30))));
-                            }
-                          }
-                        }
-                      } catch (err) {
-                        _iterator6.e(err);
-                      } finally {
-                        _iterator6.f();
-                      }
-
-                      proj_mod_data.push([_month2].concat(_month_data2));
-                    }
-                  } catch (err) {
-                    _iterator5.e(err);
-                  } finally {
-                    _iterator5.f();
-                  }
-
-                  this.downloadable_dataurls.hist_mod = this._format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data);
-                  this.downloadable_dataurls.proj_mod = this._format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data);
-                  chart_data = {
-                    'month': [],
-                    'month_label': [],
-                    'hist_min': [],
-                    'hist_max': [],
-                    'rcp45_mean': [],
-                    'rcp45_min': [],
-                    'rcp45_max': [],
-                    'rcp85_mean': [],
-                    'rcp85_min': [],
-                    'rcp85_max': []
-                  };
-                  precision = 1;
-                  monthly_timeperiod = Number.parseInt(this.options.monthly_timeperiod);
-                  col_offset = 1 + ClimateByLocationWidget._monthly_timeperiods.indexOf(monthly_timeperiod) * 6; // for some reason unknown to me, the following month cycle is shown.
-
-                  month_indexes = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
-
-                  for (_i11 = 0, _month_indexes2 = month_indexes; _i11 < _month_indexes2.length; _i11++) {
-                    m = _month_indexes2[_i11];
-                    _m = m % 12;
-                    chart_data['month'].push(m);
-                    chart_data['month_label'].push(ClimateByLocationWidget._months_labels[_m]);
-                    chart_data['hist_min'].push(round(hist_mod_data[_m][1], precision));
-                    chart_data['hist_max'].push(round(hist_mod_data[_m][2], precision));
-                    chart_data['rcp45_mean'].push(round(proj_mod_data[_m][col_offset], precision));
-                    chart_data['rcp45_min'].push(round(proj_mod_data[_m][1 + col_offset], precision));
-                    chart_data['rcp45_max'].push(round(proj_mod_data[_m][2 + col_offset], precision));
-                    chart_data['rcp85_mean'].push(round(proj_mod_data[_m][3 + col_offset], precision));
-                    chart_data['rcp85_min'].push(round(proj_mod_data[_m][4 + col_offset], precision));
-                    chart_data['rcp85_max'].push(round(proj_mod_data[_m][5 + col_offset], precision));
-                  }
-
-                  _this$_update_axes_ra9 = this._update_axes_ranges(month_indexes, month_indexes[month_indexes.length - 1], min([min(chart_data['hist_min']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_max']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])])), _this$_update_axes_ra10 = _slicedToArray(_this$_update_axes_ra9, 4), x_range_min = _this$_update_axes_ra10[0], x_range_max = _this$_update_axes_ra10[1], y_range_min = _this$_update_axes_ra10[2], y_range_max = _this$_update_axes_ra10[3];
-                  Plotly.react(this.graphdiv, [{
-                    name: 'Modeled minimum (historical)',
-                    x: chart_data['month'],
-                    y: chart_data['hist_min'],
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'none',
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_hist_minmax
-                    },
-                    legendgroup: 'hist',
-                    visible: !!this.options.show_historical_modeled ? true : 'legendonly'
-                  }, {
-                    x: chart_data['month'],
-                    // y: chart_data['hist_max_diff'],
-                    y: chart_data['hist_max'],
-                    // text: chart_data['hist_max'],
-                    // hoverinfo: 'text',
-                    name: 'Modeled maximum (historical)',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'tonexty',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_hist_minmax
-                    },
-                    legendgroup: 'hist',
-                    visible: !!this.options.show_historical_modeled ? true : 'legendonly'
-                  }, // {
-                  //   x: chart_data['hist_year'],
-                  //   y: chart_data['hist_mean'],
-                  //   type: 'scatter',
-                  //   mode: 'lines',
-                  //   name: 'Historical Mean',
-                  //   line: {color: '#000000'},
-                  //   legendgroup: 'hist',
-                  //   visible: !!this.options.show_historical_modeled ? true : 'legendonly',
-                  // },
-                  {
-                    x: chart_data['month'],
-                    y: chart_data['rcp45_min'],
-                    name: 'Modeled minimum (RCP 4.5 projection)',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'none',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp45',
-                    visible: this.options.show_projected_rcp45 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['month'],
-                    y: chart_data['rcp45_max'],
-                    name: 'Modeled maximum (RCP 4.5 projection)',
-                    fill: 'tonexty',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp45',
-                    visible: this.options.show_projected_rcp45 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['month'],
-                    y: chart_data['rcp85_min'],
-                    name: 'Modeled minimum (RCP 8.5 projection)',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fill: 'none',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp85',
-                    visible: this.options.show_projected_rcp85 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['month'],
-                    y: chart_data['rcp85_max'],
-                    name: 'Modeled maximum (RCP 8.5 projection)',
-                    fill: 'tonexty',
-                    type: 'scatter',
-                    mode: 'lines',
-                    fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
-                      width: 0,
-                      opacity: this.options.colors.opacity.ann_proj_minmax
-                    },
-                    legendgroup: 'rcp85',
-                    visible: this.options.show_projected_rcp85 ? true : 'legendonly'
-                  }, {
-                    x: chart_data['month'],
-                    y: chart_data['rcp45_mean'],
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Modeled mean (RCP 4.5 projection)',
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)
-                    },
-                    visible: this.options.show_projected_rcp45 ? true : 'legendonly',
-                    legendgroup: 'rcp45'
-                  }, {
-                    x: chart_data['month'],
-                    y: chart_data['rcp85_mean'],
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Modeled mean (RCP 8.5 projection)',
-                    visible: this.options.show_projected_rcp85 ? true : 'legendonly',
-                    line: {
-                      color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)
-                    },
-                    legendgroup: 'rcp85'
-                  }], // layout
-                  {
-                    autosize: true,
-                    margin: {
-                      l: 50,
-                      t: 12,
-                      r: 12,
-                      b: 60
-                    },
-                    showlegend: this.options.show_legend,
-                    legend: {
-                      "orientation": "h"
-                    },
-                    xaxis: Object.assign(this._get_x_axis_layout(x_range_min, x_range_max), {
-                      tickmode: 'array',
-                      tickvals: month_indexes,
-                      ticktext: chart_data['month_label']
-                    }),
-                    yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
-                  }, // options
-                  this._get_plotly_options());
-
-                  this._update_visibility = function () {
-                    Plotly.restyle(_this7.graphdiv, {
-                      visible: [!!_this7.options.show_historical_modeled ? true : 'legendonly', !!_this7.options.show_historical_modeled ? true : 'legendonly', !!_this7.options.show_projected_rcp45 ? true : 'legendonly', !!_this7.options.show_projected_rcp45 ? true : 'legendonly', !!_this7.options.show_projected_rcp85 ? true : 'legendonly', !!_this7.options.show_projected_rcp85 ? true : 'legendonly', !!_this7.options.show_projected_rcp45 ? true : 'legendonly', !!_this7.options.show_projected_rcp85 ? true : 'legendonly']
-                    });
-                  };
-
-                  this._when_chart = new Promise(function (resolve) {
-                    _this7.graphdiv.on('plotly_afterplot', function (gd) {
-                      resolve(gd);
-                    });
-                  });
-
-                  this._when_chart.then(this._hide_spinner.bind(this));
-
-                case 28:
-                case "end":
-                  return _context6.stop();
-              }
-            }
-          }, _callee6, this);
-        }));
-
-        function _update_monthly_island() {
-          return _update_monthly_island2.apply(this, arguments);
-        }
-
-        return _update_monthly_island;
-      }()
-    }, {
-      key: "_get_historical_observed_livneh_data",
-      value: function () {
-        var _get_historical_observed_livneh_data2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7() {
-          var freq, variable_config, unit_conversion_fn, area, elems, response, values, _iterator7, _step7, _step7$value, key, value, month_values, _iterator8, _step8, _step8$value, _key, _value, v;
-
-          return regeneratorRuntime.wrap(function _callee7$(_context7) {
-            while (1) {
-              switch (_context7.prev = _context7.next) {
-                case 0:
-                  freq = this.options.frequency === 'annual' ? 'annual' : 'monthly';
-                  variable_config = this.get_variable_config();
-                  unit_conversion_fn = variable_config.unit_conversions[this.options.unitsystem];
-                  area = this.get_area();
-                  elems = [Object.assign(variable_config['acis_elements'][freq], {
-                    'area_reduce': area.area_type + '_mean'
-                  })];
-                  _context7.next = 7;
-                  return fetch(this.options.data_api_endpoint, {
-                    method: "POST",
-                    headers: {
-                      'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(_defineProperty({
-                      "sdate": "1950-01-01",
-                      "edate": "2013-12-31",
-                      "grid": 'livneh',
-                      "elems": elems
-                    }, area.area_type, area.area_id))
-                  });
-
-                case 7:
-                  _context7.next = 9;
-                  return _context7.sent.json();
-
-                case 9:
-                  response = _context7.sent;
-
-                  if (response) {
-                    _context7.next = 12;
-                    break;
-                  }
-
-                  throw new Error("Failed to retrieve ".concat(freq, " livneh data for ").concat(this.options.variable, " and area ").concat(area.area_id));
-
-                case 12:
-                  if (!(this.options.frequency === 'annual')) {
-                    _context7.next = 17;
-                    break;
-                  }
-
-                  values = [];
-                  _iterator7 = _createForOfIteratorHelper(response.data);
-
-                  try {
-                    for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
-                      _step7$value = _slicedToArray(_step7.value, 2), key = _step7$value[0], value = _step7$value[1];
-
-                      if (undefined !== value[this.options.area_id] && String(value[this.options.area_id]) !== '-999' && String(value[this.options.area_id]) !== '') {
-                        values.push([key, unit_conversion_fn(value[this.options.area_id])]);
-                      }
-                    }
-                  } catch (err) {
-                    _iterator7.e(err);
-                  } finally {
-                    _iterator7.f();
-                  }
-
-                  return _context7.abrupt("return", values);
-
-                case 17:
-                  // monthly
-                  // build output of [month, [values...]].
-                  month_values = Object.fromEntries(ClimateByLocationWidget._months.map(function (m) {
-                    return [m, []];
-                  }));
-                  _iterator8 = _createForOfIteratorHelper(response.data);
-
-                  try {
-                    for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
-                      _step8$value = _slicedToArray(_step8.value, 2), _key = _step8$value[0], _value = _step8$value[1];
-
-                      if (undefined !== _value[area.area_id]) {
-                        v = parseFloat(_value[area.area_id]);
-
-                        if (v === -999 || !Number.isFinite(v)) {
-                          v = 0;
-                        }
-
-                        month_values[_key.slice(-2)].push([Number.parseInt(_key.slice(0, 4)), unit_conversion_fn(v)]);
-                      }
-                    }
-                  } catch (err) {
-                    _iterator8.e(err);
-                  } finally {
-                    _iterator8.f();
-                  }
-
-                  return _context7.abrupt("return", month_values);
-
-                case 21:
-                case "end":
-                  return _context7.stop();
-              }
-            }
-          }, _callee7, this);
-        }));
-
-        function _get_historical_observed_livneh_data() {
-          return _get_historical_observed_livneh_data2.apply(this, arguments);
-        }
-
-        return _get_historical_observed_livneh_data;
-      }()
-    }, {
-      key: "_get_historical_annual_loca_model_data",
-      value: function () {
-        var _get_historical_annual_loca_model_data2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8() {
-          var sdate_year, edate_year, sdate, edate, unit_conversion_fn, _this$options2, variable, frequency, area_id, data, values, i;
-
-          return regeneratorRuntime.wrap(function _callee8$(_context8) {
-            while (1) {
-              switch (_context8.prev = _context8.next) {
-                case 0:
-                  sdate_year = 1950;
-                  edate_year = 2006;
-                  sdate = sdate_year + '-01-01';
-                  edate = edate_year + '-12-31';
-                  unit_conversion_fn = this.get_variable_config().unit_conversions[this.options.unitsystem];
-                  _this$options2 = this.options, variable = _this$options2.variable, frequency = _this$options2.frequency, area_id = _this$options2.area_id;
-                  _context8.next = 8;
-                  return Promise.all([this._fetch_acis_data('loca:wMean:rcp85', sdate, edate, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('loca:allMin:rcp85', sdate, edate, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('loca:allMax:rcp85', sdate, edate, variable, frequency, area_id, unit_conversion_fn)]);
-
-                case 8:
-                  data = _context8.sent;
-                  values = [];
-
-                  for (i = 0; i < edate_year - sdate_year; i++) {
-                    values.push([i + sdate_year, data[0][1][i], data[1][1][i], data[2][1][i]]);
-                  }
-
-                  return _context8.abrupt("return", values);
-
-                case 12:
-                case "end":
-                  return _context8.stop();
-              }
-            }
-          }, _callee8, this);
-        }));
-
-        function _get_historical_annual_loca_model_data() {
-          return _get_historical_annual_loca_model_data2.apply(this, arguments);
-        }
-
-        return _get_historical_annual_loca_model_data;
-      }()
-    }, {
-      key: "_get_projected_loca_model_data",
-      value: function () {
-        var _get_projected_loca_model_data2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9() {
-          var sdate_year, sdate, edate_year, edate, unit_conversion_fn, _this$options3, variable, frequency, area_id, data, _iterator9, _step9, _step9$value, keys, _, values, i, monthly_values, _get_val, _i14;
-
-          return regeneratorRuntime.wrap(function _callee9$(_context9) {
-            while (1) {
-              switch (_context9.prev = _context9.next) {
-                case 0:
-                  sdate_year = this.options.frequency === 'monthly' ? 2010 : 2006;
-                  sdate = sdate_year + '-01-01';
-                  edate_year = 2099;
-                  edate = edate_year + '-12-31';
-                  unit_conversion_fn = this.get_variable_config().unit_conversions[this.options.unitsystem];
-                  _this$options3 = this.options, variable = _this$options3.variable, frequency = _this$options3.frequency, area_id = _this$options3.area_id;
-                  _context9.next = 8;
-                  return Promise.all([this._fetch_acis_data('loca:wMean:rcp45', sdate, edate, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('loca:allMin:rcp45', sdate, edate, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('loca:allMax:rcp45', sdate, edate, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('loca:wMean:rcp85', sdate, edate, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('loca:allMin:rcp85', sdate, edate, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('loca:allMax:rcp85', sdate, edate, variable, frequency, area_id, unit_conversion_fn)]);
-
-                case 8:
-                  data = _context9.sent;
-
-                  if (!(this.options.frequency === 'annual')) {
-                    _context9.next = 30;
-                    break;
-                  }
-
-                  _iterator9 = _createForOfIteratorHelper(data);
-                  _context9.prev = 11;
-
-                  _iterator9.s();
-
-                case 13:
-                  if ((_step9 = _iterator9.n()).done) {
-                    _context9.next = 19;
-                    break;
-                  }
-
-                  _step9$value = _slicedToArray(_step9.value, 2), keys = _step9$value[0], _ = _step9$value[1];
-
-                  if (!(keys.length !== edate_year - sdate_year + 1)) {
-                    _context9.next = 17;
-                    break;
-                  }
-
-                  throw new Error('Missing years in projected loca data!');
-
-                case 17:
-                  _context9.next = 13;
-                  break;
-
-                case 19:
-                  _context9.next = 24;
-                  break;
-
-                case 21:
-                  _context9.prev = 21;
-                  _context9.t0 = _context9["catch"](11);
-
-                  _iterator9.e(_context9.t0);
-
-                case 24:
-                  _context9.prev = 24;
-
-                  _iterator9.f();
-
-                  return _context9.finish(24);
-
-                case 27:
-                  values = [];
-
-                  for (i = 0; i < edate_year - sdate_year; i++) {
-                    values.push([i + sdate_year, data[0][1][i], data[1][1][i], data[2][1][i], data[3][1][i], data[4][1][i], data[5][1][i]]);
-                  }
-
-                  return _context9.abrupt("return", values);
-
-                case 30:
-                  // monthly
-                  // build output of {month: [year, rcp45_mean, rcp45_min, rcp45_max, rcp85_mean, rcp85_min, rcp85_max]}.
-                  monthly_values = Object.fromEntries(ClimateByLocationWidget._months.map(function (m) {
-                    return [m, []];
-                  }));
-
-                  _get_val = function _get_val(array, idx) {
-                    if (undefined !== array[idx]) {
-                      var v = parseFloat(array[idx]);
-
-                      if (v === -999) {
-                        v = Number.NaN;
-                      }
-
-                      return v;
-                    }
-
-                    return Number.NaN;
-                  };
-
-                  for (_i14 = 0; _i14 < data[0][0].length; _i14++) {
-                    monthly_values[data[0][0][_i14].slice(-2)].push([Number.parseInt(data[0][0][_i14].slice(0, 4)), _get_val(data[0][1], _i14), _get_val(data[1][1], _i14), _get_val(data[2][1], _i14), _get_val(data[3][1], _i14), _get_val(data[4][1], _i14), _get_val(data[5][1], _i14)]);
-                  }
-
-                  return _context9.abrupt("return", monthly_values);
-
-                case 34:
-                case "end":
-                  return _context9.stop();
-              }
-            }
-          }, _callee9, this, [[11, 21, 24, 27]]);
-        }));
-
-        function _get_projected_loca_model_data() {
-          return _get_projected_loca_model_data2.apply(this, arguments);
-        }
-
-        return _get_projected_loca_model_data;
-      }()
-      /**
-       * Retrieves data from ACIS.
-       * @param grid
-       * @param sdate
-       * @param edate
-       * @param variable
-       * @param frequency
-       * @param area_id
-       * @param unit_conversion_fn
-       * @return {Promise<[][]>}
-       * @private
-       */
-
-    }, {
-      key: "_fetch_acis_data",
-      value: function () {
-        var _fetch_acis_data2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(grid, sdate, edate, variable, frequency, area_id, unit_conversion_fn) {
-          var area, elems, response, keys, values, _iterator10, _step10, _step10$value, key, value;
-
-          return regeneratorRuntime.wrap(function _callee10$(_context10) {
-            while (1) {
-              switch (_context10.prev = _context10.next) {
-                case 0:
-                  area = ClimateByLocationWidget.get_areas(null, null, area_id)[0];
-                  elems = [Object.assign(this.get_variable_config()['acis_elements'][frequency === 'annual' ? 'annual' : 'monthly'], {
-                    "area_reduce": area.area_type + '_mean'
-                  })];
-                  _context10.next = 4;
-                  return fetch(this.options.data_api_endpoint, {
-                    method: "POST",
-                    headers: {
-                      'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(_defineProperty({
-                      "grid": grid,
-                      "sdate": String(sdate),
-                      "edate": String(edate),
-                      "elems": elems
-                    }, area.area_type, area.area_id))
-                  });
-
-                case 4:
-                  _context10.next = 6;
-                  return _context10.sent.json();
-
-                case 6:
-                  response = _context10.sent;
-                  keys = [];
-                  values = [];
-                  _iterator10 = _createForOfIteratorHelper(get(response, 'data', {}));
-
-                  try {
-                    for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
-                      _step10$value = _slicedToArray(_step10.value, 2), key = _step10$value[0], value = _step10$value[1];
-
-                      if (undefined !== value[area_id] && String(value[area_id]) !== '-999' && String(value[area_id]) !== '') {
-                        keys.push(key);
-                        values.push(unit_conversion_fn(value[area_id]));
-                      }
-                    }
-                  } catch (err) {
-                    _iterator10.e(err);
-                  } finally {
-                    _iterator10.f();
-                  }
-
-                  return _context10.abrupt("return", [keys, values]);
-
-                case 12:
-                case "end":
-                  return _context10.stop();
-              }
-            }
-          }, _callee10, this);
-        }));
-
-        function _fetch_acis_data(_x, _x2, _x3, _x4, _x5, _x6, _x7) {
-          return _fetch_acis_data2.apply(this, arguments);
-        }
-
-        return _fetch_acis_data;
-      }()
-      /**
-       * Retrieves island data and pre-filters it to just the variable we're interested in.
-       * @return {Promise<array<{area_id,scenario,sdate,area_label,gcm_coords,area_type,variable,annual_data:{all_max, all_mean,all_min}, monthly_data:{all_max, all_mean,all_min}}>>}
-       * @private
-       */
-
-    }, {
-      key: "_fetch_island_data",
-      value: function () {
-        var _fetch_island_data2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(variable, area_id) {
-          var _this8 = this;
-
-          var response;
-          return regeneratorRuntime.wrap(function _callee11$(_context11) {
-            while (1) {
-              switch (_context11.prev = _context11.next) {
-                case 0:
-                  _context11.next = 2;
-                  return fetch(this.options.island_data_url_template.replace('{area_id}', area_id), {
-                    method: "GET",
-                    headers: {
-                      'Content-Type': 'application/json'
-                    }
-                  });
-
-                case 2:
-                  _context11.next = 4;
-                  return _context11.sent.json();
-
-                case 4:
-                  response = _context11.sent;
-
-                  if (response) {
-                    _context11.next = 7;
-                    break;
-                  }
-
-                  throw new Error("No data found for area \"".concat(area_id, "\" and variable \"").concat(variable, "\""));
-
-                case 7:
-                  // variable names are slightly different in the island data
-                  if (variable === 'days_dry_days') {
-                    variable = 'dryday';
-                  } else if (variable.startsWith('days_t')) {
-                    variable = variable.replace(/days_(.+?)_.+?_([0-9]+)f/, "$1$2F");
-                  } else if (variable.startsWith('days_pcpn')) {
-                    variable = variable.replace(/.+?([0-9]+)in/, "pr$1in");
-                  } else if (variable.endsWith('_65f')) {
-                    variable = variable.replace('_65f', '');
-                  } else if (variable === 'gddmod') {
-                    variable = 'mgdd';
-                  } else if (variable === 'pcpn') {
-                    variable = 'precipitation';
-                  }
-
-                  return _context11.abrupt("return", response.data.filter(function (series) {
-                    return series.area_id === _this8.options.area_id && series.variable === variable;
-                  }));
-
-                case 9:
-                case "end":
-                  return _context11.stop();
-              }
-            }
-          }, _callee11, this);
-        }));
-
-        function _fetch_island_data(_x8, _x9) {
-          return _fetch_island_data2.apply(this, arguments);
-        }
-
-        return _fetch_island_data;
-      }()
-    }, {
-      key: "_transform_acis_loca_monthly",
-      value: function _transform_acis_loca_monthly(wMean45, min45, max45, wMean85, min85, max85) {
-        // TODO completely revise this!
-        var data = {};
-        [2025, 2050, 2075].forEach(function (yearRange) {
-          data[yearRange] = {};
-
-          ClimateByLocationWidget._months.forEach(function (month) {
-            var season_month = month;
-
-            if (undefined === data[yearRange][season_month]) {
-              data[yearRange][season_month] = {};
-            }
-
-            var datasets = {
-              'wMean45': wMean45,
-              'wMean85': wMean85,
-              'min45': min45,
-              'max45': max45,
-              'min85': min85,
-              'max85': max85
-            };
-            Object.keys(datasets).forEach(function (dataset) {
-              if (undefined === data[yearRange][season_month][dataset]) {
-                data[yearRange][season_month][dataset] = [];
-              }
-
-              for (var year = yearRange - 15; year < yearRange + 15; year++) {
-                var year_month = String(year) + '-' + String(month);
-
-                if (datasets[dataset].hasOwnProperty(year_month)) {
-                  data[yearRange][season_month][dataset].push(datasets[dataset][year_month]);
-                }
-              }
-            });
-          });
-        }); // mean values by month
-
-        Object.keys(data).forEach(function (yearRange) {
-          Object.keys(data[yearRange]).forEach(function (month) {
-            ['wMean45', 'wMean85', 'min45', 'min85', 'max45', 'max85'].forEach(function (valueName) {
-              var length = data[yearRange][month][valueName].length;
-              var sum = data[yearRange][month][valueName].reduce(function (acc, value) {
-                return acc + value;
-              }, 0);
-              data[yearRange][month][valueName] = sum / length;
-            });
-          });
-        }); // reformat to expected output
-        // [ month,2025rcp45_max,2025rcp45_weighted_mean,2025rcp45_min,2025rcp85_max,2025rcp85_weighted_mean,2025rcp85_min,2050rcp45_max,2050rcp45_weighted_mean,2050rcp45_min,2050rcp85_max,2050rcp85_weighted_mean,2050rcp85_min,2075rcp45_max,2075rcp45_weighted_mean,2075rcp45_min,2075rcp85_max,2075rcp85_weighted_mean,2075rcp85_min ]
-
-        var dataByMonth = {};
-
-        ClimateByLocationWidget._months.forEach(function (month) {
-          dataByMonth[month] = {};
-
-          ClimateByLocationWidget._monthly_timeperiods.forEach(function (yearRange) {
-            ['45', '85'].forEach(function (scenario) {
-              ['max', 'wMean', 'min'].forEach(function (valueName) {
-                dataByMonth[month][String(yearRange) + 'rcp' + String(scenario) + '_' + String(valueName)] = data[yearRange][month][String(valueName) + String(scenario)];
-              });
-            });
-          });
-        });
-
-        var result = [];
-        Object.keys(dataByMonth).forEach(function (month) {
-          result.push([month, dataByMonth[month]['2025rcp45_wMean'], dataByMonth[month]['2025rcp45_min'], dataByMonth[month]['2025rcp45_max'], dataByMonth[month]['2025rcp85_wMean'], dataByMonth[month]['2025rcp85_min'], dataByMonth[month]['2025rcp85_max'], dataByMonth[month]['2050rcp45_wMean'], dataByMonth[month]['2050rcp45_min'], dataByMonth[month]['2050rcp45_max'], dataByMonth[month]['2050rcp85_wMean'], dataByMonth[month]['2050rcp85_min'], dataByMonth[month]['2050rcp85_max'], dataByMonth[month]['2075rcp45_wMean'], dataByMonth[month]['2075rcp45_min'], dataByMonth[month]['2075rcp45_max'], dataByMonth[month]['2075rcp85_wMean'], dataByMonth[month]['2075rcp85_min'], dataByMonth[month]['2075rcp85_max']]);
-        }); // Sort before returning
-
-        result.sort(function (a, b) {
-          return (a[0] > b[0]) - (a[0] < b[0]);
-        });
-        this.downloadable_dataurls.proj_mod = this._format_export_data(['month', '2025_rcp45_weighted_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_weighted_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_weighted_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_weighted_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_max', '2075_rcp45_weighted_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_weighted_mean', '2075_rcp85_min', '2075_rcp85_max'], result);
-        return result;
+      for (let i = 0; i < hist_mod_data.length; i++) {
+        chart_data['hist_year'].push(hist_mod_data[i][0]);
+        chart_data['hist_mean'].push(round(hist_mod_data[i][1], precision));
+        chart_data['hist_min'].push(round(hist_mod_data[i][2], precision));
+        chart_data['hist_max'].push(round(hist_mod_data[i][3], precision));
+      } // repeat 2005 data point to fill gap
+
+
+      proj_mod_data.unshift([hist_mod_data[hist_mod_data.length - 1][0], round(hist_mod_data[hist_mod_data.length - 1][1], precision), round(hist_mod_data[hist_mod_data.length - 1][2], precision), round(hist_mod_data[hist_mod_data.length - 1][3], precision), round(hist_mod_data[hist_mod_data.length - 1][1], precision), round(hist_mod_data[hist_mod_data.length - 1][2], precision), round(hist_mod_data[hist_mod_data.length - 1][3], precision)]);
+
+      for (let i = 0; i < proj_mod_data.length; i++) {
+        chart_data['proj_year'].push(proj_mod_data[i][0]);
+        chart_data['rcp45_mean'].push(round(proj_mod_data[i][1], precision));
+        chart_data['rcp45_min'].push(round(proj_mod_data[i][2], precision));
+        chart_data['rcp45_max'].push(round(proj_mod_data[i][3], precision));
+        chart_data['rcp85_mean'].push(round(proj_mod_data[i][4], precision));
+        chart_data['rcp85_min'].push(round(proj_mod_data[i][5], precision));
+        chart_data['rcp85_max'].push(round(proj_mod_data[i][6], precision));
       }
-      /**
-       * Updates this.options.xrange and this.options.yrange (if they are not null) based on new ranges computed from data and emits range events.
-       * @param x_range_min
-       * @param x_range_max
-       * @param y_range_min
-       * @param y_range_max
-       * @return {*[]}
-       * @private
-       */
 
-    }, {
-      key: "_update_axes_ranges",
-      value: function _update_axes_ranges(x_range_min, x_range_max, y_range_min, y_range_max) {
-        var _this9 = this;
+      const [x_range_min, x_range_max, y_range_min, y_range_max] = this._update_axes_ranges(min([min(chart_data['hist_year']), min(chart_data['proj_year'])]), max([max(chart_data['hist_year']), max(chart_data['proj_year'])]), min([min(chart_data['hist_min']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_max']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])]));
 
-        if (!!this.options.x_axis_range) {
-          this.options.x_axis_range = [Math.max(x_range_min, get(this.options, ['x_axis_range', 0], x_range_min)), Math.min(x_range_max, get(this.options, ['x_axis_range', 1], x_range_max))];
-        }
-
-        if (!!this.options.y_axis_range) {
-          this.options.y_axis_range = [Math.max(y_range_min, get(this.options, ['y_axis_range', 0], y_range_min)), Math.min(y_range_max, get(this.options, ['y_axis_range', 1], y_range_max))];
-        }
-
-        if (Number.isFinite(x_range_min) && Number.isFinite(x_range_max)) {
-          window.setTimeout(function () {
-            _this9.element.dispatchEvent(new CustomEvent('x_axis_range_change', {
-              detail: [x_range_min, x_range_max, get(_this9.options, ['x_axis_range', 0], x_range_min), get(_this9.options, ['x_axis_range', 1], x_range_max)]
-            }));
-
-            _this9.element.dispatchEvent(new CustomEvent('y_axis_range_change', {
-              detail: [y_range_min, y_range_max, get(_this9.options, ['y_axis_range', 0], y_range_min), get(_this9.options, ['y_axis_range', 1], y_range_max)]
-            }));
-          });
-        }
-
-        return [].concat(_toConsumableArray(this.options.x_axis_range || [x_range_min, x_range_max]), _toConsumableArray(this.options.y_axis_range || [y_range_min, y_range_max]));
-      }
-    }, {
-      key: "_get_y_axis_layout",
-      value: function _get_y_axis_layout(y_range_min, y_range_max, variable_config) {
-        return {
+      Plotly.react(this.graphdiv, [{
+        name: 'Modeled minimum (historical)',
+        x: chart_data['hist_year'],
+        y: chart_data['hist_min'],
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'none',
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_hist_minmax
+        },
+        legendgroup: 'hist',
+        visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+        hovertemplate: "<extra></extra>"
+      }, {
+        x: chart_data['hist_year'],
+        // y: chart_data['hist_max_diff'],
+        y: chart_data['hist_max'],
+        // text: chart_data['hist_max'],
+        // hoverinfo: 'text',
+        name: 'Modeled maximum (historical)',
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'tonexty',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_hist_minmax
+        },
+        legendgroup: 'hist',
+        visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+        customdata: hist_mod_data,
+        hovertemplate: "Hist. Modeled: %{customdata[2]:.1f} - %{customdata[3]:.1f}<extra></extra>"
+      }, // {
+      //   x: chart_data['hist_year'],
+      //   y: chart_data['hist_mean'],
+      //   type: 'scatter',
+      //   mode: 'lines',
+      //   name: 'Historical Mean',
+      //   line: {color: '#000000'},
+      //   legendgroup: 'hist',
+      //   visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+      // },
+      {
+        x: chart_data['proj_year'],
+        y: chart_data['rcp45_min'],
+        name: 'Modeled minimum (RCP 4.5 projection)',
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'none',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp45',
+        visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+        showlegend: false,
+        hovertemplate: "<extra></extra>"
+      }, {
+        x: chart_data['proj_year'],
+        y: chart_data['rcp45_max'],
+        name: 'Modeled maximum (RCP 4.5 projection)',
+        fill: 'tonexty',
+        type: 'scatter',
+        mode: 'lines',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp45',
+        visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+        customdata: proj_mod_data,
+        hovertemplate: "(%{customdata[2]:.1f} - %{customdata[3]:.1f})<extra></extra>"
+      }, {
+        x: chart_data['proj_year'],
+        y: chart_data['rcp85_min'],
+        name: 'Modeled minimum (RCP 8.5 projection)',
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'none',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp85',
+        visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+        showlegend: false,
+        hovertemplate: "<extra></extra>"
+      }, {
+        x: chart_data['proj_year'],
+        y: chart_data['rcp85_max'],
+        name: 'Modeled maximum (RCP 8.5 projection)',
+        fill: 'tonexty',
+        type: 'scatter',
+        mode: 'lines',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp85',
+        visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+        customdata: proj_mod_data,
+        hovertemplate: "(%{customdata[5]:.1f} - %{customdata[6]:.1f})<extra></extra>"
+      }, {
+        x: chart_data['hist_obs_year'],
+        y: chart_data['hist_obs_diff'],
+        type: 'bar',
+        yaxis: 'y2',
+        base: hist_obs_bar_base,
+        name: 'Historical Observed',
+        line: {
+          color: this.options.colors.hist.line,
+          width: 0.5
+        },
+        marker: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.hist.bar, this.options.colors.opacity.hist_obs)
+        },
+        legendgroup: 'histobs',
+        visible: !!this.options.show_historical_observed ? true : 'legendonly',
+        hovertemplate: "Observed: <b>%{y:.1f}</b><extra></extra>"
+      }, {
+        x: chart_data['proj_year'],
+        y: chart_data['rcp45_mean'],
+        type: 'scatter',
+        mode: 'lines',
+        name: 'RCP 4.5 projections (weighted mean)',
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)
+        },
+        visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+        legendgroup: 'rcp45',
+        yaxis: 'y3',
+        hovertemplate: "RCP 4.5: <b>%{y:.1f}</b><extra></extra>"
+      }, {
+        x: chart_data['proj_year'],
+        y: chart_data['rcp85_mean'],
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Modeled mean (RCP 8.5 projections, weighted)',
+        visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)
+        },
+        legendgroup: 'rcp85',
+        yaxis: 'y3',
+        hovertemplate: "RCP 8.5: <b>%{y:.1f}</b><extra></extra>"
+      }], // layout
+      {
+        autosize: true,
+        margin: {
+          l: 50,
+          t: 12,
+          r: 12,
+          b: 60
+        },
+        showlegend: this.options.show_legend,
+        legend: {
+          "orientation": "h"
+        },
+        hovermode: 'x unified',
+        xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
+        yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config),
+        yaxis2: {
           type: 'linear',
-          range: [y_range_min, y_range_max],
-          showline: true,
-          showgrid: true,
-          linecolor: 'rgb(0,0,0)',
-          linewidth: 1,
-          tickcolor: 'rgb(0,0,0)',
-          tickfont: {
-            size: 10,
+          matches: 'y',
+          overlaying: 'y',
+          showline: false,
+          showgrid: false,
+          showticklabels: false,
+          nticks: 0
+        },
+        yaxis3: {
+          type: 'linear',
+          matches: 'y',
+          overlaying: 'y',
+          showline: false,
+          showgrid: false,
+          showticklabels: false,
+          nticks: 0
+        }
+      }, // options
+      this._get_plotly_options());
+
+      this._update_visibility = () => {
+        Plotly.restyle(this.graphdiv, {
+          visible: [!!this.options.show_historical_modeled ? true : 'legendonly', !!this.options.show_historical_modeled ? true : 'legendonly', // !!this.options.show_historical_modeled ? true : 'legendonly',
+          !!this.options.show_projected_rcp45 ? true : 'legendonly', !!this.options.show_projected_rcp45 ? true : 'legendonly', !!this.options.show_projected_rcp85 ? true : 'legendonly', !!this.options.show_projected_rcp85 ? true : 'legendonly', !!this.options.show_historical_observed ? true : 'legendonly', !!this.options.show_projected_rcp45 ? true : 'legendonly', !!this.options.show_projected_rcp85 ? true : 'legendonly']
+        });
+      };
+
+      this._when_chart = new Promise(resolve => {
+        this.graphdiv.on('plotly_afterplot', gd => {
+          resolve(gd);
+        });
+      });
+
+      this._when_chart.then(this._hide_spinner.bind(this));
+    }
+
+    async _update_annual_ak() {
+      // get data for GFDL-CM3 and NCAR-CCSM4
+      let hist_sdate_year = 1970; // let hist_sdate = hist_sdate_year + '-01-01';
+
+      let hist_edate_year = 2005; // let hist_edate = hist_edate_year + '-12-31';
+
+      let proj_edate_year = 2099;
+      const variable_config = this.get_variable_config();
+      const {
+        variable,
+        frequency,
+        area_id
+      } = this.options;
+      const unit_conversion_fn = variable_config.unit_conversions[this.options.unitsystem];
+      const [[gfdl_cm3_rcp85_years, gfdl_cm3_rcp85], [ncar_ccsm4_rcp85_years, ncar_ccsm4_rcp85]] = await Promise.all([this._fetch_acis_data('snap:GFDL-CM3:rcp85', hist_sdate_year, proj_edate_year, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('snap:NCAR-CCSM4:rcp85', hist_sdate_year, proj_edate_year, variable, frequency, area_id, unit_conversion_fn)]);
+
+      if (!isEqual(gfdl_cm3_rcp85_years, ncar_ccsm4_rcp85_years) || Number.parseInt(gfdl_cm3_rcp85_years[0]) !== hist_sdate_year || Number.parseInt(ncar_ccsm4_rcp85_years[0]) !== hist_sdate_year || Number.parseInt(gfdl_cm3_rcp85_years[gfdl_cm3_rcp85_years.length - 1]) !== proj_edate_year || Number.parseInt(ncar_ccsm4_rcp85_years[ncar_ccsm4_rcp85_years.length - 1]) !== proj_edate_year) {
+        throw new Error("Unexpected annual data!");
+      } // split into hist mod vs proj mod
+
+
+      let hist_mod_data = [];
+      let proj_mod_data = [];
+      const rolling_window = 10;
+
+      for (let i = 0; i < hist_edate_year - hist_sdate_year + 1; i++) {
+        //year,gfdl_cm3_rcp85,ncar_ccsm4_rcp85
+        hist_mod_data.push([i + hist_sdate_year, ClimateByLocationWidget._rolling_window_average(gfdl_cm3_rcp85, i), ClimateByLocationWidget._rolling_window_average(ncar_ccsm4_rcp85, i)]);
+      }
+
+      for (let i = hist_edate_year - hist_sdate_year; i <= proj_edate_year - hist_sdate_year + 1; i++) {
+        //year,gfdl_cm3_rcp85,ncar_ccsm4_rcp85
+        proj_mod_data.push([i + hist_sdate_year, ClimateByLocationWidget._rolling_window_average(gfdl_cm3_rcp85, i), ClimateByLocationWidget._rolling_window_average(ncar_ccsm4_rcp85, i)]);
+      }
+
+      this.downloadable_dataurls.hist_mod = this._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85', "*Note that the values shown have had a ".concat(rolling_window, "-year rolling window average applied.")], hist_mod_data);
+      this.downloadable_dataurls.proj_mod = this._format_export_data(['year', 'gfdl_cm3_rcp85', 'ncar_ccsm4_rcp85', "*Note that the values shown have had a ".concat(rolling_window, "-year rolling window average applied.")], proj_mod_data);
+      const chart_data = {
+        'hist_year': [],
+        'hist_min': [],
+        'hist_max': [],
+        'proj_year': [],
+        'rcp85_min': [],
+        'rcp85_max': []
+      };
+      const precision = 1;
+
+      for (let i = 0; i < hist_mod_data.length; i++) {
+        chart_data['hist_year'].push(hist_mod_data[i][0]);
+        chart_data['hist_min'].push(round(Math.min(hist_mod_data[i][1], hist_mod_data[i][2]), precision));
+        chart_data['hist_max'].push(round(Math.max(hist_mod_data[i][1], hist_mod_data[i][2]), precision));
+      } // repeat 2005 data point to fill gap
+
+
+      chart_data['proj_year'].push(hist_mod_data[hist_mod_data.length - 1][0]);
+      chart_data['rcp85_min'].push(round(Math.min(hist_mod_data[hist_mod_data.length - 1][1], hist_mod_data[hist_mod_data.length - 1][2]), precision));
+      chart_data['rcp85_max'].push(round(Math.max(hist_mod_data[hist_mod_data.length - 1][1], hist_mod_data[hist_mod_data.length - 1][2]), precision));
+
+      for (let i = 0; i < proj_mod_data.length; i++) {
+        chart_data['proj_year'].push(proj_mod_data[i][0]);
+        chart_data['rcp85_min'].push(round(Math.min(proj_mod_data[i][1], proj_mod_data[i][2]), precision));
+        chart_data['rcp85_max'].push(round(Math.max(proj_mod_data[i][1], proj_mod_data[i][2]), precision));
+      }
+
+      const [x_range_min, x_range_max, y_range_min, y_range_max] = this._update_axes_ranges(min([min(chart_data['hist_year']), min(chart_data['proj_year'])]), max([max(chart_data['hist_year']), max(chart_data['proj_year'])]), min([min(chart_data['hist_min']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_max']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])]));
+
+      Plotly.react(this.graphdiv, [{
+        name: 'Modeled minimum (historical)',
+        x: chart_data['hist_year'],
+        y: chart_data['hist_min'],
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'none',
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_hist_minmax
+        },
+        legendgroup: 'hist',
+        visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+        hovertemplate: "<extra></extra>"
+      }, {
+        x: chart_data['hist_year'],
+        y: chart_data['hist_max'],
+        name: 'Modeled maximum (historical)',
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'tonexty',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, 1),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
+          width: 0,
+          opacity: 1
+        },
+        legendgroup: 'hist',
+        visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+        customdata: hist_mod_data,
+        hovertemplate: "Hist. Modeled: GFDL-CM3=%{customdata[1]:.1f}, NCAR-CCSM4=%{customdata[2]:.1f}<extra></extra>"
+      }, {
+        x: chart_data['proj_year'],
+        y: chart_data['rcp85_min'],
+        name: 'Modeled minimum (RCP 8.5)',
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'none',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, 1),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: 1
+        },
+        legendgroup: 'rcp85',
+        visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+        showlegend: false,
+        hovertemplate: "<extra></extra>"
+      }, {
+        x: chart_data['proj_year'],
+        y: chart_data['rcp85_max'],
+        name: 'Modeled maximum (RCP 8.5)',
+        fill: 'tonexty',
+        type: 'scatter',
+        mode: 'lines',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, 1),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: 1
+        },
+        legendgroup: 'rcp85',
+        visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+        customdata: proj_mod_data,
+        hovertemplate: "RCP 8.5: GFDL-CM3=%{customdata[1]:.1f},  NCAR-CCSM4=%{customdata[2]:.1f}<extra></extra>"
+      }], // layout
+      {
+        autosize: true,
+        margin: {
+          l: 50,
+          t: 12,
+          r: 12,
+          b: 60
+        },
+        showlegend: this.options.show_legend,
+        hovermode: 'x unified',
+        legend: {
+          "orientation": "h"
+        },
+        xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
+        yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
+      }, // options
+      this._get_plotly_options());
+
+      this._update_visibility = () => {
+        Plotly.restyle(this.graphdiv, {
+          visible: [!!this.options.show_historical_modeled ? true : 'legendonly', !!this.options.show_historical_modeled ? true : 'legendonly', !!this.options.show_projected_rcp85 ? true : 'legendonly', !!this.options.show_projected_rcp85 ? true : 'legendonly']
+        });
+      };
+
+      this._when_chart = new Promise(resolve => {
+        this.graphdiv.on('plotly_afterplot', gd => {
+          resolve(gd);
+        });
+      });
+
+      this._when_chart.then(this._hide_spinner.bind(this));
+    }
+
+    async _update_annual_island() {
+      let data = await this._fetch_island_data(this.options.variable, this.options.area_id);
+      let hist_mod_series = data.find(series => series.scenario === 'historical');
+      let rcp45_mod_series = data.find(series => series.scenario === 'rcp45');
+      let rcp85_mod_series = data.find(series => series.scenario === 'rcp85');
+      const variable_config = this.get_variable_config();
+      const unit_conversion_fn = variable_config.unit_conversions[this.options.unitsystem]; // reshape hist data to an array of [[year,mean,min,max], ...] (to match how update_annual_conus shapes it's data)
+
+      const hist_sdate_year = Number.parseInt(hist_mod_series.sdate.substr(0, 4));
+      let hist_mod_data = hist_mod_series.annual_data.all_mean.reduce((_data, v, i) => {
+        _data.push([hist_sdate_year + i, unit_conversion_fn(v), unit_conversion_fn(hist_mod_series.annual_data.all_min[i]), unit_conversion_fn(hist_mod_series.annual_data.all_max[i])]);
+
+        return _data;
+      }, []); // reshape proj data to an array of [[year,rcp45mean,rcp45min,rcp45max,rcp85mean,rcp85min,rcp85max], ...] (to match how update_annual_conus shapes it's data)
+
+      const proj_sdate_year = Number.parseInt(rcp45_mod_series.sdate.substr(0, 4));
+      let proj_mod_data = rcp45_mod_series.annual_data.all_mean.reduce((_data, v, i) => {
+        _data.push([proj_sdate_year + i, unit_conversion_fn(v), unit_conversion_fn(rcp45_mod_series.annual_data.all_min[i]), unit_conversion_fn(rcp45_mod_series.annual_data.all_max[i]), unit_conversion_fn(rcp85_mod_series.annual_data.all_mean[i]), unit_conversion_fn(rcp85_mod_series.annual_data.all_min[i]), unit_conversion_fn(rcp85_mod_series.annual_data.all_max[i])]);
+
+        return _data;
+      }, []); // format download data.
+
+      this.downloadable_dataurls.hist_mod = this._format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data);
+      this.downloadable_dataurls.proj_mod = this._format_export_data(['year', 'rcp45_mean', 'rcp45_min', 'rcp45_max', 'rcp85_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data);
+      const chart_data = {
+        'hist_year': [],
+        'hist_mean': [],
+        'hist_min': [],
+        'hist_max': [],
+        'hist_max_diff': [],
+        'proj_year': [],
+        'rcp45_mean': [],
+        'rcp45_min': [],
+        'rcp45_max': [],
+        'rcp85_mean': [],
+        'rcp85_min': [],
+        'rcp85_max': []
+      };
+      const precision = 1;
+
+      for (let i = 0; i < hist_mod_data.length; i++) {
+        chart_data['hist_year'].push(hist_mod_data[i][0]);
+        chart_data['hist_mean'].push(hist_mod_data[i][1]);
+        chart_data['hist_min'].push(hist_mod_data[i][2]);
+        chart_data['hist_max'].push(hist_mod_data[i][3]);
+      } // repeat 2005 data point to fill gap
+
+
+      proj_mod_data.unshift([hist_mod_data[hist_mod_data.length - 1][0], round(hist_mod_data[hist_mod_data.length - 1][1], precision), round(hist_mod_data[hist_mod_data.length - 1][2], precision), round(hist_mod_data[hist_mod_data.length - 1][3], precision), round(hist_mod_data[hist_mod_data.length - 1][1], precision), round(hist_mod_data[hist_mod_data.length - 1][2], precision), round(hist_mod_data[hist_mod_data.length - 1][3], precision)]);
+
+      for (let i = 0; i < proj_mod_data.length; i++) {
+        chart_data['proj_year'].push(proj_mod_data[i][0]);
+        chart_data['rcp45_mean'].push(round(proj_mod_data[i][1], precision));
+        chart_data['rcp45_min'].push(round(proj_mod_data[i][2], precision));
+        chart_data['rcp45_max'].push(round(proj_mod_data[i][3], precision));
+        chart_data['rcp85_mean'].push(round(proj_mod_data[i][4], precision));
+        chart_data['rcp85_min'].push(round(proj_mod_data[i][5], precision));
+        chart_data['rcp85_max'].push(round(proj_mod_data[i][6], precision));
+      }
+
+      const [x_range_min, x_range_max, y_range_min, y_range_max] = this._update_axes_ranges(min([min(chart_data['hist_year']), min(chart_data['proj_year'])]), max([max(chart_data['hist_year']), max(chart_data['proj_year'])]), min([min(chart_data['hist_min']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_max']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])]));
+
+      Plotly.react(this.graphdiv, [{
+        name: 'Modeled minimum (historical)',
+        x: chart_data['hist_year'],
+        y: chart_data['hist_min'],
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'none',
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_hist_minmax
+        },
+        legendgroup: 'hist',
+        visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+        showlegend: false,
+        hovertemplate: "<extra></extra>"
+      }, {
+        x: chart_data['hist_year'],
+        // y: chart_data['hist_max_diff'],
+        y: chart_data['hist_max'],
+        // text: chart_data['hist_max'],
+        // hoverinfo: 'text',
+        name: 'Modeled maximum (historical)',
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'tonexty',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_hist_minmax
+        },
+        legendgroup: 'hist',
+        visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+        customdata: hist_mod_data,
+        hovertemplate: "Hist. Modeled: %{customdata[2]:.1f} - %{customdata[3]:.1f}<extra></extra>"
+      }, // {
+      //   x: chart_data['hist_year'],
+      //   y: chart_data['hist_mean'],
+      //   type: 'scatter',
+      //   mode: 'lines',
+      //   name: 'Historical Mean',
+      //   line: {color: '#000000'},
+      //   legendgroup: 'hist',
+      //   visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+      // },
+      {
+        x: chart_data['proj_year'],
+        y: chart_data['rcp45_min'],
+        name: 'Modeled minimum (RCP 4.5 projection)',
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'none',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp45',
+        visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+        showlegend: false,
+        hovertemplate: "<extra></extra>"
+      }, {
+        x: chart_data['proj_year'],
+        y: chart_data['rcp45_max'],
+        name: 'Modeled maximum (RCP 4.5 projection)',
+        fill: 'tonexty',
+        type: 'scatter',
+        mode: 'lines',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp45',
+        visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+        showlegend: true,
+        customdata: proj_mod_data,
+        hovertemplate: "(%{customdata[2]:.1f} - %{customdata[3]:.1f})<extra></extra>"
+      }, {
+        x: chart_data['proj_year'],
+        y: chart_data['rcp85_min'],
+        name: 'Modeled minimum (RCP 8.5 projection)',
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'none',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp85',
+        visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+        showlegend: false,
+        hovertemplate: "<extra></extra>"
+      }, {
+        x: chart_data['proj_year'],
+        y: chart_data['rcp85_max'],
+        name: 'Modeled maximum (RCP 8.5 projection)',
+        fill: 'tonexty',
+        type: 'scatter',
+        mode: 'lines',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp85',
+        visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+        customdata: proj_mod_data,
+        hovertemplate: "(%{customdata[5]:.1f} - %{customdata[6]:.1f})<extra></extra>"
+      }, {
+        x: chart_data['proj_year'],
+        y: chart_data['rcp45_mean'],
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Modeled mean (RCP 4.5 projection)',
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)
+        },
+        visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+        legendgroup: 'rcp45',
+        hovertemplate: "RCP 4.5: <b>%{y:.1f}</b><extra></extra>"
+      }, {
+        x: chart_data['proj_year'],
+        y: chart_data['rcp85_mean'],
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Modeled mean (RCP 8.5 projection)',
+        visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)
+        },
+        legendgroup: 'rcp85',
+        hovertemplate: "RCP 8.5: <b>%{y:.1f}</b><extra></extra>"
+      }], // layout
+      {
+        autosize: true,
+        margin: {
+          l: 50,
+          t: 12,
+          r: 12,
+          b: 60
+        },
+        showlegend: this.options.show_legend,
+        hovermode: 'x unified',
+        legend: {
+          "orientation": "h"
+        },
+        xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
+        yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
+      }, // options
+      this._get_plotly_options());
+
+      this._update_visibility = () => {
+        Plotly.restyle(this.graphdiv, {
+          visible: [!!this.options.show_historical_modeled ? true : 'legendonly', !!this.options.show_historical_modeled ? true : 'legendonly', // !!this.options.show_historical_modeled ? true : 'legendonly',
+          !!this.options.show_projected_rcp45 ? true : 'legendonly', !!this.options.show_projected_rcp45 ? true : 'legendonly', !!this.options.show_projected_rcp85 ? true : 'legendonly', !!this.options.show_projected_rcp85 ? true : 'legendonly', !!this.options.show_projected_rcp45 ? true : 'legendonly', !!this.options.show_projected_rcp85 ? true : 'legendonly']
+        });
+      };
+
+      this._when_chart = new Promise(resolve => {
+        this.graphdiv.on('plotly_afterplot', gd => {
+          resolve(gd);
+        });
+      });
+
+      this._when_chart.then(this._hide_spinner.bind(this));
+    }
+
+    async _update_monthly_conus() {
+      const [hist_obs_month_values, proj_mod_month_values] = await Promise.all([this._get_historical_observed_livneh_data(), this._get_projected_loca_model_data()]);
+      const variable_config = this.get_variable_config();
+      const hist_obs_sdate_year = hist_obs_month_values['01'][0][0];
+      const hist_obs_edate_year = hist_obs_month_values['01'][hist_obs_month_values['01'].length - 1][0];
+      let hist_obs_data = [];
+
+      for (const month of ClimateByLocationWidget._months) {
+        hist_obs_data.push([month, mean(hist_obs_month_values[month].map(a => a[1]))]);
+      } // reshape from {month: [year, rcp45_mean, rcp45_min, rcp45_max, rcp85_mean, rcp85_min, rcp85_max]} to ['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max']
+
+
+      const proj_sdate_year = proj_mod_month_values['01'][0][0]; // const proj_edate_year = proj_mod_month_values['01'][proj_mod_month_values['01'].length - 1][0];
+
+      let proj_mod_data = [];
+
+      for (const month of ClimateByLocationWidget._months) {
+        let _month_data = [];
+
+        for (const year_range of ClimateByLocationWidget._monthly_timeperiods) {
+          let year_range_min_idx = year_range - 15 - proj_sdate_year;
+
+          for (const scenario_column_offset of [0, 3]) {
+            // rcp45, rcp85
+            for (const value_i of [0, 1, 2]) {
+              //mean, min, max
+              _month_data.push(mean(proj_mod_month_values[month].slice(year_range_min_idx, year_range_min_idx + 30).map(a => a[1 + scenario_column_offset + value_i])));
+            }
+          }
+        }
+
+        proj_mod_data.push([month, ..._month_data]);
+      }
+
+      this.downloadable_dataurls.hist_obs = this._format_export_data(['month', 'mean', "* Note that the mean is based on monthly data for years  ".concat(hist_obs_sdate_year, "-").concat(hist_obs_edate_year)], hist_obs_data);
+      this.downloadable_dataurls.proj_mod = this._format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data);
+      const chart_data = {
+        'month': [],
+        'month_label': [],
+        'hist_obs': [],
+        'rcp45_mean': [],
+        'rcp45_min': [],
+        'rcp45_max': [],
+        'rcp85_mean': [],
+        'rcp85_min': [],
+        'rcp85_max': []
+      };
+      const precision = 1;
+      const monthly_timeperiod = Number.parseInt(this.options.monthly_timeperiod);
+      const col_offset = 1 + ClimateByLocationWidget._monthly_timeperiods.indexOf(monthly_timeperiod) * 6; // for some reason unknown to me, the following month cycle is shown.
+
+      const month_indexes = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+
+      for (const m of month_indexes) {
+        const _m = m % 12;
+
+        chart_data['month'].push(m);
+        chart_data['month_label'].push(ClimateByLocationWidget._months_labels[_m]);
+        chart_data['hist_obs'].push(round(hist_obs_data[_m][1], precision));
+        chart_data['rcp45_mean'].push(round(proj_mod_data[_m][col_offset], precision));
+        chart_data['rcp45_min'].push(round(proj_mod_data[_m][1 + col_offset], precision));
+        chart_data['rcp45_max'].push(round(proj_mod_data[_m][2 + col_offset], precision));
+        chart_data['rcp85_mean'].push(round(proj_mod_data[_m][3 + col_offset], precision));
+        chart_data['rcp85_min'].push(round(proj_mod_data[_m][4 + col_offset], precision));
+        chart_data['rcp85_max'].push(round(proj_mod_data[_m][5 + col_offset], precision));
+      }
+
+      const [x_range_min, x_range_max, y_range_min, y_range_max] = this._update_axes_ranges(month_indexes, month_indexes[month_indexes.length - 1], min([min(chart_data['hist_obs']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_obs']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])]));
+
+      Plotly.react(this.graphdiv, [{
+        x: chart_data['month'],
+        y: chart_data['rcp45_min'],
+        name: 'Modeled minimum (RCP 4.5 projection)',
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'none',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp45',
+        visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+        hovertemplate: "<extra></extra>"
+      }, {
+        x: chart_data['month'],
+        y: chart_data['rcp45_max'],
+        name: 'Modeled maximum (RCP 4.5 projection)',
+        fill: 'tonexty',
+        type: 'scatter',
+        mode: 'lines',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp45',
+        visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+        customdata: proj_mod_data,
+        hovertemplate: "(%{customdata[2]:.1f} - %{customdata[3]:.1f})<extra></extra>"
+      }, {
+        x: chart_data['month'],
+        y: chart_data['rcp85_min'],
+        name: 'Modeled minimum (RCP 8.5 projection)',
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'none',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp85',
+        visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+        showlegend: false,
+        hovertemplate: "<extra></extra>"
+      }, {
+        x: chart_data['month'],
+        y: chart_data['rcp85_max'],
+        name: 'Modeled maximum (RCP 8.5 projection)',
+        fill: 'tonexty',
+        type: 'scatter',
+        mode: 'lines',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp85',
+        visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+        customdata: proj_mod_data,
+        hovertemplate: "(%{customdata[5]:.1f} - %{customdata[6]:.1f})<extra></extra>"
+      }, {
+        x: chart_data['month'],
+        y: chart_data['hist_obs'],
+        type: 'scatter',
+        mode: 'lines',
+        name: "Observed History (".concat(hist_obs_sdate_year, "-").concat(hist_obs_edate_year, " monthly mean)"),
+        line: {
+          color: this.options.colors.hist.line
+        },
+        legendgroup: 'histobs',
+        visible: !!this.options.show_historical_observed ? true : 'legendonly',
+        hovertemplate: "Observed: <b>%{y:.1f}</b><extra></extra>"
+      }, {
+        x: chart_data['month'],
+        y: chart_data['rcp45_mean'],
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Modeled mean (RCP 4.5 projection)',
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)
+        },
+        visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+        legendgroup: 'rcp45',
+        hovertemplate: "RCP 4.5: <b>%{y:.1f}</b><extra></extra>"
+      }, {
+        x: chart_data['month'],
+        y: chart_data['rcp85_mean'],
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Modeled mean (RCP 8.5 projection)',
+        visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)
+        },
+        legendgroup: 'rcp85',
+        hovertemplate: "RCP 8.5: <b>%{y:.1f}</b><extra></extra>"
+      }], // layout
+      {
+        autosize: true,
+        margin: {
+          l: 50,
+          t: 12,
+          r: 12,
+          b: 60
+        },
+        showlegend: this.options.show_legend,
+        hovermode: 'x unified',
+        legend: {
+          "orientation": "h"
+        },
+        xaxis: Object.assign(this._get_x_axis_layout(x_range_min, x_range_max), {
+          tickmode: 'array',
+          tickvals: month_indexes,
+          ticktext: chart_data['month_label']
+        }),
+        yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
+      }, // options
+      this._get_plotly_options());
+
+      this._update_visibility = () => {
+        Plotly.restyle(this.graphdiv, {
+          visible: [!!this.options.show_projected_rcp45 ? true : 'legendonly', !!this.options.show_projected_rcp45 ? true : 'legendonly', !!this.options.show_projected_rcp85 ? true : 'legendonly', !!this.options.show_projected_rcp85 ? true : 'legendonly', !!this.options.show_historical_modeled ? true : 'legendonly', !!this.options.show_projected_rcp45 ? true : 'legendonly', !!this.options.show_projected_rcp85 ? true : 'legendonly']
+        });
+      };
+
+      this._when_chart = new Promise(resolve => {
+        this.graphdiv.on('plotly_afterplot', gd => {
+          resolve(gd);
+        });
+      });
+
+      this._when_chart.then(this._hide_spinner.bind(this));
+    }
+
+    async _update_monthly_island() {
+      let data = await this._fetch_island_data(this.options.variable, this.options.area_id);
+      let hist_mod_series = data.find(series => series.scenario === 'historical');
+      let rcp45_mod_series = data.find(series => series.scenario === 'rcp45');
+      let rcp85_mod_series = data.find(series => series.scenario === 'rcp85');
+      const variable_config = this.get_variable_config();
+      const unit_conversion_fn = variable_config.unit_conversions[this.options.unitsystem];
+      let hist_mod_data = [];
+
+      for (const month of ClimateByLocationWidget._months) {
+        //year,mean,min,max
+        hist_mod_data.push([month, unit_conversion_fn(mean(hist_mod_series.monthly_data.all_mean[month])), unit_conversion_fn(mean(hist_mod_series.monthly_data.all_min[month])), unit_conversion_fn(mean(hist_mod_series.monthly_data.all_max[month]))]);
+      }
+
+      const proj_sdate_year = Number.parseInt(rcp85_mod_series.sdate.substr(0, 4));
+      let proj_mod_data = [];
+
+      for (const month of ClimateByLocationWidget._months) {
+        let _month_data = [];
+
+        for (const year_range of ClimateByLocationWidget._monthly_timeperiods) {
+          let year_range_min_idx = year_range - 15 - proj_sdate_year;
+
+          for (const scenario_monthly_data of [rcp45_mod_series.monthly_data, rcp85_mod_series.monthly_data]) {
+            for (const value_name of ['mean', 'min', 'max']) {
+              _month_data.push(unit_conversion_fn(mean(scenario_monthly_data['all_' + value_name][month].slice(year_range_min_idx, year_range_min_idx + 30))));
+            }
+          }
+        }
+
+        proj_mod_data.push([month, ..._month_data]);
+      }
+
+      this.downloadable_dataurls.hist_mod = this._format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data);
+      this.downloadable_dataurls.proj_mod = this._format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data);
+      const chart_data = {
+        'month': [],
+        'month_label': [],
+        'hist_min': [],
+        'hist_max': [],
+        'rcp45_mean': [],
+        'rcp45_min': [],
+        'rcp45_max': [],
+        'rcp85_mean': [],
+        'rcp85_min': [],
+        'rcp85_max': []
+      };
+      const precision = 1;
+      const monthly_timeperiod = Number.parseInt(this.options.monthly_timeperiod);
+      const col_offset = 1 + ClimateByLocationWidget._monthly_timeperiods.indexOf(monthly_timeperiod) * 6; // for some reason unknown to me, the following month cycle is shown.
+
+      const month_indexes = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+
+      for (const m of month_indexes) {
+        const _m = m % 12;
+
+        chart_data['month'].push(m);
+        chart_data['month_label'].push(ClimateByLocationWidget._months_labels[_m]);
+        chart_data['hist_min'].push(round(hist_mod_data[_m][1], precision));
+        chart_data['hist_max'].push(round(hist_mod_data[_m][2], precision));
+        chart_data['rcp45_mean'].push(round(proj_mod_data[_m][col_offset], precision));
+        chart_data['rcp45_min'].push(round(proj_mod_data[_m][1 + col_offset], precision));
+        chart_data['rcp45_max'].push(round(proj_mod_data[_m][2 + col_offset], precision));
+        chart_data['rcp85_mean'].push(round(proj_mod_data[_m][3 + col_offset], precision));
+        chart_data['rcp85_min'].push(round(proj_mod_data[_m][4 + col_offset], precision));
+        chart_data['rcp85_max'].push(round(proj_mod_data[_m][5 + col_offset], precision));
+      }
+
+      const [x_range_min, x_range_max, y_range_min, y_range_max] = this._update_axes_ranges(month_indexes, month_indexes[month_indexes.length - 1], min([min(chart_data['hist_min']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_max']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])]));
+
+      Plotly.react(this.graphdiv, [{
+        name: 'Modeled minimum (historical)',
+        x: chart_data['month'],
+        y: chart_data['hist_min'],
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'none',
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_hist_minmax
+        },
+        legendgroup: 'hist',
+        visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+        hovertemplate: "<extra></extra>"
+      }, {
+        x: chart_data['month'],
+        // y: chart_data['hist_max_diff'],
+        y: chart_data['hist_max'],
+        // text: chart_data['hist_max'],
+        // hoverinfo: 'text',
+        name: 'Modeled maximum (historical)',
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'tonexty',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_hist_minmax
+        },
+        legendgroup: 'hist',
+        visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+        customdata: hist_mod_data,
+        hovertemplate: "Hist. Modeled: %{customdata[2]:.1f} - %{customdata[3]:.1f}<extra></extra>"
+      }, // {
+      //   x: chart_data['hist_year'],
+      //   y: chart_data['hist_mean'],
+      //   type: 'scatter',
+      //   mode: 'lines',
+      //   name: 'Historical Mean',
+      //   line: {color: '#000000'},
+      //   legendgroup: 'hist',
+      //   visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+      // },
+      {
+        x: chart_data['month'],
+        y: chart_data['rcp45_min'],
+        name: 'Modeled minimum (RCP 4.5 projection)',
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'none',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp45',
+        visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+        showlegend: false,
+        hovertemplate: "<extra></extra>"
+      }, {
+        x: chart_data['month'],
+        y: chart_data['rcp45_max'],
+        name: 'Modeled maximum (RCP 4.5 projection)',
+        fill: 'tonexty',
+        type: 'scatter',
+        mode: 'lines',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp45',
+        visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+        customdata: proj_mod_data,
+        hovertemplate: "(%{customdata[2]:.1f} - %{customdata[3]:.1f})<extra></extra>"
+      }, {
+        x: chart_data['month'],
+        y: chart_data['rcp85_min'],
+        name: 'Modeled minimum (RCP 8.5 projection)',
+        type: 'scatter',
+        mode: 'lines',
+        fill: 'none',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp85',
+        visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+        showlegend: false,
+        hovertemplate: "<extra></extra>"
+      }, {
+        x: chart_data['month'],
+        y: chart_data['rcp85_max'],
+        name: 'Modeled maximum (RCP 8.5 projection)',
+        fill: 'tonexty',
+        type: 'scatter',
+        mode: 'lines',
+        fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
+          width: 0,
+          opacity: this.options.colors.opacity.ann_proj_minmax
+        },
+        legendgroup: 'rcp85',
+        visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+        customdata: proj_mod_data,
+        hovertemplate: "(%{customdata[5]:.1f} - %{customdata[6]:.1f})<extra></extra>"
+      }, {
+        x: chart_data['month'],
+        y: chart_data['rcp45_mean'],
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Modeled mean (RCP 4.5 projection)',
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)
+        },
+        visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+        legendgroup: 'rcp45',
+        hovertemplate: "RCP 4.5: <b>%{y:.1f}</b><extra></extra>"
+      }, {
+        x: chart_data['month'],
+        y: chart_data['rcp85_mean'],
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Modeled mean (RCP 8.5 projection)',
+        visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+        line: {
+          color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)
+        },
+        legendgroup: 'rcp85',
+        hovertemplate: "RCP 8.5: <b>%{y:.1f}</b><extra></extra>"
+      }], // layout
+      {
+        autosize: true,
+        margin: {
+          l: 50,
+          t: 12,
+          r: 12,
+          b: 60
+        },
+        showlegend: this.options.show_legend,
+        hovermode: 'x unified',
+        legend: {
+          "orientation": "h"
+        },
+        xaxis: Object.assign(this._get_x_axis_layout(x_range_min, x_range_max), {
+          tickmode: 'array',
+          tickvals: month_indexes,
+          ticktext: chart_data['month_label']
+        }),
+        yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
+      }, // options
+      this._get_plotly_options());
+
+      this._update_visibility = () => {
+        Plotly.restyle(this.graphdiv, {
+          visible: [!!this.options.show_historical_modeled ? true : 'legendonly', !!this.options.show_historical_modeled ? true : 'legendonly', !!this.options.show_projected_rcp45 ? true : 'legendonly', !!this.options.show_projected_rcp45 ? true : 'legendonly', !!this.options.show_projected_rcp85 ? true : 'legendonly', !!this.options.show_projected_rcp85 ? true : 'legendonly', !!this.options.show_projected_rcp45 ? true : 'legendonly', !!this.options.show_projected_rcp85 ? true : 'legendonly']
+        });
+      };
+
+      this._when_chart = new Promise(resolve => {
+        this.graphdiv.on('plotly_afterplot', gd => {
+          resolve(gd);
+        });
+      });
+
+      this._when_chart.then(this._hide_spinner.bind(this));
+    }
+
+    async _get_historical_observed_livneh_data() {
+      const freq = this.options.frequency === 'annual' ? 'annual' : 'monthly';
+      const variable_config = this.get_variable_config();
+      const unit_conversion_fn = variable_config.unit_conversions[this.options.unitsystem];
+      const area = this.get_area();
+      const elems = [Object.assign(variable_config['acis_elements'][freq], {
+        'area_reduce': area.area_type + '_mean'
+      })];
+      const response = await (await fetch(this.options.data_api_endpoint, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          "sdate": "1950-01-01",
+          "edate": "2013-12-31",
+          "grid": 'livneh',
+          "elems": elems,
+          [area.area_type]: area.area_id
+        })
+      })).json();
+
+      if (!response) {
+        throw new Error("Failed to retrieve ".concat(freq, " livneh data for ").concat(this.options.variable, " and area ").concat(area.area_id));
+      } // transform data
+
+
+      if (this.options.frequency === 'annual') {
+        let values = [];
+
+        for (const [key, value] of response.data) {
+          if (undefined !== value[this.options.area_id] && String(value[this.options.area_id]) !== '-999' && String(value[this.options.area_id]) !== '') {
+            values.push([key, unit_conversion_fn(value[this.options.area_id])]);
+          }
+        }
+
+        return values;
+      } // monthly
+      // build output of [month, [values...]].
+
+
+      let month_values = Object.fromEntries(ClimateByLocationWidget._months.map(m => [m, []]));
+
+      for (const [key, value] of response.data) {
+        if (undefined !== value[area.area_id]) {
+          let v = parseFloat(value[area.area_id]);
+
+          if (v === -999 || !Number.isFinite(v)) {
+            v = 0;
+          }
+
+          month_values[key.slice(-2)].push([Number.parseInt(key.slice(0, 4)), unit_conversion_fn(v)]);
+        }
+      }
+
+      return month_values;
+    }
+
+    async _get_historical_annual_loca_model_data() {
+      const sdate_year = 1950;
+      const edate_year = 2006;
+      const sdate = sdate_year + '-01-01';
+      const edate = edate_year + '-12-31';
+      const unit_conversion_fn = this.get_variable_config().unit_conversions[this.options.unitsystem];
+      const {
+        variable,
+        frequency,
+        area_id
+      } = this.options;
+      const data = await Promise.all([this._fetch_acis_data('loca:wMean:rcp85', sdate, edate, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('loca:allMin:rcp85', sdate, edate, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('loca:allMax:rcp85', sdate, edate, variable, frequency, area_id, unit_conversion_fn)]);
+      let values = [];
+
+      for (let i = 0; i < edate_year - sdate_year; i++) {
+        values.push([i + sdate_year, data[0][1][i], data[1][1][i], data[2][1][i]]);
+      }
+
+      return values;
+    }
+
+    async _get_projected_loca_model_data() {
+      const sdate_year = this.options.frequency === 'monthly' ? 2010 : 2006;
+      const sdate = sdate_year + '-01-01';
+      const edate_year = 2099;
+      const edate = edate_year + '-12-31';
+      const unit_conversion_fn = this.get_variable_config().unit_conversions[this.options.unitsystem];
+      const {
+        variable,
+        frequency,
+        area_id
+      } = this.options;
+      const data = await Promise.all([this._fetch_acis_data('loca:wMean:rcp45', sdate, edate, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('loca:allMin:rcp45', sdate, edate, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('loca:allMax:rcp45', sdate, edate, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('loca:wMean:rcp85', sdate, edate, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('loca:allMin:rcp85', sdate, edate, variable, frequency, area_id, unit_conversion_fn), this._fetch_acis_data('loca:allMax:rcp85', sdate, edate, variable, frequency, area_id, unit_conversion_fn)]);
+
+      if (this.options.frequency === 'annual') {
+        for (const [keys, _] of data) {
+          if (keys.length !== edate_year - sdate_year + 1) {
+            throw new Error('Missing years in projected loca data!');
+          }
+        }
+
+        let values = [];
+
+        for (let i = 0; i < edate_year - sdate_year; i++) {
+          values.push([i + sdate_year, data[0][1][i], data[1][1][i], data[2][1][i], data[3][1][i], data[4][1][i], data[5][1][i]]);
+        }
+
+        return values;
+      } // monthly
+      // build output of {month: [year, rcp45_mean, rcp45_min, rcp45_max, rcp85_mean, rcp85_min, rcp85_max]}.
+
+
+      let monthly_values = Object.fromEntries(ClimateByLocationWidget._months.map(m => [m, []]));
+
+      const _get_val = (array, idx) => {
+        if (undefined !== array[idx]) {
+          let v = parseFloat(array[idx]);
+
+          if (v === -999) {
+            v = Number.NaN;
+          }
+
+          return v;
+        }
+
+        return Number.NaN;
+      };
+
+      for (let i = 0; i < data[0][0].length; i++) {
+        monthly_values[data[0][0][i].slice(-2)].push([Number.parseInt(data[0][0][i].slice(0, 4)), _get_val(data[0][1], i), _get_val(data[1][1], i), _get_val(data[2][1], i), _get_val(data[3][1], i), _get_val(data[4][1], i), _get_val(data[5][1], i)]);
+      }
+
+      return monthly_values;
+    }
+    /**
+     * Retrieves data from ACIS.
+     * @param grid
+     * @param sdate
+     * @param edate
+     * @param variable
+     * @param frequency
+     * @param area_id
+     * @param unit_conversion_fn
+     * @return {Promise<[][]>}
+     * @private
+     */
+
+
+    async _fetch_acis_data(grid, sdate, edate, variable, frequency, area_id, unit_conversion_fn) {
+      const area = ClimateByLocationWidget.get_areas(null, null, area_id)[0];
+      const elems = [Object.assign(this.get_variable_config()['acis_elements'][frequency === 'annual' ? 'annual' : 'monthly'], {
+        "area_reduce": area.area_type + '_mean'
+      })];
+      const response = await (await fetch(this.options.data_api_endpoint, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          "grid": grid,
+          "sdate": String(sdate),
+          "edate": String(edate),
+          "elems": elems,
+          [area.area_type]: area.area_id
+        })
+      })).json();
+      let keys = [];
+      let values = [];
+
+      for (const [key, value] of get(response, 'data', {})) {
+        if (undefined !== value[area_id] && String(value[area_id]) !== '-999' && String(value[area_id]) !== '') {
+          keys.push(key);
+          values.push(unit_conversion_fn(value[area_id]));
+        }
+      }
+
+      return [keys, values];
+    }
+    /**
+     * Retrieves island data and pre-filters it to just the variable we're interested in.
+     * @return {Promise<array<{area_id,scenario,sdate,area_label,gcm_coords,area_type,variable,annual_data:{all_max, all_mean,all_min}, monthly_data:{all_max, all_mean,all_min}}>>}
+     * @private
+     */
+
+
+    async _fetch_island_data(variable, area_id) {
+      const response = await (await fetch(this.options.island_data_url_template.replace('{area_id}', area_id), {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })).json();
+
+      if (!response) {
+        throw new Error("No data found for area \"".concat(area_id, "\" and variable \"").concat(variable, "\""));
+      } // variable names are slightly different in the island data
+
+
+      if (variable === 'days_dry_days') {
+        variable = 'dryday';
+      } else if (variable.startsWith('days_t')) {
+        variable = variable.replace(/days_(.+?)_.+?_([0-9]+)f/, "$1$2F");
+      } else if (variable.startsWith('days_pcpn')) {
+        variable = variable.replace(/.+?([0-9]+)in/, "pr$1in");
+      } else if (variable.endsWith('_65f')) {
+        variable = variable.replace('_65f', '');
+      } else if (variable === 'gddmod') {
+        variable = 'mgdd';
+      } else if (variable === 'pcpn') {
+        variable = 'precipitation';
+      }
+
+      return response.data.filter(series => series.area_id === this.options.area_id && series.variable === variable);
+    }
+
+    _transform_acis_loca_monthly(wMean45, min45, max45, wMean85, min85, max85) {
+      // TODO completely revise this!
+      let data = {};
+      [2025, 2050, 2075].forEach(yearRange => {
+        data[yearRange] = {};
+
+        ClimateByLocationWidget._months.forEach(month => {
+          let season_month = month;
+
+          if (undefined === data[yearRange][season_month]) {
+            data[yearRange][season_month] = {};
+          }
+
+          let datasets = {
+            'wMean45': wMean45,
+            'wMean85': wMean85,
+            'min45': min45,
+            'max45': max45,
+            'min85': min85,
+            'max85': max85
+          };
+          Object.keys(datasets).forEach(dataset => {
+            if (undefined === data[yearRange][season_month][dataset]) {
+              data[yearRange][season_month][dataset] = [];
+            }
+
+            for (let year = yearRange - 15; year < yearRange + 15; year++) {
+              let year_month = String(year) + '-' + String(month);
+
+              if (datasets[dataset].hasOwnProperty(year_month)) {
+                data[yearRange][season_month][dataset].push(datasets[dataset][year_month]);
+              }
+            }
+          });
+        });
+      }); // mean values by month
+
+      Object.keys(data).forEach(yearRange => {
+        Object.keys(data[yearRange]).forEach(month => {
+          ['wMean45', 'wMean85', 'min45', 'min85', 'max45', 'max85'].forEach(valueName => {
+            let length = data[yearRange][month][valueName].length;
+            let sum = data[yearRange][month][valueName].reduce((acc, value) => {
+              return acc + value;
+            }, 0);
+            data[yearRange][month][valueName] = sum / length;
+          });
+        });
+      }); // reformat to expected output
+      // [ month,2025rcp45_max,2025rcp45_weighted_mean,2025rcp45_min,2025rcp85_max,2025rcp85_weighted_mean,2025rcp85_min,2050rcp45_max,2050rcp45_weighted_mean,2050rcp45_min,2050rcp85_max,2050rcp85_weighted_mean,2050rcp85_min,2075rcp45_max,2075rcp45_weighted_mean,2075rcp45_min,2075rcp85_max,2075rcp85_weighted_mean,2075rcp85_min ]
+
+      let dataByMonth = {};
+
+      ClimateByLocationWidget._months.forEach(month => {
+        dataByMonth[month] = {};
+
+        ClimateByLocationWidget._monthly_timeperiods.forEach(yearRange => {
+          ['45', '85'].forEach(scenario => {
+            ['max', 'wMean', 'min'].forEach(valueName => {
+              dataByMonth[month][String(yearRange) + 'rcp' + String(scenario) + '_' + String(valueName)] = data[yearRange][month][String(valueName) + String(scenario)];
+            });
+          });
+        });
+      });
+
+      let result = [];
+      Object.keys(dataByMonth).forEach(month => {
+        result.push([month, dataByMonth[month]['2025rcp45_wMean'], dataByMonth[month]['2025rcp45_min'], dataByMonth[month]['2025rcp45_max'], dataByMonth[month]['2025rcp85_wMean'], dataByMonth[month]['2025rcp85_min'], dataByMonth[month]['2025rcp85_max'], dataByMonth[month]['2050rcp45_wMean'], dataByMonth[month]['2050rcp45_min'], dataByMonth[month]['2050rcp45_max'], dataByMonth[month]['2050rcp85_wMean'], dataByMonth[month]['2050rcp85_min'], dataByMonth[month]['2050rcp85_max'], dataByMonth[month]['2075rcp45_wMean'], dataByMonth[month]['2075rcp45_min'], dataByMonth[month]['2075rcp45_max'], dataByMonth[month]['2075rcp85_wMean'], dataByMonth[month]['2075rcp85_min'], dataByMonth[month]['2075rcp85_max']]);
+      }); // Sort before returning
+
+      result.sort((a, b) => {
+        return (a[0] > b[0]) - (a[0] < b[0]);
+      });
+      this.downloadable_dataurls.proj_mod = this._format_export_data(['month', '2025_rcp45_weighted_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_weighted_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_weighted_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_weighted_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_max', '2075_rcp45_weighted_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_weighted_mean', '2075_rcp85_min', '2075_rcp85_max'], result);
+      return result;
+    }
+    /**
+     * Updates this.options.xrange and this.options.yrange (if they are not null) based on new ranges computed from data and emits range events.
+     * @param x_range_min
+     * @param x_range_max
+     * @param y_range_min
+     * @param y_range_max
+     * @return {*[]}
+     * @private
+     */
+
+
+    _update_axes_ranges(x_range_min, x_range_max, y_range_min, y_range_max) {
+      if (!!this.options.x_axis_range) {
+        this.options.x_axis_range = [Math.max(x_range_min, get(this.options, ['x_axis_range', 0], x_range_min)), Math.min(x_range_max, get(this.options, ['x_axis_range', 1], x_range_max))];
+      }
+
+      if (!!this.options.y_axis_range) {
+        this.options.y_axis_range = [Math.max(y_range_min, get(this.options, ['y_axis_range', 0], y_range_min)), Math.min(y_range_max, get(this.options, ['y_axis_range', 1], y_range_max))];
+      }
+
+      if (Number.isFinite(x_range_min) && Number.isFinite(x_range_max)) {
+        window.setTimeout(() => {
+          this.element.dispatchEvent(new CustomEvent('x_axis_range_change', {
+            detail: [x_range_min, x_range_max, get(this.options, ['x_axis_range', 0], x_range_min), get(this.options, ['x_axis_range', 1], x_range_max)]
+          }));
+          this.element.dispatchEvent(new CustomEvent('y_axis_range_change', {
+            detail: [y_range_min, y_range_max, get(this.options, ['y_axis_range', 0], y_range_min), get(this.options, ['y_axis_range', 1], y_range_max)]
+          }));
+        });
+      }
+
+      return [...(this.options.x_axis_range || [x_range_min, x_range_max]), ...(this.options.y_axis_range || [y_range_min, y_range_max])];
+    }
+
+    _get_y_axis_layout(y_range_min, y_range_max, variable_config) {
+      return {
+        type: 'linear',
+        range: [y_range_min, y_range_max],
+        showline: true,
+        showgrid: true,
+        linecolor: 'rgb(0,0,0)',
+        linewidth: 1,
+        tickcolor: 'rgb(0,0,0)',
+        tickfont: {
+          size: 10,
+          family: 'roboto, monospace',
+          color: 'rgb(0,0,0)'
+        },
+        nticks: 25,
+        tickangle: 0,
+        title: {
+          text: variable_config['ytitles']['annual'][this.options.unitsystem],
+          font: {
             family: 'roboto, monospace',
-            color: 'rgb(0,0,0)'
-          },
-          nticks: 25,
-          tickangle: 0,
-          title: {
-            text: variable_config['ytitles']['annual'][this.options.unitsystem],
-            font: {
-              family: 'roboto, monospace',
-              size: 12,
-              color: '#494949'
-            }
-          }
-        };
-      }
-    }, {
-      key: "_get_x_axis_layout",
-      value: function _get_x_axis_layout(x_range_min, x_range_max) {
-        return {
-          type: 'linear',
-          range: this.options.x_axis_range || [x_range_min, x_range_max],
-          showline: true,
-          linecolor: 'rgb(0,0,0)',
-          linewidth: 1,
-          // dtick: 5,
-          nticks: 15,
-          tickcolor: 'rgb(0,0,0)',
-          tickfont: {
             size: 12,
-            family: 'roboto, monospace',
-            color: 'rgb(0,0,0)'
-          },
-          tickangle: 0 // title: {
-          //   text: 'Year',
-          //   font: {
-          //     family: 'roboto, monospace',
-          //     size: 13,
-          //     color: '#494949'
-          //   }
-          // },
+            color: '#494949'
+          }
+        }
+      };
+    }
 
-        };
+    _get_x_axis_layout(x_range_min, x_range_max) {
+      return {
+        type: 'linear',
+        range: this.options.x_axis_range || [x_range_min, x_range_max],
+        showline: true,
+        linecolor: 'rgb(0,0,0)',
+        linewidth: 1,
+        // dtick: 5,
+        nticks: 15,
+        tickcolor: 'rgb(0,0,0)',
+        tickfont: {
+          size: 12,
+          family: 'roboto, monospace',
+          color: 'rgb(0,0,0)'
+        },
+        tickangle: 0 // title: {
+        //   text: 'Year',
+        //   font: {
+        //     family: 'roboto, monospace',
+        //     size: 13,
+        //     color: '#494949'
+        //   }
+        // },
+
+      };
+    }
+
+    _get_plotly_options() {
+      return {
+        displaylogo: false,
+        modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d']
+      };
+    }
+
+    _show_spinner() {
+      this._hide_spinner();
+
+      let style = "<style>.cwg-spinner { margin-top: -2.5rem; border-radius: 100%;border-style: solid;border-width: 0.25rem;height: 5rem;width: 5rem;animation: basic 1s infinite linear; border-color: rgba(0, 0, 0, 0.2);border-top-color: rgba(0, 0, 0, 1); }@keyframes basic {0%   { transform: rotate(0); }100% { transform: rotate(359.9deg); }} .cwg-spinner-wrapper {display:flex; align-items: center; justify-content: center; }</style>";
+      this.element.style.position = 'relative';
+      const spinner_el = document.createElement('div');
+      spinner_el.classList.add('cwg-spinner-wrapper');
+      spinner_el.style.position = 'absolute';
+      spinner_el.style.width = "100%";
+      spinner_el.style.height = "100%";
+      spinner_el.style.left = '0px';
+      spinner_el.style.top = '0px';
+      spinner_el.style.zIndex = '1000000';
+      spinner_el.innerHTML = style + "<div class='cwg-spinner'></div>";
+      this.element.appendChild(spinner_el);
+    }
+
+    _hide_spinner() {
+      if (this.element && this.element.querySelector('.cwg-spinner-wrapper')) {
+        this.element.removeChild(this.element.querySelector('.cwg-spinner-wrapper'));
       }
-    }, {
-      key: "_get_plotly_options",
-      value: function _get_plotly_options() {
+    }
+
+    _format_export_data(column_labels, data) {
+      let export_data = data.map(row => row.filter(cell => cell !== null));
+      export_data.unshift(column_labels);
+      return 'data:text/csv;base64,' + window.btoa(export_data.map(a => a.join(', ')).join('\n'));
+    }
+
+    _reset_downloadable_dataurls() {
+      this.downloadable_dataurls = {
+        hist_obs: '',
+        hist_mod: '',
+        proj_mod: ''
+      };
+    }
+    /*
+     * Public static methods
+     */
+
+    /**
+     * Gets available variable options for a specified combination of frequency and area_id.
+     *
+     * @param frequency
+     * @param unitsystem
+     * @param area_id
+     * @returns {promise<{id: *, title: *}[]>}
+     */
+
+
+    static when_variables(frequency, unitsystem, area_id) {
+      return ClimateByLocationWidget.when_areas().then(ClimateByLocationWidget.get_variables.bind(this, frequency, unitsystem, area_id));
+    }
+    /**
+     * Gets available variable options for a specified combination of frequency and area_id. If areas are not loaded, returns empty
+     *
+     * @param frequency
+     * @param unitsystem
+     * @param area_id
+     * @returns {{id: *, title: *}[]}
+     */
+
+
+    static get_variables(frequency, unitsystem, area_id) {
+      unitsystem = unitsystem || 'english';
+      return ClimateByLocationWidget._variables.filter(v => frequency in v.ytitles && (typeof v.supports_area === "function" ? v.supports_area(area_id) : true)).map(v => {
         return {
-          displaylogo: false,
-          modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d']
+          id: v.id,
+          title: v.title[unitsystem]
         };
-      }
-    }, {
-      key: "_show_spinner",
-      value: function _show_spinner() {
-        this._hide_spinner();
+      });
+    }
+    /**
+     * Gets available frequency options for a specified area.
+     *
+     * @param area_id
+     * @returns {promise<{id: (string), title: (string)}[]>}
+     */
 
-        var style = "<style>.cwg-spinner { margin-top: -2.5rem; border-radius: 100%;border-style: solid;border-width: 0.25rem;height: 5rem;width: 5rem;animation: basic 1s infinite linear; border-color: rgba(0, 0, 0, 0.2);border-top-color: rgba(0, 0, 0, 1); }@keyframes basic {0%   { transform: rotate(0); }100% { transform: rotate(359.9deg); }} .cwg-spinner-wrapper {display:flex; align-items: center; justify-content: center; }</style>";
-        this.element.style.position = 'relative';
-        var spinner_el = document.createElement('div');
-        spinner_el.classList.add('cwg-spinner-wrapper');
-        spinner_el.style.position = 'absolute';
-        spinner_el.style.width = "100%";
-        spinner_el.style.height = "100%";
-        spinner_el.style.left = '0px';
-        spinner_el.style.top = '0px';
-        spinner_el.style.zIndex = '1000000';
-        spinner_el.innerHTML = style + "<div class='cwg-spinner'></div>";
-        this.element.appendChild(spinner_el);
-      }
-    }, {
-      key: "_hide_spinner",
-      value: function _hide_spinner() {
-        if (this.element && this.element.querySelector('.cwg-spinner-wrapper')) {
-          this.element.removeChild(this.element.querySelector('.cwg-spinner-wrapper'));
-        }
-      }
-    }, {
-      key: "_format_export_data",
-      value: function _format_export_data(column_labels, data) {
-        var export_data = data.map(function (row) {
-          return row.filter(function (cell) {
-            return cell !== null;
-          });
-        });
-        export_data.unshift(column_labels);
-        return 'data:text/csv;base64,' + window.btoa(export_data.map(function (a) {
-          return a.join(', ');
-        }).join('\n'));
-      }
-    }, {
-      key: "_reset_downloadable_dataurls",
-      value: function _reset_downloadable_dataurls() {
-        this.downloadable_dataurls = {
-          hist_obs: '',
-          hist_mod: '',
-          proj_mod: ''
+
+    static when_frequencies(area_id) {
+      return ClimateByLocationWidget.when_areas().then(ClimateByLocationWidget.get_frequencies.bind(this, area_id));
+    }
+    /**
+     * Gets available frequency options for a specified area.
+     *
+     * @param area_id
+     * @returns {{id: (string), title: (string)}[]}
+     */
+
+
+    static get_frequencies(area_id) {
+      return ClimateByLocationWidget._frequencies.filter(f => typeof f.supports_area === "function" ? f.supports_area(area_id) : true).map(v => {
+        return {
+          id: v.id,
+          title: v.title
         };
-      }
-      /*
-       * Public static methods
-       */
+      });
+    }
+    /**
+     * Gets available areas based on type or the state they belong to (counties only).
+     * @param type {string|null} Area type to filter by. Any of 'state', 'county', 'island'.
+     * @param state {string|null} Two-digit abbreviation of state to filter by. Implies type='state'
+     * @param area_id {string|null} Area id to filter by. Will never return more than 1 result.
+     * @returns Promise<array<{area_id, area_label, area_type, state}>>
+     */
 
-      /**
-       * Gets available variable options for a specified combination of frequency and area_id.
-       *
-       * @param frequency
-       * @param unitsystem
-       * @param area_id
-       * @returns {promise<{id: *, title: *}[]>}
-       */
 
-    }], [{
-      key: "when_variables",
-      value: function when_variables(frequency, unitsystem, area_id) {
-        return ClimateByLocationWidget.when_areas().then(ClimateByLocationWidget.get_variables.bind(this, frequency, unitsystem, area_id));
-      }
-      /**
-       * Gets available variable options for a specified combination of frequency and area_id. If areas are not loaded, returns empty
-       *
-       * @param frequency
-       * @param unitsystem
-       * @param area_id
-       * @returns {{id: *, title: *}[]}
-       */
+    static when_areas(type = null, state = null, area_id = null) {
+      if (all_areas === null && when_areas === null) {
+        when_areas = fetch(ClimateByLocationWidget._areas_json_url).then(response => response.json()).then(data => {
+          if (!data) {
+            throw new Error("Failed to retrieve areas!");
+          }
 
-    }, {
-      key: "get_variables",
-      value: function get_variables(frequency, unitsystem, area_id) {
-        unitsystem = unitsystem || 'english';
-        return ClimateByLocationWidget._variables.filter(function (v) {
-          return frequency in v.ytitles && (typeof v.supports_area === "function" ? v.supports_area(area_id) : true);
-        }).map(function (v) {
-          return {
-            id: v.id,
-            title: v.title[unitsystem]
-          };
+          all_areas = data;
         });
       }
-      /**
-       * Gets available frequency options for a specified area.
-       *
-       * @param area_id
-       * @returns {promise<{id: (string), title: (string)}[]>}
-       */
 
-    }, {
-      key: "when_frequencies",
-      value: function when_frequencies(area_id) {
-        return ClimateByLocationWidget.when_areas().then(ClimateByLocationWidget.get_frequencies.bind(this, area_id));
+      return when_areas.then(ClimateByLocationWidget.get_areas.bind(this, type, state, area_id));
+    }
+    /**
+     * Gets available areas based on type or the state they belong to (counties only). If called before areas are loaded, returns empty.
+     * @param type {string|null} Area type to filter by. Any of 'state', 'county', 'island'.
+     * @param state {string|null} Two-digit abbreviation of state to filter by. Implies type='state'
+     * @param area_id {string|null} Area id to filter by. Will never return more than 1 result.
+     * @returns array<{area_id, area_label, area_type, state}>
+     */
+
+
+    static get_areas(type = null, state = null, area_id = null) {
+      if (!all_areas) {
+        console.warn('Areas not yet loaded! Use when_areas() for async access to areas.');
+        return [];
       }
-      /**
-       * Gets available frequency options for a specified area.
-       *
-       * @param area_id
-       * @returns {{id: (string), title: (string)}[]}
-       */
 
-    }, {
-      key: "get_frequencies",
-      value: function get_frequencies(area_id) {
-        return ClimateByLocationWidget._frequencies.filter(function (f) {
-          return typeof f.supports_area === "function" ? f.supports_area(area_id) : true;
-        }).map(function (v) {
-          return {
-            id: v.id,
-            title: v.title
-          };
-        });
+      if (!!area_id) {
+        area_id = String(area_id).toLowerCase();
+        return all_areas.filter(area => String(area.area_id).toLowerCase() === area_id);
       }
-      /**
-       * Gets available areas based on type or the state they belong to (counties only).
-       * @param type {string|null} Area type to filter by. Any of 'state', 'county', 'island'.
-       * @param state {string|null} Two-digit abbreviation of state to filter by. Implies type='state'
-       * @param area_id {string|null} Area id to filter by. Will never return more than 1 result.
-       * @returns Promise<array<{area_id, area_label, area_type, state}>>
-       */
 
-    }, {
-      key: "when_areas",
-      value: function when_areas() {
-        var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-        var state = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-        var area_id = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
-        if (all_areas === null && _when_areas === null) {
-          _when_areas = fetch(ClimateByLocationWidget._areas_json_url).then(function (response) {
-            return response.json();
-          }).then(function (data) {
-            if (!data) {
-              throw new Error("Failed to retrieve areas!");
-            }
-
-            all_areas = data;
-          });
-        }
-
-        return _when_areas.then(ClimateByLocationWidget.get_areas.bind(this, type, state, area_id));
+      if (!!state) {
+        state = String(state).toUpperCase();
+        return all_areas.filter(area => area['area_type'] === 'county' && area.state === state);
       }
-      /**
-       * Gets available areas based on type or the state they belong to (counties only). If called before areas are loaded, returns empty.
-       * @param type {string|null} Area type to filter by. Any of 'state', 'county', 'island'.
-       * @param state {string|null} Two-digit abbreviation of state to filter by. Implies type='state'
-       * @param area_id {string|null} Area id to filter by. Will never return more than 1 result.
-       * @returns array<{area_id, area_label, area_type, state}>
-       */
 
-    }, {
-      key: "get_areas",
-      value: function get_areas() {
-        var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-        var state = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-        var area_id = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      if (!!type) {
+        type = String(type).toLowerCase();
 
-        if (!all_areas) {
-          console.warn('Areas not yet loaded! Use when_areas() for async access to areas.');
-          return [];
+        if (!['state', 'county', 'island'].includes(type)) {
+          throw Error("Invalid area type \"".concat(type, "\", valid types are 'state','county', and 'island'"));
         }
 
-        if (!!area_id) {
-          area_id = String(area_id).toLowerCase();
-          return all_areas.filter(function (area) {
-            return String(area.area_id).toLowerCase() === area_id;
-          });
-        }
+        return all_areas.filter(area => area['area_type'] === type);
+      }
 
-        if (!!state) {
-          state = String(state).toUpperCase();
-          return all_areas.filter(function (area) {
-            return area['area_type'] === 'county' && area.state === state;
-          });
-        }
+      return all_areas;
+    }
+    /**
+     * Gets available areas based on type or the state they belong to (counties only). Returns first area. If called before areas are loaded, returns empty.
+     * @param type {string|null} Area type to filter by. Any of 'state', 'county', 'island'.
+     * @param state {string|null} Two-digit abbreviation of state to filter by. Implies type='state'
+     * @param area_id {string|null} Area id to filter by. Will never return more than 1 result.
+     * @returns array<{area_id, area_label, area_type, state}>
+     */
 
-        if (!!type) {
-          type = String(type).toLowerCase();
 
-          if (!['state', 'county', 'island'].includes(type)) {
-            throw Error("Invalid area type \"".concat(type, "\", valid types are 'state','county', and 'island'"));
+    static find_area(type = null, state = null, area_id = null) {
+      const areas = ClimateByLocationWidget.get_areas(type, state, area_id);
+      return areas.length > 0 ? areas[0] : null;
+    }
+    /**
+     * This function is used to toggle features based on whether the selected area_id is in Alaska or not.
+     *
+     * @param area_id
+     * @returns {boolean}
+     */
+
+
+    static is_ak_area(area_id) {
+      return String(area_id).startsWith('02') || area_id === 'AK';
+    }
+    /**
+     * This function is used to toggle features based on whether the selected area_id is an island or other non-conus area.
+     *
+     * @param area_id
+     * @returns {boolean}
+     */
+
+
+    static is_island_area(area_id) {
+      return get(ClimateByLocationWidget.get_areas(null, null, area_id), [0, 'area_type']) === 'island';
+    }
+    /**
+     * This function is used to toggle features based on whether the selected area_id is a CONUS area.
+     *
+     * @param area_id
+     * @returns {boolean}
+     */
+
+
+    static is_conus_area(area_id) {
+      const non_conus_states = ['HI', 'AK'];
+
+      if (non_conus_states.includes(area_id)) {
+        return false;
+      }
+
+      const area = ClimateByLocationWidget.get_areas(null, null, area_id);
+      return !(get(area, [0, 'area_type']) === 'island') && !(get(area, [0, 'area_type']) === 'county' && non_conus_states.includes(get(area, [0, 'state'])));
+    }
+    /*
+     * Private static properties and methods
+     */
+
+
+    static get _variables() {
+      return [{
+        id: "tmax",
+        title: {
+          english: "Average Daily Max Temp",
+          metric: "Average Daily Max Temp"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "units": "degreeF",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "mean"
+          },
+          monthly: {
+            "name": "maxt",
+            "units": "degreeF",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "mean"
           }
-
-          return all_areas.filter(function (area) {
-            return area['area_type'] === type;
-          });
-        }
-
-        return all_areas;
-      }
-      /**
-       * Gets available areas based on type or the state they belong to (counties only). Returns first area. If called before areas are loaded, returns empty.
-       * @param type {string|null} Area type to filter by. Any of 'state', 'county', 'island'.
-       * @param state {string|null} Two-digit abbreviation of state to filter by. Implies type='state'
-       * @param area_id {string|null} Area id to filter by. Will never return more than 1 result.
-       * @returns array<{area_id, area_label, area_type, state}>
-       */
-
-    }, {
-      key: "find_area",
-      value: function find_area() {
-        var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-        var state = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-        var area_id = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-        var areas = ClimateByLocationWidget.get_areas(type, state, area_id);
-        return areas.length > 0 ? areas[0] : null;
-      }
-      /**
-       * This function is used to toggle features based on whether the selected area_id is in Alaska or not.
-       *
-       * @param area_id
-       * @returns {boolean}
-       */
-
-    }, {
-      key: "is_ak_area",
-      value: function is_ak_area(area_id) {
-        return String(area_id).startsWith('02') || area_id === 'AK';
-      }
-      /**
-       * This function is used to toggle features based on whether the selected area_id is an island or other non-conus area.
-       *
-       * @param area_id
-       * @returns {boolean}
-       */
-
-    }, {
-      key: "is_island_area",
-      value: function is_island_area(area_id) {
-        return get(ClimateByLocationWidget.get_areas(null, null, area_id), [0, 'area_type']) === 'island';
-      }
-      /**
-       * This function is used to toggle features based on whether the selected area_id is a CONUS area.
-       *
-       * @param area_id
-       * @returns {boolean}
-       */
-
-    }, {
-      key: "is_conus_area",
-      value: function is_conus_area(area_id) {
-        var non_conus_states = ['HI', 'AK'];
-
-        if (non_conus_states.includes(area_id)) {
-          return false;
-        }
-
-        var area = ClimateByLocationWidget.get_areas(null, null, area_id);
-        return !(get(area, [0, 'area_type']) === 'island') && !(get(area, [0, 'area_type']) === 'county' && non_conus_states.includes(get(area, [0, 'state'])));
-      }
-      /*
-       * Private static properties and methods
-       */
-
-    }, {
-      key: "_rolling_window_average",
-
-      /**
-       * Performs a rolling window average using the given array, returning a single value.
-       * @param collection
-       * @param year
-       * @param window_size
-       * @return {number}
-       * @private
-       */
-      value: function _rolling_window_average(collection, year) {
-        var window_size = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
-        return mean(range(window_size).map(function (x) {
-          return get(collection, year - x);
-        }).filter(function (y) {
-          return !!y;
-        }));
-      }
-      /**
-       * Utility function to convert F to C
-       * @param f
-       * @return {number}
-       */
-
-    }, {
-      key: "_fahrenheit_to_celsius",
-      value: function _fahrenheit_to_celsius(f) {
-        return 5 / 9 * (f - 32);
-      }
-      /**
-       * Utility function to convert F degree days to C degree days
-       * @param fdd
-       * @return {number}
-       */
-
-    }, {
-      key: "_fdd_to_cdd",
-      value: function _fdd_to_cdd(fdd) {
-        return fdd / 9 * 5;
-      }
-      /**
-       * Utility function inches to mm
-       * @param inches
-       * @return {number}
-       */
-
-    }, {
-      key: "_inches_to_mm",
-      value: function _inches_to_mm(inches) {
-        return inches * 25.4;
-      }
-      /**
-       * Utility function to add an alpha channel to an rgb color. Doesn't play nice with hex colors.
-       * @param rgb
-       * @param opacity
-       * @return {string}
-       * @private
-       */
-
-    }, {
-      key: "_rgba",
-      value: function _rgba(rgb, opacity) {
-        var _rgb$split$splice$0$s = rgb.split('(').splice(-1)[0].split(')')[0].split(',').slice(0, 3),
-            _rgb$split$splice$0$s2 = _slicedToArray(_rgb$split$splice$0$s, 3),
-            r = _rgb$split$splice$0$s2[0],
-            g = _rgb$split$splice$0$s2[1],
-            b = _rgb$split$splice$0$s2[2];
-
-        return "rgba(".concat(r, ",").concat(g, ",").concat(b, ",").concat(opacity, ")");
-      }
-    }, {
-      key: "_variables",
-      get: function get() {
-        return [{
-          id: "tmax",
-          title: {
-            english: "Average Daily Max Temp",
-            metric: "Average Daily Max Temp"
+        },
+        unit_conversions: {
+          metric: ClimateByLocationWidget._fahrenheit_to_celsius,
+          english: identity
+        },
+        ytitles: {
+          annual: {
+            english: "Average Daily Max Temp (°F)",
+            metric: "Average Daily Max Temp (°C)"
           },
-          acis_elements: {
-            annual: {
-              "name": "maxt",
-              "units": "degreeF",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "mean"
-            },
-            monthly: {
-              "name": "maxt",
-              "units": "degreeF",
-              "interval": "mly",
-              "duration": "mly",
-              "reduce": "mean"
-            }
-          },
-          unit_conversions: {
-            metric: ClimateByLocationWidget._fahrenheit_to_celsius,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Average Daily Max Temp (°F)",
-              metric: "Average Daily Max Temp (°C)"
-            },
-            monthly: {
-              english: "Average Daily Max Temp (°F)",
-              metric: "Average Daily Max Temp (°C)"
-            }
-          },
-          supports_area: function supports_area() {
-            return true;
+          monthly: {
+            english: "Average Daily Max Temp (°F)",
+            metric: "Average Daily Max Temp (°C)"
           }
-        }, {
-          id: "tmin",
-          title: {
-            english: "Average Daily Min Temp",
-            metric: "Average Daily Min Temp"
+        },
+        supports_area: () => true
+      }, {
+        id: "tmin",
+        title: {
+          english: "Average Daily Min Temp",
+          metric: "Average Daily Min Temp"
+        },
+        acis_elements: {
+          annual: {
+            "name": "mint",
+            "units": "degreeF",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "mean"
           },
-          acis_elements: {
-            annual: {
-              "name": "mint",
-              "units": "degreeF",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "mean"
-            },
-            monthly: {
-              "name": "mint",
-              "units": "degreeF",
-              "interval": "mly",
-              "duration": "mly",
-              "reduce": "mean"
-            }
-          },
-          unit_conversions: {
-            metric: ClimateByLocationWidget._fahrenheit_to_celsius,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Average Daily Min Temp (°F)",
-              metric: "Average Daily Min Temp (°C)"
-            },
-            monthly: {
-              english: "Average Daily Min Temp (°F)",
-              metric: "Average Daily Min Temp (°C)"
-            }
-          },
-          supports_area: function supports_area() {
-            return true;
+          monthly: {
+            "name": "mint",
+            "units": "degreeF",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "mean"
           }
-        }, {
-          id: "days_tmax_gt_50f",
-          title: {
+        },
+        unit_conversions: {
+          metric: ClimateByLocationWidget._fahrenheit_to_celsius,
+          english: identity
+        },
+        ytitles: {
+          annual: {
+            english: "Average Daily Min Temp (°F)",
+            metric: "Average Daily Min Temp (°C)"
+          },
+          monthly: {
+            english: "Average Daily Min Temp (°F)",
+            metric: "Average Daily Min Temp (°C)"
+          }
+        },
+        supports_area: () => true
+      }, {
+        id: "days_tmax_gt_50f",
+        title: {
+          english: "Days per year with max above 50°F",
+          metric: "Days per year with max above 10°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_50"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with max above 50°F",
             metric: "Days per year with max above 10°C"
-          },
-          acis_elements: {
-            annual: {
-              "name": "maxt",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_50"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with max above 50°F",
-              metric: "Days per year with max above 10°C"
-            }
-          },
-          supports_area: ClimateByLocationWidget.is_ak_area
-        }, {
-          id: "days_tmax_gt_60f",
-          title: {
+          }
+        },
+        supports_area: ClimateByLocationWidget.is_ak_area
+      }, {
+        id: "days_tmax_gt_60f",
+        title: {
+          english: "Days per year with max above 60°F",
+          metric: "Days per year with max above 15.5°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_60"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with max above 60°F",
             metric: "Days per year with max above 15.5°C"
-          },
-          acis_elements: {
-            annual: {
-              "name": "maxt",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_60"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with max above 60°F",
-              metric: "Days per year with max above 15.5°C"
-            }
-          },
-          supports_area: ClimateByLocationWidget.is_ak_area
-        }, {
-          id: "days_tmax_gt_70f",
-          title: {
+          }
+        },
+        supports_area: ClimateByLocationWidget.is_ak_area
+      }, {
+        id: "days_tmax_gt_70f",
+        title: {
+          english: "Days per year with max above 70°F",
+          metric: "Days per year with max above 21.1°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_70"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with max above 70°F",
             metric: "Days per year with max above 21.1°C"
-          },
-          acis_elements: {
-            annual: {
-              "name": "maxt",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_70"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with max above 70°F",
-              metric: "Days per year with max above 21.1°C"
-            }
-          },
-          supports_area: ClimateByLocationWidget.is_ak_area
-        }, {
-          id: "days_tmax_gt_80f",
-          title: {
+          }
+        },
+        supports_area: ClimateByLocationWidget.is_ak_area
+      }, {
+        id: "days_tmax_gt_80f",
+        title: {
+          english: "Days per year with max above 80°F",
+          metric: "Days per year with max above 26.6°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_80"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with max above 80°F",
             metric: "Days per year with max above 26.6°C"
-          },
-          acis_elements: {
-            annual: {
-              "name": "maxt",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_80"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with max above 80°F",
-              metric: "Days per year with max above 26.6°C"
-            }
-          },
-          supports_area: ClimateByLocationWidget.is_ak_area
-        }, {
-          id: "days_tmax_gt_90f",
-          title: {
+          }
+        },
+        supports_area: ClimateByLocationWidget.is_ak_area
+      }, {
+        id: "days_tmax_gt_90f",
+        title: {
+          english: "Days per year with max above 90°F",
+          metric: "Days per year with max above 32.2°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_90"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with max above 90°F",
             metric: "Days per year with max above 32.2°C"
-          },
-          acis_elements: {
-            annual: {
-              "name": "maxt",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_90"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with max above 90°F",
-              metric: "Days per year with max above 32.2°C"
-            }
-          },
-          supports_area: function supports_area() {
-            return true;
           }
-        }, {
-          id: "days_tmax_gt_95f",
-          title: {
+        },
+        supports_area: () => true
+      }, {
+        id: "days_tmax_gt_95f",
+        title: {
+          english: "Days per year with max above 95°F",
+          metric: "Days per year with max above 35°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_95"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with max above 95°F",
             metric: "Days per year with max above 35°C"
-          },
-          acis_elements: {
-            annual: {
-              "name": "maxt",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_95"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with max above 95°F",
-              metric: "Days per year with max above 35°C"
-            }
-          },
-          supports_area: function supports_area(area_id) {
-            return !ClimateByLocationWidget.is_ak_area(area_id);
           }
-        }, {
-          id: "days_tmax_gt_100f",
-          title: {
+        },
+        supports_area: area_id => !ClimateByLocationWidget.is_ak_area(area_id)
+      }, {
+        id: "days_tmax_gt_100f",
+        title: {
+          english: "Days per year with max above 100°F",
+          metric: "Days per year with max above 37.7°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_100"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with max above 100°F",
             metric: "Days per year with max above 37.7°C"
-          },
-          acis_elements: {
-            annual: {
-              "name": "maxt",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_100"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with max above 100°F",
-              metric: "Days per year with max above 37.7°C"
-            }
-          },
-          supports_area: function supports_area(area_id) {
-            return !ClimateByLocationWidget.is_ak_area(area_id);
           }
-        }, {
-          id: "days_tmax_gt_105f",
-          title: {
+        },
+        supports_area: area_id => !ClimateByLocationWidget.is_ak_area(area_id)
+      }, {
+        id: "days_tmax_gt_105f",
+        title: {
+          english: "Days per year with max above 105°F",
+          metric: "Days per year with max above 40.5°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_105"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with max above 105°F",
             metric: "Days per year with max above 40.5°C"
-          },
-          acis_elements: {
-            annual: {
-              "name": "maxt",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_105"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with max above 105°F",
-              metric: "Days per year with max above 40.5°C"
-            }
-          },
-          supports_area: function supports_area(area_id) {
-            return !ClimateByLocationWidget.is_ak_area(area_id);
           }
-        }, {
-          id: "days_tmax_lt_32f",
-          title: {
+        },
+        supports_area: area_id => !ClimateByLocationWidget.is_ak_area(area_id)
+      }, {
+        id: "days_tmax_lt_32f",
+        title: {
+          english: "Days per year with max below 32°F (Icing days)",
+          metric: "Days per year with max below 0°C (Icing days)"
+        },
+        acis_elements: {
+          annual: {
+            "name": "maxt",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_lt_32"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with max below 32°F (Icing days)",
             metric: "Days per year with max below 0°C (Icing days)"
-          },
-          acis_elements: {
-            annual: {
-              "name": "maxt",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_lt_32"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with max below 32°F (Icing days)",
-              metric: "Days per year with max below 0°C (Icing days)"
-            }
-          },
-          supports_area: function supports_area() {
-            return true;
           }
-        }, {
-          id: "days_tmin_lt_32f",
-          title: {
+        },
+        supports_area: () => true
+      }, {
+        id: "days_tmin_lt_32f",
+        title: {
+          english: "Days per year with min below 32°F (frost days)",
+          metric: "Days per year with min below 0°C (frost days)"
+        },
+        acis_elements: {
+          annual: {
+            "name": "mint",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_lt_32"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with min below 32°F (frost days)",
             metric: "Days per year with min below 0°C (frost days)"
-          },
-          acis_elements: {
-            annual: {
-              "name": "mint",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_lt_32"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with min below 32°F (frost days)",
-              metric: "Days per year with min below 0°C (frost days)"
-            }
-          },
-          supports_area: function supports_area() {
-            return true;
           }
-        }, {
-          id: "days_tmin_lt_minus_40f",
-          title: {
+        },
+        supports_area: () => true
+      }, {
+        id: "days_tmin_lt_minus_40f",
+        title: {
+          english: "Days per year with min below -40°F",
+          metric: "Days per year with min below -40°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "mint",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_lt_-40"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with min below -40°F",
             metric: "Days per year with min below -40°C"
+          }
+        },
+        supports_area: ClimateByLocationWidget.is_ak_area
+      }, {
+        id: "days_tmin_gt_60f",
+        title: {
+          english: "Days per year with min above 60°F",
+          metric: "Days per year with min above 15.5°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "mint",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_80"
           },
-          acis_elements: {
-            annual: {
-              "name": "mint",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_lt_-40"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with min below -40°F",
-              metric: "Days per year with min below -40°C"
-            }
-          },
-          supports_area: ClimateByLocationWidget.is_ak_area
-        }, {
-          id: "days_tmin_gt_60f",
-          title: {
+          monthly: {
+            "name": "mint",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "cnt_gt_80"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with min above 60°F",
             metric: "Days per year with min above 15.5°C"
+          }
+        },
+        supports_area: ClimateByLocationWidget.is_ak_area
+      }, {
+        id: "days_tmin_gt_80f",
+        title: {
+          english: "Days per year with min above 80°F",
+          metric: "Days per year with min above 26.6°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "mint",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_80"
           },
-          acis_elements: {
-            annual: {
-              "name": "mint",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_80"
-            },
-            monthly: {
-              "name": "mint",
-              "interval": "mly",
-              "duration": "mly",
-              "reduce": "cnt_gt_80"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with min above 60°F",
-              metric: "Days per year with min above 15.5°C"
-            }
-          },
-          supports_area: ClimateByLocationWidget.is_ak_area
-        }, {
-          id: "days_tmin_gt_80f",
-          title: {
+          monthly: {
+            "name": "mint",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "cnt_gt_80"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with min above 80°F",
             metric: "Days per year with min above 26.6°C"
-          },
-          acis_elements: {
-            annual: {
-              "name": "mint",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_80"
-            },
-            monthly: {
-              "name": "mint",
-              "interval": "mly",
-              "duration": "mly",
-              "reduce": "cnt_gt_80"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with min above 80°F",
-              metric: "Days per year with min above 26.6°C"
-            }
-          },
-          supports_area: function supports_area(area_id) {
-            return !ClimateByLocationWidget.is_ak_area(area_id);
           }
-        }, {
-          id: "days_tmin_gt_90f",
-          title: {
+        },
+        supports_area: area_id => !ClimateByLocationWidget.is_ak_area(area_id)
+      }, {
+        id: "days_tmin_gt_90f",
+        title: {
+          english: "Days per year with min above 90°F",
+          metric: "Days per year with min above 32.2°C"
+        },
+        acis_elements: {
+          annual: {
+            "name": "mint",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_90"
+          },
+          monthly: {
+            "name": "mint",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "cnt_gt_90"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with min above 90°F",
             metric: "Days per year with min above 32.2°C"
-          },
-          acis_elements: {
-            annual: {
-              "name": "mint",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_90"
-            },
-            monthly: {
-              "name": "mint",
-              "interval": "mly",
-              "duration": "mly",
-              "reduce": "cnt_gt_90"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with min above 90°F",
-              metric: "Days per year with min above 32.2°C"
-            }
-          },
-          supports_area: function supports_area(area_id) {
-            return !ClimateByLocationWidget.is_ak_area(area_id);
           }
-        }, {
-          id: "hdd_65f",
-          title: {
-            english: "Heating Degree Days",
-            metric: "Heating Degree Days"
-          },
-          acis_elements: {
-            annual: {
-              "name": "hdd",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "sum"
-            }
-          },
-          unit_conversions: {
-            metric: ClimateByLocationWidget._fdd_to_cdd,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Heating Degree Days (°F-days)",
-              metric: "Heating Degree Days (°C-days)"
-            }
-          },
-          supports_area: function supports_area() {
-            return true;
+        },
+        supports_area: area_id => !ClimateByLocationWidget.is_ak_area(area_id)
+      }, {
+        id: "hdd_65f",
+        title: {
+          english: "Heating Degree Days",
+          metric: "Heating Degree Days"
+        },
+        acis_elements: {
+          annual: {
+            "name": "hdd",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "sum"
           }
-        }, {
-          id: "cdd_65f",
-          title: {
-            english: "Cooling Degree Days",
-            metric: "Cooling Degree Days"
-          },
-          acis_elements: {
-            annual: {
-              "name": "cdd",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "sum"
-            }
-          },
-          unit_conversions: {
-            metric: ClimateByLocationWidget._fdd_to_cdd,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Cooling Degree Days (°F-days)",
-              metric: "Cooling Degree Days (°C-days)"
-            }
-          },
-          supports_area: function supports_area() {
-            return true;
+        },
+        unit_conversions: {
+          metric: ClimateByLocationWidget._fdd_to_cdd,
+          english: identity
+        },
+        ytitles: {
+          annual: {
+            english: "Heating Degree Days (°F-days)",
+            metric: "Heating Degree Days (°C-days)"
           }
-        }, {
-          id: "gdd",
-          title: {
-            english: "Growing Degree Days",
-            metric: "Growing Degree Days"
-          },
-          acis_elements: {
-            annual: {
-              "name": "gdd",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "sum"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Growing Degree Days (°F-days)",
-              metric: "Growing Degree Days (°C-days)"
-            }
-          },
-          supports_area: function supports_area() {
-            return true;
+        },
+        supports_area: () => true
+      }, {
+        id: "cdd_65f",
+        title: {
+          english: "Cooling Degree Days",
+          metric: "Cooling Degree Days"
+        },
+        acis_elements: {
+          annual: {
+            "name": "cdd",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "sum"
           }
-        }, {
-          id: "gddmod",
-          title: {
-            english: "Modified Growing Degree Days",
-            metric: "Modified Growing Degree Days"
-          },
-          acis_elements: {
-            annual: {
-              "name": "gdd",
-              "duration": "yly",
-              "limit": [86, 50],
-              "interval": "yly",
-              "reduce": "sum"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Modified Growing Degree Days (°F-days)",
-              metric: "Modified Growing Degree Days (°C-days)"
-            }
-          },
-          supports_area: function supports_area() {
-            return true;
+        },
+        unit_conversions: {
+          metric: ClimateByLocationWidget._fdd_to_cdd,
+          english: identity
+        },
+        ytitles: {
+          annual: {
+            english: "Cooling Degree Days (°F-days)",
+            metric: "Cooling Degree Days (°C-days)"
           }
-        }, {
-          id: "gdd_32f",
-          title: {
-            english: "Thawing Degree Days",
-            metric: "Thawing Degree Days"
+        },
+        supports_area: () => true
+      }, {
+        id: "gdd",
+        title: {
+          english: "Growing Degree Days",
+          metric: "Growing Degree Days"
+        },
+        acis_elements: {
+          annual: {
+            "name": "gdd",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "sum"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
+            english: "Growing Degree Days (°F-days)",
+            metric: "Growing Degree Days (°C-days)"
+          }
+        },
+        supports_area: () => true
+      }, {
+        id: "gddmod",
+        title: {
+          english: "Modified Growing Degree Days",
+          metric: "Modified Growing Degree Days"
+        },
+        acis_elements: {
+          annual: {
+            "name": "gdd",
+            "duration": "yly",
+            "limit": [86, 50],
+            "interval": "yly",
+            "reduce": "sum"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
+            english: "Modified Growing Degree Days (°F-days)",
+            metric: "Modified Growing Degree Days (°C-days)"
+          }
+        },
+        supports_area: () => true
+      }, {
+        id: "gdd_32f",
+        title: {
+          english: "Thawing Degree Days",
+          metric: "Thawing Degree Days"
+        },
+        acis_elements: {
+          annual: {
+            "name": "gdd32",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "sum"
+          }
+        },
+        unit_conversions: {
+          metric: ClimateByLocationWidget._fdd_to_cdd,
+          english: identity
+        },
+        ytitles: {
+          annual: {
+            english: "Thawing Degree Days (°F-days)",
+            metric: "Thawing Degree Days (°C-days)"
+          }
+        },
+        supports_area: ClimateByLocationWidget.is_ak_area
+      }, {
+        id: "hdd_32f",
+        title: {
+          english: "Freezing Degree Days",
+          metric: "Freezing Degree Days"
+        },
+        acis_elements: {
+          annual: {
+            "name": "hdd32",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "sum"
+          }
+        },
+        unit_conversions: {
+          metric: ClimateByLocationWidget._fdd_to_cdd,
+          english: identity
+        },
+        ytitles: {
+          annual: {
+            english: "Freezing Degree Days (°F-days)",
+            metric: "Freezing Degree Days (°C-days)"
+          }
+        },
+        supports_area: ClimateByLocationWidget.is_ak_area
+      }, {
+        id: "pcpn",
+        title: {
+          english: "Total Precipitation",
+          metric: "Total Precipitation"
+        },
+        acis_elements: {
+          annual: {
+            "name": "pcpn",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "sum",
+            "units": "inch"
           },
-          acis_elements: {
-            annual: {
-              "name": "gdd32",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "sum"
-            }
-          },
-          unit_conversions: {
-            metric: ClimateByLocationWidget._fdd_to_cdd,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Thawing Degree Days (°F-days)",
-              metric: "Thawing Degree Days (°C-days)"
-            }
-          },
-          supports_area: ClimateByLocationWidget.is_ak_area
-        }, {
-          id: "hdd_32f",
-          title: {
-            english: "Freezing Degree Days",
-            metric: "Freezing Degree Days"
-          },
-          acis_elements: {
-            annual: {
-              "name": "hdd32",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "sum"
-            }
-          },
-          unit_conversions: {
-            metric: ClimateByLocationWidget._fdd_to_cdd,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Freezing Degree Days (°F-days)",
-              metric: "Freezing Degree Days (°C-days)"
-            }
-          },
-          supports_area: ClimateByLocationWidget.is_ak_area
-        }, {
-          id: "pcpn",
-          title: {
-            english: "Total Precipitation",
+          monthly: {
+            "name": "pcpn",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "sum",
+            "units": "inch"
+          }
+        },
+        unit_conversions: {
+          metric: ClimateByLocationWidget._inches_to_mm,
+          english: identity
+        },
+        ytitles: {
+          annual: {
+            english: "Total Precipitation (in.)",
             metric: "Total Precipitation"
           },
-          acis_elements: {
-            annual: {
-              "name": "pcpn",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "sum",
-              "units": "inch"
-            },
-            monthly: {
-              "name": "pcpn",
-              "interval": "mly",
-              "duration": "mly",
-              "reduce": "sum",
-              "units": "inch"
-            }
-          },
-          unit_conversions: {
-            metric: ClimateByLocationWidget._inches_to_mm,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Total Precipitation (in.)",
-              metric: "Total Precipitation"
-            },
-            monthly: {
-              english: "Total Precipitation (in.)",
-              metric: "Total Precipitation"
-            }
-          },
-          supports_area: function supports_area() {
-            return true;
+          monthly: {
+            english: "Total Precipitation (in.)",
+            metric: "Total Precipitation"
           }
-        }, {
-          id: "days_dry_days",
-          title: {
-            english: "Dry Days",
-            metric: "Dry Days"
+        },
+        supports_area: () => true
+      }, {
+        id: "days_dry_days",
+        title: {
+          english: "Dry Days",
+          metric: "Dry Days"
+        },
+        acis_elements: {
+          annual: {
+            "name": "pcpn",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_lt_0.01"
           },
-          acis_elements: {
-            annual: {
-              "name": "pcpn",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_lt_0.01"
-            },
-            monthly: {
-              "name": "pcpn",
-              "interval": "mly",
-              "duration": "mly",
-              "reduce": "cnt_lt_0.01"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Dry Days (days/period)",
-              metric: "Dry Days (days/period)"
-            }
-          },
-          supports_area: function supports_area() {
-            return true;
+          monthly: {
+            "name": "pcpn",
+            "interval": "mly",
+            "duration": "mly",
+            "reduce": "cnt_lt_0.01"
           }
-        }, {
-          id: "days_pcpn_gt_0_25in",
-          title: {
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
+            english: "Dry Days (days/period)",
+            metric: "Dry Days (days/period)"
+          }
+        },
+        supports_area: () => true
+      }, {
+        id: "days_pcpn_gt_0_25in",
+        title: {
+          english: "Days per year with more than 0.25in precipitation",
+          metric: "Days per year with more than 6.35mm precipitation"
+        },
+        acis_elements: {
+          annual: {
+            "name": "pcpn",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_1"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with more than 0.25in precipitation",
             metric: "Days per year with more than 6.35mm precipitation"
-          },
-          acis_elements: {
-            annual: {
-              "name": "pcpn",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_1"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with more than 0.25in precipitation",
-              metric: "Days per year with more than 6.35mm precipitation"
-            }
-          },
-          supports_area: ClimateByLocationWidget.is_ak_area
-        }, {
-          id: "days_pcpn_gt_1in",
-          title: {
+          }
+        },
+        supports_area: ClimateByLocationWidget.is_ak_area
+      }, {
+        id: "days_pcpn_gt_1in",
+        title: {
+          english: "Days per year with more than 1in precip",
+          metric: "Days per year with more than 25.3mm precip"
+        },
+        acis_elements: {
+          annual: {
+            "name": "pcpn",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_1"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with more than 1in precip",
             metric: "Days per year with more than 25.3mm precip"
-          },
-          acis_elements: {
-            annual: {
-              "name": "pcpn",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_1"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with more than 1in precip",
-              metric: "Days per year with more than 25.3mm precip"
-            }
-          },
-          supports_area: function supports_area() {
-            return true;
           }
-        }, {
-          id: "days_pcpn_gt_2in",
-          title: {
+        },
+        supports_area: () => true
+      }, {
+        id: "days_pcpn_gt_2in",
+        title: {
+          english: "Days per year with more than 2in precip",
+          metric: "Days per year with more than 50.8mm precip"
+        },
+        acis_elements: {
+          annual: {
+            "name": "pcpn",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_2"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with more than 2in precip",
-            metric: "Days per year with more than 50.8mm precip"
-          },
-          acis_elements: {
-            annual: {
-              "name": "pcpn",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_2"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with more than 2in precip",
-              metric: "Days of Precipitation Above 50.8mm"
-            }
-          },
-          supports_area: function supports_area() {
-            return true;
+            metric: "Days of Precipitation Above 50.8mm"
           }
-        }, {
-          id: "days_pcpn_gt_3in",
-          title: {
+        },
+        supports_area: () => true
+      }, {
+        id: "days_pcpn_gt_3in",
+        title: {
+          english: "Days per year with more than 3in precip",
+          metric: "Days per year with more than 76.2mm precip"
+        },
+        acis_elements: {
+          annual: {
+            "name": "pcpn",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_3"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with more than 3in precip",
             metric: "Days per year with more than 76.2mm precip"
-          },
-          acis_elements: {
-            annual: {
-              "name": "pcpn",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_3"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with more than 3in precip",
-              metric: "Days per year with more than 76.2mm precip"
-            }
-          },
-          supports_area: function supports_area() {
-            return true;
           }
-        }, {
-          id: "days_pcpn_gt_4in",
-          title: {
+        },
+        supports_area: () => true
+      }, {
+        id: "days_pcpn_gt_4in",
+        title: {
+          english: "Days per year with more than 4in precip",
+          metric: "Days per year with more than 101.6mm precip"
+        },
+        acis_elements: {
+          annual: {
+            "name": "pcpn",
+            "interval": "yly",
+            "duration": "yly",
+            "reduce": "cnt_gt_4"
+          }
+        },
+        unit_conversions: {
+          metric: identity,
+          english: identity
+        },
+        ytitles: {
+          annual: {
             english: "Days per year with more than 4in precip",
             metric: "Days per year with more than 101.6mm precip"
-          },
-          acis_elements: {
-            annual: {
-              "name": "pcpn",
-              "interval": "yly",
-              "duration": "yly",
-              "reduce": "cnt_gt_4"
-            }
-          },
-          unit_conversions: {
-            metric: identity,
-            english: identity
-          },
-          ytitles: {
-            annual: {
-              english: "Days per year with more than 4in precip",
-              metric: "Days per year with more than 101.6mm precip"
-            }
-          },
-          supports_area: function supports_area(area_id) {
-            return !ClimateByLocationWidget.is_ak_area(area_id);
           }
-        }];
-      }
-    }, {
-      key: "_frequencies",
-      get: function get() {
-        return [{
-          id: 'annual',
-          title: 'Annual',
-          supports_area: function supports_area() {
-            return true;
-          }
-        }, {
-          id: 'monthly',
-          title: 'Monthly',
-          supports_area: function supports_area(area_id) {
-            return ClimateByLocationWidget.is_conus_area(area_id) || ClimateByLocationWidget.is_island_area(area_id);
-          }
-        }];
-      }
-    }]);
+        },
+        supports_area: area_id => !ClimateByLocationWidget.is_ak_area(area_id)
+      }];
+    }
 
-    return ClimateByLocationWidget;
-  }();
+    static get _frequencies() {
+      return [{
+        id: 'annual',
+        title: 'Annual',
+        supports_area: () => true
+      }, {
+        id: 'monthly',
+        title: 'Monthly',
+        supports_area: area_id => ClimateByLocationWidget.is_conus_area(area_id) || ClimateByLocationWidget.is_island_area(area_id)
+      }];
+    }
+
+    /**
+     * Performs a rolling window average using the given array, returning a single value.
+     * @param collection
+     * @param year
+     * @param window_size
+     * @return {number}
+     * @private
+     */
+    static _rolling_window_average(collection, year, window_size = 10) {
+      return mean(range(window_size).map(x => get(collection, year - x)).filter(y => !!y));
+    }
+    /**
+     * Utility function to convert F to C
+     * @param f
+     * @return {number}
+     */
+
+
+    static _fahrenheit_to_celsius(f) {
+      return 5 / 9 * (f - 32);
+    }
+    /**
+     * Utility function to convert F degree days to C degree days
+     * @param fdd
+     * @return {number}
+     */
+
+
+    static _fdd_to_cdd(fdd) {
+      return fdd / 9 * 5;
+    }
+    /**
+     * Utility function inches to mm
+     * @param inches
+     * @return {number}
+     */
+
+
+    static _inches_to_mm(inches) {
+      return inches * 25.4;
+    }
+    /**
+     * Utility function to add an alpha channel to an rgb color. Doesn't play nice with hex colors.
+     * @param rgb
+     * @param opacity
+     * @return {string}
+     * @private
+     */
+
+
+    static _rgba(rgb, opacity) {
+      const [r, g, b] = rgb.split('(').splice(-1)[0].split(')')[0].split(',').slice(0, 3);
+      return "rgba(".concat(r, ",").concat(g, ",").concat(b, ",").concat(opacity, ")");
+    }
+
+  }
 
   _defineProperty(ClimateByLocationWidget, "_areas_json_url", 'areas.json');
 

@@ -1,6 +1,5 @@
 'use strict';
 import 'unfetch/polyfill'
-import "regenerator-runtime/runtime";
 import {find, get, identity, isEqual, max, mean, merge, min, range as lodash_range, round} from 'lodash-es';
 
 
@@ -309,7 +308,11 @@ export default class ClimateByLocationWidget {
   /*
    * Private methods
    */
-
+  /**
+   * Creates/updates an annual graph for the CONUS.
+   * @return {Promise<void>}
+   * @private
+   */
   async _update_annual_conus() {
     const [hist_obs_data, hist_mod_data, proj_mod_data] = await Promise.all([
       this._get_historical_observed_livneh_data(),
@@ -365,13 +368,13 @@ export default class ClimateByLocationWidget {
     }
 
     // repeat 2005 data point to fill gap
-    chart_data['proj_year'].push(hist_mod_data[hist_mod_data.length - 1][0]);
-    chart_data['rcp45_mean'].push(round(hist_mod_data[hist_mod_data.length - 1][1], precision));
-    chart_data['rcp45_min'].push(round(hist_mod_data[hist_mod_data.length - 1][2], precision));
-    chart_data['rcp45_max'].push(round(hist_mod_data[hist_mod_data.length - 1][3], precision));
-    chart_data['rcp85_mean'].push(round(hist_mod_data[hist_mod_data.length - 1][1], precision));
-    chart_data['rcp85_min'].push(round(hist_mod_data[hist_mod_data.length - 1][2], precision));
-    chart_data['rcp85_max'].push(round(hist_mod_data[hist_mod_data.length - 1][3], precision));
+    proj_mod_data.unshift([hist_mod_data[hist_mod_data.length - 1][0],
+      round(hist_mod_data[hist_mod_data.length - 1][1], precision),
+      round(hist_mod_data[hist_mod_data.length - 1][2], precision),
+      round(hist_mod_data[hist_mod_data.length - 1][3], precision),
+      round(hist_mod_data[hist_mod_data.length - 1][1], precision),
+      round(hist_mod_data[hist_mod_data.length - 1][2], precision),
+      round(hist_mod_data[hist_mod_data.length - 1][3], precision)])
 
     for (let i = 0; i < proj_mod_data.length; i++) {
       chart_data['proj_year'].push(proj_mod_data[i][0]);
@@ -402,6 +405,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax), width: 0, opacity: this.options.colors.opacity.ann_hist_minmax},
             legendgroup: 'hist',
             visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+            hovertemplate: "<extra></extra>"
           },
           {
             x: chart_data['hist_year'],
@@ -417,6 +421,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax), width: 0, opacity: this.options.colors.opacity.ann_hist_minmax},
             legendgroup: 'hist',
             visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+            customdata: hist_mod_data,
+            hovertemplate: "Hist. Modeled: %{customdata[2]:.1f} - %{customdata[3]:.1f}<extra></extra>"
           },
           // {
           //   x: chart_data['hist_year'],
@@ -439,6 +445,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
             legendgroup: 'rcp45',
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+            showlegend: false,
+            hovertemplate:"<extra></extra>",
           },
           {
             x: chart_data['proj_year'],
@@ -451,6 +459,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
             legendgroup: 'rcp45',
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+            customdata: proj_mod_data,
+            hovertemplate: "(%{customdata[2]:.1f} - %{customdata[3]:.1f})<extra></extra>"
           },
           {
             x: chart_data['proj_year'],
@@ -463,6 +473,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+            showlegend: false,
+            hovertemplate:"<extra></extra>",
           },
           {
             x: chart_data['proj_year'],
@@ -473,9 +485,10 @@ export default class ClimateByLocationWidget {
             mode: 'lines',
             fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
-
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+            customdata: proj_mod_data,
+            hovertemplate: "(%{customdata[5]:.1f} - %{customdata[6]:.1f})<extra></extra>"
           },
           {
             x: chart_data['hist_obs_year'],
@@ -488,17 +501,19 @@ export default class ClimateByLocationWidget {
             marker: {color: ClimateByLocationWidget._rgba(this.options.colors.hist.bar, this.options.colors.opacity.hist_obs)},
             legendgroup: 'histobs',
             visible: !!this.options.show_historical_observed ? true : 'legendonly',
+            hovertemplate: "Observed: <b>%{y:.1f}</b><extra></extra>"
           },
           {
             x: chart_data['proj_year'],
             y: chart_data['rcp45_mean'],
             type: 'scatter',
             mode: 'lines',
-            name: 'Modeled mean (RCP 4.5 projections, weighted)',
+            name: 'RCP 4.5 projections (weighted mean)',
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)},
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
             legendgroup: 'rcp45',
-            yaxis: 'y3'
+            yaxis: 'y3',
+            hovertemplate: "RCP 4.5: <b>%{y:.1f}</b><extra></extra>"
           },
           {
             x: chart_data['proj_year'],
@@ -509,7 +524,8 @@ export default class ClimateByLocationWidget {
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)},
             legendgroup: 'rcp85',
-            yaxis: 'y3'
+            yaxis: 'y3',
+            hovertemplate: "RCP 8.5: <b>%{y:.1f}</b><extra></extra>"
           },
         ],
         // layout
@@ -518,6 +534,7 @@ export default class ClimateByLocationWidget {
           margin: {l: 50, t: 12, r: 12, b: 60},
           showlegend: this.options.show_legend,
           legend: {"orientation": "h"},
+          hovermode: 'x unified',
           xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
           yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config),
           yaxis2: {
@@ -533,7 +550,6 @@ export default class ClimateByLocationWidget {
             type: 'linear',
             matches: 'y',
             overlaying: 'y',
-
             showline: false,
             showgrid: false,
             showticklabels: false,
@@ -662,6 +678,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax), width: 0, opacity: this.options.colors.opacity.ann_hist_minmax},
             legendgroup: 'hist',
             visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+            hovertemplate: "<extra></extra>"
           },
           {
             x: chart_data['hist_year'],
@@ -674,6 +691,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax), width: 0, opacity: 1},
             legendgroup: 'hist',
             visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+            customdata: hist_mod_data,
+            hovertemplate: "Hist. Modeled: GFDL-CM3=%{customdata[1]:.1f}, NCAR-CCSM4=%{customdata[2]:.1f}<extra></extra>"
           },
           {
             x: chart_data['proj_year'],
@@ -686,6 +705,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: 1},
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+            showlegend: false,
+            hovertemplate:"<extra></extra>",
           },
           {
             x: chart_data['proj_year'],
@@ -698,6 +719,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: 1},
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+            customdata: proj_mod_data,
+            hovertemplate: "RCP 8.5: GFDL-CM3=%{customdata[1]:.1f},  NCAR-CCSM4=%{customdata[2]:.1f}<extra></extra>"
           },
 
         ],
@@ -706,6 +729,7 @@ export default class ClimateByLocationWidget {
           autosize: true,
           margin: {l: 50, t: 12, r: 12, b: 60},
           showlegend: this.options.show_legend,
+          hovermode: 'x unified',
           legend: {"orientation": "h"},
           xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
           yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
@@ -798,14 +822,15 @@ export default class ClimateByLocationWidget {
       chart_data['hist_max'].push(hist_mod_data[i][3]);
     }
     // repeat 2005 data point to fill gap
-    chart_data['proj_year'].push(hist_mod_data[hist_mod_data.length - 1][0]);
-    chart_data['rcp45_mean'].push(round(hist_mod_data[hist_mod_data.length - 1][1], precision));
-    chart_data['rcp45_min'].push(round(hist_mod_data[hist_mod_data.length - 1][2], precision));
-    chart_data['rcp45_max'].push(round(hist_mod_data[hist_mod_data.length - 1][3], precision));
-    chart_data['rcp85_mean'].push(round(hist_mod_data[hist_mod_data.length - 1][1], precision));
-    chart_data['rcp85_min'].push(round(hist_mod_data[hist_mod_data.length - 1][2], precision));
-    chart_data['rcp85_max'].push(round(hist_mod_data[hist_mod_data.length - 1][3], precision));
-
+    proj_mod_data.unshift([
+      hist_mod_data[hist_mod_data.length - 1][0],
+      round(hist_mod_data[hist_mod_data.length - 1][1], precision),
+      round(hist_mod_data[hist_mod_data.length - 1][2], precision),
+      round(hist_mod_data[hist_mod_data.length - 1][3], precision),
+      round(hist_mod_data[hist_mod_data.length - 1][1], precision),
+      round(hist_mod_data[hist_mod_data.length - 1][2], precision),
+      round(hist_mod_data[hist_mod_data.length - 1][3], precision),
+    ]);
     for (let i = 0; i < proj_mod_data.length; i++) {
       chart_data['proj_year'].push(proj_mod_data[i][0]);
       chart_data['rcp45_mean'].push(round(proj_mod_data[i][1], precision));
@@ -838,6 +863,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax), width: 0, opacity: this.options.colors.opacity.ann_hist_minmax},
             legendgroup: 'hist',
             visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+            showlegend:false,
+            hovertemplate:"<extra></extra>",
           },
           {
             x: chart_data['hist_year'],
@@ -853,6 +880,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax), width: 0, opacity: this.options.colors.opacity.ann_hist_minmax},
             legendgroup: 'hist',
             visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+            customdata: hist_mod_data,
+            hovertemplate: "Hist. Modeled: %{customdata[2]:.1f} - %{customdata[3]:.1f}<extra></extra>"
           },
           // {
           //   x: chart_data['hist_year'],
@@ -875,6 +904,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
             legendgroup: 'rcp45',
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+            showlegend: false,
+            hovertemplate:"<extra></extra>",
           },
           {
             x: chart_data['proj_year'],
@@ -887,6 +918,9 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
             legendgroup: 'rcp45',
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+            showlegend: true,
+            customdata: proj_mod_data,
+            hovertemplate: "(%{customdata[2]:.1f} - %{customdata[3]:.1f})<extra></extra>"
           },
           {
             x: chart_data['proj_year'],
@@ -899,6 +933,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+            showlegend: false,
+            hovertemplate:"<extra></extra>",
           },
           {
             x: chart_data['proj_year'],
@@ -909,9 +945,10 @@ export default class ClimateByLocationWidget {
             mode: 'lines',
             fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
-
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+            customdata: proj_mod_data,
+            hovertemplate: "(%{customdata[5]:.1f} - %{customdata[6]:.1f})<extra></extra>"
           },
           {
             x: chart_data['proj_year'],
@@ -922,6 +959,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)},
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
             legendgroup: 'rcp45',
+            hovertemplate: "RCP 4.5: <b>%{y:.1f}</b><extra></extra>"
           },
           {
             x: chart_data['proj_year'],
@@ -932,6 +970,7 @@ export default class ClimateByLocationWidget {
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)},
             legendgroup: 'rcp85',
+            hovertemplate: "RCP 8.5: <b>%{y:.1f}</b><extra></extra>"
           }
         ],
         // layout
@@ -939,6 +978,7 @@ export default class ClimateByLocationWidget {
           autosize: true,
           margin: {l: 50, t: 12, r: 12, b: 60},
           showlegend: this.options.show_legend,
+          hovermode: 'x unified',
           legend: {"orientation": "h"},
           xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
           yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
@@ -1056,6 +1096,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
             legendgroup: 'rcp45',
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+            hovertemplate: "<extra></extra>"
           },
           {
             x: chart_data['month'],
@@ -1068,6 +1109,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
             legendgroup: 'rcp45',
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+            customdata: proj_mod_data,
+            hovertemplate: "(%{customdata[2]:.1f} - %{customdata[3]:.1f})<extra></extra>"
           },
           {
             x: chart_data['month'],
@@ -1080,6 +1123,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+            showlegend: false,
+            hovertemplate:"<extra></extra>",
           },
           {
             x: chart_data['month'],
@@ -1092,6 +1137,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+            customdata: proj_mod_data,
+            hovertemplate: "(%{customdata[5]:.1f} - %{customdata[6]:.1f})<extra></extra>"
           },
           {
             x: chart_data['month'],
@@ -1102,6 +1149,7 @@ export default class ClimateByLocationWidget {
             line: {color: this.options.colors.hist.line},
             legendgroup: 'histobs',
             visible: !!this.options.show_historical_observed ? true : 'legendonly',
+            hovertemplate: "Observed: <b>%{y:.1f}</b><extra></extra>"
           },
           {
             x: chart_data['month'],
@@ -1112,6 +1160,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)},
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
             legendgroup: 'rcp45',
+            hovertemplate: "RCP 4.5: <b>%{y:.1f}</b><extra></extra>"
           },
           {
             x: chart_data['month'],
@@ -1122,6 +1171,7 @@ export default class ClimateByLocationWidget {
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)},
             legendgroup: 'rcp85',
+            hovertemplate: "RCP 8.5: <b>%{y:.1f}</b><extra></extra>"
           }
         ],
         // layout
@@ -1129,6 +1179,7 @@ export default class ClimateByLocationWidget {
           autosize: true,
           margin: {l: 50, t: 12, r: 12, b: 60},
           showlegend: this.options.show_legend,
+          hovermode: 'x unified',
           legend: {"orientation": "h"},
           xaxis: Object.assign(this._get_x_axis_layout(x_range_min, x_range_max), {tickmode: 'array', tickvals: month_indexes, ticktext: chart_data['month_label']}),
           yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
@@ -1139,12 +1190,11 @@ export default class ClimateByLocationWidget {
     this._update_visibility = () => {
       Plotly.restyle(this.graphdiv, {
         visible: [
-          !!this.options.show_historical_modeled ? true : 'legendonly',
-          !!this.options.show_historical_modeled ? true : 'legendonly',
           !!this.options.show_projected_rcp45 ? true : 'legendonly',
           !!this.options.show_projected_rcp45 ? true : 'legendonly',
           !!this.options.show_projected_rcp85 ? true : 'legendonly',
           !!this.options.show_projected_rcp85 ? true : 'legendonly',
+          !!this.options.show_historical_modeled ? true : 'legendonly',
           !!this.options.show_projected_rcp45 ? true : 'legendonly',
           !!this.options.show_projected_rcp85 ? true : 'legendonly']
       })
@@ -1249,6 +1299,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax), width: 0, opacity: this.options.colors.opacity.ann_hist_minmax},
             legendgroup: 'hist',
             visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+            hovertemplate: "<extra></extra>"
           },
           {
             x: chart_data['month'],
@@ -1264,6 +1315,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax), width: 0, opacity: this.options.colors.opacity.ann_hist_minmax},
             legendgroup: 'hist',
             visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+            customdata: hist_mod_data,
+            hovertemplate: "Hist. Modeled: %{customdata[2]:.1f} - %{customdata[3]:.1f}<extra></extra>"
           },
           // {
           //   x: chart_data['hist_year'],
@@ -1286,6 +1339,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
             legendgroup: 'rcp45',
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+            showlegend: false,
+            hovertemplate: "<extra></extra>",
           },
           {
             x: chart_data['month'],
@@ -1298,6 +1353,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
             legendgroup: 'rcp45',
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+            customdata: proj_mod_data,
+            hovertemplate: "(%{customdata[2]:.1f} - %{customdata[3]:.1f})<extra></extra>"
           },
           {
             x: chart_data['month'],
@@ -1310,6 +1367,8 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+            showlegend: false,
+            hovertemplate:"<extra></extra>",
           },
           {
             x: chart_data['month'],
@@ -1320,9 +1379,10 @@ export default class ClimateByLocationWidget {
             mode: 'lines',
             fillcolor: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax),
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
-
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
+            customdata: proj_mod_data,
+            hovertemplate: "(%{customdata[5]:.1f} - %{customdata[6]:.1f})<extra></extra>"
           },
           {
             x: chart_data['month'],
@@ -1333,6 +1393,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)},
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
             legendgroup: 'rcp45',
+            hovertemplate: "RCP 4.5: <b>%{y:.1f}</b><extra></extra>"
           },
           {
             x: chart_data['month'],
@@ -1343,6 +1404,7 @@ export default class ClimateByLocationWidget {
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)},
             legendgroup: 'rcp85',
+            hovertemplate: "RCP 8.5: <b>%{y:.1f}</b><extra></extra>"
           }
         ],
         // layout
@@ -1350,6 +1412,7 @@ export default class ClimateByLocationWidget {
           autosize: true,
           margin: {l: 50, t: 12, r: 12, b: 60},
           showlegend: this.options.show_legend,
+          hovermode: 'x unified',
           legend: {"orientation": "h"},
           xaxis: Object.assign(this._get_x_axis_layout(x_range_min, x_range_max), {tickmode: 'array', tickvals: month_indexes, ticktext: chart_data['month_label']}),
           yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
@@ -1511,6 +1574,7 @@ export default class ClimateByLocationWidget {
     }
     return monthly_values
   }
+
 
   /**
    * Retrieves data from ACIS.
