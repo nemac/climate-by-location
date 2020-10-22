@@ -16,7 +16,7 @@ if (production){
 export default {
   input: 'src/main.js',
   output: {
-    file: 'build/climate-by-location.js',
+    file: 'dist/climate-by-location.js',
     format: 'umd',
     name: 'ClimateByLocationWidget',
     sourcemap: !production ? 'inline' : false,

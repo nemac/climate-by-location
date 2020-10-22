@@ -1,11 +1,17 @@
 {
   "name": "climate-by-location",
-  "version": "2.2.0",
-  "description": "This library defines functions that can create and manage interactive climate widget graphs.",
-  "main": "climate-by-location.js",
+  "version": "3.0.0",
+  "description": "Interactive climate graphs",
+  "main": "dist/climate-by-location.js",
+  "maintainers": [
+    {
+      "name": "Josh Wilson",
+      "email": "jwilson@fernleafinteractive.com"
+    }
+  ],
   "scripts": {
-    "build-dev": "rollup -c && cat build/climate-by-location.js > climate-by-location.js",
-    "build": "rollup -c --environment=\"build_env:prod\" && cat build/climate-by-location.js > climate-by-location.js",
+    "build-dev": "rollup -c",
+    "build": "rollup -c --environment=\"build_env:prod\"",
     "start": "node serve.js"
   },
   "repository": {
