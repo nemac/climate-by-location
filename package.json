@@ -1,6 +1,6 @@
 {
   "name": "climate-by-location",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Interactive climate graphs",
   "main": "dist/climate-by-location.js",
   "maintainers": [
@@ -10,8 +10,8 @@
     }
   ],
   "scripts": {
-    "build-dev": "rollup -c",
-    "build": "rollup -c --environment=\"build_env:prod\"",
+    "build-dev": "rollup -c && cp areas.json dist/areas.json",
+    "build": "rollup -c --environment=\"build_env:prod\" && cp areas.json dist/areas.json",
     "start": "node serve.js"
   },
   "repository": {

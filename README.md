@@ -123,6 +123,9 @@ Note that outside the contiguous US, some of these variables may be shown differ
 
 
 ## Changelog
+(3.0.1):
+- Improved hover tooltips
+- Fixed browser compatibility issue with static properties
 
 (3.0.0):
 - Replaced MultiGraph with [Plotly](https://plotly.com/javascript/)!

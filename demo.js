@@ -115,7 +115,7 @@ jQuery(document).ready(function ($) {
     if (!cbl_instance) {
       init_climate_by_location();
     } else {
-      cbl_instance.set_options({
+      cbl_instance.update({
         area_id: $('#county').val()
       });
     }
@@ -131,7 +131,7 @@ jQuery(document).ready(function ($) {
     if (!cbl_instance) {
       init_climate_by_location();
     } else {
-      cbl_instance.set_options({
+      cbl_instance.update({
         area_id: $('#other_areas').val()
       });
     }
@@ -177,7 +177,7 @@ jQuery(document).ready(function ($) {
     if (!cbl_instance) {
       init_climate_by_location();
     } else {
-      cbl_instance.set_options({
+      cbl_instance.update({
         area_id: $('#state').val()
       });
     }
@@ -188,7 +188,7 @@ jQuery(document).ready(function ($) {
     if (!cbl_instance) {
       return;
     }
-    cbl_instance.set_options({
+    cbl_instance.update({
       frequency: $('#frequency').val(),
       variable: $('#variable').val()
     });
@@ -200,7 +200,7 @@ jQuery(document).ready(function ($) {
     if (!cbl_instance) {
       return;
     }
-    cbl_instance.set_options({
+    cbl_instance.update({
       monthly_timeperiod: $('#timeperiod').val()
     });
     update_controls();
@@ -210,7 +210,7 @@ jQuery(document).ready(function ($) {
     if (!cbl_instance) {
       return;
     }
-    cbl_instance.set_options({
+    cbl_instance.update({
       variable: $('#variable').val()
     });
     update_controls();
@@ -219,7 +219,7 @@ jQuery(document).ready(function ($) {
     if (!cbl_instance) {
       return;
     }
-    cbl_instance.set_options({
+    cbl_instance.update({
       show_historical_observed: $('#histobs').prop('checked'),
       show_historical_modeled: $('#histmod').prop('checked'),
       show_projected_rcp45: $('#rcp45').prop('checked'),

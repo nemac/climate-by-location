@@ -4,8 +4,11 @@ import {find, get, identity, isEqual, max, mean, merge, min, range as lodash_ran
 
 
 // a couple module-level variables
-let all_areas = null;
-let when_areas = null;
+let _all_areas = null;
+/** @type Promise */
+let _when_areas = null;
+let _areas_json_url = 'areas.json';
+
 /* globals jQuery, window, Plotly, fetch */
 export default class ClimateByLocationWidget {
   /**
@@ -92,7 +95,8 @@ export default class ClimateByLocationWidget {
     this._update_visibility = null;
     /** @var _when_chart {Promise} - Promise for the most recent plotly graph. */
     this._when_chart = null;
-    this.update();
+
+    this._update();
     if (this.options.responsive) {
       window.addEventListener('resize', this.resize.bind(this));
     }
@@ -127,7 +131,7 @@ export default class ClimateByLocationWidget {
   }
 
 
-  set_options(options) {
+  update(options) {
     let old_options = Object.assign({}, this.options);
     this.options = merge({}, old_options, options);
     ClimateByLocationWidget._bool_options.forEach((option) => {
@@ -148,7 +152,7 @@ export default class ClimateByLocationWidget {
         || this.options.variable !== old_options.variable
         || this.options.monthly_timeperiod !== old_options.monthly_timeperiod
     ) {
-      this.update();
+      this._update();
     } else {
       if ((this.options.show_projected_rcp45 !== old_options.show_projected_rcp45
           || this.options.show_projected_rcp85 !== old_options.show_projected_rcp85
@@ -171,7 +175,11 @@ export default class ClimateByLocationWidget {
    * @returns {boolean}
    */
   set_x_axis_range(min, max) {
-    return (this.options.x_axis_range = [min, max]) && (Plotly.relayout(this.graphdiv, {'xaxis.range': this.options.x_axis_range}) && this.options.x_axis_range)
+    this.options.x_axis_range = [min, max]
+    if (this.options.frequency === 'annual'){
+      Plotly.relayout(this.graphdiv, {'xaxis.range': this.options.x_axis_range})
+    }
+    return this.options.x_axis_range
   }
 
 
@@ -179,11 +187,10 @@ export default class ClimateByLocationWidget {
    * Requests the widget update according to its current options. Use `set_options()` to change options instead.
    * @returns {Promise<void>}
    */
-  async update() {
+  async _update() {
     this._show_spinner();
     this._reset_downloadable_dataurls();
-    // todo re-implement plot clearing?
-    // this.hide_all_plots();
+    await ClimateByLocationWidget.when_areas()
     if (!!this.options.area_id && !!this.options.variable && !!this.options.frequency) {
       if (this.options.frequency === "annual") {
         if (ClimateByLocationWidget.is_ak_area(this.options.area_id)) {
@@ -218,10 +225,14 @@ export default class ClimateByLocationWidget {
    */
   resize() {
     window.requestAnimationFrame(() => {
-      Plotly.relayout(this.graphdiv, {
-        'xaxis.autorange': true,
-        'yaxis.autorange': true
-      });
+      try {
+        Plotly.relayout(this.graphdiv, {
+          'xaxis.autorange': true,
+          'yaxis.autorange': true
+        });
+      } catch {
+        // do nothing
+      }
     })
   }
 
@@ -405,6 +416,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax), width: 0, opacity: this.options.colors.opacity.ann_hist_minmax},
             legendgroup: 'hist',
             visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+            customdata: null,
             hovertemplate: "<extra></extra>"
           },
           {
@@ -446,7 +458,8 @@ export default class ClimateByLocationWidget {
             legendgroup: 'rcp45',
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
             showlegend: false,
-            hovertemplate:"<extra></extra>",
+            customdata: null,
+            hovertemplate: "<extra></extra>",
           },
           {
             x: chart_data['proj_year'],
@@ -474,7 +487,8 @@ export default class ClimateByLocationWidget {
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
             showlegend: false,
-            hovertemplate:"<extra></extra>",
+            customdata: null,
+            hovertemplate: "<extra></extra>",
           },
           {
             x: chart_data['proj_year'],
@@ -501,6 +515,7 @@ export default class ClimateByLocationWidget {
             marker: {color: ClimateByLocationWidget._rgba(this.options.colors.hist.bar, this.options.colors.opacity.hist_obs)},
             legendgroup: 'histobs',
             visible: !!this.options.show_historical_observed ? true : 'legendonly',
+            customdata: null,
             hovertemplate: "Observed: <b>%{y:.1f}</b><extra></extra>"
           },
           {
@@ -513,6 +528,7 @@ export default class ClimateByLocationWidget {
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
             legendgroup: 'rcp45',
             yaxis: 'y3',
+            customdata: null,
             hovertemplate: "RCP 4.5: <b>%{y:.1f}</b><extra></extra>"
           },
           {
@@ -525,6 +541,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)},
             legendgroup: 'rcp85',
             yaxis: 'y3',
+            customdata: null,
             hovertemplate: "RCP 8.5: <b>%{y:.1f}</b><extra></extra>"
           },
         ],
@@ -576,7 +593,7 @@ export default class ClimateByLocationWidget {
       })
     }
     this._when_chart = new Promise((resolve) => {
-      this.graphdiv.on('plotly_afterplot', (gd) => {
+      this.graphdiv.once('plotly_afterplot', (gd) => {
         resolve(gd)
       })
     });
@@ -678,6 +695,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax), width: 0, opacity: this.options.colors.opacity.ann_hist_minmax},
             legendgroup: 'hist',
             visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+            customdata: null,
             hovertemplate: "<extra></extra>"
           },
           {
@@ -706,7 +724,8 @@ export default class ClimateByLocationWidget {
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
             showlegend: false,
-            hovertemplate:"<extra></extra>",
+            customdata: null,
+            hovertemplate: "<extra></extra>",
           },
           {
             x: chart_data['proj_year'],
@@ -749,7 +768,7 @@ export default class ClimateByLocationWidget {
     }
 
     this._when_chart = new Promise((resolve) => {
-      this.graphdiv.on('plotly_afterplot', (gd) => {
+      this.graphdiv.once('plotly_afterplot', (gd) => {
         resolve(gd)
       })
     });
@@ -863,8 +882,9 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax), width: 0, opacity: this.options.colors.opacity.ann_hist_minmax},
             legendgroup: 'hist',
             visible: !!this.options.show_historical_modeled ? true : 'legendonly',
-            showlegend:false,
-            hovertemplate:"<extra></extra>",
+            showlegend: false,
+            customdata: null,
+            hovertemplate: "<extra></extra>",
           },
           {
             x: chart_data['hist_year'],
@@ -905,7 +925,8 @@ export default class ClimateByLocationWidget {
             legendgroup: 'rcp45',
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
             showlegend: false,
-            hovertemplate:"<extra></extra>",
+            customdata: null,
+            hovertemplate: "<extra></extra>",
           },
           {
             x: chart_data['proj_year'],
@@ -934,7 +955,8 @@ export default class ClimateByLocationWidget {
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
             showlegend: false,
-            hovertemplate:"<extra></extra>",
+            customdata: null,
+            hovertemplate: "<extra></extra>",
           },
           {
             x: chart_data['proj_year'],
@@ -959,6 +981,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)},
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
             legendgroup: 'rcp45',
+            customdata: null,
             hovertemplate: "RCP 4.5: <b>%{y:.1f}</b><extra></extra>"
           },
           {
@@ -970,6 +993,7 @@ export default class ClimateByLocationWidget {
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)},
             legendgroup: 'rcp85',
+            customdata: null,
             hovertemplate: "RCP 8.5: <b>%{y:.1f}</b><extra></extra>"
           }
         ],
@@ -1001,7 +1025,7 @@ export default class ClimateByLocationWidget {
       })
     }
     this._when_chart = new Promise((resolve) => {
-      this.graphdiv.on('plotly_afterplot', (gd) => {
+      this.graphdiv.once('plotly_afterplot', (gd) => {
         resolve(gd)
       })
     });
@@ -1096,6 +1120,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.outerBand, this.options.colors.opacity.ann_proj_minmax), width: 0, opacity: this.options.colors.opacity.ann_proj_minmax},
             legendgroup: 'rcp45',
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
+            customdata: null,
             hovertemplate: "<extra></extra>"
           },
           {
@@ -1124,7 +1149,8 @@ export default class ClimateByLocationWidget {
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
             showlegend: false,
-            hovertemplate:"<extra></extra>",
+            customdata: null,
+            hovertemplate: "<extra></extra>",
           },
           {
             x: chart_data['month'],
@@ -1149,6 +1175,7 @@ export default class ClimateByLocationWidget {
             line: {color: this.options.colors.hist.line},
             legendgroup: 'histobs',
             visible: !!this.options.show_historical_observed ? true : 'legendonly',
+            customdata: null,
             hovertemplate: "Observed: <b>%{y:.1f}</b><extra></extra>"
           },
           {
@@ -1160,6 +1187,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)},
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
             legendgroup: 'rcp45',
+            customdata: null,
             hovertemplate: "RCP 4.5: <b>%{y:.1f}</b><extra></extra>"
           },
           {
@@ -1171,6 +1199,7 @@ export default class ClimateByLocationWidget {
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)},
             legendgroup: 'rcp85',
+            customdata: null,
             hovertemplate: "RCP 8.5: <b>%{y:.1f}</b><extra></extra>"
           }
         ],
@@ -1194,13 +1223,13 @@ export default class ClimateByLocationWidget {
           !!this.options.show_projected_rcp45 ? true : 'legendonly',
           !!this.options.show_projected_rcp85 ? true : 'legendonly',
           !!this.options.show_projected_rcp85 ? true : 'legendonly',
-          !!this.options.show_historical_modeled ? true : 'legendonly',
+          !!this.options.show_historical_observed ? true : 'legendonly',
           !!this.options.show_projected_rcp45 ? true : 'legendonly',
           !!this.options.show_projected_rcp85 ? true : 'legendonly']
       })
     }
     this._when_chart = new Promise((resolve) => {
-      this.graphdiv.on('plotly_afterplot', (gd) => {
+      this.graphdiv.once('plotly_afterplot', (gd) => {
         resolve(gd)
       })
     });
@@ -1299,6 +1328,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.hist.outerBand, this.options.colors.opacity.ann_hist_minmax), width: 0, opacity: this.options.colors.opacity.ann_hist_minmax},
             legendgroup: 'hist',
             visible: !!this.options.show_historical_modeled ? true : 'legendonly',
+            customdata: null,
             hovertemplate: "<extra></extra>"
           },
           {
@@ -1340,6 +1370,7 @@ export default class ClimateByLocationWidget {
             legendgroup: 'rcp45',
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
             showlegend: false,
+            customdata: null,
             hovertemplate: "<extra></extra>",
           },
           {
@@ -1368,7 +1399,8 @@ export default class ClimateByLocationWidget {
             legendgroup: 'rcp85',
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
             showlegend: false,
-            hovertemplate:"<extra></extra>",
+            customdata: null,
+            hovertemplate: "<extra></extra>",
           },
           {
             x: chart_data['month'],
@@ -1393,6 +1425,7 @@ export default class ClimateByLocationWidget {
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp45.line, this.options.colors.opacity.proj_line)},
             visible: this.options.show_projected_rcp45 ? true : 'legendonly',
             legendgroup: 'rcp45',
+            customdata: null,
             hovertemplate: "RCP 4.5: <b>%{y:.1f}</b><extra></extra>"
           },
           {
@@ -1404,6 +1437,7 @@ export default class ClimateByLocationWidget {
             visible: this.options.show_projected_rcp85 ? true : 'legendonly',
             line: {color: ClimateByLocationWidget._rgba(this.options.colors.rcp85.line, this.options.colors.opacity.proj_line)},
             legendgroup: 'rcp85',
+            customdata: null,
             hovertemplate: "RCP 8.5: <b>%{y:.1f}</b><extra></extra>"
           }
         ],
@@ -1434,7 +1468,7 @@ export default class ClimateByLocationWidget {
       })
     }
     this._when_chart = new Promise((resolve) => {
-      this.graphdiv.on('plotly_afterplot', (gd) => {
+      this.graphdiv.once('plotly_afterplot', (gd) => {
         resolve(gd)
       })
     });
@@ -1925,15 +1959,15 @@ export default class ClimateByLocationWidget {
    * @returns Promise<array<{area_id, area_label, area_type, state}>>
    */
   static when_areas(type = null, state = null, area_id = null) {
-    if (all_areas === null && when_areas === null) {
-      when_areas = fetch(ClimateByLocationWidget._areas_json_url).then((response) => response.json()).then(data => {
+    if (ClimateByLocationWidget._all_areas === null && ClimateByLocationWidget._when_areas === null) {
+      ClimateByLocationWidget._when_areas = fetch(ClimateByLocationWidget.areas_json_url).then((response) => response.json()).then(data => {
         if (!data) {
           throw new Error("Failed to retrieve areas!");
         }
-        all_areas = data;
+        ClimateByLocationWidget._all_areas = data;
       });
     }
-    return when_areas.then(ClimateByLocationWidget.get_areas.bind(this, type, state, area_id))
+    return ClimateByLocationWidget._when_areas.then(ClimateByLocationWidget.get_areas.bind(this, type, state, area_id))
   }
 
   /**
@@ -1944,26 +1978,26 @@ export default class ClimateByLocationWidget {
    * @returns array<{area_id, area_label, area_type, state}>
    */
   static get_areas(type = null, state = null, area_id = null) {
-    if (!all_areas) {
-      console.warn('Areas not yet loaded! Use when_areas() for async access to areas.')
+    if (!ClimateByLocationWidget._all_areas) {
+      console.error('Areas not yet loaded! Use when_areas() for async access to areas.')
       return [];
     }
     if (!!area_id) {
       area_id = String(area_id).toLowerCase();
-      return all_areas.filter((area) => String(area.area_id).toLowerCase() === area_id)
+      return ClimateByLocationWidget._all_areas.filter((area) => String(area.area_id).toLowerCase() === area_id)
     }
     if (!!state) {
       state = String(state).toUpperCase();
-      return all_areas.filter((area) => area['area_type'] === 'county' && area.state === state);
+      return ClimateByLocationWidget._all_areas.filter((area) => area['area_type'] === 'county' && area.state === state);
     }
     if (!!type) {
       type = String(type).toLowerCase();
       if (!['state', 'county', 'island'].includes(type)) {
         throw Error(`Invalid area type "${type}", valid types are 'state','county', and 'island'`);
       }
-      return all_areas.filter((area) => area['area_type'] === type)
+      return ClimateByLocationWidget._all_areas.filter((area) => area['area_type'] === type)
     }
-    return all_areas;
+    return ClimateByLocationWidget._all_areas;
   }
 
   /**
@@ -2014,9 +2048,28 @@ export default class ClimateByLocationWidget {
   }
 
   /*
-   * Private static properties and methods
+   * Private static methods
    */
-  static _areas_json_url = 'areas.json';
+  static get areas_json_url(){
+    return _areas_json_url
+  }
+  static set areas_json_url(value){
+    _areas_json_url = value
+  }
+
+  static get _when_areas(){
+    return _when_areas
+  }
+  static set _when_areas(value){
+    _when_areas = value
+  }
+
+  static get _all_areas(){
+    return _all_areas
+  }
+  static set _all_areas(value){
+    _all_areas = value
+  }
 
   static get _variables() {
     return [
