@@ -73,6 +73,13 @@ export default class ClimateByLocationWidget {
       show_projected_rcp85: true,
       show_legend: false,
       responsive: true,
+      plotly_layout_defaults: {
+        hoverdistance: 50,
+        autosize: true,
+        margin: {l: 50, t: 12, r: 12, b: 60},
+        hovermode: 'x unified',
+        legend: {"orientation": "h"},
+      }
     };
     this.options = merge(this.options, options);
 
@@ -176,7 +183,7 @@ export default class ClimateByLocationWidget {
    */
   set_x_axis_range(min, max) {
     this.options.x_axis_range = [min, max]
-    if (this.options.frequency === 'annual'){
+    if (this.options.frequency === 'annual') {
       Plotly.relayout(this.graphdiv, {'xaxis.range': this.options.x_axis_range})
     }
     return this.options.x_axis_range
@@ -546,33 +553,30 @@ export default class ClimateByLocationWidget {
           },
         ],
         // layout
-        {
-          autosize: true,
-          margin: {l: 50, t: 12, r: 12, b: 60},
-          showlegend: this.options.show_legend,
-          legend: {"orientation": "h"},
-          hovermode: 'x unified',
-          xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
-          yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config),
-          yaxis2: {
-            type: 'linear',
-            matches: 'y',
-            overlaying: 'y',
-            showline: false,
-            showgrid: false,
-            showticklabels: false,
-            nticks: 0
-          },
-          yaxis3: {
-            type: 'linear',
-            matches: 'y',
-            overlaying: 'y',
-            showline: false,
-            showgrid: false,
-            showticklabels: false,
-            nticks: 0
-          },
-        },
+        Object.assign({}, this.options.plotly_layout_defaults,
+            {
+              showlegend: this.options.show_legend,
+              xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
+              yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config),
+              yaxis2: {
+                type: 'linear',
+                matches: 'y',
+                overlaying: 'y',
+                showline: false,
+                showgrid: false,
+                showticklabels: false,
+                nticks: 0
+              },
+              yaxis3: {
+                type: 'linear',
+                matches: 'y',
+                overlaying: 'y',
+                showline: false,
+                showgrid: false,
+                showticklabels: false,
+                nticks: 0
+              }
+            }),
         // options
         this._get_plotly_options()
     );
@@ -744,15 +748,14 @@ export default class ClimateByLocationWidget {
 
         ],
         // layout
-        {
-          autosize: true,
-          margin: {l: 50, t: 12, r: 12, b: 60},
-          showlegend: this.options.show_legend,
-          hovermode: 'x unified',
-          legend: {"orientation": "h"},
-          xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
-          yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
-        },
+        Object.assign({},
+            this.options.plotly_layout_defaults,
+            {
+              showlegend: this.options.show_legend,
+              legend: {"orientation": "h"},
+              xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
+              yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
+            }),
         // options
         this._get_plotly_options(),
     );
@@ -998,15 +1001,14 @@ export default class ClimateByLocationWidget {
           }
         ],
         // layout
-        {
-          autosize: true,
-          margin: {l: 50, t: 12, r: 12, b: 60},
-          showlegend: this.options.show_legend,
-          hovermode: 'x unified',
-          legend: {"orientation": "h"},
-          xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
-          yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
-        },
+        Object.assign({},
+            this.options.plotly_layout_defaults,
+            {
+              showlegend: this.options.show_legend,
+              xaxis: this._get_x_axis_layout(x_range_min, x_range_max),
+              yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
+            }
+        ),
         // options
         this._get_plotly_options(),
     );
@@ -1204,15 +1206,13 @@ export default class ClimateByLocationWidget {
           }
         ],
         // layout
-        {
-          autosize: true,
-          margin: {l: 50, t: 12, r: 12, b: 60},
-          showlegend: this.options.show_legend,
-          hovermode: 'x unified',
-          legend: {"orientation": "h"},
-          xaxis: Object.assign(this._get_x_axis_layout(x_range_min, x_range_max), {tickmode: 'array', tickvals: month_indexes, ticktext: chart_data['month_label']}),
-          yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
-        },
+        Object.assign({}, this.options.plotly_layout_defaults,
+            {
+              showlegend: this.options.show_legend,
+              xaxis: Object.assign(this._get_x_axis_layout(x_range_min, x_range_max), {tickmode: 'array', tickvals: month_indexes, ticktext: chart_data['month_label']}),
+              yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
+            }
+        ),
         // options
         this._get_plotly_options(),
     );
@@ -1442,15 +1442,12 @@ export default class ClimateByLocationWidget {
           }
         ],
         // layout
+        Object.assign({}, this.options.plotly_layout_defaults,
         {
-          autosize: true,
-          margin: {l: 50, t: 12, r: 12, b: 60},
           showlegend: this.options.show_legend,
-          hovermode: 'x unified',
-          legend: {"orientation": "h"},
           xaxis: Object.assign(this._get_x_axis_layout(x_range_min, x_range_max), {tickmode: 'array', tickvals: month_indexes, ticktext: chart_data['month_label']}),
           yaxis: this._get_y_axis_layout(y_range_min, y_range_max, variable_config)
-        },
+        }),
         // options
         this._get_plotly_options(),
     );
@@ -2050,24 +2047,27 @@ export default class ClimateByLocationWidget {
   /*
    * Private static methods
    */
-  static get areas_json_url(){
+  static get areas_json_url() {
     return _areas_json_url
   }
-  static set areas_json_url(value){
+
+  static set areas_json_url(value) {
     _areas_json_url = value
   }
 
-  static get _when_areas(){
+  static get _when_areas() {
     return _when_areas
   }
-  static set _when_areas(value){
+
+  static set _when_areas(value) {
     _when_areas = value
   }
 
-  static get _all_areas(){
+  static get _all_areas() {
     return _all_areas
   }
-  static set _all_areas(value){
+
+  static set _all_areas(value) {
     _all_areas = value
   }
 
