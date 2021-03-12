@@ -911,11 +911,21 @@ export default class ConusDecadeView extends View {
 
   destroy() {
     super.destroy();
-    //cleanup style
-    const _style_idx = this.parent._styles.indexOf(this._style);
-    if (_style_idx > -1) {
-      this.parent._styles.splice(_style_idx, 1);
+    try {
+      //cleanup style
+      const _style_idx = this.parent._styles.indexOf(this._style);
+      if (_style_idx > -1) {
+        this.parent._styles.splice(_style_idx, 1);
+      }
+      this.parent._update_styles();
+
+      // remove y-axis sync event handler
+      if (this._relayout_handler) {
+        this.element.removeEventListener('plotly_relayout', this._relayout_handler);
+      }
     }
-    this.parent._update_styles();
+    catch{
+      // do nothing
+    }
   }
 }
