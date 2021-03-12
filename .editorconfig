@@ -14,7 +14,7 @@ ij_smart_tabs = false
 ij_wrap_on_typing = false
 
 
-[*.json]
+[{*.json,*.js}]
 indent_size = 2
 ij_continuation_indent_size = 2
 

@@ -59,25 +59,30 @@ the given frequency in the given region; `frequency` should be one of the string
 
 This method returns a promise which resolves with an array of the ids and titles of all frequencies ('annual, 'monthly', or 'seasonal') for the given area, as not all areas support all frequencies.
 
-#### `cbl_instance.download_image()` (instance)
+#### `cbl_instance.request_downloads()` (instance)
  
- This function generates an image based on the current graph and downloads it. Should be called from within a click event handler to avoid it being blocked as a popup.
-    
-#### `cbl_instance.download_hist_obs_data(anchor_el)`, `cbl_instance.download_hist_mod_data(anchor_el)`, and `cbl_instance.download_proj_mod_data(anchor_el)` (instance)
- 
-  These functions modify an `<a>` element with data urls for the time series data that drives the graph. Note that monthly/seasonal presentations do not use historical modeled data, so calling `download_hist_mod_data` will return `false`.   
-  
-    Example usage:
-  
-  ```javascript
-    $('a#download-hist-obs-link-id').click(function(event) {
-        if (cbl_instance) { // ensure widget exists
-            if (!cbl_instance.download_hist_obs_data(this)){  // note that the 'this' here is a reference to the <a> tag
-                event.stopPropagation(); // stop the event if there was a failure / no data is available and display an error message.
-            }
-        }
-    });
-  ```
+ This function returns a promise which resolves with an array of download options available for the current view. `download_item.when_data()` returns a promise which resolves with the data that may be downloaded, and `download_item.download()` attempts to have the browser initiate the download (may be blocked if not called within a click event handler).
+ Example downloads:
+
+```js
+[
+  {"label":"Observed Data",
+    "icon":"bar-chart",
+    "attribution":"ACIS: livneh",
+    "filename":"Buncombe_County-annual-hist_obs-tmax.csv",
+    "when_data": async ()=>{return 'CSV DATA'},
+    "download": async ()=>{ when_data.then(doDownload) }
+  },
+  {
+    "label":"Chart image",
+    "icon":"picture-o",
+    "attribution":"ACIS: Livneh & LOCA (CMIP 5)",
+    "filename":"Buncombe_County-annual-tmax-graph.png",
+    "when_data": async ()=>{return 'png blob'},
+    "download": async ()=>{ when_data.then(doDownload) }
+  }
+]
+```
       
 #### `cbl_instance.set_x_axis_range(min, max)` (instance)
  
@@ -123,6 +128,27 @@ Note that outside the contiguous US, some of these variables may be shown differ
 
 
 ## Changelog
+(3.1.0):
+- Refactored monolithic widget code into a more-modularized view-based structure.
+- More hover label improvements for decadal views.
+- Added better error handling when the given options result in an invalid state.
+- Refactored various download methods (e.g. download_image, download_hist_obs_data, download_proj_mod_data, download_hist_mod_data) into a single function `request_downloads`. Old functions still exist, but are deprecated and now return Promise<void> instead of boolean.
+- Now lazily-generating csv downloads (where previously they were being eagerly generated as soon as we had data).
+- Added basic url parameters / state handling to the demo.
+- Added new decadal-focused views for all area types. The decadal view is now the default.
+- Merged features from Climate By Forest which generate statistical reports for departure from natural range of variation. This is disabled by for Climate Explorer versions of CBL at this time.
+- Added alternate bundle for Climate By Forest (still a work in progress).
+- Improved browser support for downloading CSVs.
+- Fixed issue where monthly historical modeled data for islands could not be downloaded.
+- Fixed issue where reloading the browser at the right time could result in invalid state.
+
+(3.0.2):
+- Added decadal means and rolling-window means for annual view (`options.show_decadal_means` and `options.show_rolling_window_means`)
+- Improved hover tooltips to show decadal means (can be disabled using `options.hover_decadal_means = false`)
+- Added version selector to demo page to organize past versions
+- Moved island_data default directory to climate-by-location.nemac.org/island_data/ with plans to update in place instead of maintaining multiple copies
+- Moved demo page code to a dedicated folder  
+
 (3.0.1):
 - Improved hover tooltips
 - Fixed browser compatibility issue with static properties
@@ -144,9 +170,8 @@ Note that outside the contiguous US, some of these variables may be shown differ
 - Added support for island states and territories, in addition to CONUS and Alaska areas already supported.
 - Added new `when_areas()` to facilitate listing of areas / area ids by type or (for counties) state. 
 - Deprecated the `state` and `county` options. Use `area_id` instead.
- 
 
-(2.2.0) December 2019 release:
+(2.2.0) Dec 2019:
 - Revamped API to use more ES6 / native JS.
 - Deprecated the jQuery UI based API.
 - Added new pattern for region-specific functionality.
@@ -155,3 +180,8 @@ Note that outside the contiguous US, some of these variables may be shown differ
 - Added new pattern for resolving conflicting settings.
 - Some preparations for a future change from multigraph to an alternate chart library.
 - Renamed `climate-widget-graph.js` to `climate-by-location.js`.
+
+(2.1.0) Jan 2019:
+- Refactored to jQuery UI and somewhat modernized codebase
+
+(1.X.X) 2015-2017

@@ -5,4 +5,7 @@ node_modules
 *.iml
 *.py
 .idea/
-dist/
+dist/*
+!dist/climate_by_location.climate_by_forest.bundle.js
+!dist/climate_by_location.climate_explorer.bundle.js
+!dist/climate_by_location.complete.bundle.js

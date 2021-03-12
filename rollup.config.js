@@ -13,13 +13,31 @@ if (production){
       })
   )
 }
-export default {
-  input: 'src/main.js',
+export default [{
+  input: 'src/bundles/climate_by_location.climate_explorer.bundle.js',
   output: {
-    file: 'dist/climate-by-location.js',
+    file: 'dist/climate_by_location.climate_explorer.bundle.js',
     format: 'umd',
     name: 'ClimateByLocationWidget',
     sourcemap: !production ? 'inline' : false,
   },
   plugins: plugins
-};
+},{
+  input: 'src/bundles/climate_by_location.climate_by_forest.bundle.js',
+  output: {
+    file: 'dist/climate_by_location.climate_by_forest.bundle.js',
+    format: 'umd',
+    name: 'ClimateByLocationWidget',
+    sourcemap: !production ? 'inline' : false,
+  },
+  plugins: plugins
+},{
+  input: 'src/bundles/climate_by_location.complete.bundle.js',
+  output: {
+    file: 'dist/climate_by_location.complete.bundle.js',
+    format: 'umd',
+    name: 'ClimateByLocationWidget',
+    sourcemap: !production ? 'inline' : false,
+  },
+  plugins: plugins
+}];

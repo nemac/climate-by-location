@@ -5,7 +5,7 @@ const http = require('http');
 
 let port = 8080;
 // instantiate file server with caching disabled
-let fileServer = new nodeStatic.Server( './', {headers: {"cache-control": "no-cache, must-revalidate", "Access-Control-Allow-Origin": "*",  "Access-Control-Allow-Methods": "GET",  "Access-Control-Allow-Headers": "Content-Type"}, gzip: true});
+let fileServer = new nodeStatic.Server( 'demo/', {headers: {"cache-control": "no-cache, must-revalidate", "Access-Control-Allow-Origin": "*",  "Access-Control-Allow-Methods": "GET",  "Access-Control-Allow-Headers": "Content-Type"}, gzip: true});
 
 // handle requests
 http.createServer(function (request, response) {

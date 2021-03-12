@@ -1,8 +1,8 @@
 {
   "name": "climate-by-location",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Interactive climate graphs",
-  "main": "dist/climate-by-location.js",
+  "main": "dist/climate-by-location.climate_explorer.bundle.min.js",
   "maintainers": [
     {
       "name": "Josh Wilson",
@@ -10,9 +10,11 @@
     }
   ],
   "scripts": {
-    "build-dev": "rollup -c && cp areas.json dist/areas.json",
-    "build": "rollup -c --environment=\"build_env:prod\" && cp areas.json dist/areas.json",
-    "start": "node serve.js"
+    "build-dev": "ln -srf ./src demo/ && ln -srf ./node_modules demo/node_modules && npx template-literals --config demo/config.json --outdir demo demo/index.js -- env=dev",
+    "build": "npx template-literals --config demo/config.json --outdir dist/ demo/index.js && rollup -c --environment=\"build_env:prod\" && rsync demo/demo.css demo/demo.js demo/ce_areas.json demo/vendor dist/ -r",
+    "start": "npm run build-dev && node serve.js",
+    "start-prod": "static dist -p 8080",
+    "deploy": "aws s3 sync dist/ s3://climate-by-location.nemac.org/archive/$1/ && aws s3 sync dist/ s3://climate-by-location.nemac.org/"
   },
   "repository": {
     "type": "git",
@@ -42,7 +44,8 @@
     "lodash-es": "^4.17.15",
     "node-static": "~0.7.11",
     "nodemon": "^2.0.4",
-    "rollup": "^2.23.0"
+    "rollup": "^2.23.0",
+    "template-literals-cli": "^0.1.7"
   },
   "engines": {
     "node": ">=14.0.0",
