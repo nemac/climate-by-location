@@ -5858,7 +5858,7 @@
     _get_plotly_options() {
       return {
         displaylogo: false,
-        modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d']
+        modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']
       };
     }
 

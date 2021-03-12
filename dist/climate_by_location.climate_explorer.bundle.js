@@ -6855,7 +6855,7 @@
     _get_plotly_options() {
       return {
         displaylogo: false,
-        modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d']
+        modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']
       };
     }
 
@@ -7589,7 +7589,6 @@
     async request_update() {
       const {
         colors,
-        data_api_url,
         hover_decadal_means,
         plotly_layout_defaults,
         rolling_window_mean_years,
@@ -7677,8 +7676,8 @@
           for (const [stat, col_offset] of [['mean', 1], ['min', 2], ['max', 3]]) {
             const decadal_means = compute_decadal_means(scenario_stat_annual_values, 0, scenario_col_offset + col_offset, 2005, 2099);
 
-            for (let i = 0; i < proj_mod_data.length + 1; i++) {
-              chart_data[scenario + '_decadal_' + stat][i] = decadal_means[Math.floor((10 + i - 5) / 10)];
+            for (let i = 0; i < proj_mod_data.length; i++) {
+              chart_data[scenario + '_decadal_' + stat][i] = decadal_means[Math.floor((i + 6) / 10)];
             } // compute decadal averages for hist using extra values from rcp85
 
 
@@ -7695,9 +7694,10 @@
         if (hover_decadal_means) {
           hist_decadal_data = range(hist_mod_data.length).map(i => [chart_data['hist_year_decade'][i], chart_data['hist_decadal_mean'][i], chart_data['hist_decadal_min'][i], chart_data['hist_decadal_max'][i]]);
           rcp45_decadal_data = range(proj_mod_data.length).map(i => [chart_data['proj_year_decade'][i], chart_data['rcp45_decadal_mean'][i], chart_data['rcp45_decadal_min'][i], chart_data['rcp45_decadal_max'][i]]);
-          rcp45_decadal_data.unshift(hist_decadal_data.slice(-1)[0]);
+          rcp45_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
+
           rcp85_decadal_data = range(proj_mod_data.length).map(i => [chart_data['proj_year_decade'][i], chart_data['rcp85_decadal_mean'][i], chart_data['rcp85_decadal_min'][i], chart_data['rcp85_decadal_max'][i]]);
-          rcp85_decadal_data.unshift(hist_decadal_data.slice(-1)[0]);
+          rcp85_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
         }
 
         if (show_decadal_means) {
@@ -7838,6 +7838,8 @@
             hovertemplate: '%{y:.1f}'
           }];
         }
+
+        chart_data['proj_year_decade'].unshift(2005); // repeat 2005
       }
 
       let rolling_means_traces = [];
@@ -8445,15 +8447,24 @@
     }
 
     destroy() {
-      super.destroy(); //cleanup style
+      super.destroy();
 
-      const _style_idx = this.parent._styles.indexOf(this._style);
+      try {
+        //cleanup style
+        const _style_idx = this.parent._styles.indexOf(this._style);
 
-      if (_style_idx > -1) {
-        this.parent._styles.splice(_style_idx, 1);
+        if (_style_idx > -1) {
+          this.parent._styles.splice(_style_idx, 1);
+        }
+
+        this.parent._update_styles(); // remove y-axis sync event handler
+
+
+        if (this._relayout_handler) {
+          this.element.removeEventListener('plotly_relayout', this._relayout_handler);
+        }
+      } catch {// do nothing
       }
-
-      this.parent._update_styles();
     }
 
   }
@@ -9425,7 +9436,9 @@
 
       if (show_decadal_means || hover_decadal_means) {
         const hist_stat_annual_values = [...hist_mod_data.map(a => [a[0], null, null, null, a[1], a[2], a[3]]), ...proj_mod_data.slice(0, 4)];
-        const scenario_stat_annual_values = [...hist_mod_data.slice(-6).map(a => [a[0], a[1], a[2], a[3], a[1], a[2], a[3]]), ...proj_mod_data.slice(0, -1)]; // compute decadal averages
+        const scenario_stat_annual_values = [...hist_mod_data.slice(-6).map(a => [a[0], a[1], a[2], a[3], a[1], a[2], a[3]]), ...proj_mod_data];
+        scenario_stat_annual_values.pop(); // remove 2100 from decadals
+        // compute decadal averages
 
         for (let i = 0; i < proj_mod_data.length; i++) {
           chart_data['proj_year_decade'][i] = Math.trunc(proj_mod_data[i][0] / 10) * 10;
@@ -9439,8 +9452,8 @@
           for (const [stat, col_offset] of [['mean', 1], ['min', 2], ['max', 3]]) {
             const decadal_means = compute_decadal_means(scenario_stat_annual_values, 0, scenario_col_offset + col_offset, 2005, 2099);
 
-            for (let i = 0; i < proj_mod_data.length + 1; i++) {
-              chart_data[scenario + '_decadal_' + stat][i] = decadal_means[Math.floor((10 + i - 5) / 10)];
+            for (let i = 0; i < proj_mod_data.length; i++) {
+              chart_data[scenario + '_decadal_' + stat][i] = decadal_means[Math.floor((i + 6) / 10)];
             } // compute decadal averages for hist using extra values from rcp85
 
 
@@ -9457,9 +9470,14 @@
         if (hover_decadal_means) {
           hist_decadal_data = range(hist_mod_data.length).map(i => [chart_data['hist_year_decade'][i], chart_data['hist_decadal_mean'][i], chart_data['hist_decadal_min'][i], chart_data['hist_decadal_max'][i]]);
           rcp45_decadal_data = range(proj_mod_data.length).map(i => [chart_data['proj_year_decade'][i], chart_data['rcp45_decadal_mean'][i], chart_data['rcp45_decadal_min'][i], chart_data['rcp45_decadal_max'][i]]);
-          rcp45_decadal_data.unshift(hist_decadal_data.slice(-1)[0]);
+          rcp45_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
+
+          rcp45_decadal_data[rcp45_decadal_data.length - 1] = [2100, "NaN", "NaN", "NaN"]; // NaN 2100
+
           rcp85_decadal_data = range(proj_mod_data.length).map(i => [chart_data['proj_year_decade'][i], chart_data['rcp85_decadal_mean'][i], chart_data['rcp85_decadal_min'][i], chart_data['rcp85_decadal_max'][i]]);
-          rcp85_decadal_data.unshift(hist_decadal_data.slice(-1)[0]);
+          rcp85_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
+
+          rcp85_decadal_data[rcp85_decadal_data.length - 1] = [2100, "NaN", "NaN", "NaN"]; // NaN 2100
         }
 
         if (show_decadal_means) {
@@ -9600,13 +9618,18 @@
             hovertemplate: '%{y:.1f}'
           }];
         }
+
+        chart_data['proj_year_decade'].unshift(2005); // repeat 2005
+        // chart_data['proj_year_decade'].push(2100) // 2100
       }
 
       let rolling_means_traces = [];
 
       if (show_rolling_window_means) {
         const hist_stat_annual_values = [...range(rolling_window_mean_years).map(x => [1950 - (rolling_window_mean_years - x), Number.NaN, Number.NaN, Number.NaN, Number.NaN, Number.NaN, Number.NaN]), ...hist_mod_data.map(a => [a[0], null, null, null, a[1], a[2], a[3]])];
-        const scenario_stat_annual_values = [...hist_mod_data.slice(-rolling_window_mean_years - 1).map(a => [a[0], a[1], a[2], a[3], a[1], a[2], a[3]]), ...proj_mod_data.slice(0, -1)]; // compute rolling window means for proj
+        const scenario_stat_annual_values = [...hist_mod_data.slice(-rolling_window_mean_years - 1).map(a => [a[0], a[1], a[2], a[3], a[1], a[2], a[3]]), ...proj_mod_data];
+        scenario_stat_annual_values.pop(); // remove 2100 from rolling means
+        // compute rolling window means for proj
 
         for (const [scenario, scenario_col_offset] of [['rcp45', 0], ['rcp85', 3]]) {
           for (const [stat, col_offset] of [['mean', 1], ['min', 2], ['max', 3]]) {
@@ -10072,7 +10095,8 @@
   /**
    * Modules and customizations bundled for Climate Explorer
    */
-  class climate_by_location_climate_explorer_bundle extends ClimateByLocationWidget$1 {
+
+  class ClimateByLocationWidgetCE extends ClimateByLocationWidget$1 {
     get_view_class() {
       if (!!this.options.area_id && !!this.options.variable && !!this.options.frequency) {
         if (this.options.frequency === "annual") {
@@ -10109,6 +10133,10 @@
 
   }
 
-  return climate_by_location_climate_explorer_bundle;
+  if (typeof window.ClimateByLocationWidget === "undefined") {
+    window.ClimateByLocationWidget = ClimateByLocationWidgetCE;
+  }
+
+  return ClimateByLocationWidgetCE;
 
 })));

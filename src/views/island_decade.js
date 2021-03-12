@@ -123,7 +123,9 @@ export default class IslandDecadeView extends View {
     let rcp85_decadal_data = [];
     if (show_decadal_means || hover_decadal_means) {
       const hist_stat_annual_values = [...hist_mod_data.map((a) => [a[0], null, null, null, a[1], a[2], a[3]]), ...proj_mod_data.slice(0, 4)];
-      const scenario_stat_annual_values = [...hist_mod_data.slice(-6).map((a) => [a[0], a[1], a[2], a[3], a[1], a[2], a[3]]), ...proj_mod_data.slice(0, -1)];
+      const scenario_stat_annual_values = [...hist_mod_data.slice(-6).map((a) => [a[0], a[1], a[2], a[3], a[1], a[2], a[3]]), ...proj_mod_data];
+      scenario_stat_annual_values.pop() // remove 2100 from decadals
+
       // compute decadal averages
       for (let i = 0; i < (proj_mod_data.length); i++) {
         chart_data['proj_year_decade'][i] = Math.trunc(proj_mod_data[i][0] / 10) * 10
@@ -134,8 +136,8 @@ export default class IslandDecadeView extends View {
       for (const [scenario, scenario_col_offset] of [['rcp45', 0], ['rcp85', 3]]) {
         for (const [stat, col_offset] of [['mean', 1], ['min', 2], ['max', 3]]) {
           const decadal_means = compute_decadal_means(scenario_stat_annual_values, 0, scenario_col_offset + col_offset, 2005, 2099);
-          for (let i = 0; i < (proj_mod_data.length + 1); i++) {
-            chart_data[scenario + '_decadal_' + stat][i] = decadal_means[Math.floor(((10 + i - 5) / 10))];
+          for (let i = 0; i < proj_mod_data.length; i++) {
+            chart_data[scenario + '_decadal_' + stat][i] = decadal_means[Math.floor(((i + 6) / 10))];
           }
           // compute decadal averages for hist using extra values from rcp85
           if (scenario === 'rcp85') {
@@ -159,14 +161,17 @@ export default class IslandDecadeView extends View {
           chart_data['rcp45_decadal_min'][i],
           chart_data['rcp45_decadal_max'][i],
         ]);
-        rcp45_decadal_data.unshift(hist_decadal_data.slice(-1)[0]);
+        rcp45_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
+
+        rcp45_decadal_data[rcp45_decadal_data.length - 1] = [2100,  "NaN","NaN","NaN"]; // NaN 2100
         rcp85_decadal_data = lodash_range(proj_mod_data.length).map((i) => [
           chart_data['proj_year_decade'][i],
           chart_data['rcp85_decadal_mean'][i],
           chart_data['rcp85_decadal_min'][i],
           chart_data['rcp85_decadal_max'][i],
         ]);
-        rcp85_decadal_data.unshift(hist_decadal_data.slice(-1)[0]);
+        rcp85_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
+        rcp85_decadal_data[rcp85_decadal_data.length - 1] = [2100,"NaN","NaN","NaN"]; // NaN 2100
       }
       if (show_decadal_means) {
         decadal_means_traces = [
@@ -281,11 +286,14 @@ export default class IslandDecadeView extends View {
           }
         ]
       }
+      chart_data['proj_year_decade'].unshift(2005) // repeat 2005
+      // chart_data['proj_year_decade'].push(2100) // 2100
     }
     let rolling_means_traces = [];
     if (show_rolling_window_means) {
       const hist_stat_annual_values = [...lodash_range(rolling_window_mean_years).map((x) => [1950 - (rolling_window_mean_years - x), Number.NaN, Number.NaN, Number.NaN, Number.NaN, Number.NaN, Number.NaN]), ...hist_mod_data.map((a) => [a[0], null, null, null, a[1], a[2], a[3]])];
-      const scenario_stat_annual_values = [...hist_mod_data.slice(-rolling_window_mean_years - 1).map((a) => [a[0], a[1], a[2], a[3], a[1], a[2], a[3]]), ...proj_mod_data.slice(0, -1)];
+      const scenario_stat_annual_values = [...hist_mod_data.slice(-rolling_window_mean_years - 1).map((a) => [a[0], a[1], a[2], a[3], a[1], a[2], a[3]]), ...proj_mod_data];
+      scenario_stat_annual_values.pop() // remove 2100 from rolling means
       // compute rolling window means for proj
       for (const [scenario, scenario_col_offset] of [['rcp45', 0], ['rcp85', 3]]) {
         for (const [stat, col_offset] of [['mean', 1], ['min', 2], ['max', 3]]) {

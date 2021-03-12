@@ -11,7 +11,7 @@ import ConusMonthView from "../views/conus_month.js";
 import {is_ak_area, is_conus_area, is_island_area} from "../utils.js";
 import IslandDecadeView from "../views/island_decade.js";
 
-export default class extends ClimateByLocationWidget {
+class ClimateByLocationWidgetCE extends ClimateByLocationWidget {
   get_view_class() {
     if (!!this.options.area_id && !!this.options.variable && !!this.options.frequency) {
       if (this.options.frequency === "annual") {
@@ -44,4 +44,10 @@ export default class extends ClimateByLocationWidget {
   get _view_selection_option_names(){
     return ['frequency','area_id','variable','monthly_timeperiod']
   }
+}
+
+export default ClimateByLocationWidgetCE
+
+if (typeof window.ClimateByLocationWidget === "undefined"){
+  window.ClimateByLocationWidget = ClimateByLocationWidgetCE
 }

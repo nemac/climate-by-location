@@ -25,7 +25,7 @@ export default class ConusDecadeView extends View {
   async request_update() {
     const {
       colors,
-      data_api_url,
+
       hover_decadal_means,
       plotly_layout_defaults,
       rolling_window_mean_years,
@@ -114,8 +114,8 @@ export default class ConusDecadeView extends View {
       for (const [scenario, scenario_col_offset] of [['rcp45', 0], ['rcp85', 3]]) {
         for (const [stat, col_offset] of [['mean', 1], ['min', 2], ['max', 3]]) {
           const decadal_means = compute_decadal_means(scenario_stat_annual_values, 0, scenario_col_offset + col_offset, 2005, 2099);
-          for (let i = 0; i < (proj_mod_data.length + 1); i++) {
-            chart_data[scenario + '_decadal_' + stat][i] = decadal_means[Math.floor(((10 + i - 5) / 10))];
+          for (let i = 0; i < proj_mod_data.length; i++) {
+            chart_data[scenario + '_decadal_' + stat][i] = decadal_means[Math.floor(((i + 6) / 10))];
           }
           // compute decadal averages for hist using extra values from rcp85
           if (scenario === 'rcp85') {
@@ -140,14 +140,14 @@ export default class ConusDecadeView extends View {
           chart_data['rcp45_decadal_min'][i],
           chart_data['rcp45_decadal_max'][i],
         ]);
-        rcp45_decadal_data.unshift(hist_decadal_data.slice(-1)[0]);
+        rcp45_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
         rcp85_decadal_data = lodash_range(proj_mod_data.length).map((i) => [
           chart_data['proj_year_decade'][i],
           chart_data['rcp85_decadal_mean'][i],
           chart_data['rcp85_decadal_min'][i],
           chart_data['rcp85_decadal_max'][i],
         ]);
-        rcp85_decadal_data.unshift(hist_decadal_data.slice(-1)[0]);
+        rcp85_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
       }
       if (show_decadal_means) {
         decadal_means_traces = [
@@ -262,6 +262,7 @@ export default class ConusDecadeView extends View {
           }
         ]
       }
+      chart_data['proj_year_decade'].unshift(2005) // repeat 2005
     }
     let rolling_means_traces = [];
     if (show_rolling_window_means) {

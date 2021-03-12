@@ -403,7 +403,7 @@ export default class ClimateByLocationWidget {
 
 
   _get_plotly_options() {
-    return {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d']};
+    return {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d','resetScale2d']};
   }
 
 
