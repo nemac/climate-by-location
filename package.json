@@ -1,6 +1,6 @@
 {
   "name": "climate-by-location",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "description": "Interactive climate graphs",
   "main": "dist/climate-by-location.climate_explorer.bundle.min.js",
   "maintainers": [
