@@ -8299,7 +8299,7 @@
           nticks: 12,
           tickangle: 0,
           title: {
-            text: 'Departure from Observed Average',
+            text: 'Difference from Observed Average',
             font: {
               family: 'roboto, monospace',
               size: 10,
