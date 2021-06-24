@@ -8361,8 +8361,9 @@
           resolve(gd);
         });
 
-        if (this._relayout_handler) {
-          this.element.removeEventListener('plotly_relayout', this._relayout_handler);
+        if (this._relayout_handler && this.element && this.element.removeListener) {
+          // this.element.removeEventListener('plotly_relayout',this._relayout_handler);
+          this.element.removeListener('plotly_relayout', this._relayout_handler);
         }
 
         this._relayout_handler = partial(this.sync_y_axis_ranges.bind(this), hist_obs_bar_base, [y_range_min, y_range_max]);
@@ -8379,6 +8380,7 @@
       const y_max_range = eventdata['yaxis.range[1]'];
       const y4_min_range = eventdata['yaxis4.range[0]'];
       const y4_max_range = eventdata['yaxis4.range[1]'];
+      console.log(eventdata);
 
       if (Number.isFinite(y_min_range) && Number.isFinite(y_max_range)) {
         if (y_min_range - offset !== y4_min_range || y_max_range - offset !== y4_max_range) {
@@ -8393,6 +8395,7 @@
           });
         }
       } else if (eventdata['yaxis.autorange'] || eventdata['yaxis4.autorange']) {
+        //yaxis4.range throws an error in console when window is resized in the Y direction.
         Plotly.relayout(this.element, {
           'yaxis.range': [y_range_default[0], y_range_default[1]],
           'yaxis4.range': [y_range_default[0] - offset, y_range_default[1] - offset]
@@ -8506,8 +8509,8 @@
         this.parent._update_styles(); // remove y-axis sync event handler
 
 
-        if (this._relayout_handler) {
-          this.element.removeEventListener('plotly_relayout', this._relayout_handler);
+        if (this._relayout_handler && this.element && this.element.removeListener) {
+          this.element.removeListener('plotly_relayout', this._relayout_handler);
         }
       } catch {// do nothing
       }
