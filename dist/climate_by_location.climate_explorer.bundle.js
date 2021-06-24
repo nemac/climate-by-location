@@ -6766,8 +6766,17 @@
           try {
             this.view_container.querySelector(".hoverlayer").style.display = "none";
             this.hover_info.style.display = "block";
-            this.hover_info.style.position = "absolute";
-            let inner_text = "\n                    <div>\n                        <span>".concat(data.points[0].x, "</span>                    \n                    </div>");
+            this.hover_info.style.position = "absolute"; //data.points[0].xaxis.ticktext[data.points[0].xaxis.tickvals.indexOf(data.points[0].x)]
+
+            let title = data.points[0].x;
+
+            if (data.points[0].xaxis.ticktext && data.points[0].xaxis.tickvals) {
+              let tick_position = data.points[0].xaxis.tickvals.indexOf(data.points[0].x);
+              title = data.points[0].xaxis.ticktext[tick_position];
+            }
+
+            let inner_text = "\n                    <div>\n                        <span>".concat(title, "</span>                    \n                    </div>");
+            console.log(data);
 
             for (let i = 0; i < data.points.length; i++) {
               let point = data.points[i];
@@ -6782,11 +6791,8 @@
               inner_text += "\n                    <div style=\"display: flex; flex-direction: row; justify-content: space-between; border: 1px solid ".concat(color, "; border-radius: 2px; margin-bottom: 5px;\">\n                        <span style=\"padding-left: 3px; padding-right: 3px;\">").concat(point.data.name, ": </span>\n                        <span style=\"padding-left: 3px; padding-right: 3px; font-weight: bold;\">").concat(point.y, "</span>\n                    </div>\n                ");
             }
 
-            let outer_text = '<div style="background-color: rgba(255, 255, 255, 0.75); padding: 5px; border: 1px solid black; border-radius: 2px">' + inner_text + '</div>'; // let hover_info_width = this.hover_info.offsetWidth + data.event.pageX - (this.hover_info.offsetWidth + 30);
-            // let too_far_right = hover_info_width > document.body.offsetWidth;
-
-            let too_far_right = this.element.offsetWidth - data.event.pageX - this.hover_info.offsetWidth - 20 < 0; // console.log(hover_info_width, document.body.offsetWidth);
-
+            let outer_text = '<div style="background-color: rgba(255, 255, 255, 0.75); padding: 5px; border: 1px solid black; border-radius: 2px">' + inner_text + '</div>';
+            let too_far_right = this.element.offsetWidth - data.event.pageX - this.hover_info.offsetWidth - 20 < 0;
             let x_position = data.event.pageX + 30;
 
             if (too_far_right) {

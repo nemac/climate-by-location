@@ -328,11 +328,24 @@ export default class ClimateByLocationWidget {
           this.hover_info.style.display = "block";
           this.hover_info.style.position = "absolute";
 
+          let title = data.points[0].x;
+
+
+          // Monthly view is shown in terms of months, where the data.points[0].xaxis.tickvals is an array [9, 10, ..., 23]
+          // and data.points[0].xaxis.ticktext is an array of [Oct, Nov, ..., Dec]
+
+          if(data.points[0].xaxis.ticktext && data.points[0].xaxis.tickvals) {
+            let tick_position = data.points[0].xaxis.tickvals.indexOf(data.points[0].x); //position of the x value in the array
+            title = data.points[0].xaxis.ticktext[tick_position]; // text representation of position to display
+          }
+
           let inner_text = `
                     <div>
-                        <span>${data.points[0].x}</span>                    
+                        <span>${title}</span>                    
                     </div>`;
 
+
+          console.log(data);
 
           for (let i = 0; i < data.points.length; i++) {
             let point = data.points[i];
@@ -354,12 +367,7 @@ export default class ClimateByLocationWidget {
 
           let outer_text = '<div style="background-color: rgba(255, 255, 255, 0.75); padding: 5px; border: 1px solid black; border-radius: 2px">' + inner_text + '</div>';
 
-          // let hover_info_width = this.hover_info.offsetWidth + data.event.pageX - (this.hover_info.offsetWidth + 30);
-          // let too_far_right = hover_info_width > document.body.offsetWidth;
-
           let too_far_right = (this.element.offsetWidth - data.event.pageX - this.hover_info.offsetWidth - 20) < 0;
-
-          // console.log(hover_info_width, document.body.offsetWidth);
 
           let x_position = data.event.pageX + 30;
 
