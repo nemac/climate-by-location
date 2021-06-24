@@ -64,6 +64,7 @@ jQuery(document).ready(function ($) {
    * Create the widget instance
    */
   function init_climate_by_location(area_id=null, frequency=null, monthly_timeperiod=null, variable=null) {
+
     $('#areasearch_container').hide()
     $('#widget').show()
     if (!!cbl_instance) { // already inited

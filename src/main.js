@@ -120,6 +120,11 @@ export default class ClimateByLocationWidget {
     /** @var _when_chart {Promise} - Promise for the most recent plotly graph. */
     this._when_chart = null;
 
+    this.hover_info = document.createElement("span");
+    this.hover_info.style.display = "none";
+    this.hover_info.id = (this.element.id || "") + "-cbl-hover-info";
+    document.body.append(this.hover_info);
+
     this.update(options);
     if (this.options.responsive) {
       window.addEventListener('resize', this.resize.bind(this));
@@ -209,6 +214,7 @@ export default class ClimateByLocationWidget {
         this.set_x_axis_range(...this.options.x_axis_range)
       }
     }
+
     return this;
   }
 
@@ -314,6 +320,67 @@ export default class ClimateByLocationWidget {
         this.view = new (this.get_view_class())(this, this.view_container);
       }
       await this.view.request_update();
+
+      this.view_container.on('plotly_hover', (data) => {
+        try {
+          this.view_container.querySelector(".hoverlayer").style.display = "none";
+
+          this.hover_info.style.display = "block";
+          this.hover_info.style.position = "absolute";
+
+          let inner_text = `
+                    <div>
+                        <span>${data.points[0].x}</span>                    
+                    </div>`;
+
+
+          for (let i = 0; i < data.points.length; i++) {
+            let point = data.points[i];
+            let color = '';
+
+            if (point.data.type === 'bar') {
+              color = point.data.marker.color;
+            } else if (point.data.mode === 'lines') {
+              color = point.fullData.line.color;
+            }
+
+            inner_text += `
+                    <div style="display: flex; flex-direction: row; justify-content: space-between; border: 1px solid ${color}; border-radius: 2px; margin-bottom: 5px;">
+                        <span style="padding-left: 3px; padding-right: 3px;">${point.data.name}: </span>
+                        <span style="padding-left: 3px; padding-right: 3px; font-weight: bold;">${point.y}</span>
+                    </div>
+                `;
+          }
+
+          let outer_text = '<div style="background-color: rgba(255, 255, 255, 0.75); padding: 5px; border: 1px solid black; border-radius: 2px">' + inner_text + '</div>';
+
+          // let hover_info_width = this.hover_info.offsetWidth + data.event.pageX - (this.hover_info.offsetWidth + 30);
+          // let too_far_right = hover_info_width > document.body.offsetWidth;
+
+          let too_far_right = (this.element.offsetWidth - data.event.pageX - this.hover_info.offsetWidth - 20) < 0;
+
+          // console.log(hover_info_width, document.body.offsetWidth);
+
+          let x_position = data.event.pageX + 30;
+
+          if (too_far_right) {
+            x_position = data.event.pageX - this.hover_info.offsetWidth - 60;
+          }
+
+          this.hover_info.innerHTML = outer_text;
+          this.hover_info.style.top = `${this.view_container.offsetHeight / 3.5}px`;
+          this.hover_info.style.left = `${x_position}px`;
+
+        } catch(e) {
+          this.hover_info.style.display = "none";
+          console.log(e);
+        }
+      })
+
+      this.view_container.on('plotly_unhover', () => {
+        this.hover_info.style.display = "none";
+      })
+
     }
     catch(e) {
       console.error(e);
