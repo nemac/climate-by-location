@@ -5550,7 +5550,9 @@
       this.hover_info.style.display = "none";
       this.hover_info.id = (this.element.id || "") + "-cbl-hover-info";
       document.body.append(this.hover_info);
-      this.update(options);
+      ClimateByLocationWidget$1.when_areas().then(() => {
+        this.update(options);
+      });
 
       if (this.options.responsive) {
         window.addEventListener('resize', this.resize.bind(this));
@@ -5769,13 +5771,14 @@
           try {
             this.view_container.querySelector(".hoverlayer").style.display = "none";
             this.hover_info.style.display = "block";
-            this.hover_info.style.position = "absolute"; //data.points[0].xaxis.ticktext[data.points[0].xaxis.tickvals.indexOf(data.points[0].x)]
-
-            let title = data.points[0].x;
+            this.hover_info.style.position = "absolute";
+            let title = data.points[0].x; // Monthly view is shown in terms of months, where the data.points[0].xaxis.tickvals is an array [9, 10, ..., 23]
+            // and data.points[0].xaxis.ticktext is an array of [Oct, Nov, ..., Dec]
 
             if (data.points[0].xaxis.ticktext && data.points[0].xaxis.tickvals) {
-              let tick_position = data.points[0].xaxis.tickvals.indexOf(data.points[0].x);
-              title = data.points[0].xaxis.ticktext[tick_position];
+              let tick_position = data.points[0].xaxis.tickvals.indexOf(data.points[0].x); //position of the x value in the array
+
+              title = data.points[0].xaxis.ticktext[tick_position]; // text representation of position to display
             }
 
             let inner_text = "\n                    <div>\n                        <span>".concat(title, "</span>                    \n                    </div>");

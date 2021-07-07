@@ -125,7 +125,9 @@ export default class ClimateByLocationWidget {
     this.hover_info.id = (this.element.id || "") + "-cbl-hover-info";
     document.body.append(this.hover_info);
 
-    this.update(options);
+    ClimateByLocationWidget.when_areas().then(()=>{
+      this.update(options);
+    });
     if (this.options.responsive) {
       window.addEventListener('resize', this.resize.bind(this));
     }

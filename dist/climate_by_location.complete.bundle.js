@@ -6739,7 +6739,9 @@
       this.hover_info.style.display = "none";
       this.hover_info.id = (this.element.id || "") + "-cbl-hover-info";
       document.body.append(this.hover_info);
-      this.update(options);
+      ClimateByLocationWidget$1.when_areas().then(() => {
+        this.update(options);
+      });
 
       if (this.options.responsive) {
         window.addEventListener('resize', this.resize.bind(this));
@@ -6958,13 +6960,14 @@
           try {
             this.view_container.querySelector(".hoverlayer").style.display = "none";
             this.hover_info.style.display = "block";
-            this.hover_info.style.position = "absolute"; //data.points[0].xaxis.ticktext[data.points[0].xaxis.tickvals.indexOf(data.points[0].x)]
-
-            let title = data.points[0].x;
+            this.hover_info.style.position = "absolute";
+            let title = data.points[0].x; // Monthly view is shown in terms of months, where the data.points[0].xaxis.tickvals is an array [9, 10, ..., 23]
+            // and data.points[0].xaxis.ticktext is an array of [Oct, Nov, ..., Dec]
 
             if (data.points[0].xaxis.ticktext && data.points[0].xaxis.tickvals) {
-              let tick_position = data.points[0].xaxis.tickvals.indexOf(data.points[0].x);
-              title = data.points[0].xaxis.ticktext[tick_position];
+              let tick_position = data.points[0].xaxis.tickvals.indexOf(data.points[0].x); //position of the x value in the array
+
+              title = data.points[0].xaxis.ticktext[tick_position]; // text representation of position to display
             }
 
             let inner_text = "\n                    <div>\n                        <span>".concat(title, "</span>                    \n                    </div>");
@@ -7842,8 +7845,7 @@
         show_legend,
         show_projected_rcp45,
         show_projected_rcp85,
-        show_rolling_window_means,
-        variable
+        show_rolling_window_means
       } = this.parent.options;
       const area = this.parent.get_area();
       const variable_config = this.parent.get_variable_config();
@@ -8490,12 +8492,9 @@
         hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " higher emissions average projection: <b>%{customdata[1]:.1f}</b>")
       }, ...decadal_means_traces, ...rolling_means_traces], // layout
       Object.assign({}, plotly_layout_defaults, {
-        margin: {
-          l: 50,
-          t: 12,
-          r: 32,
-          b: 60
-        },
+        margin: Object.assign({}, plotly_layout_defaults.margin, {
+          r: 34
+        }),
         showlegend: show_legend,
         hoverlabel: {
           namelength: -1

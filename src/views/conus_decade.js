@@ -25,7 +25,6 @@ export default class ConusDecadeView extends View {
   async request_update() {
     const {
       colors,
-
       hover_decadal_means,
       plotly_layout_defaults,
       rolling_window_mean_years,
@@ -36,7 +35,6 @@ export default class ConusDecadeView extends View {
       show_projected_rcp45,
       show_projected_rcp85,
       show_rolling_window_means,
-      variable,
     } = this.parent.options;
     const area = this.parent.get_area();
     const variable_config = this.parent.get_variable_config();
@@ -655,7 +653,7 @@ export default class ConusDecadeView extends View {
       // layout
       Object.assign({}, plotly_layout_defaults,
         {
-          margin: {l: 50, t: 12, r: 32, b: 60},
+          margin: Object.assign({},plotly_layout_defaults.margin, {r: 34}),
           showlegend: show_legend,
           hoverlabel: {
             namelength: -1
