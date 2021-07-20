@@ -5343,9 +5343,23 @@
 
     return rolling_means;
   }
-  function format_export_data(column_labels, data) {
-    let export_data = data.map(row => row.filter(cell => cell !== null));
-    export_data.unshift(column_labels); // return 'data:text/csv;base64,' + window.btoa(export_data.map((a) => a.join(', ')).join('\n'));
+  function format_export_data(column_labels, data, message_row = null, rounding_precision = null) {
+    const export_data = [];
+
+    if (message_row !== null) {
+      export_data.push(message_row);
+    }
+
+    if (column_labels !== null) {
+      export_data.push(column_labels);
+    }
+
+    const round_fn = rounding_precision === null ? v => v : v => round(v, rounding_precision);
+
+    for (const row of data) {
+      export_data.push([row[0], row.slice(1).map(round_fn)]);
+    } // return 'data:text/csv;base64,' + window.btoa(export_data.map((a) => a.join(', ')).join('\n'));
+
 
     return export_data.map(a => a.join(', ')).join('\n');
   }
@@ -5488,7 +5502,8 @@
       }
     },
     supports_frequency: () => true,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   }, {
     id: "tmin",
     title: {
@@ -5526,7 +5541,8 @@
       }
     },
     supports_frequency: () => true,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   }, {
     id: "days_tmax_gt_50f",
     title: {
@@ -5552,7 +5568,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: 1
   }, {
     id: "days_tmax_gt_60f",
     title: {
@@ -5578,7 +5595,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: 1
   }, {
     id: "days_tmax_gt_70f",
     title: {
@@ -5604,7 +5622,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: 1
   }, {
     id: "days_tmax_gt_80f",
     title: {
@@ -5656,7 +5675,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   }, {
     id: "days_tmax_gt_95f",
     title: {
@@ -5682,7 +5702,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: area_id => !is_ak_area(area_id)
+    supports_area: area_id => !is_ak_area(area_id),
+    rounding_precision: 1
   }, {
     id: "days_tmax_gt_100f",
     title: {
@@ -5708,7 +5729,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: area_id => !is_ak_area(area_id)
+    supports_area: area_id => !is_ak_area(area_id),
+    rounding_precision: 1
   }, {
     id: "days_tmax_gt_105f",
     title: {
@@ -5734,7 +5756,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: area_id => !is_ak_area(area_id)
+    supports_area: area_id => !is_ak_area(area_id),
+    rounding_precision: 1
   }, {
     id: "days_tmax_lt_32f",
     title: {
@@ -5760,7 +5783,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   }, {
     id: "days_tmax_lt_50f",
     title: {
@@ -5786,7 +5810,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_island_area
+    supports_area: is_island_area,
+    rounding_precision: 1
   }, {
     id: "days_tmax_lt_65f",
     title: {
@@ -5812,7 +5837,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_island_area
+    supports_area: is_island_area,
+    rounding_precision: 1
   }, {
     id: "days_tmin_lt_32f",
     title: {
@@ -5838,7 +5864,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   }, {
     id: "days_tmin_lt_65f",
     title: {
@@ -5864,7 +5891,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_island_area
+    supports_area: is_island_area,
+    rounding_precision: 1
   }, {
     id: "days_tmin_lt_minus_40f",
     title: {
@@ -5890,7 +5918,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: 1
   }, {
     id: "days_tmin_gt_60f",
     title: {
@@ -5922,7 +5951,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: 1
   }, {
     id: "days_tmin_gt_75f",
     title: {
@@ -5954,7 +5984,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_island_area
+    supports_area: is_island_area,
+    rounding_precision: 1
   }, {
     id: "days_tmin_gt_80f",
     title: {
@@ -5986,7 +6017,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: area_id => !is_ak_area(area_id)
+    supports_area: area_id => !is_ak_area(area_id),
+    rounding_precision: 1
   }, {
     id: "days_tmin_gt_90f",
     title: {
@@ -6018,7 +6050,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: area_id => !is_ak_area(area_id)
+    supports_area: area_id => !is_ak_area(area_id),
+    rounding_precision: 1
   }, {
     id: "hdd_65f",
     title: {
@@ -6044,7 +6077,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: -2
   }, {
     id: "cdd_65f",
     title: {
@@ -6070,7 +6104,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: -2
   }, {
     id: "gdd",
     title: {
@@ -6096,7 +6131,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: -2
   }, {
     id: "gddmod",
     title: {
@@ -6123,7 +6159,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: area_id => is_conus_area(area_id) || is_island_area(area_id)
+    supports_area: area_id => is_conus_area(area_id) || is_island_area(area_id),
+    rounding_precision: -2
   }, {
     id: "gdd_32f",
     title: {
@@ -6149,7 +6186,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: -2
   }, {
     id: "hdd_32f",
     title: {
@@ -6175,7 +6213,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: -2
   }, {
     id: "pcpn",
     title: {
@@ -6213,7 +6252,8 @@
       }
     },
     supports_frequency: () => true,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 2
   }, {
     id: "days_dry_days",
     title: {
@@ -6245,7 +6285,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   }, {
     id: "days_pcpn_gt_0_25in",
     title: {
@@ -6271,7 +6312,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: 1
   }, {
     id: "days_pcpn_gt_1in",
     title: {
@@ -6297,7 +6339,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   }, {
     id: "days_pcpn_gt_2in",
     title: {
@@ -6323,7 +6366,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   }, {
     id: "days_pcpn_gt_3in",
     title: {
@@ -6349,7 +6393,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   }, {
     id: "days_pcpn_gt_4in",
     title: {
@@ -6375,7 +6420,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: area_id => !is_ak_area(area_id)
+    supports_area: area_id => !is_ak_area(area_id),
+    rounding_precision: 1
   }, {
     id: "days_pcpn_gt_5in",
     title: {
@@ -6401,7 +6447,8 @@
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_island_area
+    supports_area: is_island_area,
+    rounding_precision: 1
   }];
   const frequencies = [{
     id: 'annual',
@@ -6510,7 +6557,8 @@
         show_rolling_window_means: false,
         rolling_window_mean_years: 10,
         data_api_url: data_api_url,
-        island_data_url_template: island_data_url_template
+        island_data_url_template: island_data_url_template,
+        no_custom_tooltip: true
       }; // this.options = merge(this.options, options);
 
       this.view = null;
@@ -6543,10 +6591,14 @@
       /** @var _when_chart {Promise} - Promise for the most recent plotly graph. */
 
       this._when_chart = null;
-      this.hover_info = document.createElement("span");
-      this.hover_info.style.display = "none";
-      this.hover_info.id = (this.element.id || "") + "-cbl-hover-info";
-      document.body.append(this.hover_info);
+
+      if (!this.options.no_custom_tooltip) {
+        this.hover_info = document.createElement("span");
+        this.hover_info.style.display = "none";
+        this.hover_info.id = (this.element.id || "") + "-cbl-hover-info";
+        document.body.append(this.hover_info);
+      }
+
       ClimateByLocationWidget$1.when_areas().then(() => {
         this.update(options);
       });
@@ -6764,55 +6816,58 @@
         }
 
         await this.view.request_update();
-        this.view_container.on('plotly_hover', data => {
-          try {
-            this.view_container.querySelector(".hoverlayer").style.display = "none";
-            this.hover_info.style.display = "block";
-            this.hover_info.style.position = "absolute";
-            let title = data.points[0].x; // Monthly view is shown in terms of months, where the data.points[0].xaxis.tickvals is an array [9, 10, ..., 23]
-            // and data.points[0].xaxis.ticktext is an array of [Oct, Nov, ..., Dec]
 
-            if (data.points[0].xaxis.ticktext && data.points[0].xaxis.tickvals) {
-              let tick_position = data.points[0].xaxis.tickvals.indexOf(data.points[0].x); //position of the x value in the array
+        if (!this.options.no_custom_tooltip) {
+          this.view_container.on('plotly_hover', data => {
+            try {
+              this.view_container.querySelector(".hoverlayer").style.display = "none";
+              this.hover_info.style.display = "block";
+              this.hover_info.style.position = "absolute";
+              let title = data.points[0].x; // Monthly view is shown in terms of months, where the data.points[0].xaxis.tickvals is an array [9, 10, ..., 23]
+              // and data.points[0].xaxis.ticktext is an array of [Oct, Nov, ..., Dec]
 
-              title = data.points[0].xaxis.ticktext[tick_position]; // text representation of position to display
-            }
+              if (data.points[0].xaxis.ticktext && data.points[0].xaxis.tickvals) {
+                let tick_position = data.points[0].xaxis.tickvals.indexOf(data.points[0].x); //position of the x value in the array
 
-            let inner_text = "\n                    <div>\n                        <span>".concat(title, "</span>                    \n                    </div>");
-            console.log(data);
-
-            for (let i = 0; i < data.points.length; i++) {
-              let point = data.points[i];
-              let color = '';
-
-              if (point.data.type === 'bar') {
-                color = point.data.marker.color;
-              } else if (point.data.mode === 'lines') {
-                color = point.fullData.line.color;
+                title = data.points[0].xaxis.ticktext[tick_position]; // text representation of position to display
               }
 
-              inner_text += "\n                    <div style=\"display: flex; flex-direction: row; justify-content: space-between; border: 1px solid ".concat(color, "; border-radius: 2px; margin-bottom: 5px;\">\n                        <span style=\"padding-left: 3px; padding-right: 3px;\">").concat(point.data.name, ": </span>\n                        <span style=\"padding-left: 3px; padding-right: 3px; font-weight: bold;\">").concat(point.y, "</span>\n                    </div>\n                ");
+              let inner_text = "\n                    <div>\n                        <span>".concat(title, "</span>                    \n                    </div>");
+              console.log(data);
+
+              for (let i = 0; i < data.points.length; i++) {
+                let point = data.points[i];
+                let color = '';
+
+                if (point.data.type === 'bar') {
+                  color = point.data.marker.color;
+                } else if (point.data.mode === 'lines') {
+                  color = point.fullData.line.color;
+                }
+
+                inner_text += "\n                    <div style=\"display: flex; flex-direction: row; justify-content: space-between; border: 1px solid ".concat(color, "; border-radius: 2px; margin-bottom: 5px;\">\n                        <span style=\"padding-left: 3px; padding-right: 3px;\">").concat(point.data.name, ": </span>\n                        <span style=\"padding-left: 3px; padding-right: 3px; font-weight: bold;\">").concat(point.y, "</span>\n                    </div>\n                ");
+              }
+
+              let outer_text = '<div style="background-color: rgba(255, 255, 255, 0.75); padding: 5px; border: 1px solid black; border-radius: 2px">' + inner_text + '</div>';
+              let too_far_right = this.element.offsetWidth - data.event.pageX - this.hover_info.offsetWidth - 20 < 0;
+              let x_position = data.event.pageX + 30;
+
+              if (too_far_right) {
+                x_position = data.event.pageX - this.hover_info.offsetWidth - 60;
+              }
+
+              this.hover_info.innerHTML = outer_text;
+              this.hover_info.style.top = "".concat(this.view_container.offsetHeight / 3.5, "px");
+              this.hover_info.style.left = "".concat(x_position, "px");
+            } catch (e) {
+              this.hover_info.style.display = "none";
+              console.log(e);
             }
-
-            let outer_text = '<div style="background-color: rgba(255, 255, 255, 0.75); padding: 5px; border: 1px solid black; border-radius: 2px">' + inner_text + '</div>';
-            let too_far_right = this.element.offsetWidth - data.event.pageX - this.hover_info.offsetWidth - 20 < 0;
-            let x_position = data.event.pageX + 30;
-
-            if (too_far_right) {
-              x_position = data.event.pageX - this.hover_info.offsetWidth - 60;
-            }
-
-            this.hover_info.innerHTML = outer_text;
-            this.hover_info.style.top = "".concat(this.view_container.offsetHeight / 3.5, "px");
-            this.hover_info.style.left = "".concat(x_position, "px");
-          } catch (e) {
+          });
+          this.view_container.on('plotly_unhover', () => {
             this.hover_info.style.display = "none";
-            console.log(e);
-          }
-        });
-        this.view_container.on('plotly_unhover', () => {
-          this.hover_info.style.display = "none";
-        });
+          });
+        }
       } catch (e) {
         console.error(e);
 
@@ -7664,10 +7719,11 @@
       }, this.parent.options);
 
       const [hist_obs_data, hist_mod_data, proj_mod_data] = await Promise.all([get_historical_observed_livneh_data(_options), get_historical_annual_loca_model_data(_options), get_projected_loca_model_data(_options)]);
+      const precision = variable_config.rounding_precision || 1;
       this._download_callbacks = {
-        hist_obs: async () => format_export_data(['year', variable_config.id], hist_obs_data),
-        hist_mod: async () => format_export_data(['year', 'weighted_mean', 'min', 'max'], hist_mod_data),
-        proj_mod: async () => format_export_data(['year', 'rcp45_weighted_mean', 'rcp45_min', 'rcp45_max', 'rcp85_weighted_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data)
+        hist_obs: async () => format_export_data(['year', variable_config.id], hist_obs_data, null, precision),
+        hist_mod: async () => format_export_data(['year', 'weighted_mean', 'min', 'max'], hist_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision),
+        proj_mod: async () => format_export_data(['year', 'rcp45_weighted_mean', 'rcp45_min', 'rcp45_max', 'rcp85_weighted_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision)
       }; // unpack arrays
 
       const chart_data = {
@@ -7708,7 +7764,6 @@
         'rcp85_rolling_min': [],
         'rcp85_rolling_max': []
       };
-      const precision = 1;
       let decadal_means_traces = [];
       let hist_decadal_data = [];
       let rcp45_decadal_data = [];
@@ -8846,9 +8901,10 @@
         proj_mod_data.push([month, ..._month_data]);
       }
 
+      const precision = variable_config.rounding_precision || 1;
       this._download_callbacks = {
-        hist_mod: async () => format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data),
-        proj_mod: async () => format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data)
+        hist_mod: async () => format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision),
+        proj_mod: async () => format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision)
       };
       const chart_data = {
         'month': [],
@@ -8862,7 +8918,6 @@
         'rcp85_min': [],
         'rcp85_max': []
       };
-      const precision = 1;
 
       const _monthly_timeperiod = Number.parseInt(monthly_timeperiod);
 
@@ -9156,9 +9211,10 @@
         proj_mod_data.push([month, ..._month_data]);
       }
 
+      const precision = variable_config.rounding_precision || 1;
       this._download_callbacks = {
-        hist_obs: async () => format_export_data(['month', 'mean', "* Note that the mean is based on monthly data for years  ".concat(hist_obs_sdate_year, "-").concat(hist_obs_edate_year)], hist_obs_data),
-        proj_mod: async () => format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data)
+        hist_obs: async () => format_export_data(['month', 'mean', "* Note that the mean is based on monthly data for years  ".concat(hist_obs_sdate_year, "-").concat(hist_obs_edate_year)], hist_obs_data, null, precision),
+        proj_mod: async () => format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data, null, precision)
       };
       const chart_data = {
         'month': [],
@@ -9171,7 +9227,6 @@
         'rcp85_min': [],
         'rcp85_max': []
       };
-      const precision = 1;
 
       const _monthly_timeperiod = Number.parseInt(monthly_timeperiod);
 
@@ -9441,11 +9496,12 @@
         _data.push([proj_sdate_year + i, unit_conversion_fn(v), unit_conversion_fn(rcp45_mod_series.annual_data.all_min[i]), unit_conversion_fn(rcp45_mod_series.annual_data.all_max[i]), unit_conversion_fn(rcp85_mod_series.annual_data.all_mean[i]), unit_conversion_fn(rcp85_mod_series.annual_data.all_min[i]), unit_conversion_fn(rcp85_mod_series.annual_data.all_max[i])]);
 
         return _data;
-      }, []); // format download data.
+      }, []);
+      const precision = variable_config.rounding_precision; // format download data.
 
       this._download_callbacks = {
-        hist_mod: async () => format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data),
-        proj_mod: async () => format_export_data(['year', 'rcp45_mean', 'rcp45_min', 'rcp45_max', 'rcp85_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data)
+        hist_mod: async () => format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data, null, precision),
+        proj_mod: async () => format_export_data(['year', 'rcp45_mean', 'rcp45_min', 'rcp45_max', 'rcp85_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision)
       }; // unpack arrays
 
       const chart_data = {
@@ -9482,7 +9538,6 @@
         'rcp85_rolling_min': [],
         'rcp85_rolling_max': []
       };
-      const precision = 1;
       let decadal_means_traces = [];
       let hist_decadal_data = [];
       let rcp45_decadal_data = [];

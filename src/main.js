@@ -90,7 +90,9 @@ export default class ClimateByLocationWidget {
       show_rolling_window_means: false,
       rolling_window_mean_years: 10,
       data_api_url: data_api_url,
-      island_data_url_template: island_data_url_template
+      island_data_url_template: island_data_url_template,
+      no_custom_tooltip: true
+
     };
     // this.options = merge(this.options, options);
     this.view = null;
@@ -119,12 +121,12 @@ export default class ClimateByLocationWidget {
     this._update_visibility = null;
     /** @var _when_chart {Promise} - Promise for the most recent plotly graph. */
     this._when_chart = null;
-
-    this.hover_info = document.createElement("span");
-    this.hover_info.style.display = "none";
-    this.hover_info.id = (this.element.id || "") + "-cbl-hover-info";
-    document.body.append(this.hover_info);
-
+    if (!this.options.no_custom_tooltip) {
+      this.hover_info = document.createElement("span");
+      this.hover_info.style.display = "none";
+      this.hover_info.id = (this.element.id || "") + "-cbl-hover-info";
+      document.body.append(this.hover_info);
+    }
     ClimateByLocationWidget.when_areas().then(()=>{
       this.update(options);
     });
@@ -322,75 +324,75 @@ export default class ClimateByLocationWidget {
         this.view = new (this.get_view_class())(this, this.view_container);
       }
       await this.view.request_update();
+      if (!this.options.no_custom_tooltip) {
+        this.view_container.on('plotly_hover', (data) => {
+          try {
+            this.view_container.querySelector(".hoverlayer").style.display = "none";
 
-      this.view_container.on('plotly_hover', (data) => {
-        try {
-          this.view_container.querySelector(".hoverlayer").style.display = "none";
+            this.hover_info.style.display = "block";
+            this.hover_info.style.position = "absolute";
 
-          this.hover_info.style.display = "block";
-          this.hover_info.style.position = "absolute";
-
-          let title = data.points[0].x;
+            let title = data.points[0].x;
 
 
-          // Monthly view is shown in terms of months, where the data.points[0].xaxis.tickvals is an array [9, 10, ..., 23]
-          // and data.points[0].xaxis.ticktext is an array of [Oct, Nov, ..., Dec]
+            // Monthly view is shown in terms of months, where the data.points[0].xaxis.tickvals is an array [9, 10, ..., 23]
+            // and data.points[0].xaxis.ticktext is an array of [Oct, Nov, ..., Dec]
 
-          if(data.points[0].xaxis.ticktext && data.points[0].xaxis.tickvals) {
-            let tick_position = data.points[0].xaxis.tickvals.indexOf(data.points[0].x); //position of the x value in the array
-            title = data.points[0].xaxis.ticktext[tick_position]; // text representation of position to display
-          }
+            if (data.points[0].xaxis.ticktext && data.points[0].xaxis.tickvals) {
+              let tick_position = data.points[0].xaxis.tickvals.indexOf(data.points[0].x); //position of the x value in the array
+              title = data.points[0].xaxis.ticktext[tick_position]; // text representation of position to display
+            }
 
-          let inner_text = `
+            let inner_text = `
                     <div>
                         <span>${title}</span>                    
                     </div>`;
 
 
-          console.log(data);
+            console.log(data);
 
-          for (let i = 0; i < data.points.length; i++) {
-            let point = data.points[i];
-            let color = '';
+            for (let i = 0; i < data.points.length; i++) {
+              let point = data.points[i];
+              let color = '';
 
-            if (point.data.type === 'bar') {
-              color = point.data.marker.color;
-            } else if (point.data.mode === 'lines') {
-              color = point.fullData.line.color;
-            }
+              if (point.data.type === 'bar') {
+                color = point.data.marker.color;
+              } else if (point.data.mode === 'lines') {
+                color = point.fullData.line.color;
+              }
 
-            inner_text += `
+              inner_text += `
                     <div style="display: flex; flex-direction: row; justify-content: space-between; border: 1px solid ${color}; border-radius: 2px; margin-bottom: 5px;">
                         <span style="padding-left: 3px; padding-right: 3px;">${point.data.name}: </span>
                         <span style="padding-left: 3px; padding-right: 3px; font-weight: bold;">${point.y}</span>
                     </div>
                 `;
+            }
+
+            let outer_text = '<div style="background-color: rgba(255, 255, 255, 0.75); padding: 5px; border: 1px solid black; border-radius: 2px">' + inner_text + '</div>';
+
+            let too_far_right = (this.element.offsetWidth - data.event.pageX - this.hover_info.offsetWidth - 20) < 0;
+
+            let x_position = data.event.pageX + 30;
+
+            if (too_far_right) {
+              x_position = data.event.pageX - this.hover_info.offsetWidth - 60;
+            }
+
+            this.hover_info.innerHTML = outer_text;
+            this.hover_info.style.top = `${this.view_container.offsetHeight / 3.5}px`;
+            this.hover_info.style.left = `${x_position}px`;
+
+          } catch (e) {
+            this.hover_info.style.display = "none";
+            console.log(e);
           }
+        })
 
-          let outer_text = '<div style="background-color: rgba(255, 255, 255, 0.75); padding: 5px; border: 1px solid black; border-radius: 2px">' + inner_text + '</div>';
-
-          let too_far_right = (this.element.offsetWidth - data.event.pageX - this.hover_info.offsetWidth - 20) < 0;
-
-          let x_position = data.event.pageX + 30;
-
-          if (too_far_right) {
-            x_position = data.event.pageX - this.hover_info.offsetWidth - 60;
-          }
-
-          this.hover_info.innerHTML = outer_text;
-          this.hover_info.style.top = `${this.view_container.offsetHeight / 3.5}px`;
-          this.hover_info.style.left = `${x_position}px`;
-
-        } catch(e) {
+        this.view_container.on('plotly_unhover', () => {
           this.hover_info.style.display = "none";
-          console.log(e);
-        }
-      })
-
-      this.view_container.on('plotly_unhover', () => {
-        this.hover_info.style.display = "none";
-      })
-
+        })
+      }
     }
     catch(e) {
       console.error(e);

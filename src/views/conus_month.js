@@ -48,10 +48,10 @@ export default class ConusMonthView extends View {
       }
       proj_mod_data.push([month, ..._month_data]);
     }
-
+    const precision = variable_config.rounding_precision || 1;
     this._download_callbacks = {
-      hist_obs: async () => format_export_data(['month', 'mean', `* Note that the mean is based on monthly data for years  ${hist_obs_sdate_year}-${hist_obs_edate_year}`], hist_obs_data),
-      proj_mod: async () => format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data)
+      hist_obs: async () => format_export_data(['month', 'mean', `* Note that the mean is based on monthly data for years  ${hist_obs_sdate_year}-${hist_obs_edate_year}`], hist_obs_data, null, precision),
+      proj_mod: async () => format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data,null,precision)
     };
 
 
@@ -66,7 +66,7 @@ export default class ConusMonthView extends View {
       'rcp85_min': [],
       'rcp85_max': []
     };
-    const precision = 1;
+
     const _monthly_timeperiod = Number.parseInt(monthly_timeperiod);
     const col_offset = 1 + (monthly_timeperiods.indexOf(_monthly_timeperiod) * 6)
     // for some reason unknown to me, the following month cycle is shown.

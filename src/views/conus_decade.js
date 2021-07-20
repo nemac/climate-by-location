@@ -44,11 +44,11 @@ export default class ConusDecadeView extends View {
       get_historical_annual_loca_model_data(_options),
       get_projected_loca_model_data(_options)
     ])
-
+    const precision = variable_config.rounding_precision || 1;
     this._download_callbacks = {
-      hist_obs: async () => format_export_data(['year', variable_config.id], hist_obs_data),
-      hist_mod: async () => format_export_data(['year', 'weighted_mean', 'min', 'max'], hist_mod_data),
-      proj_mod: async () => format_export_data(['year', 'rcp45_weighted_mean', 'rcp45_min', 'rcp45_max', 'rcp85_weighted_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data)
+      hist_obs: async () => format_export_data(['year', variable_config.id], hist_obs_data,null, precision),
+      hist_mod: async () => format_export_data(['year', 'weighted_mean', 'min', 'max'], hist_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision),
+      proj_mod: async () => format_export_data(['year', 'rcp45_weighted_mean', 'rcp45_min', 'rcp45_max', 'rcp85_weighted_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data,['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision)
     };
 
     // unpack arrays
@@ -91,7 +91,7 @@ export default class ConusDecadeView extends View {
       'rcp85_rolling_min': [],
       'rcp85_rolling_max': []
     };
-    const precision = 1;
+
 
 
     let decadal_means_traces = [];

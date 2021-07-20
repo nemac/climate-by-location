@@ -46,7 +46,8 @@ export const variables = [
       }
     },
     supports_frequency: () => true,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   },
   {
     id: "tmin",
@@ -85,7 +86,8 @@ export const variables = [
       }
     },
     supports_frequency:  () => true,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   },
   {
     id: "days_tmax_gt_50f",
@@ -113,7 +115,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: 1
   },
   {
     id: "days_tmax_gt_60f",
@@ -141,6 +144,7 @@ export const variables = [
     },
     supports_frequency: is_annual,
     supports_area: is_ak_area,
+    rounding_precision: 1
   },
   {
     id: "days_tmax_gt_70f",
@@ -167,7 +171,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: 1
   },
   {
     id: "days_tmax_gt_80f",
@@ -223,7 +228,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   },
   {
     id: "days_tmax_gt_95f",
@@ -251,7 +257,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: (area_id) => !is_ak_area(area_id)
+    supports_area: (area_id) => !is_ak_area(area_id),
+    rounding_precision: 1
   },
   {
     id: "days_tmax_gt_100f",
@@ -279,7 +286,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: (area_id) => !is_ak_area(area_id)
+    supports_area: (area_id) => !is_ak_area(area_id),
+    rounding_precision: 1
   },
   {
     id: "days_tmax_gt_105f",
@@ -307,7 +315,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: (area_id) => !is_ak_area(area_id)
+    supports_area: (area_id) => !is_ak_area(area_id),
+    rounding_precision: 1
   },
   {
     id: "days_tmax_lt_32f",
@@ -335,7 +344,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   },
   {
     id: "days_tmax_lt_50f",
@@ -363,7 +373,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_island_area
+    supports_area: is_island_area,
+    rounding_precision: 1
   },
   {
     id: "days_tmax_lt_65f",
@@ -391,7 +402,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_island_area
+    supports_area: is_island_area,
+    rounding_precision: 1
   },
 
   {
@@ -420,7 +432,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   },
   {
     id: "days_tmin_lt_65f",
@@ -449,7 +462,8 @@ export const variables = [
 
     supports_frequency: is_annual,
 
-    supports_area: is_island_area
+    supports_area: is_island_area,
+    rounding_precision: 1
   },
   {
     id: "days_tmin_lt_minus_40f",
@@ -477,7 +491,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: 1
   },
   {
     id: "days_tmin_gt_60f",
@@ -511,7 +526,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: 1
   },
   {
     id: "days_tmin_gt_75f",
@@ -545,7 +561,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_island_area
+    supports_area: is_island_area,
+    rounding_precision: 1
   },
   {
     id: "days_tmin_gt_80f",
@@ -580,7 +597,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: (area_id) => !is_ak_area(area_id)
+    supports_area: (area_id) => !is_ak_area(area_id),
+    rounding_precision: 1
   },
   {
     id: "days_tmin_gt_90f",
@@ -615,7 +633,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: (area_id) => !is_ak_area(area_id)
+    supports_area: (area_id) => !is_ak_area(area_id),
+    rounding_precision: 1
   },
   {
     id: "hdd_65f",
@@ -643,7 +662,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: -2
   },
   {
     id: "cdd_65f",
@@ -671,7 +691,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: -2
   },
   {
     id: "gdd",
@@ -698,7 +719,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: -2
   },
   {
     id: "gddmod",
@@ -726,7 +748,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: (area_id) => is_conus_area(area_id) || is_island_area(area_id)
+    supports_area: (area_id) => is_conus_area(area_id) || is_island_area(area_id),
+    rounding_precision: -2
   },
   {
     id: "gdd_32f",
@@ -753,7 +776,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: -2
   },
   {
     id: "hdd_32f",
@@ -780,7 +804,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: -2
   },
   {
     id: "pcpn",
@@ -821,7 +846,8 @@ export const variables = [
       }
     },
     supports_frequency:  () => true,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 2
   },
   {
     id: "days_dry_days",
@@ -857,7 +883,8 @@ export const variables = [
 
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   },
   {
     id: "days_pcpn_gt_0_25in",
@@ -886,7 +913,8 @@ export const variables = [
 
     },
     supports_frequency: is_annual,
-    supports_area: is_ak_area
+    supports_area: is_ak_area,
+    rounding_precision: 1
   },
   {
     id: "days_pcpn_gt_1in",
@@ -915,7 +943,8 @@ export const variables = [
 
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   },
   {
     id: "days_pcpn_gt_2in",
@@ -945,7 +974,8 @@ export const variables = [
 
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   },
   {
     id: "days_pcpn_gt_3in",
@@ -973,7 +1003,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: () => true
+    supports_area: () => true,
+    rounding_precision: 1
   },
   {
     id: "days_pcpn_gt_4in",
@@ -1001,7 +1032,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: (area_id) => !is_ak_area(area_id)
+    supports_area: (area_id) => !is_ak_area(area_id),
+    rounding_precision: 1
   },
   {
     id: "days_pcpn_gt_5in",
@@ -1028,7 +1060,8 @@ export const variables = [
       }
     },
     supports_frequency: is_annual,
-    supports_area: is_island_area
+    supports_area: is_island_area,
+    rounding_precision: 1
   }
 ];
 

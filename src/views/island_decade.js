@@ -75,10 +75,12 @@ export default class IslandDecadeView extends View {
     }, [])
 
 
+    const precision = variable_config.rounding_precision;
+
     // format download data.
     this._download_callbacks = {
-    hist_mod: async ()=> format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data),
-    proj_mod: async ()=> format_export_data(['year', 'rcp45_mean', 'rcp45_min', 'rcp45_max', 'rcp85_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data)
+    hist_mod: async ()=> format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data,null, precision),
+    proj_mod: async ()=> format_export_data(['year', 'rcp45_mean', 'rcp45_min', 'rcp45_max', 'rcp85_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'],precision)
     };
     // unpack arrays
     const chart_data = {
@@ -115,8 +117,6 @@ export default class IslandDecadeView extends View {
       'rcp85_rolling_min': [],
       'rcp85_rolling_max': []
     };
-    const precision = 1;
-
     let decadal_means_traces = [];
     let hist_decadal_data = [];
     let rcp45_decadal_data = [];

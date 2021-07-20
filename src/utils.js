@@ -133,9 +133,19 @@ export function compute_rolling_window_means(data, year_col_idx, stat_col_idx, m
   return rolling_means
 }
 
-export function format_export_data(column_labels, data) {
-  let export_data = data.map((row) => row.filter((cell) => cell !== null));
-  export_data.unshift(column_labels);
+export function format_export_data(column_labels, data, message_row=null, rounding_precision=null) {
+  const export_data = [];
+  if (message_row !== null){
+    export_data.push(message_row);
+  }
+  if (column_labels !== null){
+    export_data.push(column_labels);
+  }
+  const round_fn = rounding_precision ===null ? (v)=>v : (v)=>round(v, rounding_precision)
+  for (const row of data) {
+    export_data.push([row[0], row.slice(1).map(round_fn)])
+  }
+
   // return 'data:text/csv;base64,' + window.btoa(export_data.map((a) => a.join(', ')).join('\n'));
   return export_data.map((a) => a.join(', ')).join('\n');
 }
