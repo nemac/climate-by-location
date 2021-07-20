@@ -537,7 +537,7 @@ export default class IslandDecadeView extends View {
           visible: show_projected_rcp45 ? true : 'legendonly',
           hoverlabel: {namelength: 0},
           customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-          hovertemplate: `(range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f})`
+          hovertemplate: `range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f}`
         },
         {
           x: chart_data['proj_year'],
@@ -574,7 +574,7 @@ export default class IslandDecadeView extends View {
           visible: show_projected_rcp85 ? true : 'legendonly',
           hoverlabel: {namelength: 0},
           customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-          hovertemplate: `(range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f})`
+          hovertemplate: `range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f}`
         },
         {
           x: chart_data['proj_year'],

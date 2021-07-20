@@ -178,7 +178,7 @@ export default class IslandMonthView extends View {
           visible: show_projected_rcp45 ? true : 'legendonly',
           hoverlabel: {namelength: 0},
           customdata: proj_mod_customdata,
-          hovertemplate: `(range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f})`
+          hovertemplate: `range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f}`
         },
         {
           x: chart_data['month'],
@@ -215,7 +215,7 @@ export default class IslandMonthView extends View {
           visible: show_projected_rcp85 ? true : 'legendonly',
           hoverlabel: {namelength: 0},
           customdata: proj_mod_customdata,
-          hovertemplate: `(range: %{customdata[5]:.${d3_precision}f}&#8211;%{customdata[6]:.${d3_precision}f})`
+          hovertemplate: `range: %{customdata[5]:.${d3_precision}f}&#8211;%{customdata[6]:.${d3_precision}f}`
         },
         {
           x: chart_data['month'],
