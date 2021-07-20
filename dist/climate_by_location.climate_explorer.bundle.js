@@ -7720,6 +7720,8 @@
 
       const [hist_obs_data, hist_mod_data, proj_mod_data] = await Promise.all([get_historical_observed_livneh_data(_options), get_historical_annual_loca_model_data(_options), get_projected_loca_model_data(_options)]);
       const precision = variable_config.rounding_precision || 1;
+      const d3_precision = precision > 0 ? precision : 0; // d3 format can't round to 10s, 100s, etc
+
       this._download_callbacks = {
         hist_obs: async () => format_export_data(['year', variable_config.id], hist_obs_data, null, precision),
         hist_mod: async () => format_export_data(['year', 'weighted_mean', 'min', 'max'], hist_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision),
@@ -7824,7 +7826,7 @@
             },
             visible: !!show_historical_modeled ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled mean (historical decadal mean)',
             x: chart_data['hist_year'],
@@ -7839,7 +7841,7 @@
             },
             visible: !!show_historical_modeled ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled minimum (historical decadal mean)',
             x: chart_data['hist_year'],
@@ -7854,7 +7856,7 @@
             },
             visible: !!show_historical_modeled ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled maximum (RCP 4.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -7869,7 +7871,7 @@
             },
             visible: !!show_projected_rcp45 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled minimum (RCP 4.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -7884,7 +7886,7 @@
             },
             visible: !!show_projected_rcp45 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled mean (RCP 4.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -7899,7 +7901,7 @@
             },
             visible: !!show_projected_rcp45 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled maximum (RCP 8.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -7914,7 +7916,7 @@
             },
             visible: !!show_projected_rcp85 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled minimum (RCP 8.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -7929,7 +7931,7 @@
             },
             visible: !!show_projected_rcp85 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled mean (RCP 8.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -7944,7 +7946,7 @@
             },
             visible: !!show_projected_rcp85 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }];
         }
 
@@ -7981,7 +7983,7 @@
           },
           visible: !!show_historical_modeled ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled mean (historical ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['hist_year'],
@@ -7996,7 +7998,7 @@
           },
           visible: !!show_historical_modeled ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled minimum (historical ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['hist_year'],
@@ -8011,7 +8013,7 @@
           },
           visible: !!show_historical_modeled ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled maximum (RCP 4.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -8026,7 +8028,7 @@
           },
           visible: !!show_projected_rcp45 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled minimum (RCP 4.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -8041,7 +8043,7 @@
           },
           visible: !!show_projected_rcp45 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled mean (RCP 4.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -8056,7 +8058,7 @@
           },
           visible: !!show_projected_rcp45 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled maximum (RCP 8.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -8071,7 +8073,7 @@
           },
           visible: !!show_projected_rcp85 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled minimum (RCP 8.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -8086,7 +8088,7 @@
           },
           visible: !!show_projected_rcp85 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled mean (RCP 8.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -8101,12 +8103,12 @@
           },
           visible: !!show_projected_rcp85 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }];
       }
 
       for (let i = 0; i < hist_obs_data.length; i++) {
-        chart_data['hist_obs_year'].push(round(hist_obs_data[i][0], precision));
+        chart_data['hist_obs_year'].push(hist_obs_data[i][0]);
         chart_data['hist_obs'].push(round(hist_obs_data[i][1], precision));
 
         if (1961 <= hist_obs_data[i][0] <= 1990) {
@@ -8214,7 +8216,7 @@
         },
         // hoverinfo: 'text',
         customdata: hover_decadal_means ? hist_decadal_data : hist_mod_data,
-        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " modeled range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f}")
+        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " modeled range: %{customdata[2]:.").concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f}")
       }, // {
       //   x: chart_data['hist_year'],
       //   y: chart_data['hist_mean'],
@@ -8260,7 +8262,7 @@
           namelength: 0
         },
         customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-        hovertemplate: "(range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f})"
+        hovertemplate: "(range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f})")
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp85_min'],
@@ -8297,7 +8299,7 @@
           namelength: 0
         },
         customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-        hovertemplate: "(range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f})"
+        hovertemplate: "(range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f})")
       }, {
         x: chart_data['hist_obs_year'],
         y: chart_data['hist_obs_diff'],
@@ -8315,7 +8317,7 @@
         legendgroup: 'histobs',
         visible: !!show_historical_observed ? true : 'legendonly',
         customdata: null,
-        hovertemplate: "%{x} observed: <b>%{y:.1f}</b><br>1961-1990 observed average: <b>".concat(round(hist_obs_bar_base, 1), "</b>"),
+        hovertemplate: "%{x} observed: <b>%{y:.".concat(d3_precision, "f}</b><br>1961-1990 observed average: <b>").concat(round(hist_obs_bar_base, d3_precision), "</b>"),
         hoverlabel: {
           namelength: 0
         }
@@ -8335,7 +8337,7 @@
           namelength: 0
         },
         customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " lower emissions average projection: <b>%{customdata[1]:.1f}</b>")
+        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " lower emissions average projection: <b>%{customdata[1]:.").concat(d3_precision, "f}</b>")
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp85_mean'],
@@ -8352,7 +8354,7 @@
           namelength: 0
         },
         customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " higher emissions average projection: <b>%{customdata[1]:.1f}</b>")
+        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " higher emissions average projection: <b>%{customdata[1]:.").concat(d3_precision, "f}</b>")
       }, ...decadal_means_traces, ...rolling_means_traces], // layout
       Object.assign({}, plotly_layout_defaults, {
         margin: Object.assign({}, plotly_layout_defaults.margin, {
@@ -8612,6 +8614,9 @@
       let hist_edate_year = 2005; // let hist_edate = hist_edate_year + '-12-31';
 
       let proj_edate_year = 2099;
+      const precision = variable_config.rounding_precision || 1;
+      const d3_precision = precision > 0 ? precision : 0; // d3 format can't round to 10s, 100s, etc
+
       const unit_conversion_fn = variable_config.unit_conversions[unitsystem];
       const [[gfdl_cm3_rcp85_years, gfdl_cm3_rcp85], [ncar_ccsm4_rcp85_years, ncar_ccsm4_rcp85]] = await Promise.all([fetch_acis_data({
         grid: 'snap:GFDL-CM3:rcp85',
@@ -8665,7 +8670,6 @@
         'rcp85_min': [],
         'rcp85_max': []
       };
-      const precision = 1;
 
       for (let i = 0; i < hist_mod_data.length; i++) {
         chart_data['hist_year'].push(hist_mod_data[i][0]);
@@ -8717,7 +8721,7 @@
         legendgroup: 'hist',
         visible: !!show_historical_modeled ? true : 'legendonly',
         customdata: hist_mod_data,
-        hovertemplate: "%{customdata[3]}&#8211;%{customdata[0]} modeled averages:<br>GFDL-CM3: %{customdata[1]:.1f}<br>NCAR-CCSM4: %{customdata[2]:.1f}",
+        hovertemplate: "%{customdata[3]}&#8211;%{customdata[0]} modeled averages:<br>GFDL-CM3: %{customdata[1]:.".concat(d3_precision, "f}<br>NCAR-CCSM4: %{customdata[2]:.").concat(d3_precision, "f}"),
         hoverlabel: {
           namelength: 0
         }
@@ -8754,7 +8758,7 @@
         legendgroup: 'rcp85',
         visible: show_projected_rcp85 ? true : 'legendonly',
         customdata: proj_mod_data,
-        hovertemplate: "%{customdata[3]}&#8211;%{customdata[0]} higher emissions average projections:<br>GFDL-CM3: %{customdata[1]:.1f}<br>NCAR-CCSM4: %{customdata[2]:.1f}",
+        hovertemplate: "%{customdata[3]}&#8211;%{customdata[0]} higher emissions average projections:<br>GFDL-CM3: %{customdata[1]:.".concat(d3_precision, "f}<br>NCAR-CCSM4: %{customdata[2]:.").concat(d3_precision, "f}"),
         hoverlabel: {
           namelength: 0
         }
@@ -8902,6 +8906,8 @@
       }
 
       const precision = variable_config.rounding_precision || 1;
+      const d3_precision = precision > 0 ? precision : 0; // d3 format can't round to 10s, 100s, etc
+
       this._download_callbacks = {
         hist_mod: async () => format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision),
         proj_mod: async () => format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision)
@@ -8924,6 +8930,8 @@
       const col_offset = 1 + monthly_timeperiods.indexOf(_monthly_timeperiod) * 6; // for some reason unknown to me, the following month cycle is shown.
 
       const month_indexes = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+      const hist_mod_customdata = [];
+      const proj_mod_customdata = [];
 
       for (const m of month_indexes) {
         const _m = m % 12;
@@ -8938,6 +8946,9 @@
         chart_data['rcp85_mean'].push(round(proj_mod_data[_m][3 + col_offset], precision));
         chart_data['rcp85_min'].push(round(proj_mod_data[_m][4 + col_offset], precision));
         chart_data['rcp85_max'].push(round(proj_mod_data[_m][5 + col_offset], precision));
+        const l = chart_data['rcp45_mean'].length - 1;
+        proj_mod_customdata.push([chart_data['month'][l], chart_data['rcp45_mean'][l], chart_data['rcp45_min'][l], chart_data['rcp45_max'][l], chart_data['rcp85_mean'][l], chart_data['rcp85_min'][l], chart_data['rcp85_max'][l]]);
+        hist_mod_customdata.push([chart_data['month'][l], chart_data['hist_min'][l], chart_data['hist_max'][l]]);
       }
 
       const [x_range_min, x_range_max, y_range_min, y_range_max] = this.parent._update_axes_ranges(month_indexes, month_indexes[month_indexes.length - 1], min([min(chart_data['hist_min']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_max']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])]));
@@ -8975,8 +8986,8 @@
         },
         legendgroup: 'hist',
         visible: !!show_historical_modeled ? true : 'legendonly',
-        customdata: hist_mod_data,
-        hovertemplate: "1961-1990 modeled range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f}",
+        customdata: hist_mod_customdata,
+        hovertemplate: "1961-1990 modeled range: %{customdata[1]:.".concat(d3_precision, "f}&#8211;%{customdata[2]:.").concat(d3_precision, "f}"),
         hoverlabel: {
           namelength: 0
         }
@@ -9014,8 +9025,8 @@
         hoverlabel: {
           namelength: 0
         },
-        customdata: proj_mod_data,
-        hovertemplate: "(range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f})"
+        customdata: proj_mod_customdata,
+        hovertemplate: "(range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f})")
       }, {
         x: chart_data['month'],
         y: chart_data['rcp85_min'],
@@ -9051,8 +9062,8 @@
         hoverlabel: {
           namelength: 0
         },
-        customdata: proj_mod_data,
-        hovertemplate: "(range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f})"
+        customdata: proj_mod_customdata,
+        hovertemplate: "(range: %{customdata[5]:.".concat(d3_precision, "f}&#8211;%{customdata[6]:.").concat(d3_precision, "f})")
       }, {
         x: chart_data['month'],
         y: chart_data['rcp45_mean'],
@@ -9067,7 +9078,7 @@
         hoverlabel: {
           namelength: 0
         },
-        hovertemplate: "lower emissions average projection: <b>%{y:.1f}</b>"
+        hovertemplate: "lower emissions average projection: <b>%{y:.".concat(d3_precision, "f}</b>")
       }, {
         x: chart_data['month'],
         y: chart_data['rcp85_mean'],
@@ -9082,7 +9093,7 @@
         hoverlabel: {
           namelength: 0
         },
-        hovertemplate: "higher emissions average projection: <b>%{y:.1f}</b>"
+        hovertemplate: "higher emissions average projection: <b>%{y:.".concat(d3_precision, "f}</b>")
       }], // layout
       Object.assign({}, plotly_layout_defaults, {
         showlegend: show_legend,
@@ -9212,6 +9223,8 @@
       }
 
       const precision = variable_config.rounding_precision || 1;
+      const d3_precision = precision > 0 ? precision : 0; // d3 format can't round to 10s, 100s, etc
+
       this._download_callbacks = {
         hist_obs: async () => format_export_data(['month', 'mean', "* Note that the mean is based on monthly data for years  ".concat(hist_obs_sdate_year, "-").concat(hist_obs_edate_year)], hist_obs_data, null, precision),
         proj_mod: async () => format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data, null, precision)
@@ -9233,6 +9246,7 @@
       const col_offset = 1 + monthly_timeperiods.indexOf(_monthly_timeperiod) * 6; // for some reason unknown to me, the following month cycle is shown.
 
       const month_indexes = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+      const proj_mod_customdata = [];
 
       for (const m of month_indexes) {
         const _m = m % 12;
@@ -9246,6 +9260,8 @@
         chart_data['rcp85_mean'].push(round(proj_mod_data[_m][3 + col_offset], precision));
         chart_data['rcp85_min'].push(round(proj_mod_data[_m][4 + col_offset], precision));
         chart_data['rcp85_max'].push(round(proj_mod_data[_m][5 + col_offset], precision));
+        const l = chart_data['rcp45_mean'].length - 1;
+        proj_mod_customdata.push([chart_data['month'][l], chart_data['rcp45_mean'][l], chart_data['rcp45_min'][l], chart_data['rcp45_max'][l], chart_data['rcp85_mean'][l], chart_data['rcp85_min'][l], chart_data['rcp85_max'][l]]);
       }
 
       const [x_range_min, x_range_max, y_range_min, y_range_max] = this.parent._update_axes_ranges(month_indexes, month_indexes[month_indexes.length - 1], min([min(chart_data['hist_obs']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_obs']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])]));
@@ -9284,8 +9300,8 @@
         hoverlabel: {
           namelength: 0
         },
-        customdata: proj_mod_data,
-        hovertemplate: "(range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f})"
+        customdata: proj_mod_customdata,
+        hovertemplate: "(range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f})")
       }, {
         x: chart_data['month'],
         y: chart_data['rcp85_min'],
@@ -9321,8 +9337,8 @@
         hoverlabel: {
           namelength: 0
         },
-        customdata: proj_mod_data,
-        hovertemplate: "(range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f})"
+        customdata: proj_mod_customdata,
+        hovertemplate: "(range: %{customdata[5]:.".concat(d3_precision, "f}&#8211;%{customdata[6]:.").concat(d3_precision, "f})")
       }, {
         x: chart_data['month'],
         y: chart_data['hist_obs'],
@@ -9334,7 +9350,7 @@
         },
         legendgroup: 'histobs',
         visible: !!show_historical_observed ? true : 'legendonly',
-        hovertemplate: "".concat(hist_obs_sdate_year, "-").concat(hist_obs_edate_year, " observed average: <b>%{y:.1f}</b>"),
+        hovertemplate: "".concat(hist_obs_sdate_year, "-").concat(hist_obs_edate_year, " observed average: <b>%{y:.").concat(d3_precision, "f}</b>"),
         hoverlabel: {
           namelength: 0
         }
@@ -9352,7 +9368,7 @@
         hoverlabel: {
           namelength: 0
         },
-        hovertemplate: "lower emissions average projection: <b>%{y:.1f}</b>"
+        hovertemplate: "lower emissions average projection: <b>%{y:.".concat(d3_precision, "f}</b>")
       }, {
         x: chart_data['month'],
         y: chart_data['rcp85_mean'],
@@ -9367,7 +9383,7 @@
         hoverlabel: {
           namelength: 0
         },
-        hovertemplate: "higher emissions average projection: <b>%{y:.1f}</b>"
+        hovertemplate: "higher emissions average projection: <b>%{y:.".concat(d3_precision, "f}</b>")
       }], // layout
       Object.assign({}, plotly_layout_defaults, {
         showlegend: show_legend,
@@ -9497,10 +9513,12 @@
 
         return _data;
       }, []);
-      const precision = variable_config.rounding_precision; // format download data.
+      const precision = variable_config.rounding_precision || 1;
+      const d3_precision = precision > 0 ? precision : 0; // d3 format can't round to 10s, 100s, etc
+      // format download data.
 
       this._download_callbacks = {
-        hist_mod: async () => format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data, null, precision),
+        hist_mod: async () => format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision),
         proj_mod: async () => format_export_data(['year', 'rcp45_mean', 'rcp45_min', 'rcp45_max', 'rcp85_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision)
       }; // unpack arrays
 
@@ -9604,7 +9622,7 @@
             },
             visible: !!show_historical_modeled ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled mean (historical decadal mean)',
             x: chart_data['hist_year'],
@@ -9619,7 +9637,7 @@
             },
             visible: !!show_historical_modeled ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled minimum (historical decadal mean)',
             x: chart_data['hist_year'],
@@ -9634,7 +9652,7 @@
             },
             visible: !!show_historical_modeled ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled maximum (RCP 4.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -9649,7 +9667,7 @@
             },
             visible: !!show_projected_rcp45 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled minimum (RCP 4.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -9664,7 +9682,7 @@
             },
             visible: !!show_projected_rcp45 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled mean (RCP 4.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -9679,7 +9697,7 @@
             },
             visible: !!show_projected_rcp45 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled maximum (RCP 8.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -9694,7 +9712,7 @@
             },
             visible: !!show_projected_rcp85 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled minimum (RCP 8.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -9709,7 +9727,7 @@
             },
             visible: !!show_projected_rcp85 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }, {
             name: 'Modeled mean (RCP 8.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -9724,7 +9742,7 @@
             },
             visible: !!show_projected_rcp85 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: "%{y:.".concat(d3_precision, "f}")
           }];
         }
 
@@ -9764,7 +9782,7 @@
           },
           visible: !!show_historical_modeled ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled mean (historical ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['hist_year'],
@@ -9779,7 +9797,7 @@
           },
           visible: !!show_historical_modeled ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled minimum (historical ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['hist_year'],
@@ -9794,7 +9812,7 @@
           },
           visible: !!show_historical_modeled ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled maximum (RCP 4.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -9809,7 +9827,7 @@
           },
           visible: !!show_projected_rcp45 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled minimum (RCP 4.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -9824,7 +9842,7 @@
           },
           visible: !!show_projected_rcp45 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled mean (RCP 4.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -9839,7 +9857,7 @@
           },
           visible: !!show_projected_rcp45 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled maximum (RCP 8.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -9854,7 +9872,7 @@
           },
           visible: !!show_projected_rcp85 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled minimum (RCP 8.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -9869,7 +9887,7 @@
           },
           visible: !!show_projected_rcp85 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }, {
           name: "Modeled mean (RCP 8.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -9884,7 +9902,7 @@
           },
           visible: !!show_projected_rcp85 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: "%{y:.".concat(d3_precision, "f}")
         }];
       }
 
@@ -9946,7 +9964,7 @@
         },
         // hoverinfo: 'text',
         customdata: hover_decadal_means ? hist_decadal_data : hist_mod_data,
-        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " modeled range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f}")
+        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " modeled range: %{customdata[2]:.").concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f}")
       }, // {
       //   x: chart_data['hist_year'],
       //   y: chart_data['hist_mean'],
@@ -9992,7 +10010,7 @@
           namelength: 0
         },
         customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-        hovertemplate: "(range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f})"
+        hovertemplate: "(range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f})")
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp85_min'],
@@ -10029,7 +10047,7 @@
           namelength: 0
         },
         customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-        hovertemplate: "(range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f})"
+        hovertemplate: "(range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f})")
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp45_mean'],
@@ -10046,7 +10064,7 @@
           namelength: 0
         },
         customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " lower emissions average projection: <b>%{customdata[1]:.1f}</b>")
+        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " lower emissions average projection: <b>%{customdata[1]:.").concat(d3_precision, "f}</b>")
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp85_mean'],
@@ -10063,7 +10081,7 @@
           namelength: 0
         },
         customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " higher emissions average projection: <b>%{customdata[1]:.1f}</b>")
+        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " higher emissions average projection: <b>%{customdata[1]:.").concat(d3_precision, "f}</b>")
       }, ...decadal_means_traces, ...rolling_means_traces], // layout
       Object.assign({}, plotly_layout_defaults, {
         showlegend: show_legend,

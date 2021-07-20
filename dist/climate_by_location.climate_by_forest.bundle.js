@@ -6696,6 +6696,8 @@
       }
 
       const precision = variable_config.rounding_precision || 1;
+      const d3_precision = precision > 0 ? precision : 0; // d3 format can't round to 10s, 100s, etc
+
       this._download_callbacks = {
         hist_obs: async () => format_export_data(['month', 'mean', "* Note that the mean is based on monthly data for years  ".concat(hist_obs_sdate_year, "-").concat(hist_obs_edate_year)], hist_obs_data, null, precision),
         proj_mod: async () => format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data, null, precision)
@@ -6717,6 +6719,7 @@
       const col_offset = 1 + monthly_timeperiods.indexOf(_monthly_timeperiod) * 6; // for some reason unknown to me, the following month cycle is shown.
 
       const month_indexes = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+      const proj_mod_customdata = [];
 
       for (const m of month_indexes) {
         const _m = m % 12;
@@ -6730,6 +6733,8 @@
         chart_data['rcp85_mean'].push(round(proj_mod_data[_m][3 + col_offset], precision));
         chart_data['rcp85_min'].push(round(proj_mod_data[_m][4 + col_offset], precision));
         chart_data['rcp85_max'].push(round(proj_mod_data[_m][5 + col_offset], precision));
+        const l = chart_data['rcp45_mean'].length - 1;
+        proj_mod_customdata.push([chart_data['month'][l], chart_data['rcp45_mean'][l], chart_data['rcp45_min'][l], chart_data['rcp45_max'][l], chart_data['rcp85_mean'][l], chart_data['rcp85_min'][l], chart_data['rcp85_max'][l]]);
       }
 
       const [x_range_min, x_range_max, y_range_min, y_range_max] = this.parent._update_axes_ranges(month_indexes, month_indexes[month_indexes.length - 1], min([min(chart_data['hist_obs']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_obs']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])]));
@@ -6768,8 +6773,8 @@
         hoverlabel: {
           namelength: 0
         },
-        customdata: proj_mod_data,
-        hovertemplate: "(range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f})"
+        customdata: proj_mod_customdata,
+        hovertemplate: "(range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f})")
       }, {
         x: chart_data['month'],
         y: chart_data['rcp85_min'],
@@ -6805,8 +6810,8 @@
         hoverlabel: {
           namelength: 0
         },
-        customdata: proj_mod_data,
-        hovertemplate: "(range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f})"
+        customdata: proj_mod_customdata,
+        hovertemplate: "(range: %{customdata[5]:.".concat(d3_precision, "f}&#8211;%{customdata[6]:.").concat(d3_precision, "f})")
       }, {
         x: chart_data['month'],
         y: chart_data['hist_obs'],
@@ -6818,7 +6823,7 @@
         },
         legendgroup: 'histobs',
         visible: !!show_historical_observed ? true : 'legendonly',
-        hovertemplate: "".concat(hist_obs_sdate_year, "-").concat(hist_obs_edate_year, " observed average: <b>%{y:.1f}</b>"),
+        hovertemplate: "".concat(hist_obs_sdate_year, "-").concat(hist_obs_edate_year, " observed average: <b>%{y:.").concat(d3_precision, "f}</b>"),
         hoverlabel: {
           namelength: 0
         }
@@ -6836,7 +6841,7 @@
         hoverlabel: {
           namelength: 0
         },
-        hovertemplate: "lower emissions average projection: <b>%{y:.1f}</b>"
+        hovertemplate: "lower emissions average projection: <b>%{y:.".concat(d3_precision, "f}</b>")
       }, {
         x: chart_data['month'],
         y: chart_data['rcp85_mean'],
@@ -6851,7 +6856,7 @@
         hoverlabel: {
           namelength: 0
         },
-        hovertemplate: "higher emissions average projection: <b>%{y:.1f}</b>"
+        hovertemplate: "higher emissions average projection: <b>%{y:.".concat(d3_precision, "f}</b>")
       }], // layout
       Object.assign({}, plotly_layout_defaults, {
         showlegend: show_legend,

@@ -1,6 +1,6 @@
 import View from "./view_base.js";
 import {isEqual, max, min, round} from "../../node_modules/lodash-es/lodash.js";
-import { format_export_data, rgba, rolling_window_average} from "../utils.js";
+import {format_export_data, rgba, rolling_window_average} from "../utils.js";
 import {fetch_acis_data} from "../io.js";
 import {data_api_url} from "../constants.js";
 
@@ -14,6 +14,7 @@ export default class AlaskaYearView extends View {
     parent._styles.push(this._style)
     this.parent._update_styles()
   }
+
   async request_update() {
     // get data for GFDL-CM3 and NCAR-CCSM4
     const {
@@ -36,6 +37,8 @@ export default class AlaskaYearView extends View {
     // let hist_edate = hist_edate_year + '-12-31';
     let proj_edate_year = 2099;
 
+    const precision = variable_config.rounding_precision || 1;
+    const d3_precision = precision > 0 ? precision : 0; // d3 format can't round to 10s, 100s, etc
     const unit_conversion_fn = variable_config.unit_conversions[unitsystem];
 
     const [[gfdl_cm3_rcp85_years, gfdl_cm3_rcp85],
@@ -58,12 +61,12 @@ export default class AlaskaYearView extends View {
 
     for (let i = 0; i < hist_edate_year - hist_sdate_year + 1; i++) {
       //year,gfdl_cm3_rcp85,ncar_ccsm4_rcp85
-      hist_mod_data.push([i + hist_sdate_year, rolling_window_average(gfdl_cm3_rcp85, i, rolling_window_mean_years), rolling_window_average(ncar_ccsm4_rcp85, i,rolling_window_mean_years),i + hist_sdate_year - rolling_window_mean_years ]);
+      hist_mod_data.push([i + hist_sdate_year, rolling_window_average(gfdl_cm3_rcp85, i, rolling_window_mean_years), rolling_window_average(ncar_ccsm4_rcp85, i, rolling_window_mean_years), i + hist_sdate_year - rolling_window_mean_years]);
     }
 
     for (let i = hist_edate_year - hist_sdate_year; i <= proj_edate_year - hist_sdate_year + 1; i++) {
       //year,gfdl_cm3_rcp85,ncar_ccsm4_rcp85
-      proj_mod_data.push([i + hist_sdate_year, rolling_window_average(gfdl_cm3_rcp85, i,rolling_window_mean_years), rolling_window_average(ncar_ccsm4_rcp85, i,rolling_window_mean_years),i + hist_sdate_year - rolling_window_mean_years]);
+      proj_mod_data.push([i + hist_sdate_year, rolling_window_average(gfdl_cm3_rcp85, i, rolling_window_mean_years), rolling_window_average(ncar_ccsm4_rcp85, i, rolling_window_mean_years), i + hist_sdate_year - rolling_window_mean_years]);
     }
 
     this._download_callbacks = {
@@ -80,7 +83,6 @@ export default class AlaskaYearView extends View {
       'rcp85_min': [],
       'rcp85_max': []
     };
-    const precision = 1;
     for (let i = 0; i < hist_mod_data.length; i++) {
       chart_data['hist_year'].push(hist_mod_data[i][0]);
       chart_data['hist_min'].push(round(Math.min(hist_mod_data[i][1], hist_mod_data[i][2]), precision));
@@ -137,7 +139,7 @@ export default class AlaskaYearView extends View {
           legendgroup: 'hist',
           visible: !!show_historical_modeled ? true : 'legendonly',
           customdata: hist_mod_data,
-          hovertemplate: "%{customdata[3]}&#8211;%{customdata[0]} modeled averages:<br>GFDL-CM3: %{customdata[1]:.1f}<br>NCAR-CCSM4: %{customdata[2]:.1f}",
+          hovertemplate: `%{customdata[3]}&#8211;%{customdata[0]} modeled averages:<br>GFDL-CM3: %{customdata[1]:.${d3_precision}f}<br>NCAR-CCSM4: %{customdata[2]:.${d3_precision}f}`,
           hoverlabel: {namelength: 0},
         },
         {
@@ -166,7 +168,7 @@ export default class AlaskaYearView extends View {
           legendgroup: 'rcp85',
           visible: show_projected_rcp85 ? true : 'legendonly',
           customdata: proj_mod_data,
-          hovertemplate: "%{customdata[3]}&#8211;%{customdata[0]} higher emissions average projections:<br>GFDL-CM3: %{customdata[1]:.1f}<br>NCAR-CCSM4: %{customdata[2]:.1f}",
+          hovertemplate: `%{customdata[3]}&#8211;%{customdata[0]} higher emissions average projections:<br>GFDL-CM3: %{customdata[1]:.${d3_precision}f}<br>NCAR-CCSM4: %{customdata[2]:.${d3_precision}f}`,
           hoverlabel: {namelength: 0},
         },
       ],

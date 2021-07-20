@@ -1,4 +1,4 @@
-  import View from "./view_base.js";
+import View from "./view_base.js";
 import {max, min, range as lodash_range, round} from "../../node_modules/lodash-es/lodash.js";
 import {compute_decadal_means, compute_rolling_window_means, format_export_data, rgba} from "../utils.js";
 import {fetch_island_data} from "../io.js";
@@ -40,7 +40,7 @@ export default class IslandDecadeView extends View {
     } = this.parent.options;
     const area = this.parent.get_area();
     const variable_config = this.parent.get_variable_config();
-    let data = await fetch_island_data(variable, area,island_data_url_template);
+    let data = await fetch_island_data(variable, area, island_data_url_template);
 
     let hist_mod_series = data.find((series) => series.scenario === 'historical')
     let rcp45_mod_series = data.find((series) => series.scenario === 'rcp45')
@@ -75,12 +75,12 @@ export default class IslandDecadeView extends View {
     }, [])
 
 
-    const precision = variable_config.rounding_precision;
-
+    const precision = variable_config.rounding_precision || 1;
+    const d3_precision = precision > 0 ? precision : 0; // d3 format can't round to 10s, 100s, etc
     // format download data.
     this._download_callbacks = {
-    hist_mod: async ()=> format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data,null, precision),
-    proj_mod: async ()=> format_export_data(['year', 'rcp45_mean', 'rcp45_min', 'rcp45_max', 'rcp85_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'],precision)
+      hist_mod: async () => format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision),
+      proj_mod: async () => format_export_data(['year', 'rcp45_mean', 'rcp45_min', 'rcp45_max', 'rcp85_mean', 'rcp85_min', 'rcp85_max'], proj_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision)
     };
     // unpack arrays
     const chart_data = {
@@ -163,7 +163,7 @@ export default class IslandDecadeView extends View {
         ]);
         rcp45_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
 
-        rcp45_decadal_data[rcp45_decadal_data.length - 1] = [2100,  "NaN","NaN","NaN"]; // NaN 2100
+        rcp45_decadal_data[rcp45_decadal_data.length - 1] = [2100, "NaN", "NaN", "NaN"]; // NaN 2100
         rcp85_decadal_data = lodash_range(proj_mod_data.length).map((i) => [
           chart_data['proj_year_decade'][i],
           chart_data['rcp85_decadal_mean'][i],
@@ -171,7 +171,7 @@ export default class IslandDecadeView extends View {
           chart_data['rcp85_decadal_max'][i],
         ]);
         rcp85_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
-        rcp85_decadal_data[rcp85_decadal_data.length - 1] = [2100,"NaN","NaN","NaN"]; // NaN 2100
+        rcp85_decadal_data[rcp85_decadal_data.length - 1] = [2100, "NaN", "NaN", "NaN"]; // NaN 2100
       }
       if (show_decadal_means) {
         decadal_means_traces = [
@@ -185,7 +185,7 @@ export default class IslandDecadeView extends View {
             line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_historical_modeled ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: `%{y:.${d3_precision}f}`
           },
           {
             name: 'Modeled mean (historical decadal mean)',
@@ -197,7 +197,7 @@ export default class IslandDecadeView extends View {
             line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_historical_modeled ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: `%{y:.${d3_precision}f}`
           },
 
           {
@@ -210,7 +210,7 @@ export default class IslandDecadeView extends View {
             line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_historical_modeled ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: `%{y:.${d3_precision}f}`
           },
           {
             name: 'Modeled maximum (RCP 4.5 decadal mean)',
@@ -222,7 +222,7 @@ export default class IslandDecadeView extends View {
             line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp45 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: `%{y:.${d3_precision}f}`
           },
           {
             name: 'Modeled minimum (RCP 4.5 decadal mean)',
@@ -234,7 +234,7 @@ export default class IslandDecadeView extends View {
             line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp45 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: `%{y:.${d3_precision}f}`
           },
           {
             name: 'Modeled mean (RCP 4.5 decadal mean)',
@@ -246,7 +246,7 @@ export default class IslandDecadeView extends View {
             line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp45 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: `%{y:.${d3_precision}f}`
           },
           {
             name: 'Modeled maximum (RCP 8.5 decadal mean)',
@@ -258,7 +258,7 @@ export default class IslandDecadeView extends View {
             line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp85 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: `%{y:.${d3_precision}f}`
           },
           {
             name: 'Modeled minimum (RCP 8.5 decadal mean)',
@@ -270,7 +270,7 @@ export default class IslandDecadeView extends View {
             line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp85 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: `%{y:.${d3_precision}f}`
           },
           {
             name: 'Modeled mean (RCP 8.5 decadal mean)',
@@ -282,7 +282,7 @@ export default class IslandDecadeView extends View {
             line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp85 ? true : 'legendonly',
             customdata: null,
-            hovertemplate: '%{y:.1f}'
+            hovertemplate: `%{y:.${d3_precision}f}`
           }
         ]
       }
@@ -314,7 +314,7 @@ export default class IslandDecadeView extends View {
           line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_historical_modeled ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: `%{y:.${d3_precision}f}`
         },
         {
           name: `Modeled mean (historical ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -326,7 +326,7 @@ export default class IslandDecadeView extends View {
           line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_historical_modeled ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: `%{y:.${d3_precision}f}`
         },
 
         {
@@ -339,7 +339,7 @@ export default class IslandDecadeView extends View {
           line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_historical_modeled ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: `%{y:.${d3_precision}f}`
         },
         {
           name: `Modeled maximum (RCP 4.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -351,7 +351,7 @@ export default class IslandDecadeView extends View {
           line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp45 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: `%{y:.${d3_precision}f}`
         },
         {
           name: `Modeled minimum (RCP 4.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -363,7 +363,7 @@ export default class IslandDecadeView extends View {
           line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp45 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: `%{y:.${d3_precision}f}`
         },
         {
           name: `Modeled mean (RCP 4.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -375,7 +375,7 @@ export default class IslandDecadeView extends View {
           line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp45 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: `%{y:.${d3_precision}f}`
         },
         {
           name: `Modeled maximum (RCP 8.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -387,7 +387,7 @@ export default class IslandDecadeView extends View {
           line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp85 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: `%{y:.${d3_precision}f}`
         },
         {
           name: `Modeled minimum (RCP 8.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -399,7 +399,7 @@ export default class IslandDecadeView extends View {
           line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp85 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: `%{y:.${d3_precision}f}`
         },
         {
           name: `Modeled mean (RCP 8.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -411,7 +411,7 @@ export default class IslandDecadeView extends View {
           line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp85 ? true : 'legendonly',
           customdata: null,
-          hovertemplate: '%{y:.1f}'
+          hovertemplate: `%{y:.${d3_precision}f}`
         }
       ]
     }
@@ -490,7 +490,7 @@ export default class IslandDecadeView extends View {
           hoverlabel: {namelength: 0},
           // hoverinfo: 'text',
           customdata: hover_decadal_means ? hist_decadal_data : hist_mod_data,
-          hovertemplate: `%{customdata[0]}${hover_decadal_means ? 's' : ''} modeled range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f}`
+          hovertemplate: `%{customdata[0]}${hover_decadal_means ? 's' : ''} modeled range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f}`
         },
         // {
         //   x: chart_data['hist_year'],
@@ -537,7 +537,7 @@ export default class IslandDecadeView extends View {
           visible: show_projected_rcp45 ? true : 'legendonly',
           hoverlabel: {namelength: 0},
           customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-          hovertemplate: `(range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f})`
+          hovertemplate: `(range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f})`
         },
         {
           x: chart_data['proj_year'],
@@ -574,7 +574,7 @@ export default class IslandDecadeView extends View {
           visible: show_projected_rcp85 ? true : 'legendonly',
           hoverlabel: {namelength: 0},
           customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-          hovertemplate: `(range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f})`
+          hovertemplate: `(range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f})`
         },
         {
           x: chart_data['proj_year'],
@@ -588,7 +588,7 @@ export default class IslandDecadeView extends View {
           yaxis: 'y3',
           hoverlabel: {namelength: 0},
           customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-          hovertemplate: `%{customdata[0]}${hover_decadal_means ? 's' : ''} lower emissions average projection: <b>%{customdata[1]:.1f}</b>`
+          hovertemplate: `%{customdata[0]}${hover_decadal_means ? 's' : ''} lower emissions average projection: <b>%{customdata[1]:.${d3_precision}f}</b>`
         },
         {
           x: chart_data['proj_year'],
@@ -603,7 +603,7 @@ export default class IslandDecadeView extends View {
           hoverlabel: {namelength: 0},
 
           customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-          hovertemplate: `%{customdata[0]}${hover_decadal_means ? 's' : ''} higher emissions average projection: <b>%{customdata[1]:.1f}</b>`
+          hovertemplate: `%{customdata[0]}${hover_decadal_means ? 's' : ''} higher emissions average projection: <b>%{customdata[1]:.${d3_precision}f}</b>`
 
         },
         ...decadal_means_traces,

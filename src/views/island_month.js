@@ -1,12 +1,12 @@
 import View from "./view_base.js";
 import {max, mean, min, round} from "../../node_modules/lodash-es/lodash.js";
-import { format_export_data, rgba} from "../utils.js";
-import { monthly_timeperiods, months, months_labels} from "../constants.js";
+import {format_export_data, rgba} from "../utils.js";
+import {monthly_timeperiods, months, months_labels} from "../constants.js";
 import {fetch_island_data} from "../io.js";
 
 /* globals jQuery, window, Plotly, fetch, jStat */
 // noinspection DuplicatedCode
-export default class IslandMonthView extends View{
+export default class IslandMonthView extends View {
   async request_update() {
     const {
       colors,
@@ -16,12 +16,12 @@ export default class IslandMonthView extends View{
       show_historical_modeled,
       show_legend, variable,
       show_projected_rcp45,
-    show_projected_rcp85,
+      show_projected_rcp85,
       unitsystem,
     } = this.parent.options;
     const area = this.parent.get_area();
     const variable_config = this.parent.get_variable_config();
-    let data = await fetch_island_data(variable, area,island_data_url_template);
+    let data = await fetch_island_data(variable, area, island_data_url_template);
 
     let hist_mod_series = data.find((series) => series.scenario === 'historical')
     let rcp45_mod_series = data.find((series) => series.scenario === 'rcp45')
@@ -51,9 +51,10 @@ export default class IslandMonthView extends View{
       proj_mod_data.push([month, ..._month_data]);
     }
     const precision = variable_config.rounding_precision || 1;
+    const d3_precision = precision > 0 ? precision : 0; // d3 format can't round to 10s, 100s, etc
     this._download_callbacks = {
-     hist_mod: async () => format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision),
-     proj_mod: async () => format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data,['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision)
+      hist_mod: async () => format_export_data(['year', 'mean', 'min', 'max'], hist_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision),
+      proj_mod: async () => format_export_data(['month', '2025_rcp45_mean', '2025_rcp45_min', '2025_rcp45_max', '2025_rcp85_mean', '2025_rcp85_min', '2025_rcp85_max', '2050_rcp45_mean', '2050_rcp45_min', '2050_rcp45_max', '2050_rcp85_mean', '2050_rcp85_min', '2050_rcp85_max', '2075_rcp45_mean', '2075_rcp45_min', '2075_rcp45_max', '2075_rcp85_mean', '2075_rcp85_min', '2075_rcp85_max'], proj_mod_data, ['NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], precision)
     };
 
     const chart_data = {
@@ -74,7 +75,8 @@ export default class IslandMonthView extends View{
     const col_offset = 1 + (monthly_timeperiods.indexOf(_monthly_timeperiod) * 6)
     // for some reason unknown to me, the following month cycle is shown.
     const month_indexes = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
-
+    const hist_mod_customdata = [];
+    const proj_mod_customdata = [];
     for (const m of month_indexes) {
       const _m = m % 12;
       chart_data['month'].push(m);
@@ -87,6 +89,10 @@ export default class IslandMonthView extends View{
       chart_data['rcp85_mean'].push(round(proj_mod_data[_m][3 + col_offset], precision));
       chart_data['rcp85_min'].push(round(proj_mod_data[_m][4 + col_offset], precision));
       chart_data['rcp85_max'].push(round(proj_mod_data[_m][5 + col_offset], precision));
+
+      const l = chart_data['rcp45_mean'].length - 1;
+      proj_mod_customdata.push([chart_data['month'][l], chart_data['rcp45_mean'][l], chart_data['rcp45_min'][l], chart_data['rcp45_max'][l], chart_data['rcp85_mean'][l], chart_data['rcp85_min'][l], chart_data['rcp85_max'][l]])
+      hist_mod_customdata.push([chart_data['month'][l], chart_data['hist_min'][l], chart_data['hist_max'][l]])
     }
 
     const [x_range_min, x_range_max, y_range_min, y_range_max] = this.parent._update_axes_ranges(
@@ -134,8 +140,8 @@ export default class IslandMonthView extends View{
           },
           legendgroup: 'hist',
           visible: !!show_historical_modeled ? true : 'legendonly',
-          customdata: hist_mod_data,
-          hovertemplate: `1961-1990 modeled range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f}`,
+          customdata: hist_mod_customdata,
+          hovertemplate: `1961-1990 modeled range: %{customdata[1]:.${d3_precision}f}&#8211;%{customdata[2]:.${d3_precision}f}`,
           hoverlabel: {namelength: 0},
         },
         {
@@ -171,8 +177,8 @@ export default class IslandMonthView extends View{
           legendgroup: 'rcp45',
           visible: show_projected_rcp45 ? true : 'legendonly',
           hoverlabel: {namelength: 0},
-          customdata: proj_mod_data,
-          hovertemplate: `(range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f})`
+          customdata: proj_mod_customdata,
+          hovertemplate: `(range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f})`
         },
         {
           x: chart_data['month'],
@@ -208,8 +214,8 @@ export default class IslandMonthView extends View{
           legendgroup: 'rcp85',
           visible: show_projected_rcp85 ? true : 'legendonly',
           hoverlabel: {namelength: 0},
-          customdata: proj_mod_data,
-          hovertemplate: `(range: %{customdata[2]:.1f}&#8211;%{customdata[3]:.1f})`
+          customdata: proj_mod_customdata,
+          hovertemplate: `(range: %{customdata[5]:.${d3_precision}f}&#8211;%{customdata[6]:.${d3_precision}f})`
         },
         {
           x: chart_data['month'],
@@ -221,7 +227,7 @@ export default class IslandMonthView extends View{
           visible: show_projected_rcp45 ? true : 'legendonly',
           legendgroup: 'rcp45',
           hoverlabel: {namelength: 0},
-          hovertemplate: "lower emissions average projection: <b>%{y:.1f}</b>"
+          hovertemplate: `lower emissions average projection: <b>%{y:.${d3_precision}f}</b>`
         },
         {
           x: chart_data['month'],
@@ -233,7 +239,7 @@ export default class IslandMonthView extends View{
           line: {color: rgba(colors.rcp85.line, colors.opacity.proj_line)},
           legendgroup: 'rcp85',
           hoverlabel: {namelength: 0},
-          hovertemplate: "higher emissions average projection: <b>%{y:.1f}</b>"
+          hovertemplate: `higher emissions average projection: <b>%{y:.${d3_precision}f}</b>`
         }
       ],
       // layout
@@ -258,18 +264,18 @@ export default class IslandMonthView extends View{
 
   async request_style_update() {
     const {show_projected_rcp45, show_projected_rcp85, show_historical_modeled} = this.parent.options;
-      Plotly.restyle(this.element, {
-        visible: [
-          !!show_historical_modeled ? true : 'legendonly',
-          !!show_historical_modeled ? true : 'legendonly',
-          !!show_projected_rcp45 ? true : 'legendonly',
-          !!show_projected_rcp45 ? true : 'legendonly',
-          !!show_projected_rcp85 ? true : 'legendonly',
-          !!show_projected_rcp85 ? true : 'legendonly',
-          !!show_projected_rcp45 ? true : 'legendonly',
-          !!show_projected_rcp85 ? true : 'legendonly']
-      })
-    }
+    Plotly.restyle(this.element, {
+      visible: [
+        !!show_historical_modeled ? true : 'legendonly',
+        !!show_historical_modeled ? true : 'legendonly',
+        !!show_projected_rcp45 ? true : 'legendonly',
+        !!show_projected_rcp45 ? true : 'legendonly',
+        !!show_projected_rcp85 ? true : 'legendonly',
+        !!show_projected_rcp85 ? true : 'legendonly',
+        !!show_projected_rcp45 ? true : 'legendonly',
+        !!show_projected_rcp85 ? true : 'legendonly']
+    })
+  }
 
 
   async request_downloads() {
