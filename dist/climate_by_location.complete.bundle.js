@@ -8454,7 +8454,7 @@
           namelength: 0
         },
         customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-        hovertemplate: "(range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f})")
+        hovertemplate: "range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f}")
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp85_min'],
@@ -8491,7 +8491,7 @@
           namelength: 0
         },
         customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-        hovertemplate: "(range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f})")
+        hovertemplate: "range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f}")
       }, {
         x: chart_data['hist_obs_year'],
         y: chart_data['hist_obs_diff'],
@@ -9218,7 +9218,7 @@
           namelength: 0
         },
         customdata: proj_mod_customdata,
-        hovertemplate: "(range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f})")
+        hovertemplate: "range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f}")
       }, {
         x: chart_data['month'],
         y: chart_data['rcp85_min'],
@@ -9255,7 +9255,7 @@
           namelength: 0
         },
         customdata: proj_mod_customdata,
-        hovertemplate: "(range: %{customdata[5]:.".concat(d3_precision, "f}&#8211;%{customdata[6]:.").concat(d3_precision, "f})")
+        hovertemplate: "range: %{customdata[5]:.".concat(d3_precision, "f}&#8211;%{customdata[6]:.").concat(d3_precision, "f}")
       }, {
         x: chart_data['month'],
         y: chart_data['rcp45_mean'],
@@ -9493,7 +9493,7 @@
           namelength: 0
         },
         customdata: proj_mod_customdata,
-        hovertemplate: "(range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f})")
+        hovertemplate: "range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f}")
       }, {
         x: chart_data['month'],
         y: chart_data['rcp85_min'],
@@ -9530,7 +9530,7 @@
           namelength: 0
         },
         customdata: proj_mod_customdata,
-        hovertemplate: "(range: %{customdata[5]:.".concat(d3_precision, "f}&#8211;%{customdata[6]:.").concat(d3_precision, "f})")
+        hovertemplate: "range: %{customdata[5]:.".concat(d3_precision, "f}&#8211;%{customdata[6]:.").concat(d3_precision, "f}")
       }, {
         x: chart_data['month'],
         y: chart_data['hist_obs'],
@@ -11058,7 +11058,7 @@
           namelength: 0
         },
         customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-        hovertemplate: "(range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f})")
+        hovertemplate: "range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f}")
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp85_min'],
@@ -11095,7 +11095,7 @@
           namelength: 0
         },
         customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-        hovertemplate: "(range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f})")
+        hovertemplate: "range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f}")
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp45_mean'],
