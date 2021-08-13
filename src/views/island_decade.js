@@ -17,7 +17,7 @@ export default class IslandDecadeView extends View {
 
   constructor(parent, element) {
     super(parent, element);
-    this._style = '#' + this.parent.element.id + ` .legendtitletext{ display: none; }`
+    this._style = `#${this.parent.element.id} .legendtitletext{ display: none; }`
     parent._styles.push(this._style)
     this.parent._update_styles()
   }

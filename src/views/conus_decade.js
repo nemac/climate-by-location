@@ -17,9 +17,11 @@ export default class ConusDecadeView extends View {
 
   constructor(parent, element) {
     super(parent, element);
-    this._style = '#' + this.parent.element.id + ` .legendtitletext{ display: none; }`
+    this._style = `#${this.parent.element.id} .legendtitletext{ display: none; }`
     parent._styles.push(this._style)
-    this.parent._update_styles()
+    this.parent._update_styles();
+    this._get_popover_content = ()=>'';
+
   }
 
   async request_update() {
@@ -35,6 +37,7 @@ export default class ConusDecadeView extends View {
       show_projected_rcp45,
       show_projected_rcp85,
       show_rolling_window_means,
+      unitsystem
     } = this.parent.options;
     const area = this.parent.get_area();
     const variable_config = this.parent.get_variable_config();
@@ -49,7 +52,7 @@ export default class ConusDecadeView extends View {
     this._download_callbacks = {
       hist_obs: async () => format_export_data(['year', variable_config.id], hist_obs_data, null, precision),
       hist_mod: async () => format_export_data(['year', 'weighted_mean', 'min', 'max', 'NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], hist_mod_data, null, precision),
-      proj_mod: async () => format_export_data(['year', 'rcp45_weighted_mean', 'rcp45_min', 'rcp45_max', 'rcp85_weighted_mean', 'rcp85_min', 'rcp85_max','NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], proj_mod_data, null, precision)
+      proj_mod: async () => format_export_data(['year', 'rcp45_weighted_mean', 'rcp45_min', 'rcp45_max', 'rcp85_weighted_mean', 'rcp85_min', 'rcp85_max', 'NOTE: This file contains annual projection values produced by global climate models. Decadal averages of these values (as shown in the Climate Explorer) are a more appropriate temporal scale for using projections.'], proj_mod_data, null, precision)
     };
 
     // unpack arrays
@@ -158,8 +161,7 @@ export default class ConusDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_historical_modeled ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
+            // hoverinfo: 'skip'
           },
           {
             name: 'Modeled mean (historical decadal mean)',
@@ -170,8 +172,7 @@ export default class ConusDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_historical_modeled ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
+            // hoverinfo: 'skip'
           },
 
           {
@@ -183,8 +184,7 @@ export default class ConusDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_historical_modeled ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
+            // hoverinfo: 'skip'
           },
           {
             name: 'Modeled maximum (RCP 4.5 decadal mean)',
@@ -195,8 +195,7 @@ export default class ConusDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp45 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
+            // hoverinfo: 'skip'
           },
           {
             name: 'Modeled minimum (RCP 4.5 decadal mean)',
@@ -207,8 +206,7 @@ export default class ConusDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp45 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
+            // hoverinfo: 'skip'
           },
           {
             name: 'Modeled mean (RCP 4.5 decadal mean)',
@@ -219,8 +217,7 @@ export default class ConusDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp45 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
+            // hoverinfo: 'skip'
           },
           {
             name: 'Modeled maximum (RCP 8.5 decadal mean)',
@@ -231,8 +228,7 @@ export default class ConusDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp85 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
+            // hoverinfo: 'skip'
           },
           {
             name: 'Modeled minimum (RCP 8.5 decadal mean)',
@@ -243,8 +239,7 @@ export default class ConusDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp85 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
+            // hoverinfo: 'skip'
           },
           {
             name: 'Modeled mean (RCP 8.5 decadal mean)',
@@ -255,8 +250,7 @@ export default class ConusDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp85 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
+            // hoverinfo: 'skip'
           }
         ]
       }
@@ -285,8 +279,7 @@ export default class ConusDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_historical_modeled ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
+          // hoverinfo: 'skip'
         },
         {
           name: `Modeled mean (historical ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -297,8 +290,7 @@ export default class ConusDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_historical_modeled ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
+          // hoverinfo: 'skip'
         },
 
         {
@@ -310,8 +302,7 @@ export default class ConusDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_historical_modeled ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
+          // hoverinfo: 'skip'
         },
         {
           name: `Modeled maximum (RCP 4.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -322,8 +313,7 @@ export default class ConusDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp45 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
+          // hoverinfo: 'skip'
         },
         {
           name: `Modeled minimum (RCP 4.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -334,8 +324,7 @@ export default class ConusDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp45 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
+          // hoverinfo: 'skip'
         },
         {
           name: `Modeled mean (RCP 4.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -346,8 +335,7 @@ export default class ConusDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp45 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
+          // hoverinfo: 'skip'
         },
         {
           name: `Modeled maximum (RCP 8.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -358,8 +346,7 @@ export default class ConusDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp85 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
+          // hoverinfo: 'skip'
         },
         {
           name: `Modeled minimum (RCP 8.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -370,8 +357,7 @@ export default class ConusDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp85 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
+          // hoverinfo: 'skip'
         },
         {
           name: `Modeled mean (RCP 8.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -382,8 +368,7 @@ export default class ConusDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp85 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
+          // hoverinfo: 'skip'
         }
       ]
     }
@@ -476,7 +461,7 @@ export default class ConusDecadeView extends View {
             dash: 'dot'
           },
           visible: !!show_historical_observed ? true : 'legendonly',
-          hoverinfo: 'skip'
+          // hoverinfo: 'skip'
         },
         {
           name: 'Modeled minimum (historical)',
@@ -492,7 +477,7 @@ export default class ConusDecadeView extends View {
           },
           legendgroup: 'hist',
           visible: !!show_historical_modeled ? true : 'legendonly',
-          hoverinfo: 'skip'
+          // hoverinfo: 'skip'
         },
 
         {
@@ -511,10 +496,7 @@ export default class ConusDecadeView extends View {
           },
           legendgroup: 'hist',
           visible: !!show_historical_modeled ? true : 'legendonly',
-          hoverlabel: {namelength: 0},
-          // hoverinfo: 'text',
-          customdata: hover_decadal_means ? hist_decadal_data : hist_mod_data,
-          hovertemplate: `%{customdata[0]}${hover_decadal_means ? 's' : ''} modeled range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f}`
+          // hoverinfo: 'skip'
         },
         // {
         //   x: chart_data['hist_year'],
@@ -542,7 +524,7 @@ export default class ConusDecadeView extends View {
           },
           legendgroup: 'rcp45',
           visible: show_projected_rcp45 ? true : 'legendonly',
-          hoverinfo: 'skip'
+          // hoverinfo: 'skip'
         },
         {
           x: chart_data['proj_year'],
@@ -559,9 +541,7 @@ export default class ConusDecadeView extends View {
           },
           legendgroup: 'rcp45',
           visible: show_projected_rcp45 ? true : 'legendonly',
-          hoverlabel: {namelength: 0},
-          customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-          hovertemplate: `range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f}`
+          // hoverinfo: 'skip'
         },
 
         {
@@ -580,7 +560,7 @@ export default class ConusDecadeView extends View {
           legendgroup: 'rcp85',
           visible: show_projected_rcp85 ? true : 'legendonly',
           showlegend: false,
-          hoverinfo: 'skip'
+          // hoverinfo: 'skip'
         },
         {
           x: chart_data['proj_year'],
@@ -597,9 +577,7 @@ export default class ConusDecadeView extends View {
           },
           legendgroup: 'rcp85',
           visible: show_projected_rcp85 ? true : 'legendonly',
-          hoverlabel: {namelength: 0},
-          customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-          hovertemplate: `range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f}`
+          // hoverinfo: 'skip'
         },
         {
           x: chart_data['hist_obs_year'],
@@ -612,9 +590,7 @@ export default class ConusDecadeView extends View {
           marker: {color: rgba(colors.hist.bar, colors.opacity.hist_obs)},
           legendgroup: 'histobs',
           visible: !!show_historical_observed ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{x} observed: <b>%{y:.${d3_precision}f}</b><br>1961-1990 observed average: <b>${round(hist_obs_bar_base, d3_precision)}</b>`,
-          hoverlabel: {namelength: 0},
+          // hoverinfo: 'skip'
         },
         {
           x: chart_data['proj_year'],
@@ -626,9 +602,7 @@ export default class ConusDecadeView extends View {
           visible: show_projected_rcp45 ? true : 'legendonly',
           legendgroup: 'rcp45',
           yaxis: 'y3',
-          hoverlabel: {namelength: 0},
-          customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-          hovertemplate: `%{customdata[0]}${hover_decadal_means ? 's' : ''} lower emissions average projection: <b>%{customdata[1]:.${d3_precision}f}</b>`
+          // hoverinfo: 'skip'
         },
         {
           x: chart_data['proj_year'],
@@ -640,11 +614,7 @@ export default class ConusDecadeView extends View {
           line: {color: rgba(colors.rcp85.line, colors.opacity.proj_line)},
           legendgroup: 'rcp85',
           yaxis: 'y3',
-          hoverlabel: {namelength: 0},
-
-          customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-          hovertemplate: `%{customdata[0]}${hover_decadal_means ? 's' : ''} higher emissions average projection: <b>%{customdata[1]:.${d3_precision}f}</b>`
-
+          // hoverinfo: 'skip'
         },
         ...decadal_means_traces,
         ...rolling_means_traces
@@ -716,7 +686,78 @@ export default class ConusDecadeView extends View {
       this.parent._get_plotly_options()
     );
 
+
+    this._get_popover_content = (data)=>{
+      const year = 'xvals' in data ? Math.trunc(data.xvals[0]) : data.points[0].x;
+      const proj_year_idx = year - 2004;
+      const hist_year_idx = year - 1950;
+      if (hover_decadal_means || show_decadal_means){
+        const year_decade = Math.trunc(year / 10) * 10;
+        return [variable_config.ytitles['annual'][unitsystem], `
+        <div style="padding-left: 1rem;">
+         <div style="display: flex; justify-content: space-between;"><b>${year_decade}s projection</b><span></span></div>
+        ${year > 2004 ? `
+          <div style="display: flex; background-color: ${rgba(colors.rcp85.outerBand, 0.1)} ">
+          <div style="min-width: 3rem;  ">
+          <div style="font-size: 1.3rem; margin-left: -0.45rem; border-left: 0.25rem solid  ${rgba(colors.rcp85.line, colors.opacity.proj_line)}; padding: 0.35rem;">${round(chart_data['rcp85_decadal_mean'][proj_year_idx], precision)}</div>
+          <div style="font-size: 0.8rem; margin-left: -0.5rem; border-left: 0.4rem solid ${rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax)}; padding: 0.2rem;"><span>${round(chart_data['rcp85_decadal_min'][proj_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp85_decadal_max'][proj_year_idx], precision)}</span></div></div>
+          <span>Higher Emissions</span>
+          </div>
+          <div style="display: flex; background-color: ${rgba(colors.rcp45.outerBand, 0.1)} ">
+          <div style="min-width: 3rem; ">
+          <div style="font-size: 1.3rem; margin-left: -0.45rem; border-left: 0.25rem solid ${rgba(colors.rcp45.line, colors.opacity.proj_line)}; padding: 0.35rem;">${round(chart_data['rcp45_decadal_mean'][proj_year_idx], precision)}</div>
+          <div style="font-size: 0.8rem; margin-left: -0.5rem; border-left: 0.4rem solid ${rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax)}; padding: 0.2rem;">${round(chart_data['rcp45_decadal_min'][proj_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp45_decadal_max'][proj_year_idx], precision)}</div></div>
+          <span>Lower Emissions</span>
+          </div>
+        `:`
+        <div style="display: flex;">
+          <div style="min-width: 3rem;">
+          <div style="font-size: 0.8rem;"><span>${round(chart_data['hist_decadal_min'][hist_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['hist_decadal_max'][hist_year_idx], precision)}</span></div></div>
+          <span>Historic range</span>
+          </div>
+        `}
+        </div>
+        ${hist_year_idx < chart_data['hist_obs'].length ? `
+        <div>
+        
+        <div style="display: flex; justify-content: space-between;"><b>${year}</b><span>annual</span></div>
+        <div style="display: flex;">
+        <div style="font-size: 1.3rem;">${round(chart_data['hist_obs'][hist_year_idx], precision)}</div>
+        <span>Observed</span>
+        </div>
+        </div>    
+        `:''}
+                
+        <div style="display: flex;">
+        <div style="font-size: 1.3rem;">${round(hist_obs_bar_base, precision)}</div>
+        <span>1961&mdash;1990 observed average</span>
+        </div>
+        </div>    
+        </div>
+        `]
+      }
+      else if (show_rolling_window_means){
+        return ``
+      }
+      else{
+        return ``
+      }
+    }
+
     this._when_chart = new Promise((resolve) => {
+      this.element.on('plotly_hover', (data) => {
+       this.request_show_popover(data, false);
+
+      });
+      this.element.on('plotly_click', (data) => {
+       this.request_show_popover(data, true);
+      });
+
+
+      //
+      // this.element.on('plotly_unhover', () => {
+      //   this.parent.request_hide_popover()
+      // })
       this.element.once('plotly_afterplot', (gd) => {
         resolve(gd)
       })
@@ -733,6 +774,43 @@ export default class ConusDecadeView extends View {
     this.parent._hide_spinner()
 
 
+  }
+
+  async request_show_popover(data, pinned){
+    try {
+
+      // // Monthly view is shown in terms of months, where the data.points[0].xaxis.tickvals is an array [9, 10, ..., 23]
+      // // and data.points[0].xaxis.ticktext is an array of [Oct, Nov, ..., Dec]
+      //
+      // if (data.points[0].xaxis.ticktext && data.points[0].xaxis.tickvals) {
+      //   let tick_position = data.points[0].xaxis.tickvals.indexOf(data.points[0].x); //position of the x value in the array
+      //   title = data.points[0].xaxis.ticktext[tick_position]; // text representation of position to display
+      // }
+
+      // let content = '';
+      // for (let i = 0; i < data.points.length; i++) {
+      //   let point = data.points[i];
+      //   let color = '';
+      //
+      //   if (point.data.type === 'bar') {
+      //     color = point.data.marker.color;
+      //   } else if (point.data.mode === 'lines') {
+      //     color = point.fullData.line.color;
+      //   }
+      //
+      //   content += `
+      //               <div style="display: flex; flex-direction: row; justify-content: space-between; border: 1px solid ${color}; border-radius: 2px; margin-bottom: 5px;">
+      //                   <span style="padding-left: 3px; padding-right: 3px;">${point.data.name}: </span>
+      //                   <span style="padding-left: 3px; padding-right: 3px; font-weight: bold;">${point.y}</span>
+      //               </div>
+      //           `;
+      // }
+      const [title, content] = this._get_popover_content(data);
+      return this.parent.request_show_popover(data.event.pageX, null, content, pinned, title);
+    } catch (e) {
+      console.error(e)
+      return this.parent.request_hide_popover(pinned);
+    }
   }
 
   sync_y_axis_ranges(offset, y_range_default, eventdata) {

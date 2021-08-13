@@ -1,7 +1,7 @@
 'use strict';
 import '../node_modules/unfetch/polyfill/index.js'
-import {find, get,  merge, } from '../node_modules/lodash-es/lodash.js';
-import { is_monthly, save_file} from './utils.js';
+import {find, get, merge,} from '../node_modules/lodash-es/lodash.js';
+import {is_monthly, save_file} from './utils.js';
 import {areas_json_url, set_areas_json_url, frequencies, variables, bool_options, data_api_url, monthly_variables, island_data_url_template} from "./constants.js";
 
 // a couple module-level variables
@@ -91,8 +91,6 @@ export default class ClimateByLocationWidget {
       rolling_window_mean_years: 10,
       data_api_url: data_api_url,
       island_data_url_template: island_data_url_template,
-      no_custom_tooltip: true
-
     };
     // this.options = merge(this.options, options);
     this.view = null;
@@ -111,23 +109,23 @@ export default class ClimateByLocationWidget {
       this.element.id = 'climatebylocation-' + Math.floor(Math.random() * Math.floor(100));
     }
     this._styles = [
-      '#'+ this.element.id + ' .climate_by_location_view {width: 100%; height: 100%;}'
-
+      `#${this.element.id} {position: relative;}`,
+      `#${this.element.id} .climate_by_location_view {width: 100%; height: 100%;}`,
     ];
-    this.element.innerHTML = `<div class='climate_by_location_view'></div><style></style>`;
-    this._update_styles();
-    this.view_container = this.element.querySelector('div.climate_by_location_view');
+    this.view_container = document.createElement('div');
+    this.view_container.classList.add('climate_by_location_view');
+    this.element.append(this.view_container);
+
+    this._style_el = document.createElement('style');
+    this.element.append(this._style_el);
     /** @type {function} */
     this._update_visibility = null;
     /** @var _when_chart {Promise} - Promise for the most recent plotly graph. */
     this._when_chart = null;
-    if (!this.options.no_custom_tooltip) {
-      this.hover_info = document.createElement("span");
-      this.hover_info.style.display = "none";
-      this.hover_info.id = (this.element.id || "") + "-cbl-hover-info";
-      document.body.append(this.hover_info);
-    }
-    ClimateByLocationWidget.when_areas().then(()=>{
+    this._init_popover();
+
+    this._update_styles();
+    ClimateByLocationWidget.when_areas().then(() => {
       this.update(options);
     });
     if (this.options.responsive) {
@@ -135,19 +133,43 @@ export default class ClimateByLocationWidget {
     }
   }
 
-  _update_styles(){
-    const el = this.element.querySelector('style');
-    if (el){
-      el.innerHTML = this._styles.join('\n');
+  _update_styles() {
+    if (this._style_el) {
+      this._style_el.innerHTML = this._styles.join('\n');
     }
   }
 
+  _init_popover(){
+    this._styles = [ ...this._styles,
+      `#${this.element.id} .hoverlayer .legend {display: none !important;}`,
+      `#${this.element.id} .climate_by_location_popover {
+            display: none;
+            position:absolute;
+            background: rgba(252,253,255,0.75);
+            pointer-events: none;
+            min-height: 6rem;
+            flex-flow: column nowrap;
+            height: fit-content;
+            width: 20rem;
+            box-shadow: 2px 1px 5px rgb(0 0 0 / 50%);
+            border: solid 1.3px rgba(0, 0, 0, 0.3);
+            padding: 0.35rem 0.25rem;
+            font-size: 1rem;
+            font-weight: 500;
+            padding-left: 0.8rem;
+       }`,
+      `#${this.element.id} .climate_by_location_popover .popover-header { display: flex; flex-flow: row nowrap; align-items: center; margin: 0.5rem;  }`,
+      `#${this.element.id}.popover-pinned .climate_by_location_popover { pointer-events: all; background: rgba(252,253,255,0.95); left: 60px !important; top: 15px !important; }`,
+      `#${this.element.id}.popover-open .climate_by_location_popover { display: flex;   }`
+    ];
+    this._popover = document.createElement("span");
+    this._popover.classList.add('climate_by_location_popover');
+    this.element.append(this._popover);
+  }
 
   /*
    * Public instance methods
    */
-
-
 
 
   /**
@@ -172,8 +194,7 @@ export default class ClimateByLocationWidget {
     let old_view_class = null;
     try {
       old_view_class = this.get_view_class();
-    }
-    catch {
+    } catch {
     }
     this.options = merge({}, old_options, options);
     bool_options.forEach((option) => {
@@ -182,7 +203,7 @@ export default class ClimateByLocationWidget {
       }
     });
     // catch cases where user was on monthly and switched to AK
-    if (!find(frequencies, (frequency)=>frequency.id === this.options.frequency && frequency.supports_area(this.options.area_id))) {
+    if (!find(frequencies, (frequency) => frequency.id === this.options.frequency && frequency.supports_area(this.options.area_id))) {
       this.options.frequency = frequencies[0].id
     }
     // catch cases where user was on annual for a non-monthly variable and switched to monthly
@@ -191,7 +212,7 @@ export default class ClimateByLocationWidget {
     }
     // catch cases where the user was on a variable for only certain area and switched to a non-supported areas.
     const variable_config = this.get_variable_config();
-    if (variable_config && variable_config.supports_area && !variable_config.supports_area(this.options.area_id)){
+    if (variable_config && variable_config.supports_area && !variable_config.supports_area(this.options.area_id)) {
       this.options.variable = ClimateByLocationWidget.get_variables({frequency: this.options.frequency, unitsystem: null, area_id: this.options.area_id})[0].id
     }
 
@@ -204,14 +225,14 @@ export default class ClimateByLocationWidget {
       || (!!this.options.show_rolling_window_means && this.options.show_rolling_window_means !== old_options.show_rolling_window_means)
       || (!!this.options.show_rolling_window_means && this.options.rolling_window_mean_years !== old_options.rolling_window_mean_years)
     ) {
-      if (old_view_class !== this.get_view_class() && this.view){
+      if (old_view_class !== this.get_view_class() && this.view) {
         this.view.destroy();
         this.view = null;
       }
 
       this._update();
     } else {
-      if (this.view !== null && this.view.style_option_names.some(k=>this.options[k] !== old_options[k])) {
+      if (this.view !== null && this.view.style_option_names.some(k => this.options[k] !== old_options[k])) {
         this.view.request_style_update();
       }
       if (this.options.x_axis_range !== old_options.x_axis_range) {
@@ -222,8 +243,8 @@ export default class ClimateByLocationWidget {
     return this;
   }
 
-  get_variable_config(){
-    return  find(variables, (c) => c.id === this.options.variable);
+  get_variable_config() {
+    return find(variables, (c) => c.id === this.options.variable);
   }
 
   /**
@@ -231,14 +252,14 @@ export default class ClimateByLocationWidget {
    * @return {string[]}
    * @private
    */
-  get _view_selection_option_names(){
-    return ['frequency','area_id','variable','monthly_timeperiod','show_decadal_means','show_rolling_window_means','rolling_window_mean_years']
+  get _view_selection_option_names() {
+    return ['frequency', 'area_id', 'variable', 'monthly_timeperiod', 'show_decadal_means', 'show_rolling_window_means', 'rolling_window_mean_years']
   }
 
   /**
    * @returns View
    */
-  get_view_class(){
+  get_view_class() {
     throw new Error('Not Implemented!');
   }
 
@@ -284,26 +305,27 @@ export default class ClimateByLocationWidget {
    * Gets the available downloads for the current view.
    * @return {Promise<*[]>}
    */
-  async request_downloads(){
-    if (this.view){
-      return (await this.view.request_downloads()).map((d)=>new Proxy(
+  async request_downloads() {
+    if (this.view) {
+      return (await this.view.request_downloads()).map((d) => new Proxy(
         d,
-        {get:(target, prop)=>{
-          if (prop === 'download'){
-            return async ()=>{
-              try {
-                const url = await target.when_data();
+        {
+          get: (target, prop) => {
+            if (prop === 'download') {
+              return async () => {
+                try {
+                  const url = await target.when_data();
 
-                return await save_file(url, target['filename'])
-              }
-              catch (e){
-                console.log('Failed download with message',e)
-                throw new Error('Failed to download ' +target['label'])
+                  return await save_file(url, target['filename'])
+                } catch (e) {
+                  console.log('Failed download with message', e)
+                  throw new Error('Failed to download ' + target['label'])
+                }
               }
             }
+            return target[prop]
           }
-          return target[prop]
-          }}));
+        }));
     }
     return [];
   }
@@ -324,81 +346,79 @@ export default class ClimateByLocationWidget {
         this.view = new (this.get_view_class())(this, this.view_container);
       }
       await this.view.request_update();
-      if (!this.options.no_custom_tooltip) {
-        this.view_container.on('plotly_hover', (data) => {
-          try {
-            this.view_container.querySelector(".hoverlayer").style.display = "none";
-
-            this.hover_info.style.display = "block";
-            this.hover_info.style.position = "absolute";
-
-            let title = data.points[0].x;
-
-
-            // Monthly view is shown in terms of months, where the data.points[0].xaxis.tickvals is an array [9, 10, ..., 23]
-            // and data.points[0].xaxis.ticktext is an array of [Oct, Nov, ..., Dec]
-
-            if (data.points[0].xaxis.ticktext && data.points[0].xaxis.tickvals) {
-              let tick_position = data.points[0].xaxis.tickvals.indexOf(data.points[0].x); //position of the x value in the array
-              title = data.points[0].xaxis.ticktext[tick_position]; // text representation of position to display
-            }
-
-            let inner_text = `
-                    <div>
-                        <span>${title}</span>                    
-                    </div>`;
-
-
-            console.log(data);
-
-            for (let i = 0; i < data.points.length; i++) {
-              let point = data.points[i];
-              let color = '';
-
-              if (point.data.type === 'bar') {
-                color = point.data.marker.color;
-              } else if (point.data.mode === 'lines') {
-                color = point.fullData.line.color;
-              }
-
-              inner_text += `
-                    <div style="display: flex; flex-direction: row; justify-content: space-between; border: 1px solid ${color}; border-radius: 2px; margin-bottom: 5px;">
-                        <span style="padding-left: 3px; padding-right: 3px;">${point.data.name}: </span>
-                        <span style="padding-left: 3px; padding-right: 3px; font-weight: bold;">${point.y}</span>
-                    </div>
-                `;
-            }
-
-            let outer_text = '<div style="background-color: rgba(255, 255, 255, 0.75); padding: 5px; border: 1px solid black; border-radius: 2px">' + inner_text + '</div>';
-
-            let too_far_right = (this.element.offsetWidth - data.event.pageX - this.hover_info.offsetWidth - 20) < 0;
-
-            let x_position = data.event.pageX + 30;
-
-            if (too_far_right) {
-              x_position = data.event.pageX - this.hover_info.offsetWidth - 60;
-            }
-
-            this.hover_info.innerHTML = outer_text;
-            this.hover_info.style.top = `${this.view_container.offsetHeight / 3.5}px`;
-            this.hover_info.style.left = `${x_position}px`;
-
-          } catch (e) {
-            this.hover_info.style.display = "none";
-            console.log(e);
-          }
-        })
-
-        this.view_container.on('plotly_unhover', () => {
-          this.hover_info.style.display = "none";
-        })
-      }
-    }
-    catch(e) {
+      this.element.addEventListener('mouseleave', ()=>this.request_hide_popover(false));
+    } catch (e) {
       console.error(e);
       this._show_spinner_error();
     }
   }
+
+  async request_show_popover(x, y, content, pinned = false, title='') {
+    if (!pinned && this.element.classList.contains('popover-pinned')) {
+      return Promise.resolve()
+    }
+
+    this.element.classList.add('popover-open');
+    if (pinned) {
+      this.element.classList.add('popover-pinned');
+    }
+    this._popover_hide_pending = false;
+    const bounds = this.element.getBoundingClientRect();
+    let x_position, y_position;
+    if (x != null) {
+      x_position = x - bounds.x + 7;
+      if ((x_position + this._popover.offsetWidth + 25) >= this.element.offsetWidth) {
+        x_position -= this._popover.offsetWidth + 14;
+      }
+    }
+    else{
+     x_position = ((this.element.offsetWidth - 50) / 2 - (this._popover.offsetWidth / 2) + 7);
+    }
+
+    if (y != null){
+      y_position = y - bounds.y - this._popover.offsetHeight;
+      if ((y_position - 20) < 0) {
+        y_position += this._popover.offsetHeight;
+      }
+    }
+    else{
+      y_position = (this.element.offsetHeight - 60) / 2 - (this._popover.offsetHeight / 2);
+    }
+
+    this._popover.style.top = `${y_position}px`;
+    this._popover.style.left = `${x_position}px`;
+    this._popover.innerHTML = `<div class="popover-header"><span
+      class="popover-title">${title}</span>${pinned ? '<button style=" margin-left: auto; margin-right: 0.25rem; height: fit-content; padding: 0.1rem; font-size: 1.25rem; border: none;" data-popover-action="hide" title="Close"><span aria-hidden="true">&#x2715</span></button>' : ''}
+    </div>
+    <div>${content}</div>`;
+    if (pinned) {
+      this._popover.querySelectorAll('[data-popover-action="hide"]').forEach((el) => {
+        el.addEventListener('click', () => {
+          this.request_hide_popover(true)
+        })
+      });
+    }
+    return Promise.resolve();
+  }
+
+  async request_hide_popover(hide_pinned = false) {
+    if (!hide_pinned && this.element.classList.contains('popover-pinned')) {
+      return Promise.resolve()
+    }
+    // requests the popover be hidden, with a 5ms debounce delay during which a request to show can cancel the hiding, thereby reducing flicker.
+    this._popover_hide_pending = true;
+    return new Promise((resolve, reject) => {
+      window.setTimeout(() => {
+        if (this._popover_hide_pending) {
+          this.element.classList.remove('popover-open','popover-pinned');
+          resolve();
+        } else {
+          reject();
+        }
+      }, 10);
+    });
+  }
+
 
   /**
    * Updates this.options.xrange and this.options.yrange (if they are not null) based on new ranges computed from data and emits range events.
@@ -429,7 +449,7 @@ export default class ClimateByLocationWidget {
 
     return {
       type: 'linear',
-      range: y_range_min === 0 && y_range_max === 0 ? [0,20] : [y_range_min, y_range_max],
+      range: y_range_min === 0 && y_range_max === 0 ? [0, 20] : [y_range_min, y_range_max],
       showline: true,
       showgrid: true,
       linecolor: 'rgb(0,0,0)',
@@ -482,13 +502,17 @@ export default class ClimateByLocationWidget {
 
 
   _get_plotly_options() {
-    return {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d','resetScale2d']};
+    return {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']};
   }
 
 
   _show_spinner() {
     this._hide_spinner();
-    let style = "<style>.climatebylocation-spinner { margin-top: -2.5rem; border-radius: 100%;border-style: solid;border-width: 0.25rem;height: 5rem;width: 5rem;animation: basic 1s infinite linear; border-color: rgba(0, 0, 0, 0.2);border-top-color: rgba(0, 0, 0, 1); }@keyframes basic {0%   { transform: rotate(0); }100% { transform: rotate(359.9deg); }} .climatebylocation-spinner-container {display:flex; flex-flow: column; align-items: center; justify-content: center; background-color: rgba(255,255,255, 0.4); } .climatebylocation-spinner-error span { opacity: 1 !important;} .climatebylocation-spinner-error .climatebylocation-spinner {border-color: red !important; animation: none;} </style>";
+    const styles = [
+      '.climatebylocation-spinner { margin-top: -2.5rem; border-radius: 100%;border-style: solid;border-width: 0.25rem;height: 5rem;width: 5rem;animation: basic 1s infinite linear; border-color: rgba(0, 0, 0, 0.2);border-top-color: rgba(0, 0, 0, 1); }', '@keyframes basic {0%   { transform: rotate(0); }100% { transform: rotate(359.9deg); }}',
+      '.climatebylocation-spinner-container {display:flex; flex-flow: column; align-items: center; justify-content: center; background-color: rgba(255,255,255, 0.4); }',
+      'climatebylocation-spinner-error span { opacity: 1 !important;} .climatebylocation-spinner-error .climatebylocation-spinner {border-color: red !important; animation: none;}'
+    ];
     this.element.style.position = 'relative';
     const spinner_el = document.createElement('div');
     spinner_el.classList.add('climatebylocation-spinner-container');
@@ -498,24 +522,24 @@ export default class ClimateByLocationWidget {
     spinner_el.style.left = '0px';
     spinner_el.style.top = '0px';
     spinner_el.style.zIndex = '1000000';
-    spinner_el.innerHTML = style + `<div class='climatebylocation-spinner'></div><span style="opacity: 0; color: red; margin: 1rem;">Failed to retrieve data. Please try again.</span>`;
+    spinner_el.innerHTML = `<div class='climatebylocation-spinner'></div><span style="opacity: 0; color: red; margin: 1rem;">Failed to retrieve data. Please try again.</span><style>${styles.join('')}</style>`;
     this.element.appendChild(spinner_el)
   }
 
   _hide_spinner() {
     if (this.element) {
       const spinner_el = this.element.querySelector('.climatebylocation-spinner-container')
-      if(spinner_el) {
+      if (spinner_el) {
         this.element.removeChild(spinner_el);
       }
     }
   }
 
   _show_spinner_error() {
-    if (this.element ) {
+    if (this.element) {
       const spinner_el = this.element.querySelector('.climatebylocation-spinner-container');
-      if (spinner_el){
-      spinner_el.classList.add('climatebylocation-spinner-error');
+      if (spinner_el) {
+        spinner_el.classList.add('climatebylocation-spinner-error');
       }
     }
   }
@@ -532,7 +556,7 @@ export default class ClimateByLocationWidget {
    * @param area_id
    * @returns {promise<{id: *, title: *}[]>}
    */
-  static when_variables({frequency, unitsystem, area_id}={}) {
+  static when_variables({frequency, unitsystem, area_id} = {}) {
     return ClimateByLocationWidget.when_areas({}).then(ClimateByLocationWidget.get_variables.bind(this, {frequency, unitsystem, area_id}))
   }
 
@@ -544,11 +568,11 @@ export default class ClimateByLocationWidget {
    * @param area_id
    * @returns {{id: *, title: *}[]}
    */
-  static get_variables({frequency, unitsystem, area_id}={}) {
+  static get_variables({frequency, unitsystem, area_id} = {}) {
     unitsystem = unitsystem || 'english';
     let _variables = variables;
-    if (frequency && is_monthly(frequency)){
-      _variables = _variables.filter((v)=>monthly_variables.includes(v.id))
+    if (frequency && is_monthly(frequency)) {
+      _variables = _variables.filter((v) => monthly_variables.includes(v.id))
     }
 
     return _variables.filter((v) => frequency in v.ytitles && ((typeof v.supports_area === "function" ? v.supports_area(area_id) : true))).map((v) => {
@@ -561,13 +585,15 @@ export default class ClimateByLocationWidget {
    * @returns {Promise}
    */
   download_image() {
-    return new Promise((resolve, reject)=>{ this.request_downloads().then((downloads)=>{
-      const download = downloads.find((d)=>d['filename'].slice(-3) === 'png')
-      if (!download){
-        return reject( new Error('Chart image is not available for download'));
-      }
-      download.download().then(()=>resolve())
-    })});
+    return new Promise((resolve, reject) => {
+      this.request_downloads().then((downloads) => {
+        const download = downloads.find((d) => d['filename'].slice(-3) === 'png')
+        if (!download) {
+          return reject(new Error('Chart image is not available for download'));
+        }
+        download.download().then(() => resolve())
+      })
+    });
   }
 
   /**
@@ -575,13 +601,15 @@ export default class ClimateByLocationWidget {
    * @returns {Promise<void>}
    */
   download_hist_obs_data() {
-    return new Promise((resolve, reject)=>{ this.request_downloads().then((downloads)=>{
-      const download = downloads.find((d)=>d['label'] === 'Observed Data')
-      if (!download){
-        return reject( new Error('Observed Data is not available for download'));
-      }
-      download.download().then(()=>resolve())
-    })});
+    return new Promise((resolve, reject) => {
+      this.request_downloads().then((downloads) => {
+        const download = downloads.find((d) => d['label'] === 'Observed Data')
+        if (!download) {
+          return reject(new Error('Observed Data is not available for download'));
+        }
+        download.download().then(() => resolve())
+      })
+    });
   }
 
   /**
@@ -589,13 +617,15 @@ export default class ClimateByLocationWidget {
    * @returns {Promise<void>}
    */
   download_hist_mod_data() {
-    return new Promise((resolve, reject)=>{ this.request_downloads().then((downloads)=>{
-      const download = downloads.find((d)=>d['label'] === 'Historical Modeled Data')
-      if (!download){
-        return reject( new Error('Historical Modeled Data is not available for download'));
-      }
-      download.download().then(()=>resolve())
-    })});
+    return new Promise((resolve, reject) => {
+      this.request_downloads().then((downloads) => {
+        const download = downloads.find((d) => d['label'] === 'Historical Modeled Data')
+        if (!download) {
+          return reject(new Error('Historical Modeled Data is not available for download'));
+        }
+        download.download().then(() => resolve())
+      })
+    });
   }
 
   /**
@@ -603,13 +633,15 @@ export default class ClimateByLocationWidget {
    * @returns {Promise<void>}
    */
   download_proj_mod_data() {
-    return new Promise((resolve, reject)=>{ this.request_downloads().then((downloads)=>{
-      const download = downloads.find((d)=>d['label'] === 'Projected Modeled Data')
-      if (!download){
-        return reject( new Error('Projected Modeled Data is not available for download'));
-      }
-      download.download().then(()=>resolve())
-    })});
+    return new Promise((resolve, reject) => {
+      this.request_downloads().then((downloads) => {
+        const download = downloads.find((d) => d['label'] === 'Projected Modeled Data')
+        if (!download) {
+          return reject(new Error('Projected Modeled Data is not available for download'));
+        }
+        download.download().then(() => resolve())
+      })
+    });
   }
 
 
@@ -642,7 +674,7 @@ export default class ClimateByLocationWidget {
    * @param area_id {string|null} Area id to filter by. Will never return more than 1 result.
    * @returns Promise<array<{area_id, area_label, area_type, state}>>
    */
-  static when_areas({type = null, state = null, area_id = null}={}) {
+  static when_areas({type = null, state = null, area_id = null} = {}) {
     if (ClimateByLocationWidget._all_areas === null && ClimateByLocationWidget._when_areas === null) {
       ClimateByLocationWidget._when_areas = fetch(ClimateByLocationWidget.areas_json_url).then((response) => response.json()).then(data => {
         if (!data) {
@@ -651,7 +683,7 @@ export default class ClimateByLocationWidget {
         ClimateByLocationWidget._all_areas = data;
       });
     }
-    return ClimateByLocationWidget._when_areas.then(ClimateByLocationWidget.get_areas.bind(this,{ type, state, area_id}))
+    return ClimateByLocationWidget._when_areas.then(ClimateByLocationWidget.get_areas.bind(this, {type, state, area_id}))
   }
 
   /**
@@ -661,7 +693,7 @@ export default class ClimateByLocationWidget {
    * @param area_id {string|null} Area id to filter by. Will never return more than 1 result.
    * @returns array<{area_id, area_label, area_type, state}>
    */
-  static get_areas({type = null, state = null, area_id = null}={}) {
+  static get_areas({type = null, state = null, area_id = null} = {}) {
     if (!ClimateByLocationWidget._all_areas) {
       console.error('Areas not yet loaded! Use when_areas() for async access to areas.')
       return [];
@@ -676,7 +708,7 @@ export default class ClimateByLocationWidget {
     }
     if (!!type) {
       type = String(type).toLowerCase();
-      if (!['state', 'county', 'island','forest','ecoregion'].includes(type)) {
+      if (!['state', 'county', 'island', 'forest', 'ecoregion'].includes(type)) {
         throw Error(`Invalid area type "${type}", valid types are 'state','county', 'island', 'forest', and 'ecoregion'`);
       }
       return ClimateByLocationWidget._all_areas.filter((area) => area['area_type'] === type)
@@ -691,7 +723,7 @@ export default class ClimateByLocationWidget {
    * @param area_id {string|null} Area id to filter by. Will never return more than 1 result.
    * @returns {area_id, area_label, area_type, state}
    */
-  static find_area({type = null, state = null, area_id = null}={}) {
+  static find_area({type = null, state = null, area_id = null} = {}) {
     const areas = ClimateByLocationWidget.get_areas({type: type, state: state, area_id: area_id});
     return areas.length > 0 ? areas[0] : null;
   }
@@ -723,8 +755,8 @@ export default class ClimateByLocationWidget {
     _all_areas = value
   }
 
-  destroy(){
-    if(this.view){
+  destroy() {
+    if (this.view) {
       this.view.destroy();
     }
   }
