@@ -1,5 +1,5 @@
 import View from "./view_base.js";
-import {max, mean, min, round} from "../../node_modules/lodash-es/lodash.js";
+import {max, mean, min, round, partial} from "../../node_modules/lodash-es/lodash.js";
 import {format_export_data, rgba} from "../utils.js";
 import {monthly_timeperiods, months, months_labels} from "../constants.js";
 import {fetch_island_data} from "../io.js";
@@ -14,10 +14,11 @@ export default class IslandMonthView extends View {
       monthly_timeperiod,
       plotly_layout_defaults,
       show_historical_modeled,
-      show_legend, variable,
+      show_legend,
+      variable,
       show_projected_rcp45,
       show_projected_rcp85,
-      unitsystem,
+      unitsystem
     } = this.parent.options;
     const area = this.parent.get_area();
     const variable_config = this.parent.get_variable_config();
@@ -257,9 +258,53 @@ export default class IslandMonthView extends View {
       this.element.once('plotly_afterplot', (gd) => {
         resolve(gd)
       })
+      this._hover_handler = partial(this._request_show_popover.bind(this), false, chart_data, colors, precision, variable_config, unitsystem);
+      this.element.on('plotly_hover', this._hover_handler);
+      this._click_handler = partial(this._request_show_popover.bind(this), true, chart_data, colors, precision, variable_config, unitsystem);
+      this.element.on('plotly_click', this._click_handler);
     });
     await this._when_chart
     this.parent._hide_spinner()
+  }
+
+
+
+  async _request_show_popover(pinned, chart_data, colors, precision, variable_config, unitsystem, event_data) {
+    try {
+      const month_idx = chart_data['month'].indexOf(parseInt(event_data.points[0].x));
+      let month = chart_data['month_label'][month_idx];
+      const monthly_content = `
+        <div class="label1">${month} projection</div>
+           <div class="bg-rcp85 label2">Higher Emissions</div>
+          <div  class="bg-rcp85" style=" grid-column: 1; padding-bottom: 0.25rem;">
+            <div title="${month} higher emissions mean" class="legend-line" style="font-size: 1.1rem; border-left: 0.15rem solid ${rgba(colors.rcp85.line, colors.opacity.proj_line)};">${round(chart_data['rcp85_mean'][month_idx], precision)}</div>
+          </div>
+          <div class="bg-rcp85" style="grid-column: 2; padding-bottom: 0.25rem;">
+            <div title="${month} higher emissions range" class="legend-area"  style=" font-size: 0.8rem; border-left-color: ${rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax)};"><span>${round(chart_data['rcp85_min'][month_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp85_max'][month_idx], precision)}</span></div>
+          </div>
+         
+          <div class="bg-rcp45 label2">Lower Emissions</div>
+          <div class="bg-rcp45" style="grid-column: 1; padding-bottom: 0.25rem;">
+            <div title="${month} lower emissions mean" class="legend-line" style="font-size: 1.1rem; border-left: 0.15rem solid ${rgba(colors.rcp45.line, colors.opacity.proj_line)};">${round(chart_data['rcp45_mean'][month_idx], precision)}</div>
+          </div>
+          <div class="bg-rcp45" style="grid-column: 2; padding-bottom: 0.25rem;">
+            <div title="${month} lower emissions range" class="legend-area"  style=" font-size: 0.8rem; border-left-color: ${rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax)};">${round(chart_data['rcp45_min'][month_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp45_max'][month_idx], precision)}</div>
+          </div>
+          <div class="label1 bg-hist" style="font-size: 0.8rem;">1961&mdash;1990 historical range</div>
+          <div class="bg-hist" style="grid-column: 1 / span 2; padding-bottom: 0.25rem;">
+            <div title="${month} historical range" class="legend-area"  style="font-size: 0.8rem; border-left-color: ${rgba(colors.hist.outerBand, colors.opacity.ann_proj_minmax)};">${round(chart_data['hist_min'][month_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['hist_max'][month_idx], precision)}</div>
+          </div>
+        `;
+
+      return this.parent._request_show_popover(event_data.points[0].xaxis.l2p(event_data.points[0].x), null, `
+        <div style="display: grid; grid-template-columns: auto auto;">
+        ${monthly_content}
+        </div>
+        `, pinned, variable_config.ytitles['annual'][unitsystem]);
+    } catch (e) {
+      console.error(e)
+      return this.parent.request_hide_popover(pinned);
+    }
   }
 
   async request_style_update() {
@@ -326,4 +371,19 @@ export default class IslandMonthView extends View {
       },
     ]
   }
+
+
+  destroy() {
+    super.destroy();
+    try {
+      // remove event handlers
+      if (this.element && this.element.removeListener) {
+        this.element.removeListener('plotly_hover', this._hover_handler);
+        this.element.removeListener('plotly_click', this._click_handler);
+      }
+    } catch {
+      // do nothing
+    }
+  }
+
 }

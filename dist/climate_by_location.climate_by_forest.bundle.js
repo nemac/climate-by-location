@@ -565,6 +565,22 @@
   /* Built-in method references that are verified to be native. */
   var WeakMap = getNative(root, 'WeakMap');
 
+  /** Used to store function metadata. */
+  var metaMap = WeakMap && new WeakMap;
+
+  /**
+   * The base implementation of `setData` without support for hot loop shorting.
+   *
+   * @private
+   * @param {Function} func The function to associate metadata with.
+   * @param {*} data The metadata.
+   * @returns {Function} Returns `func`.
+   */
+  var baseSetData = !metaMap ? identity : function(func, data) {
+    metaMap.set(func, data);
+    return func;
+  };
+
   /** Built-in value references. */
   var objectCreate = Object.create;
 
@@ -593,6 +609,63 @@
   }());
 
   /**
+   * Creates a function that produces an instance of `Ctor` regardless of
+   * whether it was invoked as part of a `new` expression or by `call` or `apply`.
+   *
+   * @private
+   * @param {Function} Ctor The constructor to wrap.
+   * @returns {Function} Returns the new wrapped function.
+   */
+  function createCtor(Ctor) {
+    return function() {
+      // Use a `switch` statement to work with class constructors. See
+      // http://ecma-international.org/ecma-262/7.0/#sec-ecmascript-function-objects-call-thisargument-argumentslist
+      // for more details.
+      var args = arguments;
+      switch (args.length) {
+        case 0: return new Ctor;
+        case 1: return new Ctor(args[0]);
+        case 2: return new Ctor(args[0], args[1]);
+        case 3: return new Ctor(args[0], args[1], args[2]);
+        case 4: return new Ctor(args[0], args[1], args[2], args[3]);
+        case 5: return new Ctor(args[0], args[1], args[2], args[3], args[4]);
+        case 6: return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5]);
+        case 7: return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+      }
+      var thisBinding = baseCreate(Ctor.prototype),
+          result = Ctor.apply(thisBinding, args);
+
+      // Mimic the constructor's `return` behavior.
+      // See https://es5.github.io/#x13.2.2 for more details.
+      return isObject(result) ? result : thisBinding;
+    };
+  }
+
+  /** Used to compose bitmasks for function metadata. */
+  var WRAP_BIND_FLAG = 1;
+
+  /**
+   * Creates a function that wraps `func` to invoke it with the optional `this`
+   * binding of `thisArg`.
+   *
+   * @private
+   * @param {Function} func The function to wrap.
+   * @param {number} bitmask The bitmask flags. See `createWrap` for more details.
+   * @param {*} [thisArg] The `this` binding of `func`.
+   * @returns {Function} Returns the new wrapped function.
+   */
+  function createBind(func, bitmask, thisArg) {
+    var isBind = bitmask & WRAP_BIND_FLAG,
+        Ctor = createCtor(func);
+
+    function wrapper() {
+      var fn = (this && this !== root && this instanceof wrapper) ? Ctor : func;
+      return fn.apply(isBind ? thisArg : this, arguments);
+    }
+    return wrapper;
+  }
+
+  /**
    * A faster alternative to `Function#apply`, this function invokes `func`
    * with the `this` binding of `thisArg` and the arguments of `args`.
    *
@@ -612,6 +685,213 @@
     return func.apply(thisArg, args);
   }
 
+  /* Built-in method references for those with the same name as other `lodash` methods. */
+  var nativeMax = Math.max;
+
+  /**
+   * Creates an array that is the composition of partially applied arguments,
+   * placeholders, and provided arguments into a single array of arguments.
+   *
+   * @private
+   * @param {Array} args The provided arguments.
+   * @param {Array} partials The arguments to prepend to those provided.
+   * @param {Array} holders The `partials` placeholder indexes.
+   * @params {boolean} [isCurried] Specify composing for a curried function.
+   * @returns {Array} Returns the new array of composed arguments.
+   */
+  function composeArgs(args, partials, holders, isCurried) {
+    var argsIndex = -1,
+        argsLength = args.length,
+        holdersLength = holders.length,
+        leftIndex = -1,
+        leftLength = partials.length,
+        rangeLength = nativeMax(argsLength - holdersLength, 0),
+        result = Array(leftLength + rangeLength),
+        isUncurried = !isCurried;
+
+    while (++leftIndex < leftLength) {
+      result[leftIndex] = partials[leftIndex];
+    }
+    while (++argsIndex < holdersLength) {
+      if (isUncurried || argsIndex < argsLength) {
+        result[holders[argsIndex]] = args[argsIndex];
+      }
+    }
+    while (rangeLength--) {
+      result[leftIndex++] = args[argsIndex++];
+    }
+    return result;
+  }
+
+  /* Built-in method references for those with the same name as other `lodash` methods. */
+  var nativeMax$1 = Math.max;
+
+  /**
+   * This function is like `composeArgs` except that the arguments composition
+   * is tailored for `_.partialRight`.
+   *
+   * @private
+   * @param {Array} args The provided arguments.
+   * @param {Array} partials The arguments to append to those provided.
+   * @param {Array} holders The `partials` placeholder indexes.
+   * @params {boolean} [isCurried] Specify composing for a curried function.
+   * @returns {Array} Returns the new array of composed arguments.
+   */
+  function composeArgsRight(args, partials, holders, isCurried) {
+    var argsIndex = -1,
+        argsLength = args.length,
+        holdersIndex = -1,
+        holdersLength = holders.length,
+        rightIndex = -1,
+        rightLength = partials.length,
+        rangeLength = nativeMax$1(argsLength - holdersLength, 0),
+        result = Array(rangeLength + rightLength),
+        isUncurried = !isCurried;
+
+    while (++argsIndex < rangeLength) {
+      result[argsIndex] = args[argsIndex];
+    }
+    var offset = argsIndex;
+    while (++rightIndex < rightLength) {
+      result[offset + rightIndex] = partials[rightIndex];
+    }
+    while (++holdersIndex < holdersLength) {
+      if (isUncurried || argsIndex < argsLength) {
+        result[offset + holders[holdersIndex]] = args[argsIndex++];
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Gets the number of `placeholder` occurrences in `array`.
+   *
+   * @private
+   * @param {Array} array The array to inspect.
+   * @param {*} placeholder The placeholder to search for.
+   * @returns {number} Returns the placeholder count.
+   */
+  function countHolders(array, placeholder) {
+    var length = array.length,
+        result = 0;
+
+    while (length--) {
+      if (array[length] === placeholder) {
+        ++result;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * The function whose prototype chain sequence wrappers inherit from.
+   *
+   * @private
+   */
+  function baseLodash() {
+    // No operation performed.
+  }
+
+  /** Used as references for the maximum length and index of an array. */
+  var MAX_ARRAY_LENGTH = 4294967295;
+
+  /**
+   * Creates a lazy wrapper object which wraps `value` to enable lazy evaluation.
+   *
+   * @private
+   * @constructor
+   * @param {*} value The value to wrap.
+   */
+  function LazyWrapper(value) {
+    this.__wrapped__ = value;
+    this.__actions__ = [];
+    this.__dir__ = 1;
+    this.__filtered__ = false;
+    this.__iteratees__ = [];
+    this.__takeCount__ = MAX_ARRAY_LENGTH;
+    this.__views__ = [];
+  }
+
+  // Ensure `LazyWrapper` is an instance of `baseLodash`.
+  LazyWrapper.prototype = baseCreate(baseLodash.prototype);
+  LazyWrapper.prototype.constructor = LazyWrapper;
+
+  /**
+   * This method returns `undefined`.
+   *
+   * @static
+   * @memberOf _
+   * @since 2.3.0
+   * @category Util
+   * @example
+   *
+   * _.times(2, _.noop);
+   * // => [undefined, undefined]
+   */
+  function noop() {
+    // No operation performed.
+  }
+
+  /**
+   * Gets metadata for `func`.
+   *
+   * @private
+   * @param {Function} func The function to query.
+   * @returns {*} Returns the metadata for `func`.
+   */
+  var getData = !metaMap ? noop : function(func) {
+    return metaMap.get(func);
+  };
+
+  /** Used to lookup unminified function names. */
+  var realNames = {};
+
+  /** Used for built-in method references. */
+  var objectProto$3 = Object.prototype;
+
+  /** Used to check objects for own properties. */
+  var hasOwnProperty$2 = objectProto$3.hasOwnProperty;
+
+  /**
+   * Gets the name of `func`.
+   *
+   * @private
+   * @param {Function} func The function to query.
+   * @returns {string} Returns the function name.
+   */
+  function getFuncName(func) {
+    var result = (func.name + ''),
+        array = realNames[result],
+        length = hasOwnProperty$2.call(realNames, result) ? array.length : 0;
+
+    while (length--) {
+      var data = array[length],
+          otherFunc = data.func;
+      if (otherFunc == null || otherFunc == func) {
+        return data.name;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * The base constructor for creating `lodash` wrapper objects.
+   *
+   * @private
+   * @param {*} value The value to wrap.
+   * @param {boolean} [chainAll] Enable explicit method chain sequences.
+   */
+  function LodashWrapper(value, chainAll) {
+    this.__wrapped__ = value;
+    this.__actions__ = [];
+    this.__chain__ = !!chainAll;
+    this.__index__ = 0;
+    this.__values__ = undefined;
+  }
+
+  LodashWrapper.prototype = baseCreate(baseLodash.prototype);
+  LodashWrapper.prototype.constructor = LodashWrapper;
+
   /**
    * Copies the values of `source` to `array`.
    *
@@ -629,6 +909,185 @@
       array[index] = source[index];
     }
     return array;
+  }
+
+  /**
+   * Creates a clone of `wrapper`.
+   *
+   * @private
+   * @param {Object} wrapper The wrapper to clone.
+   * @returns {Object} Returns the cloned wrapper.
+   */
+  function wrapperClone(wrapper) {
+    if (wrapper instanceof LazyWrapper) {
+      return wrapper.clone();
+    }
+    var result = new LodashWrapper(wrapper.__wrapped__, wrapper.__chain__);
+    result.__actions__ = copyArray(wrapper.__actions__);
+    result.__index__  = wrapper.__index__;
+    result.__values__ = wrapper.__values__;
+    return result;
+  }
+
+  /** Used for built-in method references. */
+  var objectProto$4 = Object.prototype;
+
+  /** Used to check objects for own properties. */
+  var hasOwnProperty$3 = objectProto$4.hasOwnProperty;
+
+  /**
+   * Creates a `lodash` object which wraps `value` to enable implicit method
+   * chain sequences. Methods that operate on and return arrays, collections,
+   * and functions can be chained together. Methods that retrieve a single value
+   * or may return a primitive value will automatically end the chain sequence
+   * and return the unwrapped value. Otherwise, the value must be unwrapped
+   * with `_#value`.
+   *
+   * Explicit chain sequences, which must be unwrapped with `_#value`, may be
+   * enabled using `_.chain`.
+   *
+   * The execution of chained methods is lazy, that is, it's deferred until
+   * `_#value` is implicitly or explicitly called.
+   *
+   * Lazy evaluation allows several methods to support shortcut fusion.
+   * Shortcut fusion is an optimization to merge iteratee calls; this avoids
+   * the creation of intermediate arrays and can greatly reduce the number of
+   * iteratee executions. Sections of a chain sequence qualify for shortcut
+   * fusion if the section is applied to an array and iteratees accept only
+   * one argument. The heuristic for whether a section qualifies for shortcut
+   * fusion is subject to change.
+   *
+   * Chaining is supported in custom builds as long as the `_#value` method is
+   * directly or indirectly included in the build.
+   *
+   * In addition to lodash methods, wrappers have `Array` and `String` methods.
+   *
+   * The wrapper `Array` methods are:
+   * `concat`, `join`, `pop`, `push`, `shift`, `sort`, `splice`, and `unshift`
+   *
+   * The wrapper `String` methods are:
+   * `replace` and `split`
+   *
+   * The wrapper methods that support shortcut fusion are:
+   * `at`, `compact`, `drop`, `dropRight`, `dropWhile`, `filter`, `find`,
+   * `findLast`, `head`, `initial`, `last`, `map`, `reject`, `reverse`, `slice`,
+   * `tail`, `take`, `takeRight`, `takeRightWhile`, `takeWhile`, and `toArray`
+   *
+   * The chainable wrapper methods are:
+   * `after`, `ary`, `assign`, `assignIn`, `assignInWith`, `assignWith`, `at`,
+   * `before`, `bind`, `bindAll`, `bindKey`, `castArray`, `chain`, `chunk`,
+   * `commit`, `compact`, `concat`, `conforms`, `constant`, `countBy`, `create`,
+   * `curry`, `debounce`, `defaults`, `defaultsDeep`, `defer`, `delay`,
+   * `difference`, `differenceBy`, `differenceWith`, `drop`, `dropRight`,
+   * `dropRightWhile`, `dropWhile`, `extend`, `extendWith`, `fill`, `filter`,
+   * `flatMap`, `flatMapDeep`, `flatMapDepth`, `flatten`, `flattenDeep`,
+   * `flattenDepth`, `flip`, `flow`, `flowRight`, `fromPairs`, `functions`,
+   * `functionsIn`, `groupBy`, `initial`, `intersection`, `intersectionBy`,
+   * `intersectionWith`, `invert`, `invertBy`, `invokeMap`, `iteratee`, `keyBy`,
+   * `keys`, `keysIn`, `map`, `mapKeys`, `mapValues`, `matches`, `matchesProperty`,
+   * `memoize`, `merge`, `mergeWith`, `method`, `methodOf`, `mixin`, `negate`,
+   * `nthArg`, `omit`, `omitBy`, `once`, `orderBy`, `over`, `overArgs`,
+   * `overEvery`, `overSome`, `partial`, `partialRight`, `partition`, `pick`,
+   * `pickBy`, `plant`, `property`, `propertyOf`, `pull`, `pullAll`, `pullAllBy`,
+   * `pullAllWith`, `pullAt`, `push`, `range`, `rangeRight`, `rearg`, `reject`,
+   * `remove`, `rest`, `reverse`, `sampleSize`, `set`, `setWith`, `shuffle`,
+   * `slice`, `sort`, `sortBy`, `splice`, `spread`, `tail`, `take`, `takeRight`,
+   * `takeRightWhile`, `takeWhile`, `tap`, `throttle`, `thru`, `toArray`,
+   * `toPairs`, `toPairsIn`, `toPath`, `toPlainObject`, `transform`, `unary`,
+   * `union`, `unionBy`, `unionWith`, `uniq`, `uniqBy`, `uniqWith`, `unset`,
+   * `unshift`, `unzip`, `unzipWith`, `update`, `updateWith`, `values`,
+   * `valuesIn`, `without`, `wrap`, `xor`, `xorBy`, `xorWith`, `zip`,
+   * `zipObject`, `zipObjectDeep`, and `zipWith`
+   *
+   * The wrapper methods that are **not** chainable by default are:
+   * `add`, `attempt`, `camelCase`, `capitalize`, `ceil`, `clamp`, `clone`,
+   * `cloneDeep`, `cloneDeepWith`, `cloneWith`, `conformsTo`, `deburr`,
+   * `defaultTo`, `divide`, `each`, `eachRight`, `endsWith`, `eq`, `escape`,
+   * `escapeRegExp`, `every`, `find`, `findIndex`, `findKey`, `findLast`,
+   * `findLastIndex`, `findLastKey`, `first`, `floor`, `forEach`, `forEachRight`,
+   * `forIn`, `forInRight`, `forOwn`, `forOwnRight`, `get`, `gt`, `gte`, `has`,
+   * `hasIn`, `head`, `identity`, `includes`, `indexOf`, `inRange`, `invoke`,
+   * `isArguments`, `isArray`, `isArrayBuffer`, `isArrayLike`, `isArrayLikeObject`,
+   * `isBoolean`, `isBuffer`, `isDate`, `isElement`, `isEmpty`, `isEqual`,
+   * `isEqualWith`, `isError`, `isFinite`, `isFunction`, `isInteger`, `isLength`,
+   * `isMap`, `isMatch`, `isMatchWith`, `isNaN`, `isNative`, `isNil`, `isNull`,
+   * `isNumber`, `isObject`, `isObjectLike`, `isPlainObject`, `isRegExp`,
+   * `isSafeInteger`, `isSet`, `isString`, `isUndefined`, `isTypedArray`,
+   * `isWeakMap`, `isWeakSet`, `join`, `kebabCase`, `last`, `lastIndexOf`,
+   * `lowerCase`, `lowerFirst`, `lt`, `lte`, `max`, `maxBy`, `mean`, `meanBy`,
+   * `min`, `minBy`, `multiply`, `noConflict`, `noop`, `now`, `nth`, `pad`,
+   * `padEnd`, `padStart`, `parseInt`, `pop`, `random`, `reduce`, `reduceRight`,
+   * `repeat`, `result`, `round`, `runInContext`, `sample`, `shift`, `size`,
+   * `snakeCase`, `some`, `sortedIndex`, `sortedIndexBy`, `sortedLastIndex`,
+   * `sortedLastIndexBy`, `startCase`, `startsWith`, `stubArray`, `stubFalse`,
+   * `stubObject`, `stubString`, `stubTrue`, `subtract`, `sum`, `sumBy`,
+   * `template`, `times`, `toFinite`, `toInteger`, `toJSON`, `toLength`,
+   * `toLower`, `toNumber`, `toSafeInteger`, `toString`, `toUpper`, `trim`,
+   * `trimEnd`, `trimStart`, `truncate`, `unescape`, `uniqueId`, `upperCase`,
+   * `upperFirst`, `value`, and `words`
+   *
+   * @name _
+   * @constructor
+   * @category Seq
+   * @param {*} value The value to wrap in a `lodash` instance.
+   * @returns {Object} Returns the new `lodash` wrapper instance.
+   * @example
+   *
+   * function square(n) {
+   *   return n * n;
+   * }
+   *
+   * var wrapped = _([1, 2, 3]);
+   *
+   * // Returns an unwrapped value.
+   * wrapped.reduce(_.add);
+   * // => 6
+   *
+   * // Returns a wrapped value.
+   * var squares = wrapped.map(square);
+   *
+   * _.isArray(squares);
+   * // => false
+   *
+   * _.isArray(squares.value());
+   * // => true
+   */
+  function lodash(value) {
+    if (isObjectLike(value) && !isArray(value) && !(value instanceof LazyWrapper)) {
+      if (value instanceof LodashWrapper) {
+        return value;
+      }
+      if (hasOwnProperty$3.call(value, '__wrapped__')) {
+        return wrapperClone(value);
+      }
+    }
+    return new LodashWrapper(value);
+  }
+
+  // Ensure wrappers are instances of `baseLodash`.
+  lodash.prototype = baseLodash.prototype;
+  lodash.prototype.constructor = lodash;
+
+  /**
+   * Checks if `func` has a lazy counterpart.
+   *
+   * @private
+   * @param {Function} func The function to check.
+   * @returns {boolean} Returns `true` if `func` has a lazy counterpart,
+   *  else `false`.
+   */
+  function isLaziable(func) {
+    var funcName = getFuncName(func),
+        other = lodash[funcName];
+
+    if (typeof other != 'function' || !(funcName in LazyWrapper.prototype)) {
+      return false;
+    }
+    if (func === other) {
+      return true;
+    }
+    var data = getData(other);
+    return !!data && func === data[0];
   }
 
   /** Used to detect hot functions by number of calls within a span of milliseconds. */
@@ -665,6 +1124,60 @@
       }
       return func.apply(undefined, arguments);
     };
+  }
+
+  /**
+   * Sets metadata for `func`.
+   *
+   * **Note:** If this function becomes hot, i.e. is invoked a lot in a short
+   * period of time, it will trip its breaker and transition to an identity
+   * function to avoid garbage collection pauses in V8. See
+   * [V8 issue 2070](https://bugs.chromium.org/p/v8/issues/detail?id=2070)
+   * for more details.
+   *
+   * @private
+   * @param {Function} func The function to associate metadata with.
+   * @param {*} data The metadata.
+   * @returns {Function} Returns `func`.
+   */
+  var setData = shortOut(baseSetData);
+
+  /** Used to match wrap detail comments. */
+  var reWrapDetails = /\{\n\/\* \[wrapped with (.+)\] \*/,
+      reSplitDetails = /,? & /;
+
+  /**
+   * Extracts wrapper details from the `source` body comment.
+   *
+   * @private
+   * @param {string} source The source to inspect.
+   * @returns {Array} Returns the wrapper details.
+   */
+  function getWrapDetails(source) {
+    var match = source.match(reWrapDetails);
+    return match ? match[1].split(reSplitDetails) : [];
+  }
+
+  /** Used to match wrap detail comments. */
+  var reWrapComment = /\{(?:\n\/\* \[wrapped with .+\] \*\/)?\n?/;
+
+  /**
+   * Inserts wrapper `details` in a comment at the top of the `source` body.
+   *
+   * @private
+   * @param {string} source The source to modify.
+   * @returns {Array} details The details to insert.
+   * @returns {string} Returns the modified source.
+   */
+  function insertWrapDetails(source, details) {
+    var length = details.length;
+    if (!length) {
+      return source;
+    }
+    var lastIndex = length - 1;
+    details[lastIndex] = (length > 1 ? '& ' : '') + details[lastIndex];
+    details = details.join(length > 2 ? ', ' : ' ');
+    return source.replace(reWrapComment, '{\n/* [wrapped with ' + details + '] */\n');
   }
 
   /**
@@ -728,6 +1241,27 @@
   var setToString = shortOut(baseSetToString);
 
   /**
+   * A specialized version of `_.forEach` for arrays without support for
+   * iteratee shorthands.
+   *
+   * @private
+   * @param {Array} [array] The array to iterate over.
+   * @param {Function} iteratee The function invoked per iteration.
+   * @returns {Array} Returns `array`.
+   */
+  function arrayEach(array, iteratee) {
+    var index = -1,
+        length = array == null ? 0 : array.length;
+
+    while (++index < length) {
+      if (iteratee(array[index], index, array) === false) {
+        break;
+      }
+    }
+    return array;
+  }
+
+  /**
    * The base implementation of `_.findIndex` and `_.findLastIndex` without
    * support for iteratee shorthands.
    *
@@ -748,6 +1282,188 @@
       }
     }
     return -1;
+  }
+
+  /**
+   * The base implementation of `_.isNaN` without support for number objects.
+   *
+   * @private
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is `NaN`, else `false`.
+   */
+  function baseIsNaN(value) {
+    return value !== value;
+  }
+
+  /**
+   * A specialized version of `_.indexOf` which performs strict equality
+   * comparisons of values, i.e. `===`.
+   *
+   * @private
+   * @param {Array} array The array to inspect.
+   * @param {*} value The value to search for.
+   * @param {number} fromIndex The index to search from.
+   * @returns {number} Returns the index of the matched value, else `-1`.
+   */
+  function strictIndexOf(array, value, fromIndex) {
+    var index = fromIndex - 1,
+        length = array.length;
+
+    while (++index < length) {
+      if (array[index] === value) {
+        return index;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * The base implementation of `_.indexOf` without `fromIndex` bounds checks.
+   *
+   * @private
+   * @param {Array} array The array to inspect.
+   * @param {*} value The value to search for.
+   * @param {number} fromIndex The index to search from.
+   * @returns {number} Returns the index of the matched value, else `-1`.
+   */
+  function baseIndexOf(array, value, fromIndex) {
+    return value === value
+      ? strictIndexOf(array, value, fromIndex)
+      : baseFindIndex(array, baseIsNaN, fromIndex);
+  }
+
+  /**
+   * A specialized version of `_.includes` for arrays without support for
+   * specifying an index to search from.
+   *
+   * @private
+   * @param {Array} [array] The array to inspect.
+   * @param {*} target The value to search for.
+   * @returns {boolean} Returns `true` if `target` is found, else `false`.
+   */
+  function arrayIncludes(array, value) {
+    var length = array == null ? 0 : array.length;
+    return !!length && baseIndexOf(array, value, 0) > -1;
+  }
+
+  /** Used to compose bitmasks for function metadata. */
+  var WRAP_BIND_FLAG$1 = 1,
+      WRAP_BIND_KEY_FLAG = 2,
+      WRAP_CURRY_FLAG = 8,
+      WRAP_CURRY_RIGHT_FLAG = 16,
+      WRAP_PARTIAL_FLAG = 32,
+      WRAP_PARTIAL_RIGHT_FLAG = 64,
+      WRAP_ARY_FLAG = 128,
+      WRAP_REARG_FLAG = 256,
+      WRAP_FLIP_FLAG = 512;
+
+  /** Used to associate wrap methods with their bit flags. */
+  var wrapFlags = [
+    ['ary', WRAP_ARY_FLAG],
+    ['bind', WRAP_BIND_FLAG$1],
+    ['bindKey', WRAP_BIND_KEY_FLAG],
+    ['curry', WRAP_CURRY_FLAG],
+    ['curryRight', WRAP_CURRY_RIGHT_FLAG],
+    ['flip', WRAP_FLIP_FLAG],
+    ['partial', WRAP_PARTIAL_FLAG],
+    ['partialRight', WRAP_PARTIAL_RIGHT_FLAG],
+    ['rearg', WRAP_REARG_FLAG]
+  ];
+
+  /**
+   * Updates wrapper `details` based on `bitmask` flags.
+   *
+   * @private
+   * @returns {Array} details The details to modify.
+   * @param {number} bitmask The bitmask flags. See `createWrap` for more details.
+   * @returns {Array} Returns `details`.
+   */
+  function updateWrapDetails(details, bitmask) {
+    arrayEach(wrapFlags, function(pair) {
+      var value = '_.' + pair[0];
+      if ((bitmask & pair[1]) && !arrayIncludes(details, value)) {
+        details.push(value);
+      }
+    });
+    return details.sort();
+  }
+
+  /**
+   * Sets the `toString` method of `wrapper` to mimic the source of `reference`
+   * with wrapper details in a comment at the top of the source body.
+   *
+   * @private
+   * @param {Function} wrapper The function to modify.
+   * @param {Function} reference The reference function.
+   * @param {number} bitmask The bitmask flags. See `createWrap` for more details.
+   * @returns {Function} Returns `wrapper`.
+   */
+  function setWrapToString(wrapper, reference, bitmask) {
+    var source = (reference + '');
+    return setToString(wrapper, insertWrapDetails(source, updateWrapDetails(getWrapDetails(source), bitmask)));
+  }
+
+  /** Used to compose bitmasks for function metadata. */
+  var WRAP_BIND_FLAG$2 = 1,
+      WRAP_BIND_KEY_FLAG$1 = 2,
+      WRAP_CURRY_BOUND_FLAG = 4,
+      WRAP_CURRY_FLAG$1 = 8,
+      WRAP_PARTIAL_FLAG$1 = 32,
+      WRAP_PARTIAL_RIGHT_FLAG$1 = 64;
+
+  /**
+   * Creates a function that wraps `func` to continue currying.
+   *
+   * @private
+   * @param {Function} func The function to wrap.
+   * @param {number} bitmask The bitmask flags. See `createWrap` for more details.
+   * @param {Function} wrapFunc The function to create the `func` wrapper.
+   * @param {*} placeholder The placeholder value.
+   * @param {*} [thisArg] The `this` binding of `func`.
+   * @param {Array} [partials] The arguments to prepend to those provided to
+   *  the new function.
+   * @param {Array} [holders] The `partials` placeholder indexes.
+   * @param {Array} [argPos] The argument positions of the new function.
+   * @param {number} [ary] The arity cap of `func`.
+   * @param {number} [arity] The arity of `func`.
+   * @returns {Function} Returns the new wrapped function.
+   */
+  function createRecurry(func, bitmask, wrapFunc, placeholder, thisArg, partials, holders, argPos, ary, arity) {
+    var isCurry = bitmask & WRAP_CURRY_FLAG$1,
+        newHolders = isCurry ? holders : undefined,
+        newHoldersRight = isCurry ? undefined : holders,
+        newPartials = isCurry ? partials : undefined,
+        newPartialsRight = isCurry ? undefined : partials;
+
+    bitmask |= (isCurry ? WRAP_PARTIAL_FLAG$1 : WRAP_PARTIAL_RIGHT_FLAG$1);
+    bitmask &= ~(isCurry ? WRAP_PARTIAL_RIGHT_FLAG$1 : WRAP_PARTIAL_FLAG$1);
+
+    if (!(bitmask & WRAP_CURRY_BOUND_FLAG)) {
+      bitmask &= ~(WRAP_BIND_FLAG$2 | WRAP_BIND_KEY_FLAG$1);
+    }
+    var newData = [
+      func, bitmask, thisArg, newPartials, newHolders, newPartialsRight,
+      newHoldersRight, argPos, ary, arity
+    ];
+
+    var result = wrapFunc.apply(undefined, newData);
+    if (isLaziable(func)) {
+      setData(result, newData);
+    }
+    result.placeholder = placeholder;
+    return setWrapToString(result, func, bitmask);
+  }
+
+  /**
+   * Gets the argument placeholder value for `func`.
+   *
+   * @private
+   * @param {Function} func The function to inspect.
+   * @returns {*} Returns the placeholder value.
+   */
+  function getHolder(func) {
+    var object = func;
+    return object.placeholder;
   }
 
   /** Used as references for various `Number` constants. */
@@ -772,6 +1488,394 @@
       (type == 'number' ||
         (type != 'symbol' && reIsUint.test(value))) &&
           (value > -1 && value % 1 == 0 && value < length);
+  }
+
+  /* Built-in method references for those with the same name as other `lodash` methods. */
+  var nativeMin = Math.min;
+
+  /**
+   * Reorder `array` according to the specified indexes where the element at
+   * the first index is assigned as the first element, the element at
+   * the second index is assigned as the second element, and so on.
+   *
+   * @private
+   * @param {Array} array The array to reorder.
+   * @param {Array} indexes The arranged array indexes.
+   * @returns {Array} Returns `array`.
+   */
+  function reorder(array, indexes) {
+    var arrLength = array.length,
+        length = nativeMin(indexes.length, arrLength),
+        oldArray = copyArray(array);
+
+    while (length--) {
+      var index = indexes[length];
+      array[length] = isIndex(index, arrLength) ? oldArray[index] : undefined;
+    }
+    return array;
+  }
+
+  /** Used as the internal argument placeholder. */
+  var PLACEHOLDER = '__lodash_placeholder__';
+
+  /**
+   * Replaces all `placeholder` elements in `array` with an internal placeholder
+   * and returns an array of their indexes.
+   *
+   * @private
+   * @param {Array} array The array to modify.
+   * @param {*} placeholder The placeholder to replace.
+   * @returns {Array} Returns the new array of placeholder indexes.
+   */
+  function replaceHolders(array, placeholder) {
+    var index = -1,
+        length = array.length,
+        resIndex = 0,
+        result = [];
+
+    while (++index < length) {
+      var value = array[index];
+      if (value === placeholder || value === PLACEHOLDER) {
+        array[index] = PLACEHOLDER;
+        result[resIndex++] = index;
+      }
+    }
+    return result;
+  }
+
+  /** Used to compose bitmasks for function metadata. */
+  var WRAP_BIND_FLAG$3 = 1,
+      WRAP_BIND_KEY_FLAG$2 = 2,
+      WRAP_CURRY_FLAG$2 = 8,
+      WRAP_CURRY_RIGHT_FLAG$1 = 16,
+      WRAP_ARY_FLAG$1 = 128,
+      WRAP_FLIP_FLAG$1 = 512;
+
+  /**
+   * Creates a function that wraps `func` to invoke it with optional `this`
+   * binding of `thisArg`, partial application, and currying.
+   *
+   * @private
+   * @param {Function|string} func The function or method name to wrap.
+   * @param {number} bitmask The bitmask flags. See `createWrap` for more details.
+   * @param {*} [thisArg] The `this` binding of `func`.
+   * @param {Array} [partials] The arguments to prepend to those provided to
+   *  the new function.
+   * @param {Array} [holders] The `partials` placeholder indexes.
+   * @param {Array} [partialsRight] The arguments to append to those provided
+   *  to the new function.
+   * @param {Array} [holdersRight] The `partialsRight` placeholder indexes.
+   * @param {Array} [argPos] The argument positions of the new function.
+   * @param {number} [ary] The arity cap of `func`.
+   * @param {number} [arity] The arity of `func`.
+   * @returns {Function} Returns the new wrapped function.
+   */
+  function createHybrid(func, bitmask, thisArg, partials, holders, partialsRight, holdersRight, argPos, ary, arity) {
+    var isAry = bitmask & WRAP_ARY_FLAG$1,
+        isBind = bitmask & WRAP_BIND_FLAG$3,
+        isBindKey = bitmask & WRAP_BIND_KEY_FLAG$2,
+        isCurried = bitmask & (WRAP_CURRY_FLAG$2 | WRAP_CURRY_RIGHT_FLAG$1),
+        isFlip = bitmask & WRAP_FLIP_FLAG$1,
+        Ctor = isBindKey ? undefined : createCtor(func);
+
+    function wrapper() {
+      var length = arguments.length,
+          args = Array(length),
+          index = length;
+
+      while (index--) {
+        args[index] = arguments[index];
+      }
+      if (isCurried) {
+        var placeholder = getHolder(wrapper),
+            holdersCount = countHolders(args, placeholder);
+      }
+      if (partials) {
+        args = composeArgs(args, partials, holders, isCurried);
+      }
+      if (partialsRight) {
+        args = composeArgsRight(args, partialsRight, holdersRight, isCurried);
+      }
+      length -= holdersCount;
+      if (isCurried && length < arity) {
+        var newHolders = replaceHolders(args, placeholder);
+        return createRecurry(
+          func, bitmask, createHybrid, wrapper.placeholder, thisArg,
+          args, newHolders, argPos, ary, arity - length
+        );
+      }
+      var thisBinding = isBind ? thisArg : this,
+          fn = isBindKey ? thisBinding[func] : func;
+
+      length = args.length;
+      if (argPos) {
+        args = reorder(args, argPos);
+      } else if (isFlip && length > 1) {
+        args.reverse();
+      }
+      if (isAry && ary < length) {
+        args.length = ary;
+      }
+      if (this && this !== root && this instanceof wrapper) {
+        fn = Ctor || createCtor(fn);
+      }
+      return fn.apply(thisBinding, args);
+    }
+    return wrapper;
+  }
+
+  /**
+   * Creates a function that wraps `func` to enable currying.
+   *
+   * @private
+   * @param {Function} func The function to wrap.
+   * @param {number} bitmask The bitmask flags. See `createWrap` for more details.
+   * @param {number} arity The arity of `func`.
+   * @returns {Function} Returns the new wrapped function.
+   */
+  function createCurry(func, bitmask, arity) {
+    var Ctor = createCtor(func);
+
+    function wrapper() {
+      var length = arguments.length,
+          args = Array(length),
+          index = length,
+          placeholder = getHolder(wrapper);
+
+      while (index--) {
+        args[index] = arguments[index];
+      }
+      var holders = (length < 3 && args[0] !== placeholder && args[length - 1] !== placeholder)
+        ? []
+        : replaceHolders(args, placeholder);
+
+      length -= holders.length;
+      if (length < arity) {
+        return createRecurry(
+          func, bitmask, createHybrid, wrapper.placeholder, undefined,
+          args, holders, undefined, undefined, arity - length);
+      }
+      var fn = (this && this !== root && this instanceof wrapper) ? Ctor : func;
+      return apply(fn, this, args);
+    }
+    return wrapper;
+  }
+
+  /** Used to compose bitmasks for function metadata. */
+  var WRAP_BIND_FLAG$4 = 1;
+
+  /**
+   * Creates a function that wraps `func` to invoke it with the `this` binding
+   * of `thisArg` and `partials` prepended to the arguments it receives.
+   *
+   * @private
+   * @param {Function} func The function to wrap.
+   * @param {number} bitmask The bitmask flags. See `createWrap` for more details.
+   * @param {*} thisArg The `this` binding of `func`.
+   * @param {Array} partials The arguments to prepend to those provided to
+   *  the new function.
+   * @returns {Function} Returns the new wrapped function.
+   */
+  function createPartial(func, bitmask, thisArg, partials) {
+    var isBind = bitmask & WRAP_BIND_FLAG$4,
+        Ctor = createCtor(func);
+
+    function wrapper() {
+      var argsIndex = -1,
+          argsLength = arguments.length,
+          leftIndex = -1,
+          leftLength = partials.length,
+          args = Array(leftLength + argsLength),
+          fn = (this && this !== root && this instanceof wrapper) ? Ctor : func;
+
+      while (++leftIndex < leftLength) {
+        args[leftIndex] = partials[leftIndex];
+      }
+      while (argsLength--) {
+        args[leftIndex++] = arguments[++argsIndex];
+      }
+      return apply(fn, isBind ? thisArg : this, args);
+    }
+    return wrapper;
+  }
+
+  /** Used as the internal argument placeholder. */
+  var PLACEHOLDER$1 = '__lodash_placeholder__';
+
+  /** Used to compose bitmasks for function metadata. */
+  var WRAP_BIND_FLAG$5 = 1,
+      WRAP_BIND_KEY_FLAG$3 = 2,
+      WRAP_CURRY_BOUND_FLAG$1 = 4,
+      WRAP_CURRY_FLAG$3 = 8,
+      WRAP_ARY_FLAG$2 = 128,
+      WRAP_REARG_FLAG$1 = 256;
+
+  /* Built-in method references for those with the same name as other `lodash` methods. */
+  var nativeMin$1 = Math.min;
+
+  /**
+   * Merges the function metadata of `source` into `data`.
+   *
+   * Merging metadata reduces the number of wrappers used to invoke a function.
+   * This is possible because methods like `_.bind`, `_.curry`, and `_.partial`
+   * may be applied regardless of execution order. Methods like `_.ary` and
+   * `_.rearg` modify function arguments, making the order in which they are
+   * executed important, preventing the merging of metadata. However, we make
+   * an exception for a safe combined case where curried functions have `_.ary`
+   * and or `_.rearg` applied.
+   *
+   * @private
+   * @param {Array} data The destination metadata.
+   * @param {Array} source The source metadata.
+   * @returns {Array} Returns `data`.
+   */
+  function mergeData(data, source) {
+    var bitmask = data[1],
+        srcBitmask = source[1],
+        newBitmask = bitmask | srcBitmask,
+        isCommon = newBitmask < (WRAP_BIND_FLAG$5 | WRAP_BIND_KEY_FLAG$3 | WRAP_ARY_FLAG$2);
+
+    var isCombo =
+      ((srcBitmask == WRAP_ARY_FLAG$2) && (bitmask == WRAP_CURRY_FLAG$3)) ||
+      ((srcBitmask == WRAP_ARY_FLAG$2) && (bitmask == WRAP_REARG_FLAG$1) && (data[7].length <= source[8])) ||
+      ((srcBitmask == (WRAP_ARY_FLAG$2 | WRAP_REARG_FLAG$1)) && (source[7].length <= source[8]) && (bitmask == WRAP_CURRY_FLAG$3));
+
+    // Exit early if metadata can't be merged.
+    if (!(isCommon || isCombo)) {
+      return data;
+    }
+    // Use source `thisArg` if available.
+    if (srcBitmask & WRAP_BIND_FLAG$5) {
+      data[2] = source[2];
+      // Set when currying a bound function.
+      newBitmask |= bitmask & WRAP_BIND_FLAG$5 ? 0 : WRAP_CURRY_BOUND_FLAG$1;
+    }
+    // Compose partial arguments.
+    var value = source[3];
+    if (value) {
+      var partials = data[3];
+      data[3] = partials ? composeArgs(partials, value, source[4]) : value;
+      data[4] = partials ? replaceHolders(data[3], PLACEHOLDER$1) : source[4];
+    }
+    // Compose partial right arguments.
+    value = source[5];
+    if (value) {
+      partials = data[5];
+      data[5] = partials ? composeArgsRight(partials, value, source[6]) : value;
+      data[6] = partials ? replaceHolders(data[5], PLACEHOLDER$1) : source[6];
+    }
+    // Use source `argPos` if available.
+    value = source[7];
+    if (value) {
+      data[7] = value;
+    }
+    // Use source `ary` if it's smaller.
+    if (srcBitmask & WRAP_ARY_FLAG$2) {
+      data[8] = data[8] == null ? source[8] : nativeMin$1(data[8], source[8]);
+    }
+    // Use source `arity` if one is not provided.
+    if (data[9] == null) {
+      data[9] = source[9];
+    }
+    // Use source `func` and merge bitmasks.
+    data[0] = source[0];
+    data[1] = newBitmask;
+
+    return data;
+  }
+
+  /** Error message constants. */
+  var FUNC_ERROR_TEXT = 'Expected a function';
+
+  /** Used to compose bitmasks for function metadata. */
+  var WRAP_BIND_FLAG$6 = 1,
+      WRAP_BIND_KEY_FLAG$4 = 2,
+      WRAP_CURRY_FLAG$4 = 8,
+      WRAP_CURRY_RIGHT_FLAG$2 = 16,
+      WRAP_PARTIAL_FLAG$2 = 32,
+      WRAP_PARTIAL_RIGHT_FLAG$2 = 64;
+
+  /* Built-in method references for those with the same name as other `lodash` methods. */
+  var nativeMax$2 = Math.max;
+
+  /**
+   * Creates a function that either curries or invokes `func` with optional
+   * `this` binding and partially applied arguments.
+   *
+   * @private
+   * @param {Function|string} func The function or method name to wrap.
+   * @param {number} bitmask The bitmask flags.
+   *    1 - `_.bind`
+   *    2 - `_.bindKey`
+   *    4 - `_.curry` or `_.curryRight` of a bound function
+   *    8 - `_.curry`
+   *   16 - `_.curryRight`
+   *   32 - `_.partial`
+   *   64 - `_.partialRight`
+   *  128 - `_.rearg`
+   *  256 - `_.ary`
+   *  512 - `_.flip`
+   * @param {*} [thisArg] The `this` binding of `func`.
+   * @param {Array} [partials] The arguments to be partially applied.
+   * @param {Array} [holders] The `partials` placeholder indexes.
+   * @param {Array} [argPos] The argument positions of the new function.
+   * @param {number} [ary] The arity cap of `func`.
+   * @param {number} [arity] The arity of `func`.
+   * @returns {Function} Returns the new wrapped function.
+   */
+  function createWrap(func, bitmask, thisArg, partials, holders, argPos, ary, arity) {
+    var isBindKey = bitmask & WRAP_BIND_KEY_FLAG$4;
+    if (!isBindKey && typeof func != 'function') {
+      throw new TypeError(FUNC_ERROR_TEXT);
+    }
+    var length = partials ? partials.length : 0;
+    if (!length) {
+      bitmask &= ~(WRAP_PARTIAL_FLAG$2 | WRAP_PARTIAL_RIGHT_FLAG$2);
+      partials = holders = undefined;
+    }
+    ary = ary === undefined ? ary : nativeMax$2(toInteger(ary), 0);
+    arity = arity === undefined ? arity : toInteger(arity);
+    length -= holders ? holders.length : 0;
+
+    if (bitmask & WRAP_PARTIAL_RIGHT_FLAG$2) {
+      var partialsRight = partials,
+          holdersRight = holders;
+
+      partials = holders = undefined;
+    }
+    var data = isBindKey ? undefined : getData(func);
+
+    var newData = [
+      func, bitmask, thisArg, partials, holders, partialsRight, holdersRight,
+      argPos, ary, arity
+    ];
+
+    if (data) {
+      mergeData(newData, data);
+    }
+    func = newData[0];
+    bitmask = newData[1];
+    thisArg = newData[2];
+    partials = newData[3];
+    holders = newData[4];
+    arity = newData[9] = newData[9] === undefined
+      ? (isBindKey ? 0 : func.length)
+      : nativeMax$2(newData[9] - length, 0);
+
+    if (!arity && bitmask & (WRAP_CURRY_FLAG$4 | WRAP_CURRY_RIGHT_FLAG$2)) {
+      bitmask &= ~(WRAP_CURRY_FLAG$4 | WRAP_CURRY_RIGHT_FLAG$2);
+    }
+    if (!bitmask || bitmask == WRAP_BIND_FLAG$6) {
+      var result = createBind(func, bitmask, thisArg);
+    } else if (bitmask == WRAP_CURRY_FLAG$4 || bitmask == WRAP_CURRY_RIGHT_FLAG$2) {
+      result = createCurry(func, bitmask, arity);
+    } else if ((bitmask == WRAP_PARTIAL_FLAG$2 || bitmask == (WRAP_BIND_FLAG$6 | WRAP_PARTIAL_FLAG$2)) && !holders.length) {
+      result = createPartial(func, bitmask, thisArg, partials);
+    } else {
+      result = createHybrid.apply(undefined, newData);
+    }
+    var setter = data ? baseSetData : setData;
+    return setWrapToString(setter(result, newData), func, bitmask);
   }
 
   /**
@@ -833,10 +1937,10 @@
   }
 
   /** Used for built-in method references. */
-  var objectProto$3 = Object.prototype;
+  var objectProto$5 = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$2 = objectProto$3.hasOwnProperty;
+  var hasOwnProperty$4 = objectProto$5.hasOwnProperty;
 
   /**
    * Assigns `value` to `key` of `object` if the existing value is not equivalent
@@ -850,7 +1954,7 @@
    */
   function assignValue(object, key, value) {
     var objValue = object[key];
-    if (!(hasOwnProperty$2.call(object, key) && eq(objValue, value)) ||
+    if (!(hasOwnProperty$4.call(object, key) && eq(objValue, value)) ||
         (value === undefined && !(key in object))) {
       baseAssignValue(object, key, value);
     }
@@ -893,7 +1997,7 @@
   }
 
   /* Built-in method references for those with the same name as other `lodash` methods. */
-  var nativeMax = Math.max;
+  var nativeMax$3 = Math.max;
 
   /**
    * A specialized version of `baseRest` which transforms the rest array.
@@ -905,11 +2009,11 @@
    * @returns {Function} Returns the new function.
    */
   function overRest(func, start, transform) {
-    start = nativeMax(start === undefined ? (func.length - 1) : start, 0);
+    start = nativeMax$3(start === undefined ? (func.length - 1) : start, 0);
     return function() {
       var args = arguments,
           index = -1,
-          length = nativeMax(args.length - start, 0),
+          length = nativeMax$3(args.length - start, 0),
           array = Array(length);
 
       while (++index < length) {
@@ -1058,7 +2162,7 @@
   }
 
   /** Used for built-in method references. */
-  var objectProto$4 = Object.prototype;
+  var objectProto$6 = Object.prototype;
 
   /**
    * Checks if `value` is likely a prototype object.
@@ -1069,7 +2173,7 @@
    */
   function isPrototype(value) {
     var Ctor = value && value.constructor,
-        proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$4;
+        proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$6;
 
     return value === proto;
   }
@@ -1108,13 +2212,13 @@
   }
 
   /** Used for built-in method references. */
-  var objectProto$5 = Object.prototype;
+  var objectProto$7 = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$3 = objectProto$5.hasOwnProperty;
+  var hasOwnProperty$5 = objectProto$7.hasOwnProperty;
 
   /** Built-in value references. */
-  var propertyIsEnumerable = objectProto$5.propertyIsEnumerable;
+  var propertyIsEnumerable = objectProto$7.propertyIsEnumerable;
 
   /**
    * Checks if `value` is likely an `arguments` object.
@@ -1135,7 +2239,7 @@
    * // => false
    */
   var isArguments = baseIsArguments(function() { return arguments; }()) ? baseIsArguments : function(value) {
-    return isObjectLike(value) && hasOwnProperty$3.call(value, 'callee') &&
+    return isObjectLike(value) && hasOwnProperty$5.call(value, 'callee') &&
       !propertyIsEnumerable.call(value, 'callee');
   };
 
@@ -1308,10 +2412,10 @@
   var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
 
   /** Used for built-in method references. */
-  var objectProto$6 = Object.prototype;
+  var objectProto$8 = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$4 = objectProto$6.hasOwnProperty;
+  var hasOwnProperty$6 = objectProto$8.hasOwnProperty;
 
   /**
    * Creates an array of the enumerable property names of the array-like `value`.
@@ -1331,7 +2435,7 @@
         length = result.length;
 
     for (var key in value) {
-      if ((inherited || hasOwnProperty$4.call(value, key)) &&
+      if ((inherited || hasOwnProperty$6.call(value, key)) &&
           !(skipIndexes && (
              // Safari 9 has enumerable `arguments.length` in strict mode.
              key == 'length' ||
@@ -1366,10 +2470,10 @@
   var nativeKeys = overArg(Object.keys, Object);
 
   /** Used for built-in method references. */
-  var objectProto$7 = Object.prototype;
+  var objectProto$9 = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$5 = objectProto$7.hasOwnProperty;
+  var hasOwnProperty$7 = objectProto$9.hasOwnProperty;
 
   /**
    * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
@@ -1384,7 +2488,7 @@
     }
     var result = [];
     for (var key in Object(object)) {
-      if (hasOwnProperty$5.call(object, key) && key != 'constructor') {
+      if (hasOwnProperty$7.call(object, key) && key != 'constructor') {
         result.push(key);
       }
     }
@@ -1443,10 +2547,10 @@
   }
 
   /** Used for built-in method references. */
-  var objectProto$8 = Object.prototype;
+  var objectProto$a = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$6 = objectProto$8.hasOwnProperty;
+  var hasOwnProperty$8 = objectProto$a.hasOwnProperty;
 
   /**
    * The base implementation of `_.keysIn` which doesn't treat sparse arrays as dense.
@@ -1463,7 +2567,7 @@
         result = [];
 
     for (var key in object) {
-      if (!(key == 'constructor' && (isProto || !hasOwnProperty$6.call(object, key)))) {
+      if (!(key == 'constructor' && (isProto || !hasOwnProperty$8.call(object, key)))) {
         result.push(key);
       }
     }
@@ -1557,10 +2661,10 @@
   var HASH_UNDEFINED = '__lodash_hash_undefined__';
 
   /** Used for built-in method references. */
-  var objectProto$9 = Object.prototype;
+  var objectProto$b = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$7 = objectProto$9.hasOwnProperty;
+  var hasOwnProperty$9 = objectProto$b.hasOwnProperty;
 
   /**
    * Gets the hash value for `key`.
@@ -1577,14 +2681,14 @@
       var result = data[key];
       return result === HASH_UNDEFINED ? undefined : result;
     }
-    return hasOwnProperty$7.call(data, key) ? data[key] : undefined;
+    return hasOwnProperty$9.call(data, key) ? data[key] : undefined;
   }
 
   /** Used for built-in method references. */
-  var objectProto$a = Object.prototype;
+  var objectProto$c = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$8 = objectProto$a.hasOwnProperty;
+  var hasOwnProperty$a = objectProto$c.hasOwnProperty;
 
   /**
    * Checks if a hash value for `key` exists.
@@ -1597,7 +2701,7 @@
    */
   function hashHas(key) {
     var data = this.__data__;
-    return nativeCreate ? (data[key] !== undefined) : hasOwnProperty$8.call(data, key);
+    return nativeCreate ? (data[key] !== undefined) : hasOwnProperty$a.call(data, key);
   }
 
   /** Used to stand-in for `undefined` hash values. */
@@ -1918,7 +3022,7 @@
   MapCache.prototype.set = mapCacheSet;
 
   /** Error message constants. */
-  var FUNC_ERROR_TEXT = 'Expected a function';
+  var FUNC_ERROR_TEXT$1 = 'Expected a function';
 
   /**
    * Creates a function that memoizes the result of `func`. If `resolver` is
@@ -1966,7 +3070,7 @@
    */
   function memoize(func, resolver) {
     if (typeof func != 'function' || (resolver != null && typeof resolver != 'function')) {
-      throw new TypeError(FUNC_ERROR_TEXT);
+      throw new TypeError(FUNC_ERROR_TEXT$1);
     }
     var memoized = function() {
       var args = arguments,
@@ -2169,13 +3273,13 @@
 
   /** Used for built-in method references. */
   var funcProto$2 = Function.prototype,
-      objectProto$b = Object.prototype;
+      objectProto$d = Object.prototype;
 
   /** Used to resolve the decompiled source of functions. */
   var funcToString$2 = funcProto$2.toString;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$9 = objectProto$b.hasOwnProperty;
+  var hasOwnProperty$b = objectProto$d.hasOwnProperty;
 
   /** Used to infer the `Object` constructor. */
   var objectCtorString = funcToString$2.call(Object);
@@ -2216,14 +3320,14 @@
     if (proto === null) {
       return true;
     }
-    var Ctor = hasOwnProperty$9.call(proto, 'constructor') && proto.constructor;
+    var Ctor = hasOwnProperty$b.call(proto, 'constructor') && proto.constructor;
     return typeof Ctor == 'function' && Ctor instanceof Ctor &&
       funcToString$2.call(Ctor) == objectCtorString;
   }
 
   /* Built-in method references for those with the same name as other `lodash` methods. */
   var nativeIsFinite = root.isFinite,
-      nativeMin = Math.min;
+      nativeMin$2 = Math.min;
 
   /**
    * Creates a function like `_.round`.
@@ -2236,7 +3340,7 @@
     var func = Math[methodName];
     return function(number, precision) {
       number = toNumber(number);
-      precision = precision == null ? 0 : nativeMin(toInteger(precision), 292);
+      precision = precision == null ? 0 : nativeMin$2(toInteger(precision), 292);
       if (precision && nativeIsFinite(number)) {
         // Shift with exponential notation to avoid floating-point issues.
         // See [MDN](https://mdn.io/round#Examples) for more details.
@@ -2432,10 +3536,10 @@
   }
 
   /** Used for built-in method references. */
-  var objectProto$c = Object.prototype;
+  var objectProto$e = Object.prototype;
 
   /** Built-in value references. */
-  var propertyIsEnumerable$1 = objectProto$c.propertyIsEnumerable;
+  var propertyIsEnumerable$1 = objectProto$e.propertyIsEnumerable;
 
   /* Built-in method references for those with the same name as other `lodash` methods. */
   var nativeGetSymbols = Object.getOwnPropertySymbols;
@@ -2893,10 +3997,10 @@
   var COMPARE_PARTIAL_FLAG$2 = 1;
 
   /** Used for built-in method references. */
-  var objectProto$d = Object.prototype;
+  var objectProto$f = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$a = objectProto$d.hasOwnProperty;
+  var hasOwnProperty$c = objectProto$f.hasOwnProperty;
 
   /**
    * A specialized version of `baseIsEqualDeep` for objects with support for
@@ -2924,7 +4028,7 @@
     var index = objLength;
     while (index--) {
       var key = objProps[index];
-      if (!(isPartial ? key in other : hasOwnProperty$a.call(other, key))) {
+      if (!(isPartial ? key in other : hasOwnProperty$c.call(other, key))) {
         return false;
       }
     }
@@ -2984,10 +4088,10 @@
       objectTag$3 = '[object Object]';
 
   /** Used for built-in method references. */
-  var objectProto$e = Object.prototype;
+  var objectProto$g = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$b = objectProto$e.hasOwnProperty;
+  var hasOwnProperty$d = objectProto$g.hasOwnProperty;
 
   /**
    * A specialized version of `baseIsEqual` for arrays and objects which performs
@@ -3030,8 +4134,8 @@
         : equalByTag(object, other, objTag, bitmask, customizer, equalFunc, stack);
     }
     if (!(bitmask & COMPARE_PARTIAL_FLAG$3)) {
-      var objIsWrapped = objIsObj && hasOwnProperty$b.call(object, '__wrapped__'),
-          othIsWrapped = othIsObj && hasOwnProperty$b.call(other, '__wrapped__');
+      var objIsWrapped = objIsObj && hasOwnProperty$d.call(object, '__wrapped__'),
+          othIsWrapped = othIsObj && hasOwnProperty$d.call(other, '__wrapped__');
 
       if (objIsWrapped || othIsWrapped) {
         var objUnwrapped = objIsWrapped ? object.value() : object,
@@ -3743,7 +4847,7 @@
   }
 
   /* Built-in method references for those with the same name as other `lodash` methods. */
-  var nativeMax$1 = Math.max;
+  var nativeMax$4 = Math.max;
 
   /**
    * This method is like `_.find` except that it returns the index of the first
@@ -3787,7 +4891,7 @@
     }
     var index = fromIndex == null ? 0 : toInteger(fromIndex);
     if (index < 0) {
-      index = nativeMax$1(length + index, 0);
+      index = nativeMax$4(length + index, 0);
     }
     return baseFindIndex(array, baseIteratee(predicate), index);
   }
@@ -4091,9 +5195,53 @@
       : undefined;
   }
 
+  /** Used to compose bitmasks for function metadata. */
+  var WRAP_PARTIAL_FLAG$3 = 32;
+
+  /**
+   * Creates a function that invokes `func` with `partials` prepended to the
+   * arguments it receives. This method is like `_.bind` except it does **not**
+   * alter the `this` binding.
+   *
+   * The `_.partial.placeholder` value, which defaults to `_` in monolithic
+   * builds, may be used as a placeholder for partially applied arguments.
+   *
+   * **Note:** This method doesn't set the "length" property of partially
+   * applied functions.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.2.0
+   * @category Function
+   * @param {Function} func The function to partially apply arguments to.
+   * @param {...*} [partials] The arguments to be partially applied.
+   * @returns {Function} Returns the new partially applied function.
+   * @example
+   *
+   * function greet(greeting, name) {
+   *   return greeting + ' ' + name;
+   * }
+   *
+   * var sayHelloTo = _.partial(greet, 'hello');
+   * sayHelloTo('fred');
+   * // => 'hello fred'
+   *
+   * // Partially applied with placeholders.
+   * var greetFred = _.partial(greet, _, 'fred');
+   * greetFred('hi');
+   * // => 'hi fred'
+   */
+  var partial = baseRest(function(func, partials) {
+    var holders = replaceHolders(partials, getHolder(partial));
+    return createWrap(func, WRAP_PARTIAL_FLAG$3, undefined, partials, holders);
+  });
+
+  // Assign default placeholders.
+  partial.placeholder = {};
+
   /* Built-in method references for those with the same name as other `lodash` methods. */
   var nativeCeil = Math.ceil,
-      nativeMax$2 = Math.max;
+      nativeMax$5 = Math.max;
 
   /**
    * The base implementation of `_.range` and `_.rangeRight` which doesn't
@@ -4108,7 +5256,7 @@
    */
   function baseRange(start, end, step, fromRight) {
     var index = -1,
-        length = nativeMax$2(nativeCeil((end - start) / (step || 1)), 0),
+        length = nativeMax$5(nativeCeil((end - start) / (step || 1)), 0),
         result = Array(length);
 
     while (length--) {
@@ -4217,6 +5365,15 @@
    * @return {number}
    * @private
    */
+  function rolling_window_average(collection, year, window_size = 10, ignore_nans = true) {
+    let _values = range(window_size).map(x => get(collection, year - x, Math.NaN));
+
+    if (ignore_nans) {
+      _values = _values.filter(y => Number.isFinite(y));
+    }
+
+    return mean(_values);
+  }
   /**
    * Utility function to convert F to C
    * @param f
@@ -4342,7 +5499,7 @@
     //expand the years to be an exact number of rolling windows
     const _data = data.map(a => a[stat_col_idx]);
 
-    const rolling_means = range(_data.length).map(year_idx => ClimateByLocationWidget._rolling_window_average(_data, year_idx, rolling_window_years, false)); // rolling_means.unshift(...lodash_range(rolling_window_years - 1).map(()=>Number.NaN))
+    const rolling_means = range(_data.length).map(year_idx => rolling_window_average(_data, year_idx, rolling_window_years, false)); // rolling_means.unshift(...lodash_range(rolling_window_years - 1).map(()=>Number.NaN))
 
     return rolling_means;
   }
@@ -5560,8 +6717,7 @@
         show_rolling_window_means: false,
         rolling_window_mean_years: 10,
         data_api_url: data_api_url,
-        island_data_url_template: island_data_url_template,
-        no_custom_tooltip: true
+        island_data_url_template: island_data_url_template
       }; // this.options = merge(this.options, options);
 
       this.view = null;
@@ -5582,12 +6738,12 @@
         this.element.id = 'climatebylocation-' + Math.floor(Math.random() * Math.floor(100));
       }
 
-      this._styles = ['#' + this.element.id + ' .climate_by_location_view {width: 100%; height: 100%;}'];
-      this.element.innerHTML = "<div class='climate_by_location_view'></div><style></style>";
-
-      this._update_styles();
-
-      this.view_container = this.element.querySelector('div.climate_by_location_view');
+      this._styles = ["#".concat(this.element.id, " {position: relative;}"), "#".concat(this.element.id, " .climate_by_location_view {width: 100%; height: 100%;}")];
+      this.view_container = document.createElement('div');
+      this.view_container.classList.add('climate_by_location_view');
+      this.element.append(this.view_container);
+      this._style_el = document.createElement('style');
+      this.element.append(this._style_el);
       /** @type {function} */
 
       this._update_visibility = null;
@@ -5595,12 +6751,9 @@
 
       this._when_chart = null;
 
-      if (!this.options.no_custom_tooltip) {
-        this.hover_info = document.createElement("span");
-        this.hover_info.style.display = "none";
-        this.hover_info.id = (this.element.id || "") + "-cbl-hover-info";
-        document.body.append(this.hover_info);
-      }
+      this._init_popover();
+
+      this._update_styles();
 
       ClimateByLocationWidget$1.when_areas().then(() => {
         this.update(options);
@@ -5612,11 +6765,18 @@
     }
 
     _update_styles() {
-      const el = this.element.querySelector('style');
-
-      if (el) {
-        el.innerHTML = this._styles.join('\n');
+      if (this._style_el) {
+        this._style_el.innerHTML = this._styles.join('\n');
       }
+    }
+
+    _init_popover() {
+      this._styles = [...this._styles, "#".concat(this.element.id, " .hoverlayer .legend {display: none !important;}"), "#".concat(this.element.id, " .climate_by_location_popover {\n            display: none;\n            position:absolute;\n            background: rgba(252,253,255,0.75);\n            pointer-events: none;\n            min-height: 3.75rem;\n            flex-flow: column nowrap;\n            height: fit-content;\n            width: 16rem;\n            box-shadow: 2px 1px 5px rgb(0 0 0 / 50%);\n            border: solid 1.3px rgba(0, 0, 0, 0.3);\n            padding: 0.45rem 0.55rem;\n            font-size: 1rem;\n            font-weight: 500;\n            line-height: 1.5rem;\n       }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-rcp85 { background-color: ").concat(rgba(this.options.colors.rcp85.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-rcp45 { background-color: ").concat(rgba(this.options.colors.rcp45.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-hist { background: ").concat(rgba(this.options.colors.hist.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .label1 { font-size: 1rem; font-weight: 700; line-height: 1.5rem; grid-column: 1 / span 2; }"), "#".concat(this.element.id, " .climate_by_location_popover .label2 { font-size: 0.7rem; padding-left: 0.3rem; line-height: 1rem; grid-column: 1 / span 2; }"), "#".concat(this.element.id, " .climate_by_location_popover .legend-area { margin-left: 0.5rem; border-left-width: 0.4rem; border-left-style: solid;  padding-left: 0.5rem;}"), "#".concat(this.element.id, " .climate_by_location_popover .legend-line { margin-left: 0.5rem; border-left-width: 0.15rem; border-left-style: solid; padding-left: 0.5rem; }"), "#".concat(this.element.id, " .climate_by_location_popover .popover-header { display: flex; flex-flow: row nowrap; align-items: center;}"), "#".concat(this.element.id, ".popover-pinned .climate_by_location_popover { pointer-events: all; background: rgba(252,253,255,0.95); left: 60px !important; top: 15px !important; }"), "#".concat(this.element.id, ".popover-open .climate_by_location_popover { display: flex;   }")];
+      this._popover = document.createElement("span");
+
+      this._popover.classList.add('climate_by_location_popover');
+
+      this.element.append(this._popover);
     }
     /*
      * Public instance methods
@@ -5689,6 +6849,8 @@
           this.view.destroy();
           this.view = null;
         }
+
+        this.request_hide_popover(true);
 
         this._update();
       } else {
@@ -5819,63 +6981,80 @@
         }
 
         await this.view.request_update();
-
-        if (!this.options.no_custom_tooltip) {
-          this.view_container.on('plotly_hover', data => {
-            try {
-              this.view_container.querySelector(".hoverlayer").style.display = "none";
-              this.hover_info.style.display = "block";
-              this.hover_info.style.position = "absolute";
-              let title = data.points[0].x; // Monthly view is shown in terms of months, where the data.points[0].xaxis.tickvals is an array [9, 10, ..., 23]
-              // and data.points[0].xaxis.ticktext is an array of [Oct, Nov, ..., Dec]
-
-              if (data.points[0].xaxis.ticktext && data.points[0].xaxis.tickvals) {
-                let tick_position = data.points[0].xaxis.tickvals.indexOf(data.points[0].x); //position of the x value in the array
-
-                title = data.points[0].xaxis.ticktext[tick_position]; // text representation of position to display
-              }
-
-              let inner_text = "\n                    <div>\n                        <span>".concat(title, "</span>                    \n                    </div>");
-              console.log(data);
-
-              for (let i = 0; i < data.points.length; i++) {
-                let point = data.points[i];
-                let color = '';
-
-                if (point.data.type === 'bar') {
-                  color = point.data.marker.color;
-                } else if (point.data.mode === 'lines') {
-                  color = point.fullData.line.color;
-                }
-
-                inner_text += "\n                    <div style=\"display: flex; flex-direction: row; justify-content: space-between; border: 1px solid ".concat(color, "; border-radius: 2px; margin-bottom: 5px;\">\n                        <span style=\"padding-left: 3px; padding-right: 3px;\">").concat(point.data.name, ": </span>\n                        <span style=\"padding-left: 3px; padding-right: 3px; font-weight: bold;\">").concat(point.y, "</span>\n                    </div>\n                ");
-              }
-
-              let outer_text = '<div style="background-color: rgba(255, 255, 255, 0.75); padding: 5px; border: 1px solid black; border-radius: 2px">' + inner_text + '</div>';
-              let too_far_right = this.element.offsetWidth - data.event.pageX - this.hover_info.offsetWidth - 20 < 0;
-              let x_position = data.event.pageX + 30;
-
-              if (too_far_right) {
-                x_position = data.event.pageX - this.hover_info.offsetWidth - 60;
-              }
-
-              this.hover_info.innerHTML = outer_text;
-              this.hover_info.style.top = "".concat(this.view_container.offsetHeight / 3.5, "px");
-              this.hover_info.style.left = "".concat(x_position, "px");
-            } catch (e) {
-              this.hover_info.style.display = "none";
-              console.log(e);
-            }
-          });
-          this.view_container.on('plotly_unhover', () => {
-            this.hover_info.style.display = "none";
-          });
-        }
+        this.element.addEventListener('mouseleave', () => this.request_hide_popover(false));
       } catch (e) {
         console.error(e);
 
         this._show_spinner_error();
       }
+    }
+
+    async _request_show_popover(x, y, content, pinned = false, title = '') {
+      if (!pinned && this.element.classList.contains('popover-pinned')) {
+        return Promise.resolve();
+      }
+
+      this.element.classList.add('popover-open');
+
+      if (pinned) {
+        this.element.classList.add('popover-pinned');
+      }
+
+      this._popover_hide_pending = false;
+      let x_position, y_position;
+
+      if (x != null) {
+        x_position = x + this.options.plotly_layout_defaults.margin.l + 7;
+
+        if (x_position + this._popover.offsetWidth + 25 >= this.element.offsetWidth) {
+          x_position -= this._popover.offsetWidth + 14;
+        }
+      } else {
+        x_position = (this.element.offsetWidth - 50) / 2 - this._popover.offsetWidth / 2 + 7;
+      }
+
+      if (y != null) {
+        y_position = y + this.options.plotly_layout_defaults.margin.t - this._popover.offsetHeight;
+
+        if (y_position - 20 < 0) {
+          y_position += this._popover.offsetHeight;
+        }
+      } else {
+        y_position = (this.element.offsetHeight - 60) / 2 - this._popover.offsetHeight / 2;
+      }
+
+      this._popover.style.top = "".concat(y_position, "px");
+      this._popover.style.left = "".concat(x_position, "px");
+      this._popover.innerHTML = "<div class=\"popover-header\"><span\n      class=\"popover-title\">".concat(title, "</span>").concat(pinned ? '<button style=" margin-left: auto; margin-right: 0.156rem; height: fit-content; padding: 0.062rem; font-size: 0.781rem; border: none;" data-popover-action="hide" title="Close"><span aria-hidden="true">&#x2715</span></button>' : '', "\n    </div>\n    <div>").concat(content, "</div>");
+
+      if (pinned) {
+        this._popover.querySelectorAll('[data-popover-action="hide"]').forEach(el => {
+          el.addEventListener('click', () => {
+            this.request_hide_popover(true);
+          });
+        });
+      }
+
+      return Promise.resolve();
+    }
+
+    async request_hide_popover(hide_pinned = false) {
+      if (!hide_pinned && this.element.classList.contains('popover-pinned')) {
+        return Promise.resolve();
+      } // requests the popover be hidden, with a 5ms debounce delay during which a request to show can cancel the hiding, thereby reducing flicker.
+
+
+      this._popover_hide_pending = true;
+      return new Promise((resolve, reject) => {
+        window.setTimeout(() => {
+          if (this._popover_hide_pending) {
+            this.element.classList.remove('popover-open', 'popover-pinned');
+            resolve();
+          } else {
+            reject();
+          }
+        }, 10);
+      });
     }
     /**
      * Updates this.options.xrange and this.options.yrange (if they are not null) based on new ranges computed from data and emits range events.
@@ -5888,7 +7067,7 @@
      */
 
 
-    _update_axes_ranges(x_range_min, x_range_max, y_range_min, y_range_max) {
+    _update_axes_ranges(x_range_min, x_range_max, y_range_min, y_range_max, xannual = false) {
       if (!!this.options.x_axis_range) {
         this.options.x_axis_range = [Math.max(x_range_min, get(this.options, ['x_axis_range', 0], x_range_min)), Math.min(x_range_max, get(this.options, ['x_axis_range', 1], x_range_max))];
       }
@@ -5906,6 +7085,10 @@
             detail: [y_range_min, y_range_max, get(this.options, ['y_axis_range', 0], y_range_min), get(this.options, ['y_axis_range', 1], y_range_max)]
           }));
         });
+      }
+
+      if (xannual) {
+        return [...(this.options.x_axis_range || [x_range_min, x_range_max]).map(a => a + '-01-01'), ...(this.options.y_axis_range || [y_range_min, y_range_max])];
       }
 
       return [...(this.options.x_axis_range || [x_range_min, x_range_max]), ...(this.options.y_axis_range || [y_range_min, y_range_max])];
@@ -5938,7 +7121,19 @@
       };
     }
 
-    _get_x_axis_layout(x_range_min, x_range_max) {
+    _get_x_axis_layout(x_range_min, x_range_max, annual = false) {
+      let annual_options = {};
+
+      if (annual) {
+        annual_options = {
+          // dtick: "M24",
+          tickformat: "%Y",
+          ticklabelmode: "period",
+          type: 'date',
+          range: (this.options.x_axis_range || [x_range_min, x_range_max]).map(a => a + '-01-01')
+        };
+      }
+
       return {
         type: 'linear',
         range: this.options.x_axis_range || [x_range_min, x_range_max],
@@ -5953,7 +7148,8 @@
           family: 'roboto, monospace',
           color: 'rgb(0,0,0)'
         },
-        tickangle: 0 // title: {
+        tickangle: 0,
+        // title: {
         //   text: 'Year',
         //   font: {
         //     family: 'roboto, monospace',
@@ -5961,7 +7157,7 @@
         //     color: '#494949'
         //   }
         // },
-
+        ...annual_options
       };
     }
 
@@ -5975,7 +7171,7 @@
     _show_spinner() {
       this._hide_spinner();
 
-      let style = "<style>.climatebylocation-spinner { margin-top: -2.5rem; border-radius: 100%;border-style: solid;border-width: 0.25rem;height: 5rem;width: 5rem;animation: basic 1s infinite linear; border-color: rgba(0, 0, 0, 0.2);border-top-color: rgba(0, 0, 0, 1); }@keyframes basic {0%   { transform: rotate(0); }100% { transform: rotate(359.9deg); }} .climatebylocation-spinner-container {display:flex; flex-flow: column; align-items: center; justify-content: center; background-color: rgba(255,255,255, 0.4); } .climatebylocation-spinner-error span { opacity: 1 !important;} .climatebylocation-spinner-error .climatebylocation-spinner {border-color: red !important; animation: none;} </style>";
+      const styles = ['.climatebylocation-spinner { margin-top: -1.562rem; border-radius: 100%;border-style: solid;border-width: 0.156rem;height: 3.125rem;width: 3.125rem;animation: basic 1s infinite linear; border-color: rgba(0, 0, 0, 0.2);border-top-color: rgba(0, 0, 0, 1); }', '@keyframes basic {0%   { transform: rotate(0); }100% { transform: rotate(359.9deg); }}', '.climatebylocation-spinner-container {display:flex; flex-flow: column; align-items: center; justify-content: center; background-color: rgba(255,255,255, 0.4); }', 'climatebylocation-spinner-error span { opacity: 1 !important;} .climatebylocation-spinner-error .climatebylocation-spinner {border-color: red !important; animation: none;}'];
       this.element.style.position = 'relative';
       const spinner_el = document.createElement('div');
       spinner_el.classList.add('climatebylocation-spinner-container');
@@ -5985,7 +7181,7 @@
       spinner_el.style.left = '0px';
       spinner_el.style.top = '0px';
       spinner_el.style.zIndex = '1000000';
-      spinner_el.innerHTML = style + "<div class='climatebylocation-spinner'></div><span style=\"opacity: 0; color: red; margin: 1rem;\">Failed to retrieve data. Please try again.</span>";
+      spinner_el.innerHTML = "<div class='climatebylocation-spinner'></div><span style=\"opacity: 0; color: red; margin: 0.625rem;\">Failed to retrieve data. Please try again.</span><style>".concat(styles.join(''), "</style>");
       this.element.appendChild(spinner_el);
     }
 
@@ -6653,7 +7849,7 @@
         show_legend,
         show_projected_rcp45,
         show_projected_rcp85,
-        variable
+        unitsystem
       } = this.parent.options;
       const area = this.parent.get_area();
       const variable_config = this.parent.get_variable_config();
@@ -6872,10 +8068,26 @@
         this.element.once('plotly_afterplot', gd => {
           resolve(gd);
         });
+        this._hover_handler = partial(this._request_show_popover.bind(this), false, chart_data, colors, precision, variable_config, unitsystem);
+        this.element.on('plotly_hover', this._hover_handler);
+        this._click_handler = partial(this._request_show_popover.bind(this), true, chart_data, colors, precision, variable_config, unitsystem);
+        this.element.on('plotly_click', this._click_handler);
       });
       await this._when_chart;
 
       this.parent._hide_spinner();
+    }
+
+    async _request_show_popover(pinned, chart_data, colors, precision, variable_config, unitsystem, event_data) {
+      try {
+        const month_idx = chart_data['month'].indexOf(parseInt(event_data.points[0].x));
+        let month = chart_data['month_label'][month_idx];
+        const monthly_content = "\n        <div class=\"label1\">".concat(month, " projection</div>\n           <div class=\"bg-rcp85 label2\">Higher Emissions</div>\n          <div  class=\"bg-rcp85\" style=\" grid-column: 1; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(month, " higher emissions weighted mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left: 0.15rem solid ").concat(rgba(colors.rcp85.line, colors.opacity.proj_line), ";\">").concat(round(chart_data['rcp85_mean'][month_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp85\" style=\"grid-column: 2; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(month, " higher emissions range\" class=\"legend-area\"  style=\" font-size: 0.8rem; border-left-color: ").concat(rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax), ";\"><span>").concat(round(chart_data['rcp85_min'][month_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp85_max'][month_idx], precision), "</span></div>\n          </div>\n         \n          <div class=\"bg-rcp45 label2\">Lower Emissions</div>\n          <div class=\"bg-rcp45\" style=\"grid-column: 1; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(month, " lower emissions weighted mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left: 0.15rem solid ").concat(rgba(colors.rcp45.line, colors.opacity.proj_line), ";\">").concat(round(chart_data['rcp45_mean'][month_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp45\" style=\"grid-column: 2; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(month, " lower emissions range\" class=\"legend-area\"  style=\" font-size: 0.8rem; border-left-color: ").concat(rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax), ";\">").concat(round(chart_data['rcp45_min'][month_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp45_max'][month_idx], precision), "</div>\n          </div>\n          <div class=\"label1\" style=\"font-size: 0.8rem;\">1950-2013 observed</div>\n          <div style=\"grid-column: 1 / span 2;\">\n            <div title=\"1950-2013 observed\" class=\"legend-line\" style=\"font-size: 0.8rem; border-left-color: ").concat(rgba(colors.hist.line, 1), ";\">").concat(round(chart_data['hist_obs'][month_idx], precision), "</div>\n          </div>\n        ");
+        return this.parent._request_show_popover(event_data.points[0].xaxis.l2p(event_data.points[0].x), null, "\n        <div style=\"display: grid; grid-template-columns: auto auto;\">\n        ".concat(monthly_content, "\n        </div>\n        "), pinned, variable_config.ytitles['annual'][unitsystem]);
+      } catch (e) {
+        console.error(e);
+        return this.parent.request_hide_popover(pinned);
+      }
     }
 
     async request_style_update() {
@@ -6926,6 +8138,19 @@
         },
         filename: [get_area_label.bind(this)(), frequency, variable, "graph"].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
       }];
+    }
+
+    destroy() {
+      super.destroy();
+
+      try {
+        // remove event handlers
+        if (this.element && this.element.removeListener) {
+          this.element.removeListener('plotly_hover', this._hover_handler);
+          this.element.removeListener('plotly_click', this._click_handler);
+        }
+      } catch {// do nothing
+      }
     }
 
   }

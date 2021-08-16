@@ -1,7 +1,7 @@
 'use strict';
 import '../node_modules/unfetch/polyfill/index.js'
 import {find, get, merge,} from '../node_modules/lodash-es/lodash.js';
-import {is_monthly, save_file} from './utils.js';
+import {is_monthly, save_file, rgba} from './utils.js';
 import {areas_json_url, set_areas_json_url, frequencies, variables, bool_options, data_api_url, monthly_variables, island_data_url_template} from "./constants.js";
 
 // a couple module-level variables
@@ -139,28 +139,38 @@ export default class ClimateByLocationWidget {
     }
   }
 
-  _init_popover(){
-    this._styles = [ ...this._styles,
+  _init_popover() {
+    this._styles = [...this._styles,
       `#${this.element.id} .hoverlayer .legend {display: none !important;}`,
       `#${this.element.id} .climate_by_location_popover {
             display: none;
             position:absolute;
             background: rgba(252,253,255,0.75);
             pointer-events: none;
-            min-height: 6rem;
+            min-height: 3.75rem;
             flex-flow: column nowrap;
             height: fit-content;
-            width: 20rem;
+            width: 16rem;
             box-shadow: 2px 1px 5px rgb(0 0 0 / 50%);
             border: solid 1.3px rgba(0, 0, 0, 0.3);
-            padding: 0.35rem 0.25rem;
+            padding: 0.45rem 0.55rem;
             font-size: 1rem;
             font-weight: 500;
-            padding-left: 0.8rem;
+            line-height: 1.5rem;
        }`,
-      `#${this.element.id} .climate_by_location_popover .popover-header { display: flex; flex-flow: row nowrap; align-items: center; margin: 0.5rem;  }`,
+      `#${this.element.id} .climate_by_location_popover .bg-rcp85 { background-color: ${rgba(this.options.colors.rcp85.outerBand, 0.1)}; }`,
+      `#${this.element.id} .climate_by_location_popover .bg-rcp45 { background-color: ${rgba(this.options.colors.rcp45.outerBand, 0.1)}; }`,
+      `#${this.element.id} .climate_by_location_popover .bg-hist { background: ${rgba(this.options.colors.hist.outerBand, 0.1)}; }`,
+      `#${this.element.id} .climate_by_location_popover .label1 { font-size: 1rem; font-weight: 700; line-height: 1.5rem; grid-column: 1 / span 2; }`,
+      `#${this.element.id} .climate_by_location_popover .label2 { font-size: 0.7rem; padding-left: 0.3rem; line-height: 1rem; grid-column: 1 / span 2; }`,
+      `#${this.element.id} .climate_by_location_popover .legend-area { margin-left: 0.5rem; border-left-width: 0.4rem; border-left-style: solid;  padding-left: 0.5rem;}`,
+      `#${this.element.id} .climate_by_location_popover .legend-line { margin-left: 0.5rem; border-left-width: 0.15rem; border-left-style: solid; padding-left: 0.5rem; }`,
+
+      `#${this.element.id} .climate_by_location_popover .popover-header { display: flex; flex-flow: row nowrap; align-items: center;}`,
       `#${this.element.id}.popover-pinned .climate_by_location_popover { pointer-events: all; background: rgba(252,253,255,0.95); left: 60px !important; top: 15px !important; }`,
       `#${this.element.id}.popover-open .climate_by_location_popover { display: flex;   }`
+
+
     ];
     this._popover = document.createElement("span");
     this._popover.classList.add('climate_by_location_popover');
@@ -229,7 +239,7 @@ export default class ClimateByLocationWidget {
         this.view.destroy();
         this.view = null;
       }
-
+      this.request_hide_popover(true);
       this._update();
     } else {
       if (this.view !== null && this.view.style_option_names.some(k => this.options[k] !== old_options[k])) {
@@ -346,14 +356,14 @@ export default class ClimateByLocationWidget {
         this.view = new (this.get_view_class())(this, this.view_container);
       }
       await this.view.request_update();
-      this.element.addEventListener('mouseleave', ()=>this.request_hide_popover(false));
+      this.element.addEventListener('mouseleave', () => this.request_hide_popover(false));
     } catch (e) {
       console.error(e);
       this._show_spinner_error();
     }
   }
 
-  async request_show_popover(x, y, content, pinned = false, title='') {
+  async _request_show_popover(x, y, content, pinned = false, title = '') {
     if (!pinned && this.element.classList.contains('popover-pinned')) {
       return Promise.resolve()
     }
@@ -363,32 +373,29 @@ export default class ClimateByLocationWidget {
       this.element.classList.add('popover-pinned');
     }
     this._popover_hide_pending = false;
-    const bounds = this.element.getBoundingClientRect();
     let x_position, y_position;
     if (x != null) {
-      x_position = x - bounds.x + 7;
+      x_position = x + this.options.plotly_layout_defaults.margin.l + 7;
       if ((x_position + this._popover.offsetWidth + 25) >= this.element.offsetWidth) {
         x_position -= this._popover.offsetWidth + 14;
       }
-    }
-    else{
-     x_position = ((this.element.offsetWidth - 50) / 2 - (this._popover.offsetWidth / 2) + 7);
+    } else {
+      x_position = ((this.element.offsetWidth - 50) / 2 - (this._popover.offsetWidth / 2) + 7);
     }
 
-    if (y != null){
-      y_position = y - bounds.y - this._popover.offsetHeight;
+    if (y != null) {
+      y_position = y + this.options.plotly_layout_defaults.margin.t - this._popover.offsetHeight;
       if ((y_position - 20) < 0) {
         y_position += this._popover.offsetHeight;
       }
-    }
-    else{
+    } else {
       y_position = (this.element.offsetHeight - 60) / 2 - (this._popover.offsetHeight / 2);
     }
 
     this._popover.style.top = `${y_position}px`;
     this._popover.style.left = `${x_position}px`;
     this._popover.innerHTML = `<div class="popover-header"><span
-      class="popover-title">${title}</span>${pinned ? '<button style=" margin-left: auto; margin-right: 0.25rem; height: fit-content; padding: 0.1rem; font-size: 1.25rem; border: none;" data-popover-action="hide" title="Close"><span aria-hidden="true">&#x2715</span></button>' : ''}
+      class="popover-title">${title}</span>${pinned ? '<button style=" margin-left: auto; margin-right: 0.156rem; height: fit-content; padding: 0.062rem; font-size: 0.781rem; border: none;" data-popover-action="hide" title="Close"><span aria-hidden="true">&#x2715</span></button>' : ''}
     </div>
     <div>${content}</div>`;
     if (pinned) {
@@ -410,7 +417,7 @@ export default class ClimateByLocationWidget {
     return new Promise((resolve, reject) => {
       window.setTimeout(() => {
         if (this._popover_hide_pending) {
-          this.element.classList.remove('popover-open','popover-pinned');
+          this.element.classList.remove('popover-open', 'popover-pinned');
           resolve();
         } else {
           reject();
@@ -429,7 +436,7 @@ export default class ClimateByLocationWidget {
    * @return {*[]}
    * @private
    */
-  _update_axes_ranges(x_range_min, x_range_max, y_range_min, y_range_max) {
+  _update_axes_ranges(x_range_min, x_range_max, y_range_min, y_range_max, xannual = false) {
     if (!!this.options.x_axis_range) {
       this.options.x_axis_range = [Math.max(x_range_min, get(this.options, ['x_axis_range', 0], x_range_min)), Math.min(x_range_max, get(this.options, ['x_axis_range', 1], x_range_max))];
     }
@@ -441,6 +448,9 @@ export default class ClimateByLocationWidget {
         this.element.dispatchEvent(new CustomEvent('x_axis_range_change', {detail: [x_range_min, x_range_max, get(this.options, ['x_axis_range', 0], x_range_min), get(this.options, ['x_axis_range', 1], x_range_max)]}));
         this.element.dispatchEvent(new CustomEvent('y_axis_range_change', {detail: [y_range_min, y_range_max, get(this.options, ['y_axis_range', 0], y_range_min), get(this.options, ['y_axis_range', 1], y_range_max)]}));
       });
+    }
+    if (xannual) {
+      return [...(this.options.x_axis_range || [x_range_min, x_range_max]).map((a) => a + '-01-01'), ...(this.options.y_axis_range || [y_range_min, y_range_max])];
     }
     return [...(this.options.x_axis_range || [x_range_min, x_range_max]), ...(this.options.y_axis_range || [y_range_min, y_range_max])];
   }
@@ -473,10 +483,20 @@ export default class ClimateByLocationWidget {
     };
   }
 
-  _get_x_axis_layout(x_range_min, x_range_max) {
+  _get_x_axis_layout(x_range_min, x_range_max, annual = false) {
+    let annual_options = {}
+    if (annual) {
+      annual_options = {
+        // dtick: "M24",
+        tickformat: "%Y",
+        ticklabelmode: "period",
+        type: 'date',
+        range: (this.options.x_axis_range || [x_range_min, x_range_max]).map((a) => a + '-01-01')
+      }
+    }
     return {
       type: 'linear',
-      range: this.options.x_axis_range || [x_range_min, x_range_max],
+      range: (this.options.x_axis_range || [x_range_min, x_range_max]),
       showline: true,
       linecolor: 'rgb(0,0,0)',
       linewidth: 1,
@@ -497,6 +517,7 @@ export default class ClimateByLocationWidget {
       //     color: '#494949'
       //   }
       // },
+      ...annual_options
     };
   }
 
@@ -509,7 +530,7 @@ export default class ClimateByLocationWidget {
   _show_spinner() {
     this._hide_spinner();
     const styles = [
-      '.climatebylocation-spinner { margin-top: -2.5rem; border-radius: 100%;border-style: solid;border-width: 0.25rem;height: 5rem;width: 5rem;animation: basic 1s infinite linear; border-color: rgba(0, 0, 0, 0.2);border-top-color: rgba(0, 0, 0, 1); }', '@keyframes basic {0%   { transform: rotate(0); }100% { transform: rotate(359.9deg); }}',
+      '.climatebylocation-spinner { margin-top: -1.562rem; border-radius: 100%;border-style: solid;border-width: 0.156rem;height: 3.125rem;width: 3.125rem;animation: basic 1s infinite linear; border-color: rgba(0, 0, 0, 0.2);border-top-color: rgba(0, 0, 0, 1); }', '@keyframes basic {0%   { transform: rotate(0); }100% { transform: rotate(359.9deg); }}',
       '.climatebylocation-spinner-container {display:flex; flex-flow: column; align-items: center; justify-content: center; background-color: rgba(255,255,255, 0.4); }',
       'climatebylocation-spinner-error span { opacity: 1 !important;} .climatebylocation-spinner-error .climatebylocation-spinner {border-color: red !important; animation: none;}'
     ];
@@ -522,7 +543,7 @@ export default class ClimateByLocationWidget {
     spinner_el.style.left = '0px';
     spinner_el.style.top = '0px';
     spinner_el.style.zIndex = '1000000';
-    spinner_el.innerHTML = `<div class='climatebylocation-spinner'></div><span style="opacity: 0; color: red; margin: 1rem;">Failed to retrieve data. Please try again.</span><style>${styles.join('')}</style>`;
+    spinner_el.innerHTML = `<div class='climatebylocation-spinner'></div><span style="opacity: 0; color: red; margin: 0.625rem;">Failed to retrieve data. Please try again.</span><style>${styles.join('')}</style>`;
     this.element.appendChild(spinner_el)
   }
 

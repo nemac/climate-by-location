@@ -128,7 +128,7 @@ export function compute_decadal_means(data, year_col_idx, stat_col_idx, min_year
 export function compute_rolling_window_means(data, year_col_idx, stat_col_idx, min_year, max_year, rolling_window_years) {
   //expand the years to be an exact number of rolling windows
   const _data = data.map(a => a[stat_col_idx])
-  const rolling_means = lodash_range(_data.length).map((year_idx) => ClimateByLocationWidget._rolling_window_average(_data, year_idx, rolling_window_years, false));
+  const rolling_means = lodash_range(_data.length).map((year_idx) => rolling_window_average(_data, year_idx, rolling_window_years, false));
   // rolling_means.unshift(...lodash_range(rolling_window_years - 1).map(()=>Number.NaN))
   return rolling_means
 }

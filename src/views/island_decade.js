@@ -1,5 +1,5 @@
 import View from "./view_base.js";
-import {max, min, range as lodash_range, round} from "../../node_modules/lodash-es/lodash.js";
+import {max, min, partial, range as lodash_range, round} from "../../node_modules/lodash-es/lodash.js";
 import {compute_decadal_means, compute_rolling_window_means, format_export_data, rgba} from "../utils.js";
 import {fetch_island_data} from "../io.js";
 
@@ -118,9 +118,6 @@ export default class IslandDecadeView extends View {
       'rcp85_rolling_max': []
     };
     let decadal_means_traces = [];
-    let hist_decadal_data = [];
-    let rcp45_decadal_data = [];
-    let rcp85_decadal_data = [];
     if (show_decadal_means || hover_decadal_means) {
       const hist_stat_annual_values = [...hist_mod_data.map((a) => [a[0], null, null, null, a[1], a[2], a[3]]), ...proj_mod_data.slice(0, 4)];
       const scenario_stat_annual_values = [...hist_mod_data.slice(-6).map((a) => [a[0], a[1], a[2], a[3], a[1], a[2], a[3]]), ...proj_mod_data];
@@ -148,31 +145,13 @@ export default class IslandDecadeView extends View {
           }
         }
       }
-      if (hover_decadal_means) {
-        hist_decadal_data = lodash_range(hist_mod_data.length).map((i) => [
-          chart_data['hist_year_decade'][i],
-          chart_data['hist_decadal_mean'][i],
-          chart_data['hist_decadal_min'][i],
-          chart_data['hist_decadal_max'][i],
-        ]);
-        rcp45_decadal_data = lodash_range(proj_mod_data.length).map((i) => [
-          chart_data['proj_year_decade'][i],
-          chart_data['rcp45_decadal_mean'][i],
-          chart_data['rcp45_decadal_min'][i],
-          chart_data['rcp45_decadal_max'][i],
-        ]);
-        rcp45_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
-
-        rcp45_decadal_data[rcp45_decadal_data.length - 1] = [2100, "NaN", "NaN", "NaN"]; // NaN 2100
-        rcp85_decadal_data = lodash_range(proj_mod_data.length).map((i) => [
-          chart_data['proj_year_decade'][i],
-          chart_data['rcp85_decadal_mean'][i],
-          chart_data['rcp85_decadal_min'][i],
-          chart_data['rcp85_decadal_max'][i],
-        ]);
-        rcp85_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
-        rcp85_decadal_data[rcp85_decadal_data.length - 1] = [2100, "NaN", "NaN", "NaN"]; // NaN 2100
-      }
+      chart_data['proj_year_decade'].unshift(2000) // repeat 2005
+      chart_data['rcp45_decadal_mean'].unshift(chart_data['rcp45_decadal_mean'][0])
+      chart_data['rcp45_decadal_min'].unshift(chart_data['rcp45_decadal_min'][0])
+      chart_data['rcp45_decadal_max'].unshift(chart_data['rcp45_decadal_max'][0])
+      chart_data['rcp85_decadal_mean'].unshift(chart_data['rcp85_decadal_mean'][0])
+      chart_data['rcp85_decadal_min'].unshift(chart_data['rcp85_decadal_min'][0])
+      chart_data['rcp85_decadal_max'].unshift(chart_data['rcp85_decadal_max'][0])
       if (show_decadal_means) {
         decadal_means_traces = [
           {
@@ -184,8 +163,6 @@ export default class IslandDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_historical_modeled ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
           },
           {
             name: 'Modeled mean (historical decadal mean)',
@@ -196,8 +173,6 @@ export default class IslandDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_historical_modeled ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
           },
 
           {
@@ -209,8 +184,6 @@ export default class IslandDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_historical_modeled ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
           },
           {
             name: 'Modeled maximum (RCP 4.5 decadal mean)',
@@ -221,8 +194,6 @@ export default class IslandDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp45 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
           },
           {
             name: 'Modeled minimum (RCP 4.5 decadal mean)',
@@ -233,8 +204,6 @@ export default class IslandDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp45 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
           },
           {
             name: 'Modeled mean (RCP 4.5 decadal mean)',
@@ -245,8 +214,6 @@ export default class IslandDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp45 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
           },
           {
             name: 'Modeled maximum (RCP 8.5 decadal mean)',
@@ -257,8 +224,6 @@ export default class IslandDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp85 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
           },
           {
             name: 'Modeled minimum (RCP 8.5 decadal mean)',
@@ -269,8 +234,6 @@ export default class IslandDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp85 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
           },
           {
             name: 'Modeled mean (RCP 8.5 decadal mean)',
@@ -281,8 +244,6 @@ export default class IslandDecadeView extends View {
             fill: 'none',
             line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
             visible: !!show_projected_rcp85 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: `%{y:.${d3_precision}f}`
           }
         ]
       }
@@ -313,8 +274,6 @@ export default class IslandDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_historical_modeled ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
         },
         {
           name: `Modeled mean (historical ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -325,8 +284,6 @@ export default class IslandDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_historical_modeled ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
         },
 
         {
@@ -338,8 +295,6 @@ export default class IslandDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.hist.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_historical_modeled ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
         },
         {
           name: `Modeled maximum (RCP 4.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -350,8 +305,6 @@ export default class IslandDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp45 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
         },
         {
           name: `Modeled minimum (RCP 4.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -362,8 +315,6 @@ export default class IslandDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp45 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
         },
         {
           name: `Modeled mean (RCP 4.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -374,8 +325,6 @@ export default class IslandDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.rcp45.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp45 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
         },
         {
           name: `Modeled maximum (RCP 8.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -386,8 +335,6 @@ export default class IslandDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp85 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
         },
         {
           name: `Modeled minimum (RCP 8.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -398,8 +345,6 @@ export default class IslandDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp85 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
         },
         {
           name: `Modeled mean (RCP 8.5 ${rolling_window_mean_years}-yr rolling window mean)`,
@@ -410,15 +355,13 @@ export default class IslandDecadeView extends View {
           fill: 'none',
           line: {color: rgba(colors.rcp85.outerBand, 1), width: 1.3, opacity: 1},
           visible: !!show_projected_rcp85 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: `%{y:.${d3_precision}f}`
         }
       ]
     }
 
 
     for (let i = 0; i < hist_mod_data.length; i++) {
-      chart_data['hist_year'].push(hist_mod_data[i][0]);
+      chart_data['hist_year'].push(hist_mod_data[i][0] + '-01-01');
       chart_data['hist_mean'].push(round(hist_mod_data[i][1], precision));
       chart_data['hist_min'].push(round(hist_mod_data[i][2], precision));
       chart_data['hist_max'].push(round(hist_mod_data[i][3], precision));
@@ -434,7 +377,7 @@ export default class IslandDecadeView extends View {
       round(hist_mod_data[hist_mod_data.length - 1][3], precision),
     ]);
     for (let i = 0; i < proj_mod_data.length; i++) {
-      chart_data['proj_year'].push(proj_mod_data[i][0]);
+      chart_data['proj_year'].push(proj_mod_data[i][0] + '-01-01');
       chart_data['rcp45_mean'].push(round(proj_mod_data[i][1], precision));
       chart_data['rcp45_min'].push(round(proj_mod_data[i][2], precision));
       chart_data['rcp45_max'].push(round(proj_mod_data[i][3], precision));
@@ -469,7 +412,6 @@ export default class IslandDecadeView extends View {
           },
           legendgroup: 'hist',
           visible: !!show_historical_modeled ? true : 'legendonly',
-          hoverinfo: 'skip'
         },
         {
           x: chart_data['hist_year'],
@@ -487,10 +429,6 @@ export default class IslandDecadeView extends View {
           },
           legendgroup: 'hist',
           visible: !!show_historical_modeled ? true : 'legendonly',
-          hoverlabel: {namelength: 0},
-          // hoverinfo: 'text',
-          customdata: hover_decadal_means ? hist_decadal_data : hist_mod_data,
-          hovertemplate: `%{customdata[0]}${hover_decadal_means ? 's' : ''} modeled range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f}`
         },
         // {
         //   x: chart_data['hist_year'],
@@ -518,7 +456,6 @@ export default class IslandDecadeView extends View {
           },
           legendgroup: 'rcp45',
           visible: show_projected_rcp45 ? true : 'legendonly',
-          hoverinfo: 'skip'
         },
         {
           x: chart_data['proj_year'],
@@ -535,9 +472,6 @@ export default class IslandDecadeView extends View {
           },
           legendgroup: 'rcp45',
           visible: show_projected_rcp45 ? true : 'legendonly',
-          hoverlabel: {namelength: 0},
-          customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-          hovertemplate: `range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f}`
         },
         {
           x: chart_data['proj_year'],
@@ -555,7 +489,6 @@ export default class IslandDecadeView extends View {
           legendgroup: 'rcp85',
           visible: show_projected_rcp85 ? true : 'legendonly',
           showlegend: false,
-          hoverinfo: 'skip'
         },
         {
           x: chart_data['proj_year'],
@@ -572,38 +505,28 @@ export default class IslandDecadeView extends View {
           },
           legendgroup: 'rcp85',
           visible: show_projected_rcp85 ? true : 'legendonly',
-          hoverlabel: {namelength: 0},
-          customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-          hovertemplate: `range: %{customdata[2]:.${d3_precision}f}&#8211;%{customdata[3]:.${d3_precision}f}`
         },
         {
           x: chart_data['proj_year'],
           y: chart_data['rcp45_mean'],
           type: 'scatter',
           mode: 'lines',
-          name: 'RCP 4.5 projections (weighted mean)',
+          name: 'RCP 4.5 projections (mean)',
           line: {color: rgba(colors.rcp45.line, colors.opacity.proj_line)},
           visible: show_projected_rcp45 ? true : 'legendonly',
           legendgroup: 'rcp45',
           yaxis: 'y3',
-          hoverlabel: {namelength: 0},
-          customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-          hovertemplate: `%{customdata[0]}${hover_decadal_means ? 's' : ''} lower emissions average projection: <b>%{customdata[1]:.${d3_precision}f}</b>`
         },
         {
           x: chart_data['proj_year'],
           y: chart_data['rcp85_mean'],
           type: 'scatter',
           mode: 'lines',
-          name: 'Modeled mean (RCP 8.5 projections, weighted)',
+          name: 'Modeled mean (RCP 8.5 projections)',
           visible: show_projected_rcp85 ? true : 'legendonly',
           line: {color: rgba(colors.rcp85.line, colors.opacity.proj_line)},
           legendgroup: 'rcp85',
           yaxis: 'y3',
-          hoverlabel: {namelength: 0},
-
-          customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-          hovertemplate: `%{customdata[0]}${hover_decadal_means ? 's' : ''} higher emissions average projection: <b>%{customdata[1]:.${d3_precision}f}</b>`
 
         },
         ...decadal_means_traces,
@@ -617,7 +540,7 @@ export default class IslandDecadeView extends View {
           hoverlabel: {
             namelength: -1
           },
-          xaxis: this.parent._get_x_axis_layout(x_range_min, x_range_max),
+          xaxis: this.parent._get_x_axis_layout(x_range_min, x_range_max, true),
           yaxis: this.parent._get_y_axis_layout(y_range_min, y_range_max, variable_config),
           yaxis2: {
             type: 'linear',
@@ -646,12 +569,130 @@ export default class IslandDecadeView extends View {
     this._when_chart = new Promise((resolve) => {
       this.element.once('plotly_afterplot', (gd) => {
         resolve(gd)
-      })
+      });
+
+      this._hover_handler = partial(this._request_show_popover.bind(this), false, chart_data, hover_decadal_means, show_decadal_means, colors, precision, show_rolling_window_means, rolling_window_mean_years, variable_config, unitsystem);
+      this.element.on('plotly_hover', this._hover_handler);
+      this._click_handler = partial(this._request_show_popover.bind(this), true, chart_data, hover_decadal_means, show_decadal_means, colors, precision, show_rolling_window_means, rolling_window_mean_years, variable_config, unitsystem);
+      this.element.on('plotly_click', this._click_handler);
     });
     await this._when_chart
     this.parent._hide_spinner()
 
 
+  }
+
+
+  async _request_show_popover(pinned, chart_data, hover_decadal_means, show_decadal_means, colors, precision, show_rolling_window_means, rolling_window_mean_years, variable_config, unitsystem, event_data) {
+    try {
+      const year = parseInt(event_data.points[0].x.slice(0, 4));
+      let proj_year_idx = year - 2005;
+      if (proj_year_idx < 0) {
+        proj_year_idx = 0;
+      }
+      if (proj_year_idx > chart_data['proj_year'].length) {
+        proj_year_idx = chart_data['proj_year'].length - 1;
+      }
+      let decadal_content = '';
+      let rolling_content = '';
+      let annual_content = '';
+      const hist_year_idx = year - 1950;
+      if (hover_decadal_means || show_decadal_means) {
+        const year_decade = Math.trunc(year / 10) * 10;
+        decadal_content = `
+        <div  class="label1">${year_decade}s projection</div>
+         ${year >= 2000 ? `
+           <div class="bg-rcp85 label2" >Higher Emissions</div>
+          <div class="bg-rcp85" style="grid-column: 1; padding-bottom: 0.25rem;">
+            <div title="${year_decade}s higher emissions mean" class="legend-line" style="font-size: 1.1rem; border-left-color:${rgba(colors.rcp85.line, colors.opacity.proj_line)}; ">${round(chart_data['rcp85_decadal_mean'][proj_year_idx], precision)}</div>
+          </div>
+          <div class="bg-rcp85" style=" grid-column: 2; padding-bottom: 0.25rem;">
+            <div title="${year_decade}s higher emissions range"  class="legend-area" style=" font-size: 0.8rem; border-left-color: ${rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax)}; "><span>${round(chart_data['rcp85_decadal_min'][proj_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp85_decadal_max'][proj_year_idx], precision)}</span></div>
+          </div>
+         
+          <div class="bg-rcp45 label2" >Lower Emissions</div>
+          <div class="bg-rcp45"  style="grid-column: 1;  padding-bottom: 0.25rem;">
+            <div title="${year_decade}s lower emissions mean" class="legend-line" style="font-size: 1.1rem; border-left-color:${rgba(colors.rcp45.line, colors.opacity.proj_line)};  ">${round(chart_data['rcp45_decadal_mean'][proj_year_idx], precision)}</div>
+          </div>
+          <div class="bg-rcp45"  style="grid-column: 2;  padding-bottom: 0.25rem;">
+            <div title="${year_decade}s lower emissions range" class="legend-area" style=" font-size: 0.8rem;  border-left-color: ${rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax)}; ">${round(chart_data['rcp45_decadal_min'][proj_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp45_decadal_max'][proj_year_idx], precision)}</div>
+          </div>
+        ` : `
+        <div  class="label2 bg-hist">Historic range</div>
+        <div style="grid-column: 1 / span 2; background-color: ${rgba(colors.hist.outerBand, 0.1)}; padding-bottom: 0.25rem; ">
+          <div title="${year_decade}s historic range" class="legend-area" style="font-size: 0.8rem;  border-left-color: ${rgba(colors.hist.outerBand, colors.opacity.ann_proj_minmax)}; "><span>${round(chart_data['hist_decadal_min'][hist_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['hist_decadal_max'][hist_year_idx], precision)}</span></div>
+        </div>
+        `}
+        `;
+      }
+      if (show_rolling_window_means) {
+        const year_start = year - rolling_window_mean_years;
+        if (year_start - 1950 > 0) {
+          rolling_content = `
+        <div  class="label1">${year_start}&mdash;${year} projection</div>
+         ${year >= 2000 ? `
+           <div class="bg-rcp85 label2" >Higher Emissions</div>
+          <div class="bg-rcp85" style=" grid-column: 1; padding-bottom: 0.25rem;">
+            <div title="${year_start}&mdash;${year} higher emissions mean" class="legend-line" style="font-size: 1.1rem; border-left-color:${rgba(colors.rcp85.line, colors.opacity.proj_line)}; ">${round(chart_data['rcp85_rolling_mean'][proj_year_idx], precision)}</div>
+          </div>
+          <div class="bg-rcp85" style=" grid-column: 2; padding-bottom: 0.25rem;">
+            <div title="${year_start}&mdash;${year} higher emissions range" class="legend-area" style=" font-size: 0.8rem; border-left-color: ${rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax)}; "><span>${round(chart_data['rcp85_rolling_min'][proj_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp85_rolling_max'][proj_year_idx], precision)}</span></div>
+          </div>
+         
+          <div class="bg-rcp45 label2" >Lower Emissions</div>
+          <div class="bg-rcp45"  style="grid-column: 1;  padding-bottom: 0.25rem;">
+            <div title="${year_start}&mdash;${year} lower emissions mean" class="legend-line" style="font-size: 1.1rem; border-left-color:${rgba(colors.rcp45.line, colors.opacity.proj_line)};  ">${round(chart_data['rcp45_rolling_mean'][proj_year_idx], precision)}</div>
+          </div>
+          <div class="bg-rcp45"  style="grid-column: 2;  padding-bottom: 0.25rem;">
+            <div title="${year_start}&mdash;${year} lower emissions range" class="legend-area" style=" font-size: 0.8rem;  border-left-color: ${rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax)}; ">${round(chart_data['rcp45_rolling_min'][proj_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp45_rolling_max'][proj_year_idx], precision)}</div>
+          </div>
+        ` : `
+        <div  class="label2 bg-hist" >Historic range</div>
+        <div style="grid-column: 1 / span 2; background-color: ${rgba(colors.hist.outerBand, 0.1)}; padding-bottom: 0.25rem; ">
+          <div title="${year_start}&mdash;${year} historic range" class="legend-area" style="font-size: 0.8rem;  border-left-color: ${rgba(colors.hist.outerBand, colors.opacity.ann_proj_minmax)}; "><span>${round(chart_data['hist_rolling_min'][hist_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['hist_rolling_max'][hist_year_idx], precision)}</span></div>
+        </div>
+        `}
+        `;
+        }
+      }
+      if (!hover_decadal_means) {
+        annual_content = `
+        <div class="label1">{year} projection</div>
+         ${year >= 2000 ? `
+           <div class="bg-rcp85 label2" >Higher Emissions</div>
+          <div class="bg-rcp85" style=" grid-column: 1; padding-bottom: 0.25rem;">
+            <div title="${year} higher emissions mean" class="legend-line" style="font-size: 1.1rem; border-left-color:${rgba(colors.rcp85.line, colors.opacity.proj_line)}; ">${round(chart_data['rcp85_mean'][proj_year_idx], precision)}</div>
+          </div>
+          <div  class="bg-rcp85" style=" grid-column: 2; padding-bottom: 0.25rem;">
+            <div title="${year} higher emissions range" class="legend-area" style=" font-size: 0.8rem; border-left-color: ${rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax)}; "><span>${round(chart_data['rcp85_min'][proj_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp85_max'][proj_year_idx], precision)}</span></div>
+          </div>
+         
+          <div class="bg-rcp45 label2" >Lower Emissions</div>
+          <div class="bg-rcp45" style="grid-column: 1;  padding-bottom: 0.25rem;">
+            <div title="${year} lower emissions mean"  class="legend-line"  style="font-size: 1.1rem; border-left-color:${rgba(colors.rcp45.line, colors.opacity.proj_line)};  ">${round(chart_data['rcp45_mean'][proj_year_idx], precision)}</div>
+          </div>
+          <div class="bg-rcp45"  style="grid-column: 2;  padding-bottom: 0.25rem;">
+            <div title="${year} lower emissions range" class="legend-area" style=" font-size: 0.8rem;  border-left-color: ${rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax)}; ">${round(chart_data['rcp45_min'][proj_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp45_max'][proj_year_idx], precision)}</div>
+          </div>
+        ` : `
+        <div class="label2 bg-hist">Historic range</div>
+        <div style="grid-column: 1 / span 2; background-color: ${rgba(colors.hist.outerBand, 0.1)}; padding-bottom: 0.25rem; ">
+          <div title="${year} historic range" class="legend-area" style="font-size: 0.8rem;  border-left-color: ${rgba(colors.hist.outerBand, colors.opacity.ann_proj_minmax)}; "><span>${round(chart_data['hist_min'][hist_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['hist_max'][hist_year_idx], precision)}</span></div>
+        </div>
+        `}
+        `
+      }
+
+      return this.parent._request_show_popover('xaxes' in event_data ? event_data.xaxes[0].l2p(event_data.xvals[0]) : null, null, `
+        <div style="display: grid; grid-template-columns: auto auto;">
+         ${decadal_content}
+        ${rolling_content}
+        ${annual_content}
+        `, pinned, variable_config.ytitles['annual'][unitsystem]);
+    } catch (e) {
+      console.error(e)
+      return this.parent.request_hide_popover(pinned);
+    }
   }
 
   async request_style_update() {
@@ -792,11 +833,21 @@ export default class IslandDecadeView extends View {
 
   destroy() {
     super.destroy();
-    //cleanup style
-    const _style_idx = this.parent._styles.indexOf(this._style);
-    if (_style_idx > -1) {
-      this.parent._styles.splice(_style_idx, 1);
+    try {
+      //cleanup style
+      const _style_idx = this.parent._styles.indexOf(this._style);
+      if (_style_idx > -1) {
+        this.parent._styles.splice(_style_idx, 1);
+      }
+      this.parent._update_styles();
+
+      // remove event handlers
+      if (this.element && this.element.removeListener) {
+        this.element.removeListener('plotly_hover', this._hover_handler);
+        this.element.removeListener('plotly_click', this._click_handler);
+      }
+    } catch {
+      // do nothing
     }
-    this.parent._update_styles();
   }
 }

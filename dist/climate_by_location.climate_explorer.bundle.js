@@ -5339,7 +5339,7 @@
     //expand the years to be an exact number of rolling windows
     const _data = data.map(a => a[stat_col_idx]);
 
-    const rolling_means = range(_data.length).map(year_idx => ClimateByLocationWidget._rolling_window_average(_data, year_idx, rolling_window_years, false)); // rolling_means.unshift(...lodash_range(rolling_window_years - 1).map(()=>Number.NaN))
+    const rolling_means = range(_data.length).map(year_idx => rolling_window_average(_data, year_idx, rolling_window_years, false)); // rolling_means.unshift(...lodash_range(rolling_window_years - 1).map(()=>Number.NaN))
 
     return rolling_means;
   }
@@ -6557,8 +6557,7 @@
         show_rolling_window_means: false,
         rolling_window_mean_years: 10,
         data_api_url: data_api_url,
-        island_data_url_template: island_data_url_template,
-        no_custom_tooltip: true
+        island_data_url_template: island_data_url_template
       }; // this.options = merge(this.options, options);
 
       this.view = null;
@@ -6579,12 +6578,12 @@
         this.element.id = 'climatebylocation-' + Math.floor(Math.random() * Math.floor(100));
       }
 
-      this._styles = ['#' + this.element.id + ' .climate_by_location_view {width: 100%; height: 100%;}'];
-      this.element.innerHTML = "<div class='climate_by_location_view'></div><style></style>";
-
-      this._update_styles();
-
-      this.view_container = this.element.querySelector('div.climate_by_location_view');
+      this._styles = ["#".concat(this.element.id, " {position: relative;}"), "#".concat(this.element.id, " .climate_by_location_view {width: 100%; height: 100%;}")];
+      this.view_container = document.createElement('div');
+      this.view_container.classList.add('climate_by_location_view');
+      this.element.append(this.view_container);
+      this._style_el = document.createElement('style');
+      this.element.append(this._style_el);
       /** @type {function} */
 
       this._update_visibility = null;
@@ -6592,12 +6591,9 @@
 
       this._when_chart = null;
 
-      if (!this.options.no_custom_tooltip) {
-        this.hover_info = document.createElement("span");
-        this.hover_info.style.display = "none";
-        this.hover_info.id = (this.element.id || "") + "-cbl-hover-info";
-        document.body.append(this.hover_info);
-      }
+      this._init_popover();
+
+      this._update_styles();
 
       ClimateByLocationWidget$1.when_areas().then(() => {
         this.update(options);
@@ -6609,11 +6605,18 @@
     }
 
     _update_styles() {
-      const el = this.element.querySelector('style');
-
-      if (el) {
-        el.innerHTML = this._styles.join('\n');
+      if (this._style_el) {
+        this._style_el.innerHTML = this._styles.join('\n');
       }
+    }
+
+    _init_popover() {
+      this._styles = [...this._styles, "#".concat(this.element.id, " .hoverlayer .legend {display: none !important;}"), "#".concat(this.element.id, " .climate_by_location_popover {\n            display: none;\n            position:absolute;\n            background: rgba(252,253,255,0.75);\n            pointer-events: none;\n            min-height: 3.75rem;\n            flex-flow: column nowrap;\n            height: fit-content;\n            width: 16rem;\n            box-shadow: 2px 1px 5px rgb(0 0 0 / 50%);\n            border: solid 1.3px rgba(0, 0, 0, 0.3);\n            padding: 0.45rem 0.55rem;\n            font-size: 1rem;\n            font-weight: 500;\n            line-height: 1.5rem;\n       }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-rcp85 { background-color: ").concat(rgba(this.options.colors.rcp85.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-rcp45 { background-color: ").concat(rgba(this.options.colors.rcp45.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-hist { background: ").concat(rgba(this.options.colors.hist.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .label1 { font-size: 1rem; font-weight: 700; line-height: 1.5rem; grid-column: 1 / span 2; }"), "#".concat(this.element.id, " .climate_by_location_popover .label2 { font-size: 0.7rem; padding-left: 0.3rem; line-height: 1rem; grid-column: 1 / span 2; }"), "#".concat(this.element.id, " .climate_by_location_popover .legend-area { margin-left: 0.5rem; border-left-width: 0.4rem; border-left-style: solid;  padding-left: 0.5rem;}"), "#".concat(this.element.id, " .climate_by_location_popover .legend-line { margin-left: 0.5rem; border-left-width: 0.15rem; border-left-style: solid; padding-left: 0.5rem; }"), "#".concat(this.element.id, " .climate_by_location_popover .popover-header { display: flex; flex-flow: row nowrap; align-items: center;}"), "#".concat(this.element.id, ".popover-pinned .climate_by_location_popover { pointer-events: all; background: rgba(252,253,255,0.95); left: 60px !important; top: 15px !important; }"), "#".concat(this.element.id, ".popover-open .climate_by_location_popover { display: flex;   }")];
+      this._popover = document.createElement("span");
+
+      this._popover.classList.add('climate_by_location_popover');
+
+      this.element.append(this._popover);
     }
     /*
      * Public instance methods
@@ -6686,6 +6689,8 @@
           this.view.destroy();
           this.view = null;
         }
+
+        this.request_hide_popover(true);
 
         this._update();
       } else {
@@ -6816,63 +6821,80 @@
         }
 
         await this.view.request_update();
-
-        if (!this.options.no_custom_tooltip) {
-          this.view_container.on('plotly_hover', data => {
-            try {
-              this.view_container.querySelector(".hoverlayer").style.display = "none";
-              this.hover_info.style.display = "block";
-              this.hover_info.style.position = "absolute";
-              let title = data.points[0].x; // Monthly view is shown in terms of months, where the data.points[0].xaxis.tickvals is an array [9, 10, ..., 23]
-              // and data.points[0].xaxis.ticktext is an array of [Oct, Nov, ..., Dec]
-
-              if (data.points[0].xaxis.ticktext && data.points[0].xaxis.tickvals) {
-                let tick_position = data.points[0].xaxis.tickvals.indexOf(data.points[0].x); //position of the x value in the array
-
-                title = data.points[0].xaxis.ticktext[tick_position]; // text representation of position to display
-              }
-
-              let inner_text = "\n                    <div>\n                        <span>".concat(title, "</span>                    \n                    </div>");
-              console.log(data);
-
-              for (let i = 0; i < data.points.length; i++) {
-                let point = data.points[i];
-                let color = '';
-
-                if (point.data.type === 'bar') {
-                  color = point.data.marker.color;
-                } else if (point.data.mode === 'lines') {
-                  color = point.fullData.line.color;
-                }
-
-                inner_text += "\n                    <div style=\"display: flex; flex-direction: row; justify-content: space-between; border: 1px solid ".concat(color, "; border-radius: 2px; margin-bottom: 5px;\">\n                        <span style=\"padding-left: 3px; padding-right: 3px;\">").concat(point.data.name, ": </span>\n                        <span style=\"padding-left: 3px; padding-right: 3px; font-weight: bold;\">").concat(point.y, "</span>\n                    </div>\n                ");
-              }
-
-              let outer_text = '<div style="background-color: rgba(255, 255, 255, 0.75); padding: 5px; border: 1px solid black; border-radius: 2px">' + inner_text + '</div>';
-              let too_far_right = this.element.offsetWidth - data.event.pageX - this.hover_info.offsetWidth - 20 < 0;
-              let x_position = data.event.pageX + 30;
-
-              if (too_far_right) {
-                x_position = data.event.pageX - this.hover_info.offsetWidth - 60;
-              }
-
-              this.hover_info.innerHTML = outer_text;
-              this.hover_info.style.top = "".concat(this.view_container.offsetHeight / 3.5, "px");
-              this.hover_info.style.left = "".concat(x_position, "px");
-            } catch (e) {
-              this.hover_info.style.display = "none";
-              console.log(e);
-            }
-          });
-          this.view_container.on('plotly_unhover', () => {
-            this.hover_info.style.display = "none";
-          });
-        }
+        this.element.addEventListener('mouseleave', () => this.request_hide_popover(false));
       } catch (e) {
         console.error(e);
 
         this._show_spinner_error();
       }
+    }
+
+    async _request_show_popover(x, y, content, pinned = false, title = '') {
+      if (!pinned && this.element.classList.contains('popover-pinned')) {
+        return Promise.resolve();
+      }
+
+      this.element.classList.add('popover-open');
+
+      if (pinned) {
+        this.element.classList.add('popover-pinned');
+      }
+
+      this._popover_hide_pending = false;
+      let x_position, y_position;
+
+      if (x != null) {
+        x_position = x + this.options.plotly_layout_defaults.margin.l + 7;
+
+        if (x_position + this._popover.offsetWidth + 25 >= this.element.offsetWidth) {
+          x_position -= this._popover.offsetWidth + 14;
+        }
+      } else {
+        x_position = (this.element.offsetWidth - 50) / 2 - this._popover.offsetWidth / 2 + 7;
+      }
+
+      if (y != null) {
+        y_position = y + this.options.plotly_layout_defaults.margin.t - this._popover.offsetHeight;
+
+        if (y_position - 20 < 0) {
+          y_position += this._popover.offsetHeight;
+        }
+      } else {
+        y_position = (this.element.offsetHeight - 60) / 2 - this._popover.offsetHeight / 2;
+      }
+
+      this._popover.style.top = "".concat(y_position, "px");
+      this._popover.style.left = "".concat(x_position, "px");
+      this._popover.innerHTML = "<div class=\"popover-header\"><span\n      class=\"popover-title\">".concat(title, "</span>").concat(pinned ? '<button style=" margin-left: auto; margin-right: 0.156rem; height: fit-content; padding: 0.062rem; font-size: 0.781rem; border: none;" data-popover-action="hide" title="Close"><span aria-hidden="true">&#x2715</span></button>' : '', "\n    </div>\n    <div>").concat(content, "</div>");
+
+      if (pinned) {
+        this._popover.querySelectorAll('[data-popover-action="hide"]').forEach(el => {
+          el.addEventListener('click', () => {
+            this.request_hide_popover(true);
+          });
+        });
+      }
+
+      return Promise.resolve();
+    }
+
+    async request_hide_popover(hide_pinned = false) {
+      if (!hide_pinned && this.element.classList.contains('popover-pinned')) {
+        return Promise.resolve();
+      } // requests the popover be hidden, with a 5ms debounce delay during which a request to show can cancel the hiding, thereby reducing flicker.
+
+
+      this._popover_hide_pending = true;
+      return new Promise((resolve, reject) => {
+        window.setTimeout(() => {
+          if (this._popover_hide_pending) {
+            this.element.classList.remove('popover-open', 'popover-pinned');
+            resolve();
+          } else {
+            reject();
+          }
+        }, 10);
+      });
     }
     /**
      * Updates this.options.xrange and this.options.yrange (if they are not null) based on new ranges computed from data and emits range events.
@@ -6885,7 +6907,7 @@
      */
 
 
-    _update_axes_ranges(x_range_min, x_range_max, y_range_min, y_range_max) {
+    _update_axes_ranges(x_range_min, x_range_max, y_range_min, y_range_max, xannual = false) {
       if (!!this.options.x_axis_range) {
         this.options.x_axis_range = [Math.max(x_range_min, get(this.options, ['x_axis_range', 0], x_range_min)), Math.min(x_range_max, get(this.options, ['x_axis_range', 1], x_range_max))];
       }
@@ -6903,6 +6925,10 @@
             detail: [y_range_min, y_range_max, get(this.options, ['y_axis_range', 0], y_range_min), get(this.options, ['y_axis_range', 1], y_range_max)]
           }));
         });
+      }
+
+      if (xannual) {
+        return [...(this.options.x_axis_range || [x_range_min, x_range_max]).map(a => a + '-01-01'), ...(this.options.y_axis_range || [y_range_min, y_range_max])];
       }
 
       return [...(this.options.x_axis_range || [x_range_min, x_range_max]), ...(this.options.y_axis_range || [y_range_min, y_range_max])];
@@ -6935,7 +6961,19 @@
       };
     }
 
-    _get_x_axis_layout(x_range_min, x_range_max) {
+    _get_x_axis_layout(x_range_min, x_range_max, annual = false) {
+      let annual_options = {};
+
+      if (annual) {
+        annual_options = {
+          // dtick: "M24",
+          tickformat: "%Y",
+          ticklabelmode: "period",
+          type: 'date',
+          range: (this.options.x_axis_range || [x_range_min, x_range_max]).map(a => a + '-01-01')
+        };
+      }
+
       return {
         type: 'linear',
         range: this.options.x_axis_range || [x_range_min, x_range_max],
@@ -6950,7 +6988,8 @@
           family: 'roboto, monospace',
           color: 'rgb(0,0,0)'
         },
-        tickangle: 0 // title: {
+        tickangle: 0,
+        // title: {
         //   text: 'Year',
         //   font: {
         //     family: 'roboto, monospace',
@@ -6958,7 +6997,7 @@
         //     color: '#494949'
         //   }
         // },
-
+        ...annual_options
       };
     }
 
@@ -6972,7 +7011,7 @@
     _show_spinner() {
       this._hide_spinner();
 
-      let style = "<style>.climatebylocation-spinner { margin-top: -2.5rem; border-radius: 100%;border-style: solid;border-width: 0.25rem;height: 5rem;width: 5rem;animation: basic 1s infinite linear; border-color: rgba(0, 0, 0, 0.2);border-top-color: rgba(0, 0, 0, 1); }@keyframes basic {0%   { transform: rotate(0); }100% { transform: rotate(359.9deg); }} .climatebylocation-spinner-container {display:flex; flex-flow: column; align-items: center; justify-content: center; background-color: rgba(255,255,255, 0.4); } .climatebylocation-spinner-error span { opacity: 1 !important;} .climatebylocation-spinner-error .climatebylocation-spinner {border-color: red !important; animation: none;} </style>";
+      const styles = ['.climatebylocation-spinner { margin-top: -1.562rem; border-radius: 100%;border-style: solid;border-width: 0.156rem;height: 3.125rem;width: 3.125rem;animation: basic 1s infinite linear; border-color: rgba(0, 0, 0, 0.2);border-top-color: rgba(0, 0, 0, 1); }', '@keyframes basic {0%   { transform: rotate(0); }100% { transform: rotate(359.9deg); }}', '.climatebylocation-spinner-container {display:flex; flex-flow: column; align-items: center; justify-content: center; background-color: rgba(255,255,255, 0.4); }', 'climatebylocation-spinner-error span { opacity: 1 !important;} .climatebylocation-spinner-error .climatebylocation-spinner {border-color: red !important; animation: none;}'];
       this.element.style.position = 'relative';
       const spinner_el = document.createElement('div');
       spinner_el.classList.add('climatebylocation-spinner-container');
@@ -6982,7 +7021,7 @@
       spinner_el.style.left = '0px';
       spinner_el.style.top = '0px';
       spinner_el.style.zIndex = '1000000';
-      spinner_el.innerHTML = style + "<div class='climatebylocation-spinner'></div><span style=\"opacity: 0; color: red; margin: 1rem;\">Failed to retrieve data. Please try again.</span>";
+      spinner_el.innerHTML = "<div class='climatebylocation-spinner'></div><span style=\"opacity: 0; color: red; margin: 0.625rem;\">Failed to retrieve data. Please try again.</span><style>".concat(styles.join(''), "</style>");
       this.element.appendChild(spinner_el);
     }
 
@@ -7689,7 +7728,7 @@
   class ConusDecadeView extends View {
     constructor(parent, element) {
       super(parent, element);
-      this._style = '#' + this.parent.element.id + " .legendtitletext{ display: none; }";
+      this._style = "#".concat(this.parent.element.id, " .legendtitletext{ display: none; }");
 
       parent._styles.push(this._style);
 
@@ -7708,7 +7747,8 @@
         show_legend,
         show_projected_rcp45,
         show_projected_rcp85,
-        show_rolling_window_means
+        show_rolling_window_means,
+        unitsystem
       } = this.parent.options;
       const area = this.parent.get_area();
       const variable_config = this.parent.get_variable_config();
@@ -7720,7 +7760,6 @@
 
       const [hist_obs_data, hist_mod_data, proj_mod_data] = await Promise.all([get_historical_observed_livneh_data(_options), get_historical_annual_loca_model_data(_options), get_projected_loca_model_data(_options)]);
       const precision = variable_config.rounding_precision || 1;
-      const d3_precision = precision > 0 ? precision : 0; // d3 format can't round to 10s, 100s, etc
 
       this._download_callbacks = {
         hist_obs: async () => format_export_data(['year', variable_config.id], hist_obs_data, null, precision),
@@ -7767,9 +7806,6 @@
         'rcp85_rolling_max': []
       };
       let decadal_means_traces = [];
-      let hist_decadal_data = [];
-      let rcp45_decadal_data = [];
-      let rcp85_decadal_data = [];
 
       if (show_decadal_means || hover_decadal_means) {
         const hist_stat_annual_values = [...hist_mod_data.map(a => [a[0], null, null, null, a[1], a[2], a[3]]), ...proj_mod_data.slice(0, 4)];
@@ -7802,14 +7838,14 @@
           }
         }
 
-        if (hover_decadal_means) {
-          hist_decadal_data = range(hist_mod_data.length).map(i => [chart_data['hist_year_decade'][i], chart_data['hist_decadal_mean'][i], chart_data['hist_decadal_min'][i], chart_data['hist_decadal_max'][i]]);
-          rcp45_decadal_data = range(proj_mod_data.length).map(i => [chart_data['proj_year_decade'][i], chart_data['rcp45_decadal_mean'][i], chart_data['rcp45_decadal_min'][i], chart_data['rcp45_decadal_max'][i]]);
-          rcp45_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
+        chart_data['proj_year_decade'].unshift(2000); // repeat 2005
 
-          rcp85_decadal_data = range(proj_mod_data.length).map(i => [chart_data['proj_year_decade'][i], chart_data['rcp85_decadal_mean'][i], chart_data['rcp85_decadal_min'][i], chart_data['rcp85_decadal_max'][i]]);
-          rcp85_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
-        }
+        chart_data['rcp45_decadal_mean'].unshift(chart_data['rcp45_decadal_mean'][0]);
+        chart_data['rcp45_decadal_min'].unshift(chart_data['rcp45_decadal_min'][0]);
+        chart_data['rcp45_decadal_max'].unshift(chart_data['rcp45_decadal_max'][0]);
+        chart_data['rcp85_decadal_mean'].unshift(chart_data['rcp85_decadal_mean'][0]);
+        chart_data['rcp85_decadal_min'].unshift(chart_data['rcp85_decadal_min'][0]);
+        chart_data['rcp85_decadal_max'].unshift(chart_data['rcp85_decadal_max'][0]);
 
         if (show_decadal_means) {
           decadal_means_traces = [{
@@ -7824,9 +7860,8 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_historical_modeled ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_historical_modeled ? true : 'legendonly' // hoverinfo: 'skip'
+
           }, {
             name: 'Modeled mean (historical decadal mean)',
             x: chart_data['hist_year'],
@@ -7839,9 +7874,8 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_historical_modeled ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_historical_modeled ? true : 'legendonly' // hoverinfo: 'skip'
+
           }, {
             name: 'Modeled minimum (historical decadal mean)',
             x: chart_data['hist_year'],
@@ -7854,9 +7888,8 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_historical_modeled ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_historical_modeled ? true : 'legendonly' // hoverinfo: 'skip'
+
           }, {
             name: 'Modeled maximum (RCP 4.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -7869,9 +7902,8 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_projected_rcp45 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_projected_rcp45 ? true : 'legendonly' // hoverinfo: 'skip'
+
           }, {
             name: 'Modeled minimum (RCP 4.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -7884,9 +7916,8 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_projected_rcp45 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_projected_rcp45 ? true : 'legendonly' // hoverinfo: 'skip'
+
           }, {
             name: 'Modeled mean (RCP 4.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -7899,9 +7930,8 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_projected_rcp45 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_projected_rcp45 ? true : 'legendonly' // hoverinfo: 'skip'
+
           }, {
             name: 'Modeled maximum (RCP 8.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -7914,9 +7944,8 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_projected_rcp85 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_projected_rcp85 ? true : 'legendonly' // hoverinfo: 'skip'
+
           }, {
             name: 'Modeled minimum (RCP 8.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -7929,9 +7958,8 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_projected_rcp85 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_projected_rcp85 ? true : 'legendonly' // hoverinfo: 'skip'
+
           }, {
             name: 'Modeled mean (RCP 8.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -7944,13 +7972,10 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_projected_rcp85 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_projected_rcp85 ? true : 'legendonly' // hoverinfo: 'skip'
+
           }];
         }
-
-        chart_data['proj_year_decade'].unshift(2005); // repeat 2005
       }
 
       let rolling_means_traces = [];
@@ -7981,9 +8006,8 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_historical_modeled ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_historical_modeled ? true : 'legendonly' // hoverinfo: 'skip'
+
         }, {
           name: "Modeled mean (historical ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['hist_year'],
@@ -7996,9 +8020,8 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_historical_modeled ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_historical_modeled ? true : 'legendonly' // hoverinfo: 'skip'
+
         }, {
           name: "Modeled minimum (historical ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['hist_year'],
@@ -8011,9 +8034,8 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_historical_modeled ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_historical_modeled ? true : 'legendonly' // hoverinfo: 'skip'
+
         }, {
           name: "Modeled maximum (RCP 4.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -8026,9 +8048,8 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_projected_rcp45 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_projected_rcp45 ? true : 'legendonly' // hoverinfo: 'skip'
+
         }, {
           name: "Modeled minimum (RCP 4.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -8041,9 +8062,8 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_projected_rcp45 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_projected_rcp45 ? true : 'legendonly' // hoverinfo: 'skip'
+
         }, {
           name: "Modeled mean (RCP 4.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -8056,9 +8076,8 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_projected_rcp45 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_projected_rcp45 ? true : 'legendonly' // hoverinfo: 'skip'
+
         }, {
           name: "Modeled maximum (RCP 8.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -8071,9 +8090,8 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_projected_rcp85 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_projected_rcp85 ? true : 'legendonly' // hoverinfo: 'skip'
+
         }, {
           name: "Modeled minimum (RCP 8.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -8086,9 +8104,8 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_projected_rcp85 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_projected_rcp85 ? true : 'legendonly' // hoverinfo: 'skip'
+
         }, {
           name: "Modeled mean (RCP 8.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -8101,9 +8118,8 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_projected_rcp85 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_projected_rcp85 ? true : 'legendonly' // hoverinfo: 'skip'
+
         }];
       }
 
@@ -8123,7 +8139,7 @@
       }
 
       for (let i = 0; i < hist_mod_data.length; i++) {
-        chart_data['hist_year'].push(hist_mod_data[i][0]);
+        chart_data['hist_year'].push(hist_mod_data[i][0] + '-01-01');
         chart_data['hist_mean'].push(round(hist_mod_data[i][1], precision));
         chart_data['hist_min'].push(round(hist_mod_data[i][2], precision));
         chart_data['hist_max'].push(round(hist_mod_data[i][3], precision));
@@ -8133,7 +8149,7 @@
       proj_mod_data.unshift([hist_mod_data[hist_mod_data.length - 1][0], round(hist_mod_data[hist_mod_data.length - 1][1], precision), round(hist_mod_data[hist_mod_data.length - 1][2], precision), round(hist_mod_data[hist_mod_data.length - 1][3], precision), round(hist_mod_data[hist_mod_data.length - 1][1], precision), round(hist_mod_data[hist_mod_data.length - 1][2], precision), round(hist_mod_data[hist_mod_data.length - 1][3], precision)]);
 
       for (let i = 0; i < proj_mod_data.length; i++) {
-        chart_data['proj_year'].push(proj_mod_data[i][0]);
+        chart_data['proj_year'].push(proj_mod_data[i][0] + '-01-01');
         chart_data['rcp45_mean'].push(round(proj_mod_data[i][1], precision));
         chart_data['rcp45_min'].push(round(proj_mod_data[i][2], precision));
         chart_data['rcp45_max'].push(round(proj_mod_data[i][3], precision));
@@ -8142,7 +8158,7 @@
         chart_data['rcp85_max'].push(round(proj_mod_data[i][6], precision));
       }
 
-      const [x_range_min, x_range_max, y_range_min, y_range_max] = this.parent._update_axes_ranges(min([min(chart_data['hist_year']), min(chart_data['proj_year'])]), max([max(chart_data['hist_year']), max(chart_data['proj_year'])]), min([min(chart_data['hist_min']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_max']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])]));
+      const [x_range_min, x_range_max, y_range_min, y_range_max] = this.parent._update_axes_ranges(1950, 2099, min([min(chart_data['hist_min']), min(chart_data['rcp45_min']), min(chart_data['rcp85_min'])]), max([max(chart_data['hist_max']), max(chart_data['rcp45_max']), max(chart_data['rcp85_max'])]), true);
 
       if (!(round(y_range_min, 1) === 0 && round(hist_obs_bar_base, 1) === 0)) {
         this._annotations = [{
@@ -8178,8 +8194,8 @@
           opacity: 1,
           dash: 'dot'
         },
-        visible: !!show_historical_observed ? true : 'legendonly',
-        hoverinfo: 'skip'
+        visible: !!show_historical_observed ? true : 'legendonly' // hoverinfo: 'skip'
+
       }, {
         name: 'Modeled minimum (historical)',
         x: chart_data['hist_year'],
@@ -8193,8 +8209,8 @@
           opacity: colors.opacity.ann_hist_minmax
         },
         legendgroup: 'hist',
-        visible: !!show_historical_modeled ? true : 'legendonly',
-        hoverinfo: 'skip'
+        visible: !!show_historical_modeled ? true : 'legendonly' // hoverinfo: 'skip'
+
       }, {
         x: chart_data['hist_year'],
         // y: chart_data['hist_max_diff'],
@@ -8210,13 +8226,8 @@
           opacity: colors.opacity.ann_hist_minmax
         },
         legendgroup: 'hist',
-        visible: !!show_historical_modeled ? true : 'legendonly',
-        hoverlabel: {
-          namelength: 0
-        },
-        // hoverinfo: 'text',
-        customdata: hover_decadal_means ? hist_decadal_data : hist_mod_data,
-        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " modeled range: %{customdata[2]:.").concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f}")
+        visible: !!show_historical_modeled ? true : 'legendonly' // hoverinfo: 'skip'
+
       }, // {
       //   x: chart_data['hist_year'],
       //   y: chart_data['hist_mean'],
@@ -8241,8 +8252,8 @@
           opacity: colors.opacity.ann_proj_minmax
         },
         legendgroup: 'rcp45',
-        visible: show_projected_rcp45 ? true : 'legendonly',
-        hoverinfo: 'skip'
+        visible: show_projected_rcp45 ? true : 'legendonly' // hoverinfo: 'skip'
+
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp45_max'],
@@ -8257,12 +8268,8 @@
           opacity: colors.opacity.ann_proj_minmax
         },
         legendgroup: 'rcp45',
-        visible: show_projected_rcp45 ? true : 'legendonly',
-        hoverlabel: {
-          namelength: 0
-        },
-        customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-        hovertemplate: "range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f}")
+        visible: show_projected_rcp45 ? true : 'legendonly' // hoverinfo: 'skip'
+
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp85_min'],
@@ -8278,8 +8285,8 @@
         },
         legendgroup: 'rcp85',
         visible: show_projected_rcp85 ? true : 'legendonly',
-        showlegend: false,
-        hoverinfo: 'skip'
+        showlegend: false // hoverinfo: 'skip'
+
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp85_max'],
@@ -8294,12 +8301,8 @@
           opacity: colors.opacity.ann_proj_minmax
         },
         legendgroup: 'rcp85',
-        visible: show_projected_rcp85 ? true : 'legendonly',
-        hoverlabel: {
-          namelength: 0
-        },
-        customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-        hovertemplate: "range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f}")
+        visible: show_projected_rcp85 ? true : 'legendonly' // hoverinfo: 'skip'
+
       }, {
         x: chart_data['hist_obs_year'],
         y: chart_data['hist_obs_diff'],
@@ -8315,12 +8318,8 @@
           color: rgba(colors.hist.bar, colors.opacity.hist_obs)
         },
         legendgroup: 'histobs',
-        visible: !!show_historical_observed ? true : 'legendonly',
-        customdata: null,
-        hovertemplate: "%{x} observed: <b>%{y:.".concat(d3_precision, "f}</b><br>1961-1990 observed average: <b>").concat(round(hist_obs_bar_base, d3_precision), "</b>"),
-        hoverlabel: {
-          namelength: 0
-        }
+        visible: !!show_historical_observed ? true : 'legendonly' // hoverinfo: 'skip'
+
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp45_mean'],
@@ -8332,12 +8331,8 @@
         },
         visible: show_projected_rcp45 ? true : 'legendonly',
         legendgroup: 'rcp45',
-        yaxis: 'y3',
-        hoverlabel: {
-          namelength: 0
-        },
-        customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " lower emissions average projection: <b>%{customdata[1]:.").concat(d3_precision, "f}</b>")
+        yaxis: 'y3' // hoverinfo: 'skip'
+
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp85_mean'],
@@ -8349,12 +8344,8 @@
           color: rgba(colors.rcp85.line, colors.opacity.proj_line)
         },
         legendgroup: 'rcp85',
-        yaxis: 'y3',
-        hoverlabel: {
-          namelength: 0
-        },
-        customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " higher emissions average projection: <b>%{customdata[1]:.").concat(d3_precision, "f}</b>")
+        yaxis: 'y3' // hoverinfo: 'skip'
+
       }, ...decadal_means_traces, ...rolling_means_traces], // layout
       Object.assign({}, plotly_layout_defaults, {
         margin: Object.assign({}, plotly_layout_defaults.margin, {
@@ -8364,7 +8355,7 @@
         hoverlabel: {
           namelength: -1
         },
-        xaxis: this.parent._get_x_axis_layout(x_range_min, x_range_max),
+        xaxis: this.parent._get_x_axis_layout(x_range_min, x_range_max, true),
         yaxis: this.parent._get_y_axis_layout(y_range_min, y_range_max, variable_config),
         yaxis2: {
           type: 'linear',
@@ -8428,12 +8419,59 @@
           this.element.removeListener('plotly_relayout', this._relayout_handler);
         }
 
+        this._hover_handler = partial(this._request_show_popover.bind(this), false, chart_data, hover_decadal_means, show_decadal_means, colors, precision, show_rolling_window_means, rolling_window_mean_years, variable_config, unitsystem, hist_obs_bar_base);
+        this.element.on('plotly_hover', this._hover_handler);
+        this._click_handler = partial(this._request_show_popover.bind(this), true, chart_data, hover_decadal_means, show_decadal_means, colors, precision, show_rolling_window_means, rolling_window_mean_years, variable_config, unitsystem, hist_obs_bar_base);
+        this.element.on('plotly_click', this._click_handler);
         this._relayout_handler = partial(this.sync_y_axis_ranges.bind(this), hist_obs_bar_base, [y_range_min, y_range_max]);
         this.element.on('plotly_relayout', this._relayout_handler);
       });
       await this._when_chart;
 
       this.parent._hide_spinner();
+    }
+
+    async _request_show_popover(pinned, chart_data, hover_decadal_means, show_decadal_means, colors, precision, show_rolling_window_means, rolling_window_mean_years, variable_config, unitsystem, hist_obs_bar_base, event_data) {
+      try {
+        const year = parseInt(event_data.points[0].x.slice(0, 4));
+        let proj_year_idx = year - 2005;
+
+        if (proj_year_idx < 0) {
+          proj_year_idx = 0;
+        }
+
+        if (proj_year_idx > chart_data['proj_year'].length) {
+          proj_year_idx = chart_data['proj_year'].length - 1;
+        }
+
+        let decadal_content = '';
+        let rolling_content = '';
+        let annual_content = '';
+        const hist_year_idx = year - 1950;
+
+        if (hover_decadal_means || show_decadal_means) {
+          const year_decade = Math.trunc(year / 10) * 10;
+          decadal_content = "\n        <div  class=\"label1\">".concat(year_decade, "s projection</div>\n         ").concat(year >= 2000 ? "\n           <div class=\"bg-rcp85 label2\" >Higher Emissions</div>\n          <div class=\"bg-rcp85\" style=\"grid-column: 1; padding-bottom: 0.25rem;\">\n            <div title=\"".concat(year_decade, "s higher emissions weighted mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left-color:").concat(rgba(colors.rcp85.line, colors.opacity.proj_line), "; \">").concat(round(chart_data['rcp85_decadal_mean'][proj_year_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp85\" style=\" grid-column: 2; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year_decade, "s higher emissions range\"  class=\"legend-area\" style=\" font-size: 0.8rem; border-left-color: ").concat(rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax), "; \"><span>").concat(round(chart_data['rcp85_decadal_min'][proj_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp85_decadal_max'][proj_year_idx], precision), "</span></div>\n          </div>\n         \n          <div class=\"bg-rcp45 label2\" >Lower Emissions</div>\n          <div class=\"bg-rcp45\"  style=\"grid-column: 1;  padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year_decade, "s lower emissions weighted mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left-color:").concat(rgba(colors.rcp45.line, colors.opacity.proj_line), ";  \">").concat(round(chart_data['rcp45_decadal_mean'][proj_year_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp45\"  style=\"grid-column: 2;  padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year_decade, "s lower emissions range\" class=\"legend-area\" style=\" font-size: 0.8rem;  border-left-color: ").concat(rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax), "; \">").concat(round(chart_data['rcp45_decadal_min'][proj_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp45_decadal_max'][proj_year_idx], precision), "</div>\n          </div>\n        ") : "\n        <div  class=\"label2 bg-hist\">Historic range</div>\n        <div style=\"grid-column: 1 / span 2; background-color: ".concat(rgba(colors.hist.outerBand, 0.1), "; padding-bottom: 0.25rem; \">\n          <div title=\"").concat(year_decade, "s historic range\" class=\"legend-area\" style=\"font-size: 0.8rem;  border-left-color: ").concat(rgba(colors.hist.outerBand, colors.opacity.ann_proj_minmax), "; \"><span>").concat(round(chart_data['hist_decadal_min'][hist_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['hist_decadal_max'][hist_year_idx], precision), "</span></div>\n        </div>\n        "), "\n        ");
+        }
+
+        if (show_rolling_window_means) {
+          const year_start = year - rolling_window_mean_years;
+
+          if (year_start - 1950 > 0) {
+            rolling_content = "\n        <div  class=\"label1\">".concat(year_start, "&mdash;").concat(year, " projection</div>\n         ").concat(year >= 2000 ? "\n           <div class=\"bg-rcp85 label2\" >Higher Emissions</div>\n          <div class=\"bg-rcp85\" style=\" grid-column: 1; padding-bottom: 0.25rem;\">\n            <div title=\"".concat(year_start, "&mdash;").concat(year, " higher emissions weighted mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left-color:").concat(rgba(colors.rcp85.line, colors.opacity.proj_line), "; \">").concat(round(chart_data['rcp85_rolling_mean'][proj_year_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp85\" style=\" grid-column: 2; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year_start, "&mdash;").concat(year, " higher emissions range\" class=\"legend-area\" style=\" font-size: 0.8rem; border-left-color: ").concat(rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax), "; \"><span>").concat(round(chart_data['rcp85_rolling_min'][proj_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp85_rolling_max'][proj_year_idx], precision), "</span></div>\n          </div>\n         \n          <div class=\"bg-rcp45 label2\" >Lower Emissions</div>\n          <div class=\"bg-rcp45\"  style=\"grid-column: 1;  padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year_start, "&mdash;").concat(year, " lower emissions weighted mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left-color:").concat(rgba(colors.rcp45.line, colors.opacity.proj_line), ";  \">").concat(round(chart_data['rcp45_rolling_mean'][proj_year_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp45\"  style=\"grid-column: 2;  padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year_start, "&mdash;").concat(year, " lower emissions range\" class=\"legend-area\" style=\" font-size: 0.8rem;  border-left-color: ").concat(rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax), "; \">").concat(round(chart_data['rcp45_rolling_min'][proj_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp45_rolling_max'][proj_year_idx], precision), "</div>\n          </div>\n        ") : "\n        <div  class=\"label2 bg-hist\" >Historic range</div>\n        <div style=\"grid-column: 1 / span 2; background-color: ".concat(rgba(colors.hist.outerBand, 0.1), "; padding-bottom: 0.25rem; \">\n          <div title=\"").concat(year_start, "&mdash;").concat(year, " historic range\" class=\"legend-area\" style=\"font-size: 0.8rem;  border-left-color: ").concat(rgba(colors.hist.outerBand, colors.opacity.ann_proj_minmax), "; \"><span>").concat(round(chart_data['hist_rolling_min'][hist_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['hist_rolling_max'][hist_year_idx], precision), "</span></div>\n        </div>\n        "), "\n        ");
+          }
+        }
+
+        if (!hover_decadal_means) {
+          annual_content = "\n        <div class=\"label1\">{year} projection</div>\n         ".concat(year >= 2000 ? "\n           <div class=\"bg-rcp85 label2\" >Higher Emissions</div>\n          <div class=\"bg-rcp85\" style=\" grid-column: 1; padding-bottom: 0.25rem;\">\n            <div title=\"".concat(year, " higher emissions weighted mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left-color:").concat(rgba(colors.rcp85.line, colors.opacity.proj_line), "; \">").concat(round(chart_data['rcp85_mean'][proj_year_idx], precision), "</div>\n          </div>\n          <div  class=\"bg-rcp85\" style=\" grid-column: 2; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year, " higher emissions range\" class=\"legend-area\" style=\" font-size: 0.8rem; border-left-color: ").concat(rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax), "; \"><span>").concat(round(chart_data['rcp85_min'][proj_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp85_max'][proj_year_idx], precision), "</span></div>\n          </div>\n         \n          <div class=\"bg-rcp45 label2\" >Lower Emissions</div>\n          <div class=\"bg-rcp45\" style=\"grid-column: 1;  padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year, " lower emissions weighted mean\"  class=\"legend-line\"  style=\"font-size: 1.1rem; border-left-color:").concat(rgba(colors.rcp45.line, colors.opacity.proj_line), ";  \">").concat(round(chart_data['rcp45_mean'][proj_year_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp45\"  style=\"grid-column: 2;  padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year, " lower emissions range\" class=\"legend-area\" style=\" font-size: 0.8rem;  border-left-color: ").concat(rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax), "; \">").concat(round(chart_data['rcp45_min'][proj_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp45_max'][proj_year_idx], precision), "</div>\n          </div>\n        ") : "\n        <div class=\"label2 bg-hist\">Historic range</div>\n        <div style=\"grid-column: 1 / span 2; background-color: ".concat(rgba(colors.hist.outerBand, 0.1), "; padding-bottom: 0.25rem; \">\n          <div title=\"").concat(year, " historic range\" class=\"legend-area\" style=\"font-size: 0.8rem;  border-left-color: ").concat(rgba(colors.hist.outerBand, colors.opacity.ann_proj_minmax), "; \"><span>").concat(round(chart_data['hist_min'][hist_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['hist_max'][hist_year_idx], precision), "</span></div>\n        </div>\n        "), "\n        ");
+        }
+
+        annual_content += "".concat(hist_year_idx < chart_data['hist_obs'].length ? "\n        <div  class=\"label1\" style=\"font-size: 0.8rem;\">".concat(year, " observed</div>\n        <div style=\"grid-column: 1 / span 2;\">\n          <div title=\"").concat(year, " observed\" class=\"legend-line\" style=\"font-size: 0.8rem; border-left-color: ").concat(rgba(colors.hist.bar, 0.75), ";  \">").concat(round(chart_data['hist_obs'][hist_year_idx], precision), "</div>\n        </div>\n        ") : '');
+        return this.parent._request_show_popover('xaxes' in event_data ? event_data.xaxes[0].l2p(event_data.xvals[0]) : null, null, "\n        <div style=\"display: grid; grid-template-columns: auto auto;\">\n         ".concat(decadal_content, "\n        ").concat(rolling_content, "\n        ").concat(annual_content, "\n        \n        <div class=\"label1\" style=\"font-size: 0.8rem;\">1961&mdash;1990 observed average</div>\n        <div style=\"grid-column: 1 / span 2;\">\n          <div title=\"1961&mdash;1990 observed average\" class=\"legend-line\" style=\"font-size: 0.8rem;  border-left-style: dashed; border-left-color: ").concat(rgba(colors.hist.bar, colors.opacity.hist_obs), ";  \">").concat(round(hist_obs_bar_base, precision), "</div>\n        </div>\n        </div>\n        "), pinned, variable_config.ytitles['annual'][unitsystem]);
+      } catch (e) {
+        console.error(e);
+        return this.parent.request_hide_popover(pinned);
+      }
     }
 
     sync_y_axis_ranges(offset, y_range_default, eventdata) {
@@ -8571,8 +8609,10 @@
         this.parent._update_styles(); // remove y-axis sync event handler
 
 
-        if (this._relayout_handler && this.element && this.element.removeListener) {
+        if (this.element && this.element.removeListener) {
           this.element.removeListener('plotly_relayout', this._relayout_handler);
+          this.element.removeListener('plotly_hover', this._hover_handler);
+          this.element.removeListener('plotly_click', this._click_handler);
         }
       } catch {// do nothing
       }
@@ -8586,7 +8626,9 @@
   class AlaskaYearView extends View {
     constructor(parent, element) {
       super(parent, element);
-      this._style = '#' + this.parent.element.id + " .legendtitletext{ display: none; }";
+      this._style = "#".concat(this.parent.element.id, " .legendtitletext{ display: none; }");
+
+      parent._styles.splice(parent._styles.indexOf("#".concat(this.parent.element.id, " .hoverlayer .legend {display: none !important;}")), 1);
 
       parent._styles.push(this._style);
 
@@ -8850,6 +8892,8 @@
         this.parent._styles.splice(_style_idx, 1);
       }
 
+      this.parent._styles.push("#".concat(this.parent.element.id, " .hoverlayer .legend {display: none !important;}"));
+
       this.parent._update_styles();
     }
 
@@ -9109,10 +9153,26 @@
         this.element.once('plotly_afterplot', gd => {
           resolve(gd);
         });
+        this._hover_handler = partial(this._request_show_popover.bind(this), false, chart_data, colors, precision, variable_config, unitsystem);
+        this.element.on('plotly_hover', this._hover_handler);
+        this._click_handler = partial(this._request_show_popover.bind(this), true, chart_data, colors, precision, variable_config, unitsystem);
+        this.element.on('plotly_click', this._click_handler);
       });
       await this._when_chart;
 
       this.parent._hide_spinner();
+    }
+
+    async _request_show_popover(pinned, chart_data, colors, precision, variable_config, unitsystem, event_data) {
+      try {
+        const month_idx = chart_data['month'].indexOf(parseInt(event_data.points[0].x));
+        let month = chart_data['month_label'][month_idx];
+        const monthly_content = "\n        <div class=\"label1\">".concat(month, " projection</div>\n           <div class=\"bg-rcp85 label2\">Higher Emissions</div>\n          <div  class=\"bg-rcp85\" style=\" grid-column: 1; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(month, " higher emissions mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left: 0.15rem solid ").concat(rgba(colors.rcp85.line, colors.opacity.proj_line), ";\">").concat(round(chart_data['rcp85_mean'][month_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp85\" style=\"grid-column: 2; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(month, " higher emissions range\" class=\"legend-area\"  style=\" font-size: 0.8rem; border-left-color: ").concat(rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax), ";\"><span>").concat(round(chart_data['rcp85_min'][month_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp85_max'][month_idx], precision), "</span></div>\n          </div>\n         \n          <div class=\"bg-rcp45 label2\">Lower Emissions</div>\n          <div class=\"bg-rcp45\" style=\"grid-column: 1; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(month, " lower emissions mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left: 0.15rem solid ").concat(rgba(colors.rcp45.line, colors.opacity.proj_line), ";\">").concat(round(chart_data['rcp45_mean'][month_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp45\" style=\"grid-column: 2; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(month, " lower emissions range\" class=\"legend-area\"  style=\" font-size: 0.8rem; border-left-color: ").concat(rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax), ";\">").concat(round(chart_data['rcp45_min'][month_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp45_max'][month_idx], precision), "</div>\n          </div>\n          <div class=\"label1 bg-hist\" style=\"font-size: 0.8rem;\">1961&mdash;1990 historical range</div>\n          <div class=\"bg-hist\" style=\"grid-column: 1 / span 2; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(month, " historical range\" class=\"legend-area\"  style=\"font-size: 0.8rem; border-left-color: ").concat(rgba(colors.hist.outerBand, colors.opacity.ann_proj_minmax), ";\">").concat(round(chart_data['hist_min'][month_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['hist_max'][month_idx], precision), "</div>\n          </div>\n        ");
+        return this.parent._request_show_popover(event_data.points[0].xaxis.l2p(event_data.points[0].x), null, "\n        <div style=\"display: grid; grid-template-columns: auto auto;\">\n        ".concat(monthly_content, "\n        </div>\n        "), pinned, variable_config.ytitles['annual'][unitsystem]);
+      } catch (e) {
+        console.error(e);
+        return this.parent.request_hide_popover(pinned);
+      }
     }
 
     async request_style_update() {
@@ -9165,6 +9225,19 @@
       }];
     }
 
+    destroy() {
+      super.destroy();
+
+      try {
+        // remove event handlers
+        if (this.element && this.element.removeListener) {
+          this.element.removeListener('plotly_hover', this._hover_handler);
+          this.element.removeListener('plotly_click', this._click_handler);
+        }
+      } catch {// do nothing
+      }
+    }
+
   }
 
   /* globals jQuery, window, Plotly, fetch, jStat */
@@ -9180,7 +9253,7 @@
         show_legend,
         show_projected_rcp45,
         show_projected_rcp85,
-        variable
+        unitsystem
       } = this.parent.options;
       const area = this.parent.get_area();
       const variable_config = this.parent.get_variable_config();
@@ -9399,10 +9472,26 @@
         this.element.once('plotly_afterplot', gd => {
           resolve(gd);
         });
+        this._hover_handler = partial(this._request_show_popover.bind(this), false, chart_data, colors, precision, variable_config, unitsystem);
+        this.element.on('plotly_hover', this._hover_handler);
+        this._click_handler = partial(this._request_show_popover.bind(this), true, chart_data, colors, precision, variable_config, unitsystem);
+        this.element.on('plotly_click', this._click_handler);
       });
       await this._when_chart;
 
       this.parent._hide_spinner();
+    }
+
+    async _request_show_popover(pinned, chart_data, colors, precision, variable_config, unitsystem, event_data) {
+      try {
+        const month_idx = chart_data['month'].indexOf(parseInt(event_data.points[0].x));
+        let month = chart_data['month_label'][month_idx];
+        const monthly_content = "\n        <div class=\"label1\">".concat(month, " projection</div>\n           <div class=\"bg-rcp85 label2\">Higher Emissions</div>\n          <div  class=\"bg-rcp85\" style=\" grid-column: 1; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(month, " higher emissions weighted mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left: 0.15rem solid ").concat(rgba(colors.rcp85.line, colors.opacity.proj_line), ";\">").concat(round(chart_data['rcp85_mean'][month_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp85\" style=\"grid-column: 2; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(month, " higher emissions range\" class=\"legend-area\"  style=\" font-size: 0.8rem; border-left-color: ").concat(rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax), ";\"><span>").concat(round(chart_data['rcp85_min'][month_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp85_max'][month_idx], precision), "</span></div>\n          </div>\n         \n          <div class=\"bg-rcp45 label2\">Lower Emissions</div>\n          <div class=\"bg-rcp45\" style=\"grid-column: 1; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(month, " lower emissions weighted mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left: 0.15rem solid ").concat(rgba(colors.rcp45.line, colors.opacity.proj_line), ";\">").concat(round(chart_data['rcp45_mean'][month_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp45\" style=\"grid-column: 2; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(month, " lower emissions range\" class=\"legend-area\"  style=\" font-size: 0.8rem; border-left-color: ").concat(rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax), ";\">").concat(round(chart_data['rcp45_min'][month_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp45_max'][month_idx], precision), "</div>\n          </div>\n          <div class=\"label1\" style=\"font-size: 0.8rem;\">1950-2013 observed</div>\n          <div style=\"grid-column: 1 / span 2;\">\n            <div title=\"1950-2013 observed\" class=\"legend-line\" style=\"font-size: 0.8rem; border-left-color: ").concat(rgba(colors.hist.line, 1), ";\">").concat(round(chart_data['hist_obs'][month_idx], precision), "</div>\n          </div>\n        ");
+        return this.parent._request_show_popover(event_data.points[0].xaxis.l2p(event_data.points[0].x), null, "\n        <div style=\"display: grid; grid-template-columns: auto auto;\">\n        ".concat(monthly_content, "\n        </div>\n        "), pinned, variable_config.ytitles['annual'][unitsystem]);
+      } catch (e) {
+        console.error(e);
+        return this.parent.request_hide_popover(pinned);
+      }
     }
 
     async request_style_update() {
@@ -9455,6 +9544,19 @@
       }];
     }
 
+    destroy() {
+      super.destroy();
+
+      try {
+        // remove event handlers
+        if (this.element && this.element.removeListener) {
+          this.element.removeListener('plotly_hover', this._hover_handler);
+          this.element.removeListener('plotly_click', this._click_handler);
+        }
+      } catch {// do nothing
+      }
+    }
+
   }
 
   /* globals jQuery, window, Plotly, fetch, jStat */
@@ -9469,7 +9571,7 @@
   class IslandDecadeView extends View {
     constructor(parent, element) {
       super(parent, element);
-      this._style = '#' + this.parent.element.id + " .legendtitletext{ display: none; }";
+      this._style = "#".concat(this.parent.element.id, " .legendtitletext{ display: none; }");
 
       parent._styles.push(this._style);
 
@@ -9514,7 +9616,6 @@
         return _data;
       }, []);
       const precision = variable_config.rounding_precision || 1;
-      const d3_precision = precision > 0 ? precision : 0; // d3 format can't round to 10s, 100s, etc
       // format download data.
 
       this._download_callbacks = {
@@ -9557,9 +9658,6 @@
         'rcp85_rolling_max': []
       };
       let decadal_means_traces = [];
-      let hist_decadal_data = [];
-      let rcp45_decadal_data = [];
-      let rcp85_decadal_data = [];
 
       if (show_decadal_means || hover_decadal_means) {
         const hist_stat_annual_values = [...hist_mod_data.map(a => [a[0], null, null, null, a[1], a[2], a[3]]), ...proj_mod_data.slice(0, 4)];
@@ -9594,18 +9692,14 @@
           }
         }
 
-        if (hover_decadal_means) {
-          hist_decadal_data = range(hist_mod_data.length).map(i => [chart_data['hist_year_decade'][i], chart_data['hist_decadal_mean'][i], chart_data['hist_decadal_min'][i], chart_data['hist_decadal_max'][i]]);
-          rcp45_decadal_data = range(proj_mod_data.length).map(i => [chart_data['proj_year_decade'][i], chart_data['rcp45_decadal_mean'][i], chart_data['rcp45_decadal_min'][i], chart_data['rcp45_decadal_max'][i]]);
-          rcp45_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
+        chart_data['proj_year_decade'].unshift(2000); // repeat 2005
 
-          rcp45_decadal_data[rcp45_decadal_data.length - 1] = [2100, "NaN", "NaN", "NaN"]; // NaN 2100
-
-          rcp85_decadal_data = range(proj_mod_data.length).map(i => [chart_data['proj_year_decade'][i], chart_data['rcp85_decadal_mean'][i], chart_data['rcp85_decadal_min'][i], chart_data['rcp85_decadal_max'][i]]);
-          rcp85_decadal_data.unshift(hist_decadal_data.slice(-1)[0]); // repeat 2005
-
-          rcp85_decadal_data[rcp85_decadal_data.length - 1] = [2100, "NaN", "NaN", "NaN"]; // NaN 2100
-        }
+        chart_data['rcp45_decadal_mean'].unshift(chart_data['rcp45_decadal_mean'][0]);
+        chart_data['rcp45_decadal_min'].unshift(chart_data['rcp45_decadal_min'][0]);
+        chart_data['rcp45_decadal_max'].unshift(chart_data['rcp45_decadal_max'][0]);
+        chart_data['rcp85_decadal_mean'].unshift(chart_data['rcp85_decadal_mean'][0]);
+        chart_data['rcp85_decadal_min'].unshift(chart_data['rcp85_decadal_min'][0]);
+        chart_data['rcp85_decadal_max'].unshift(chart_data['rcp85_decadal_max'][0]);
 
         if (show_decadal_means) {
           decadal_means_traces = [{
@@ -9620,9 +9714,7 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_historical_modeled ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_historical_modeled ? true : 'legendonly'
           }, {
             name: 'Modeled mean (historical decadal mean)',
             x: chart_data['hist_year'],
@@ -9635,9 +9727,7 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_historical_modeled ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_historical_modeled ? true : 'legendonly'
           }, {
             name: 'Modeled minimum (historical decadal mean)',
             x: chart_data['hist_year'],
@@ -9650,9 +9740,7 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_historical_modeled ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_historical_modeled ? true : 'legendonly'
           }, {
             name: 'Modeled maximum (RCP 4.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -9665,9 +9753,7 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_projected_rcp45 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_projected_rcp45 ? true : 'legendonly'
           }, {
             name: 'Modeled minimum (RCP 4.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -9680,9 +9766,7 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_projected_rcp45 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_projected_rcp45 ? true : 'legendonly'
           }, {
             name: 'Modeled mean (RCP 4.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -9695,9 +9779,7 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_projected_rcp45 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_projected_rcp45 ? true : 'legendonly'
           }, {
             name: 'Modeled maximum (RCP 8.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -9710,9 +9792,7 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_projected_rcp85 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_projected_rcp85 ? true : 'legendonly'
           }, {
             name: 'Modeled minimum (RCP 8.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -9725,9 +9805,7 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_projected_rcp85 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_projected_rcp85 ? true : 'legendonly'
           }, {
             name: 'Modeled mean (RCP 8.5 decadal mean)',
             x: chart_data['proj_year'],
@@ -9740,9 +9818,7 @@
               width: 1.3,
               opacity: 1
             },
-            visible: !!show_projected_rcp85 ? true : 'legendonly',
-            customdata: null,
-            hovertemplate: "%{y:.".concat(d3_precision, "f}")
+            visible: !!show_projected_rcp85 ? true : 'legendonly'
           }];
         }
 
@@ -9780,9 +9856,7 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_historical_modeled ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_historical_modeled ? true : 'legendonly'
         }, {
           name: "Modeled mean (historical ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['hist_year'],
@@ -9795,9 +9869,7 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_historical_modeled ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_historical_modeled ? true : 'legendonly'
         }, {
           name: "Modeled minimum (historical ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['hist_year'],
@@ -9810,9 +9882,7 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_historical_modeled ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_historical_modeled ? true : 'legendonly'
         }, {
           name: "Modeled maximum (RCP 4.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -9825,9 +9895,7 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_projected_rcp45 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_projected_rcp45 ? true : 'legendonly'
         }, {
           name: "Modeled minimum (RCP 4.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -9840,9 +9908,7 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_projected_rcp45 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_projected_rcp45 ? true : 'legendonly'
         }, {
           name: "Modeled mean (RCP 4.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -9855,9 +9921,7 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_projected_rcp45 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_projected_rcp45 ? true : 'legendonly'
         }, {
           name: "Modeled maximum (RCP 8.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -9870,9 +9934,7 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_projected_rcp85 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_projected_rcp85 ? true : 'legendonly'
         }, {
           name: "Modeled minimum (RCP 8.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -9885,9 +9947,7 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_projected_rcp85 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_projected_rcp85 ? true : 'legendonly'
         }, {
           name: "Modeled mean (RCP 8.5 ".concat(rolling_window_mean_years, "-yr rolling window mean)"),
           x: chart_data['proj_year'],
@@ -9900,14 +9960,12 @@
             width: 1.3,
             opacity: 1
           },
-          visible: !!show_projected_rcp85 ? true : 'legendonly',
-          customdata: null,
-          hovertemplate: "%{y:.".concat(d3_precision, "f}")
+          visible: !!show_projected_rcp85 ? true : 'legendonly'
         }];
       }
 
       for (let i = 0; i < hist_mod_data.length; i++) {
-        chart_data['hist_year'].push(hist_mod_data[i][0]);
+        chart_data['hist_year'].push(hist_mod_data[i][0] + '-01-01');
         chart_data['hist_mean'].push(round(hist_mod_data[i][1], precision));
         chart_data['hist_min'].push(round(hist_mod_data[i][2], precision));
         chart_data['hist_max'].push(round(hist_mod_data[i][3], precision));
@@ -9917,7 +9975,7 @@
       proj_mod_data.unshift([hist_mod_data[hist_mod_data.length - 1][0], round(hist_mod_data[hist_mod_data.length - 1][1], precision), round(hist_mod_data[hist_mod_data.length - 1][2], precision), round(hist_mod_data[hist_mod_data.length - 1][3], precision), round(hist_mod_data[hist_mod_data.length - 1][1], precision), round(hist_mod_data[hist_mod_data.length - 1][2], precision), round(hist_mod_data[hist_mod_data.length - 1][3], precision)]);
 
       for (let i = 0; i < proj_mod_data.length; i++) {
-        chart_data['proj_year'].push(proj_mod_data[i][0]);
+        chart_data['proj_year'].push(proj_mod_data[i][0] + '-01-01');
         chart_data['rcp45_mean'].push(round(proj_mod_data[i][1], precision));
         chart_data['rcp45_min'].push(round(proj_mod_data[i][2], precision));
         chart_data['rcp45_max'].push(round(proj_mod_data[i][3], precision));
@@ -9941,8 +9999,7 @@
           opacity: colors.opacity.ann_hist_minmax
         },
         legendgroup: 'hist',
-        visible: !!show_historical_modeled ? true : 'legendonly',
-        hoverinfo: 'skip'
+        visible: !!show_historical_modeled ? true : 'legendonly'
       }, {
         x: chart_data['hist_year'],
         // y: chart_data['hist_max_diff'],
@@ -9958,13 +10015,7 @@
           opacity: colors.opacity.ann_hist_minmax
         },
         legendgroup: 'hist',
-        visible: !!show_historical_modeled ? true : 'legendonly',
-        hoverlabel: {
-          namelength: 0
-        },
-        // hoverinfo: 'text',
-        customdata: hover_decadal_means ? hist_decadal_data : hist_mod_data,
-        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " modeled range: %{customdata[2]:.").concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f}")
+        visible: !!show_historical_modeled ? true : 'legendonly'
       }, // {
       //   x: chart_data['hist_year'],
       //   y: chart_data['hist_mean'],
@@ -9989,8 +10040,7 @@
           opacity: colors.opacity.ann_proj_minmax
         },
         legendgroup: 'rcp45',
-        visible: show_projected_rcp45 ? true : 'legendonly',
-        hoverinfo: 'skip'
+        visible: show_projected_rcp45 ? true : 'legendonly'
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp45_max'],
@@ -10005,12 +10055,7 @@
           opacity: colors.opacity.ann_proj_minmax
         },
         legendgroup: 'rcp45',
-        visible: show_projected_rcp45 ? true : 'legendonly',
-        hoverlabel: {
-          namelength: 0
-        },
-        customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-        hovertemplate: "range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f}")
+        visible: show_projected_rcp45 ? true : 'legendonly'
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp85_min'],
@@ -10026,8 +10071,7 @@
         },
         legendgroup: 'rcp85',
         visible: show_projected_rcp85 ? true : 'legendonly',
-        showlegend: false,
-        hoverinfo: 'skip'
+        showlegend: false
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp85_max'],
@@ -10042,53 +10086,38 @@
           opacity: colors.opacity.ann_proj_minmax
         },
         legendgroup: 'rcp85',
-        visible: show_projected_rcp85 ? true : 'legendonly',
-        hoverlabel: {
-          namelength: 0
-        },
-        customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-        hovertemplate: "range: %{customdata[2]:.".concat(d3_precision, "f}&#8211;%{customdata[3]:.").concat(d3_precision, "f}")
+        visible: show_projected_rcp85 ? true : 'legendonly'
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp45_mean'],
         type: 'scatter',
         mode: 'lines',
-        name: 'RCP 4.5 projections (weighted mean)',
+        name: 'RCP 4.5 projections (mean)',
         line: {
           color: rgba(colors.rcp45.line, colors.opacity.proj_line)
         },
         visible: show_projected_rcp45 ? true : 'legendonly',
         legendgroup: 'rcp45',
-        yaxis: 'y3',
-        hoverlabel: {
-          namelength: 0
-        },
-        customdata: hover_decadal_means ? rcp45_decadal_data : proj_mod_data,
-        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " lower emissions average projection: <b>%{customdata[1]:.").concat(d3_precision, "f}</b>")
+        yaxis: 'y3'
       }, {
         x: chart_data['proj_year'],
         y: chart_data['rcp85_mean'],
         type: 'scatter',
         mode: 'lines',
-        name: 'Modeled mean (RCP 8.5 projections, weighted)',
+        name: 'Modeled mean (RCP 8.5 projections)',
         visible: show_projected_rcp85 ? true : 'legendonly',
         line: {
           color: rgba(colors.rcp85.line, colors.opacity.proj_line)
         },
         legendgroup: 'rcp85',
-        yaxis: 'y3',
-        hoverlabel: {
-          namelength: 0
-        },
-        customdata: hover_decadal_means ? rcp85_decadal_data : proj_mod_data,
-        hovertemplate: "%{customdata[0]}".concat(hover_decadal_means ? 's' : '', " higher emissions average projection: <b>%{customdata[1]:.").concat(d3_precision, "f}</b>")
+        yaxis: 'y3'
       }, ...decadal_means_traces, ...rolling_means_traces], // layout
       Object.assign({}, plotly_layout_defaults, {
         showlegend: show_legend,
         hoverlabel: {
           namelength: -1
         },
-        xaxis: this.parent._get_x_axis_layout(x_range_min, x_range_max),
+        xaxis: this.parent._get_x_axis_layout(x_range_min, x_range_max, true),
         yaxis: this.parent._get_y_axis_layout(y_range_min, y_range_max, variable_config),
         yaxis2: {
           type: 'linear',
@@ -10114,10 +10143,56 @@
         this.element.once('plotly_afterplot', gd => {
           resolve(gd);
         });
+        this._hover_handler = partial(this._request_show_popover.bind(this), false, chart_data, hover_decadal_means, show_decadal_means, colors, precision, show_rolling_window_means, rolling_window_mean_years, variable_config, unitsystem);
+        this.element.on('plotly_hover', this._hover_handler);
+        this._click_handler = partial(this._request_show_popover.bind(this), true, chart_data, hover_decadal_means, show_decadal_means, colors, precision, show_rolling_window_means, rolling_window_mean_years, variable_config, unitsystem);
+        this.element.on('plotly_click', this._click_handler);
       });
       await this._when_chart;
 
       this.parent._hide_spinner();
+    }
+
+    async _request_show_popover(pinned, chart_data, hover_decadal_means, show_decadal_means, colors, precision, show_rolling_window_means, rolling_window_mean_years, variable_config, unitsystem, event_data) {
+      try {
+        const year = parseInt(event_data.points[0].x.slice(0, 4));
+        let proj_year_idx = year - 2005;
+
+        if (proj_year_idx < 0) {
+          proj_year_idx = 0;
+        }
+
+        if (proj_year_idx > chart_data['proj_year'].length) {
+          proj_year_idx = chart_data['proj_year'].length - 1;
+        }
+
+        let decadal_content = '';
+        let rolling_content = '';
+        let annual_content = '';
+        const hist_year_idx = year - 1950;
+
+        if (hover_decadal_means || show_decadal_means) {
+          const year_decade = Math.trunc(year / 10) * 10;
+          decadal_content = "\n        <div  class=\"label1\">".concat(year_decade, "s projection</div>\n         ").concat(year >= 2000 ? "\n           <div class=\"bg-rcp85 label2\" >Higher Emissions</div>\n          <div class=\"bg-rcp85\" style=\"grid-column: 1; padding-bottom: 0.25rem;\">\n            <div title=\"".concat(year_decade, "s higher emissions mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left-color:").concat(rgba(colors.rcp85.line, colors.opacity.proj_line), "; \">").concat(round(chart_data['rcp85_decadal_mean'][proj_year_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp85\" style=\" grid-column: 2; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year_decade, "s higher emissions range\"  class=\"legend-area\" style=\" font-size: 0.8rem; border-left-color: ").concat(rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax), "; \"><span>").concat(round(chart_data['rcp85_decadal_min'][proj_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp85_decadal_max'][proj_year_idx], precision), "</span></div>\n          </div>\n         \n          <div class=\"bg-rcp45 label2\" >Lower Emissions</div>\n          <div class=\"bg-rcp45\"  style=\"grid-column: 1;  padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year_decade, "s lower emissions mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left-color:").concat(rgba(colors.rcp45.line, colors.opacity.proj_line), ";  \">").concat(round(chart_data['rcp45_decadal_mean'][proj_year_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp45\"  style=\"grid-column: 2;  padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year_decade, "s lower emissions range\" class=\"legend-area\" style=\" font-size: 0.8rem;  border-left-color: ").concat(rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax), "; \">").concat(round(chart_data['rcp45_decadal_min'][proj_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp45_decadal_max'][proj_year_idx], precision), "</div>\n          </div>\n        ") : "\n        <div  class=\"label2 bg-hist\">Historic range</div>\n        <div style=\"grid-column: 1 / span 2; background-color: ".concat(rgba(colors.hist.outerBand, 0.1), "; padding-bottom: 0.25rem; \">\n          <div title=\"").concat(year_decade, "s historic range\" class=\"legend-area\" style=\"font-size: 0.8rem;  border-left-color: ").concat(rgba(colors.hist.outerBand, colors.opacity.ann_proj_minmax), "; \"><span>").concat(round(chart_data['hist_decadal_min'][hist_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['hist_decadal_max'][hist_year_idx], precision), "</span></div>\n        </div>\n        "), "\n        ");
+        }
+
+        if (show_rolling_window_means) {
+          const year_start = year - rolling_window_mean_years;
+
+          if (year_start - 1950 > 0) {
+            rolling_content = "\n        <div  class=\"label1\">".concat(year_start, "&mdash;").concat(year, " projection</div>\n         ").concat(year >= 2000 ? "\n           <div class=\"bg-rcp85 label2\" >Higher Emissions</div>\n          <div class=\"bg-rcp85\" style=\" grid-column: 1; padding-bottom: 0.25rem;\">\n            <div title=\"".concat(year_start, "&mdash;").concat(year, " higher emissions mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left-color:").concat(rgba(colors.rcp85.line, colors.opacity.proj_line), "; \">").concat(round(chart_data['rcp85_rolling_mean'][proj_year_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp85\" style=\" grid-column: 2; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year_start, "&mdash;").concat(year, " higher emissions range\" class=\"legend-area\" style=\" font-size: 0.8rem; border-left-color: ").concat(rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax), "; \"><span>").concat(round(chart_data['rcp85_rolling_min'][proj_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp85_rolling_max'][proj_year_idx], precision), "</span></div>\n          </div>\n         \n          <div class=\"bg-rcp45 label2\" >Lower Emissions</div>\n          <div class=\"bg-rcp45\"  style=\"grid-column: 1;  padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year_start, "&mdash;").concat(year, " lower emissions mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left-color:").concat(rgba(colors.rcp45.line, colors.opacity.proj_line), ";  \">").concat(round(chart_data['rcp45_rolling_mean'][proj_year_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp45\"  style=\"grid-column: 2;  padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year_start, "&mdash;").concat(year, " lower emissions range\" class=\"legend-area\" style=\" font-size: 0.8rem;  border-left-color: ").concat(rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax), "; \">").concat(round(chart_data['rcp45_rolling_min'][proj_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp45_rolling_max'][proj_year_idx], precision), "</div>\n          </div>\n        ") : "\n        <div  class=\"label2 bg-hist\" >Historic range</div>\n        <div style=\"grid-column: 1 / span 2; background-color: ".concat(rgba(colors.hist.outerBand, 0.1), "; padding-bottom: 0.25rem; \">\n          <div title=\"").concat(year_start, "&mdash;").concat(year, " historic range\" class=\"legend-area\" style=\"font-size: 0.8rem;  border-left-color: ").concat(rgba(colors.hist.outerBand, colors.opacity.ann_proj_minmax), "; \"><span>").concat(round(chart_data['hist_rolling_min'][hist_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['hist_rolling_max'][hist_year_idx], precision), "</span></div>\n        </div>\n        "), "\n        ");
+          }
+        }
+
+        if (!hover_decadal_means) {
+          annual_content = "\n        <div class=\"label1\">{year} projection</div>\n         ".concat(year >= 2000 ? "\n           <div class=\"bg-rcp85 label2\" >Higher Emissions</div>\n          <div class=\"bg-rcp85\" style=\" grid-column: 1; padding-bottom: 0.25rem;\">\n            <div title=\"".concat(year, " higher emissions mean\" class=\"legend-line\" style=\"font-size: 1.1rem; border-left-color:").concat(rgba(colors.rcp85.line, colors.opacity.proj_line), "; \">").concat(round(chart_data['rcp85_mean'][proj_year_idx], precision), "</div>\n          </div>\n          <div  class=\"bg-rcp85\" style=\" grid-column: 2; padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year, " higher emissions range\" class=\"legend-area\" style=\" font-size: 0.8rem; border-left-color: ").concat(rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax), "; \"><span>").concat(round(chart_data['rcp85_min'][proj_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp85_max'][proj_year_idx], precision), "</span></div>\n          </div>\n         \n          <div class=\"bg-rcp45 label2\" >Lower Emissions</div>\n          <div class=\"bg-rcp45\" style=\"grid-column: 1;  padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year, " lower emissions mean\"  class=\"legend-line\"  style=\"font-size: 1.1rem; border-left-color:").concat(rgba(colors.rcp45.line, colors.opacity.proj_line), ";  \">").concat(round(chart_data['rcp45_mean'][proj_year_idx], precision), "</div>\n          </div>\n          <div class=\"bg-rcp45\"  style=\"grid-column: 2;  padding-bottom: 0.25rem;\">\n            <div title=\"").concat(year, " lower emissions range\" class=\"legend-area\" style=\" font-size: 0.8rem;  border-left-color: ").concat(rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax), "; \">").concat(round(chart_data['rcp45_min'][proj_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['rcp45_max'][proj_year_idx], precision), "</div>\n          </div>\n        ") : "\n        <div class=\"label2 bg-hist\">Historic range</div>\n        <div style=\"grid-column: 1 / span 2; background-color: ".concat(rgba(colors.hist.outerBand, 0.1), "; padding-bottom: 0.25rem; \">\n          <div title=\"").concat(year, " historic range\" class=\"legend-area\" style=\"font-size: 0.8rem;  border-left-color: ").concat(rgba(colors.hist.outerBand, colors.opacity.ann_proj_minmax), "; \"><span>").concat(round(chart_data['hist_min'][hist_year_idx], precision), "</span><span>&mdash;</span><span>").concat(round(chart_data['hist_max'][hist_year_idx], precision), "</span></div>\n        </div>\n        "), "\n        ");
+        }
+
+        return this.parent._request_show_popover('xaxes' in event_data ? event_data.xaxes[0].l2p(event_data.xvals[0]) : null, null, "\n        <div style=\"display: grid; grid-template-columns: auto auto;\">\n         ".concat(decadal_content, "\n        ").concat(rolling_content, "\n        ").concat(annual_content, "\n        "), pinned, variable_config.ytitles['annual'][unitsystem]);
+      } catch (e) {
+        console.error(e);
+        return this.parent.request_hide_popover(pinned);
+      }
     }
 
     async request_style_update() {
@@ -10206,15 +10281,25 @@
     }
 
     destroy() {
-      super.destroy(); //cleanup style
+      super.destroy();
 
-      const _style_idx = this.parent._styles.indexOf(this._style);
+      try {
+        //cleanup style
+        const _style_idx = this.parent._styles.indexOf(this._style);
 
-      if (_style_idx > -1) {
-        this.parent._styles.splice(_style_idx, 1);
+        if (_style_idx > -1) {
+          this.parent._styles.splice(_style_idx, 1);
+        }
+
+        this.parent._update_styles(); // remove event handlers
+
+
+        if (this.element && this.element.removeListener) {
+          this.element.removeListener('plotly_hover', this._hover_handler);
+          this.element.removeListener('plotly_click', this._click_handler);
+        }
+      } catch {// do nothing
       }
-
-      this.parent._update_styles();
     }
 
   }

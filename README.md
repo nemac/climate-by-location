@@ -128,6 +128,9 @@ Note that outside the contiguous US, some of these variables may be shown differ
 
 
 ## Changelog
+(3.2.0):
+- Revamped mouse hover into a more robust "popover", which can also be pinned by clicking the graph directly. No support for AK areas at this time.
+
 (3.1.0):
 - Refactored monolithic widget code into a more-modularized view-based structure.
 - More hover label improvements for decadal views.

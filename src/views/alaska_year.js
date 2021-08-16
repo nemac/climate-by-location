@@ -10,7 +10,8 @@ import {data_api_url} from "../constants.js";
 export default class AlaskaYearView extends View {
   constructor(parent, element) {
     super(parent, element);
-    this._style = '#' + this.parent.element.id + ` .legendtitletext{ display: none; }`
+    this._style = `#${this.parent.element.id} .legendtitletext{ display: none; }`
+    parent._styles.splice(parent._styles.indexOf(`#${this.parent.element.id} .hoverlayer .legend {display: none !important;}`), 1)
     parent._styles.push(this._style)
     this.parent._update_styles()
   }
@@ -278,6 +279,7 @@ export default class AlaskaYearView extends View {
     if (_style_idx > -1) {
       this.parent._styles.splice(_style_idx, 1);
     }
+    this.parent._styles.push(`#${this.parent.element.id} .hoverlayer .legend {display: none !important;}`);
     this.parent._update_styles();
   }
 

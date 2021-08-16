@@ -43,12 +43,12 @@ export default ({env="prod", versions})=>`
     <button id="reset_btn" style="position: absolute;top: 0;left: 0;background:none;width: 1em;height: 1em;border: none;display: block;margin: 0;padding: 0;" title="Reset options"><i class="fa fa-sm fa-refresh" style="
 "></i></button>
       <h1>Climate by Location
-       <span id="latest_version_button" style="display:none; text-align: left; flex-flow: column; vertical-align: top;"><span style="font-size: 1.5rem;font-family: serif;">(${versions[0]})</span><a style="font-size: 1.6rem;margin: 0.4rem; margin-left: 1.4rem;" href="https://climate-by-location.nemac.org/"><i class="fa fa-arrow-left fa-sm" style="margin-right: 0.5rem"></i>Latest</a></span><select id="version_select" style="display: none; margin-left: 1rem; padding: 0.1rem 0.2rem; font-size: 1.5rem; font-family: serif; max-width: 10rem; border:none;" title="Select a previous version of the tool" onchange="!!this.value && (window.location.href = this.value);"><option value="/archive/${versions[0]}/">${versions[0]} (latest)</option>${versions.slice(1).map((version)=>`<option value="/archive/${version}/">${version}</option>`).join('')}</select>
+       <span id="latest_version_button" style="display:none; text-align: left; flex-flow: column; vertical-align: top;"><span style="font-size: 1.5rem;font-family: serif;">(${versions[0]})</span><a style="font-size: 1.0rem;margin: 0.25rem; margin-left: 0.875rem;" href="https://climate-by-location.nemac.org/"><i class="fa fa-arrow-left fa-sm" style="margin-right: 0.312rem"></i>Latest</a></span><select id="version_select" style="display: none; margin-left: 0.625rem; padding: 0.062rem 0.125rem; font-size: 1rem; font-family: serif; max-width: 10rem; border:none;" title="Select a previous version of the tool" onchange="!!this.value && (window.location.href = this.value);"><option value="/archive/${versions[0]}/">${versions[0]} (latest)</option>${versions.slice(1).map((version)=>`<option value="/archive/${version}/">${version}</option>`).join('')}</select>
       </h1>
     </div>
     <form onsubmit="return false;">
       <div class="row">
-        <div class="four columns" style="min-width: 6rem;">
+        <div class="four columns" style="min-width: 3.75rem;">
           <label for="state">State</label>
           <select id="state" class="u-full-width">
             <option value="" selected></option>
@@ -105,7 +105,7 @@ export default ({env="prod", versions})=>`
           </select>
 
         </div>
-        <div class="eight columns" style="min-width: 15rem;">
+        <div class="eight columns" style="min-width: 9.375rem;">
           <label for="county">County</label>
           <select id="county" class="u-full-width">
             <option value="" selected></option>
@@ -204,7 +204,7 @@ export default ({env="prod", versions})=>`
       <li id="download_hist_mod_data_li"><a href="" id="download_hist_mod_data">Historical Modeled Data</a></li>
       <li><a href="" id="download_proj_mod_data">Projected Modeled Data</a></li>
     </ul>
-    <div id="download_error" class="error" style="display: none; color: red; font-size: 1.2em; margin:1rem 0;"></div>
+    <div id="download_error" class="error" style="display: none; color: red; font-size: 1.2em; margin:0.625rem 0;"></div>
     <div class="center">
       <button id="download-dismiss-button">Dismiss</button>
     </div>
