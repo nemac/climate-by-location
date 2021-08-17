@@ -763,7 +763,7 @@ export default class ConusDecadeView extends View {
       }
       if (!hover_decadal_means) {
         annual_content = `
-        <div class="label1">{year} projection</div>
+        <div class="label1">${year} projection</div>
          ${year >= 2000 ? `
            <div class="bg-rcp85 label2" >Higher Emissions</div>
           <div class="bg-rcp85" style=" grid-column: 1; padding-bottom: 0.25rem;">

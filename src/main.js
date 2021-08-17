@@ -143,6 +143,7 @@ export default class ClimateByLocationWidget {
     this._styles = [...this._styles,
       `#${this.element.id} .hoverlayer .legend {display: none !important;}`,
       `#${this.element.id} .climate_by_location_popover {
+            z-index: 9999;
             display: none;
             position:absolute;
             background: rgba(252,253,255,0.75);
@@ -395,7 +396,7 @@ export default class ClimateByLocationWidget {
     this._popover.style.top = `${y_position}px`;
     this._popover.style.left = `${x_position}px`;
     this._popover.innerHTML = `<div class="popover-header"><span
-      class="popover-title">${title}</span>${pinned ? '<button style=" margin-left: auto; margin-right: 0.156rem; height: fit-content; padding: 0.062rem; font-size: 0.781rem; border: none;" data-popover-action="hide" title="Close"><span aria-hidden="true">&#x2715</span></button>' : ''}
+      class="climate_by_location-popover-title">${title}</span>${pinned ? '<button style="background: none; margin-left: auto; margin-right: 0.156rem; height: fit-content; padding: 0.062rem; font-size: 0.781rem; border: none;" data-popover-action="hide" title="Close"><span aria-hidden="true">&#x2715</span></button>' : ''}
     </div>
     <div>${content}</div>`;
     if (pinned) {
