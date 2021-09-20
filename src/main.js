@@ -164,8 +164,8 @@ export default class ClimateByLocationWidget {
       `#${this.element.id} .climate_by_location_popover .bg-hist { background: ${rgba(this.options.colors.hist.outerBand, 0.1)}; }`,
       `#${this.element.id} .climate_by_location_popover .label1 { font-size: 1rem; font-weight: 700; line-height: 1.5rem; grid-column: 1 / span 2; }`,
       `#${this.element.id} .climate_by_location_popover .label2 { font-size: 0.7rem; padding-left: 0.3rem; line-height: 1rem; grid-column: 1 / span 2; }`,
-      `#${this.element.id} .climate_by_location_popover .legend-area { margin-left: 0.5rem; border-left-width: 0.4rem; border-left-style: solid;  padding-left: 0.5rem;}`,
-      `#${this.element.id} .climate_by_location_popover .legend-line { margin-left: 0.5rem; border-left-width: 0.15rem; border-left-style: solid; padding-left: 0.5rem; }`,
+      // `#${this.element.id} .climate_by_location_popover .legend-area { margin-left: 0.5rem; border-left-width: 0.4rem; border-left-style: solid;  padding-left: 0.5rem;}`,
+      // `#${this.element.id} .climate_by_location_popover .legend-line { margin-left: 0.5rem; border-left-width: 0.15rem; border-left-style: solid; padding-left: 0.5rem; }`,
 
       `#${this.element.id} .climate_by_location_popover .popover-header { display: flex; flex-flow: row nowrap; align-items: center;}`,
       `#${this.element.id}.popover-pinned .climate_by_location_popover { pointer-events: all; background: rgba(252,253,255,0.95); left: 60px !important; top: 15px !important; }`,

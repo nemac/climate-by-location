@@ -26,9 +26,7 @@
   <script >
   window.climate_by_location_config = {areas_json_url:'/ce_areas.json'}
 </script>
-
-   <script type="module" src="src/bundles/climate_by_location.climate_explorer.bundle.js"></script>
-
+  <script src="climate_by_location.climate_explorer.bundle.js"></script>
   <script src="demo.js"></script>
 </head>
 <body>
@@ -42,7 +40,7 @@
     <button id="reset_btn" style="position: absolute;top: 0;left: 0;background:none;width: 1em;height: 1em;border: none;display: block;margin: 0;padding: 0;" title="Reset options"><i class="fa fa-sm fa-refresh" style="
 "></i></button>
       <h1>Climate by Location
-       <span id="latest_version_button" style="display:none; text-align: left; flex-flow: column; vertical-align: top;"><span style="font-size: 0.938rem;font-family: serif;">(3.1.0)</span><a style="font-size: 1.0rem;margin: 0.25rem; margin-left: 0.875rem;" href="https://climate-by-location.nemac.org/"><i class="fa fa-arrow-left fa-sm" style="margin-right: 0.312rem"></i>Latest</a></span><select id="version_select" style="display: none; margin-left: 0.625rem; padding: 0.062rem 0.125rem; font-size: 0.938rem; font-family: serif; max-width: 6.25rem; border:none;" title="Select a previous version of the tool" onchange="!!this.value && (window.location.href = this.value);"><option value="/archive/3.1.0/">3.1.0 (latest)</option><option value="/archive/3.0.2/">3.0.2</option><option value="/archive/3.0.2-alt/">3.0.2-alt</option><option value="/archive/3.0.1/">3.0.1</option><option value="/archive/3.0.0/">3.0.0</option><option value="/archive/2.2.0/">2.2.0</option><option value="/archive/1.x.x/">1.x.x</option></select>
+       <span id="latest_version_button" style="display:none; text-align: left; flex-flow: column; vertical-align: top;"><span style="font-size: 1.5rem;font-family: serif;">(3.2.0)</span><a style="font-size: 1.0rem;margin: 0.25rem; margin-left: 0.875rem;" href="https://climate-by-location.nemac.org/"><i class="fa fa-arrow-left fa-sm" style="margin-right: 0.312rem"></i>Latest</a></span><select id="version_select" style="display: none; margin-left: 0.625rem; padding: 0.062rem 0.125rem; font-size: 1rem; font-family: serif; max-width: 10rem; border:none;" title="Select a previous version of the tool" onchange="!!this.value && (window.location.href = this.value);"><option value="/archive/3.2.0/">3.2.0 (latest)</option><option value="/archive/3.1.0/">3.1.0</option><option value="/archive/3.0.2/">3.0.2</option><option value="/archive/3.0.2-alt/">3.0.2-alt</option><option value="/archive/3.0.1/">3.0.1</option><option value="/archive/3.0.0/">3.0.0</option><option value="/archive/2.2.0/">2.2.0</option><option value="/archive/1.x.x/">1.x.x</option></select>
       </h1>
     </div>
     <form onsubmit="return false;">
