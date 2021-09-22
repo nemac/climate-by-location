@@ -8509,7 +8509,7 @@
           width: 0.5
         },
         marker: {
-          color: rgba(colors.hist.bar, colors.opacity.hist_obs)
+          color: rgba(colors.hist.bar, colors.opacity.hist_obs / 2)
         },
         legendgroup: 'histobs',
         visible: !!show_historical_observed ? true : 'legendonly' // hoverinfo: 'skip'
