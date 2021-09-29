@@ -6643,8 +6643,7 @@
      * @param {number} options.unitsystem - unit system to use for data presentation ("english", "metric")
      * @param {array<number, number>} options.x_axis_range - Sets the range of the x-axis.
      * @param {array<number, number>} options.y_axis_range - Sets the range of the y-axis.
-     * @param {string} options.font - Defaults to 'Roboto'.
-     * @param {boolean} options.show_legend - Whether or not to show the built-in legend. Defaults to false.
+       * @param {boolean} options.show_legend - Whether to show the built-in legend. Defaults to false.
      * @param {boolean} options.show_historical_observed - Whether to show historical observed data, if available.
      * @param {boolean} options.show_historical_modeled - Whether to show historical modeled data, if available.
      * @param {boolean} options.show_projected_rcp45 - Whether to show projected modeled RCP4.5 data, if available.
@@ -6653,7 +6652,9 @@
      * @param {boolean} options.hover_decadal_means - Whether to show decadal means instead of annual values of modeled data, if available.
      * @param {boolean} options.show_rolling_window_means - Whether or not to show rolling window means of modeled data, if available.
      * @param {number} options.rolling_window_mean_years - The number of years to include in the rolling window, defaults to 10.
-     * @param {boolean} options.responsive - Whether or not to listen to window resize events and auto-resize the graph. Can only be set on instantiation.
+     * @param {string} options.font - Defaults to 'Roboto'.
+     * @param {boolean} options.smaller_labels - Shrink label sizes in the graph for a more compact display. Defaults to false.
+     * @param {boolean} options.responsive - Whether  to listen to window resize events and auto-resize the graph. Can only be set on instantiation.
      */
     constructor(element, options = {}) {
       this.options = {
@@ -6717,8 +6718,21 @@
         show_rolling_window_means: false,
         rolling_window_mean_years: 10,
         data_api_url: data_api_url,
-        island_data_url_template: island_data_url_template
-      }; // this.options = merge(this.options, options);
+        island_data_url_template: island_data_url_template,
+        // these options get used during init, and therefore must be available immediately.
+        font: !!options && !!options.font ? options.font : 'Roboto',
+        smaller_labels: !!options && !!options.smaller_labels || false
+      };
+
+      if (this.options.smaller_labels) {
+        this.options.plotly_layout_defaults.margin = {
+          l: 32,
+          t: 8,
+          r: 10,
+          b: 32
+        };
+      } // this.options = merge(this.options, options);
+
 
       this.view = null;
 
@@ -6771,7 +6785,7 @@
     }
 
     _init_popover() {
-      this._styles = [...this._styles, "#".concat(this.element.id, " .hoverlayer .legend {display: none !important;}"), "#".concat(this.element.id, " .climate_by_location_popover {\n            z-index: 9999;\n            display: none;\n            position:absolute;\n            background: rgba(252,253,255,0.75);\n            pointer-events: none;\n            min-height: 3.75rem;\n            flex-flow: column nowrap;\n            height: fit-content;\n            width: 16rem;\n            box-shadow: 2px 1px 5px rgb(0 0 0 / 50%);\n            border: solid 1.3px rgba(0, 0, 0, 0.3);\n            padding: 0.45rem 0.55rem;\n            font-size: 1rem;\n            font-weight: 500;\n            line-height: 1.5rem;\n       }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-rcp85 { background-color: ").concat(rgba(this.options.colors.rcp85.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-rcp45 { background-color: ").concat(rgba(this.options.colors.rcp45.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-hist { background: ").concat(rgba(this.options.colors.hist.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .label1 { font-size: 1rem; font-weight: 700; line-height: 1.5rem; grid-column: 1 / span 2; }"), "#".concat(this.element.id, " .climate_by_location_popover .label2 { font-size: 0.7rem; padding-left: 0.3rem; line-height: 1rem; grid-column: 1 / span 2; }"), // `#${this.element.id} .climate_by_location_popover .legend-area { margin-left: 0.5rem; border-left-width: 0.4rem; border-left-style: solid;  padding-left: 0.5rem;}`,
+      this._styles = [...this._styles, "#".concat(this.element.id, " .hoverlayer .legend {display: none !important;}"), "#".concat(this.element.id, " .climate_by_location_popover {\n            z-index: 9999;\n            display: none;\n            position:absolute;\n            background: rgba(252,253,255,0.75);\n            pointer-events: none;\n            min-height: ").concat(this.options.smaller_labels ? '3' : '3.75', "rem;\n            flex-flow: column nowrap;\n            height: fit-content;\n            width: ").concat(this.options.smaller_labels ? '11.5' : '15', "rem;\n            box-shadow: 2px 1px 5px rgb(0 0 0 / 50%);\n            border: solid 1.3px rgba(0, 0, 0, 0.3);\n            padding: 0.45rem 0.55rem;\n            font-size: ").concat(this.options.smaller_labels ? '0.75' : '1', "rem;\n            font-weight: 500;\n            line-height: ").concat(this.options.smaller_labels ? '1.15' : '1.5', "rem;\n       }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-rcp85 { background-color: ").concat(rgba(this.options.colors.rcp85.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-rcp45 { background-color: ").concat(rgba(this.options.colors.rcp45.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-hist { background: ").concat(rgba(this.options.colors.hist.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .label1 { font-size: 1em; font-weight: 700; line-height: 1.5em; grid-column: 1 / span 2; }"), "#".concat(this.element.id, " .climate_by_location_popover .label2 { font-size: 0.7em; padding-left: 0.3rem; line-height: 1em; grid-column: 1 / span 2; }"), // `#${this.element.id} .climate_by_location_popover .legend-area { margin-left: 0.5rem; border-left-width: 0.4rem; border-left-style: solid;  padding-left: 0.5rem;}`,
       // `#${this.element.id} .climate_by_location_popover .legend-line { margin-left: 0.5rem; border-left-width: 0.15rem; border-left-style: solid; padding-left: 0.5rem; }`,
       "#".concat(this.element.id, " .climate_by_location_popover .popover-header { display: flex; flex-flow: row nowrap; align-items: center;}"), "#".concat(this.element.id, ".popover-pinned .climate_by_location_popover { pointer-events: all; background: rgba(252,253,255,0.95); left: 60px !important; top: 15px !important; }"), "#".concat(this.element.id, ".popover-open .climate_by_location_popover { display: flex;   }")];
       this._popover = document.createElement("span");
@@ -7106,17 +7120,17 @@
         linewidth: 1,
         tickcolor: 'rgb(0,0,0)',
         tickfont: {
-          size: 10,
-          family: 'roboto, monospace',
+          size: this.options.smaller_labels ? 8 : 10,
+          family: "".concat(this.options.font || 'roboto', ", serif"),
           color: 'rgb(0,0,0)'
         },
-        nticks: 25,
+        nticks: this.options.smaller_labels ? 16 : 25,
         tickangle: 0,
         title: {
           text: variable_config['ytitles']['annual'][this.options.unitsystem],
           font: {
-            family: 'roboto, monospace',
-            size: 12,
+            family: "".concat(this.options.font || 'roboto', ", serif"),
+            size: this.options.smaller_labels ? 10 : 12,
             color: '#494949'
           }
         }
@@ -7143,22 +7157,14 @@
         linecolor: 'rgb(0,0,0)',
         linewidth: 1,
         // dtick: 5,
-        nticks: 15,
+        nticks: this.options.smaller_labels ? 11 : 15,
         tickcolor: 'rgb(0,0,0)',
         tickfont: {
-          size: 12,
-          family: 'roboto, monospace',
+          size: this.options.smaller_labels ? 10 : 12,
+          family: "".concat(this.options.font || 'roboto', ", serif"),
           color: 'rgb(0,0,0)'
         },
         tickangle: 0,
-        // title: {
-        //   text: 'Year',
-        //   font: {
-        //     family: 'roboto, monospace',
-        //     size: 13,
-        //     color: '#494949'
-        //   }
-        // },
         ...annual_options
       };
     }

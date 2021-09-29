@@ -35,7 +35,8 @@ export default class ConusDecadeView extends View {
       show_projected_rcp45,
       show_projected_rcp85,
       show_rolling_window_means,
-      unitsystem
+      unitsystem,
+      font
     } = this.parent.options;
     const area = this.parent.get_area();
     const variable_config = this.parent.get_variable_config();
@@ -417,7 +418,7 @@ export default class ConusDecadeView extends View {
           yanchor: (hist_obs_bar_base - ((y_range_max - y_range_min) * 0.1) - y_range_min) > 0 ? 'top' : 'bottom',
           text: '1961-1990 observed average',
           showarrow: false,
-          font: {color: colors.hist.bar}
+          font: {color: colors.hist.bar, size: this.parent.options.smaller_labels ? 8 : 10}
         }
       ];
     } else {
@@ -648,7 +649,7 @@ export default class ConusDecadeView extends View {
             tickcolor: 'rgb(0,0,0)',
             tickfont: {
               size: 9,
-              family: 'roboto, monospace',
+              family: `${font || 'roboto'}, monospace`,
               color: '#494949'
             },
             nticks: 12,
@@ -705,6 +706,7 @@ export default class ConusDecadeView extends View {
       const hist_year_idx = year - 1950;
       if (hover_decadal_means || show_decadal_means) {
         const year_decade = Math.trunc(year / 10) * 10;
+        // language=HTML
         decadal_content = `
         <div  class="label1">${year_decade}s projection</div>
          ${year >= 2000 ? `
@@ -713,13 +715,13 @@ export default class ConusDecadeView extends View {
           
             <span style="width: 1.25rem; margin: 0 .3rem 0 .3rem; border-top: 0.15rem solid ${rgba(colors.rcp85.line, colors.opacity.proj_line)};"></span>
             
-            <div title="${year_decade}s higher emissions weighted mean" class="legend-line" font-size: 1.1rem; margin: 0 0 0 .3rem;">${round(chart_data['rcp85_decadal_mean'][proj_year_idx], precision)}</div>
+            <div title="${year_decade}s higher emissions weighted mean" class="legend-line" style="font-size: 1.1rem; margin: 0 0 0 .3rem;">${round(chart_data['rcp85_decadal_mean'][proj_year_idx], precision)}</div>
           </div>
           <div class="bg-rcp85" style=" grid-column: 2; padding-bottom: 0.25rem; display: flex; align-items: center;">
                 
             <span style="width: 1.25rem; margin: 0 .3rem 0 .3rem; border-top: 0.35rem solid ${rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax)};"></span>
             
-            <div title="${year_decade}s higher emissions range"  class="legend-area" font-size: 0.8rem; margin: 0 0 0 .3rem;"><span>${round(chart_data['rcp85_decadal_min'][proj_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp85_decadal_max'][proj_year_idx], precision)}</span></div>
+            <div title="${year_decade}s higher emissions range"  class="legend-area" style="font-size: 0.8rem; margin: 0 0 0 .3rem;"><span>${round(chart_data['rcp85_decadal_min'][proj_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp85_decadal_max'][proj_year_idx], precision)}</span></div>
           </div>
          
           <div class="bg-rcp45 label2" >Lower Emissions</div>
@@ -727,20 +729,20 @@ export default class ConusDecadeView extends View {
           <div class="bg-rcp45"  style="grid-column: 1;  padding-bottom: 0.25rem; display: flex; align-items: center;">
             <span style="width: 1.25rem; margin: 0 .3rem 0 .3rem; border-top: 0.15rem solid ${rgba(colors.rcp45.line, colors.opacity.proj_line)};"></span>
             
-            <div title="${year_decade}s lower emissions weighted mean" class="legend-line" font-size: 1.1rem; margin: 0 0 0 .3rem;">${round(chart_data['rcp45_decadal_mean'][proj_year_idx], precision)}</div>
+            <div title="${year_decade}s lower emissions weighted mean" class="legend-line" style=" font-size: 1.1rem; margin: 0 0 0 .3rem;">${round(chart_data['rcp45_decadal_mean'][proj_year_idx], precision)}</div>
           </div>
           
           <div class="bg-rcp45"  style="grid-column: 2;  padding-bottom: 0.25rem; display: flex; align-items: center;">
             <span style="width: 1.25rem; margin: 0 .3rem 0 .3rem; border-top: 0.35rem solid ${rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax)};"></span>
             
-            <div title="${year_decade}s lower emissions range" class="legend-area" font-size: 0.8rem; margin: 0 0 0 .3rem;">${round(chart_data['rcp45_decadal_min'][proj_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp45_decadal_max'][proj_year_idx], precision)}</div>
+            <div title="${year_decade}s lower emissions range" class="legend-area" style=" font-size: 0.8rem; margin: 0 0 0 .3rem;">${round(chart_data['rcp45_decadal_min'][proj_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp45_decadal_max'][proj_year_idx], precision)}</div>
           </div>
         ` : `
         <div  class="label2 bg-hist">Historic range</div>
         <div style="grid-column: 1 / span 2; background-color: ${rgba(colors.hist.outerBand, 0.1)}; padding-bottom: 0.25rem;">
           <div style="display: flex; align-items: center;"> 
             <span style="width: 1.25rem; margin: 0 .3rem 0 .3rem; border-top: 0.35rem solid ${rgba(colors.hist.outerBand, colors.opacity.ann_proj_minmax)};"></span>
-            <div title="${year_decade}s historic range" class="legend-area" font-size: 0.8rem; margin: 0 0 0 .3rem;"><span>${round(chart_data['hist_decadal_min'][hist_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['hist_decadal_max'][hist_year_idx], precision)}</span></div>
+            <div title="${year_decade}s historic range" class="legend-area" style="font-size: 0.8rem; margin: 0 0 0 .3rem;"><span>${round(chart_data['hist_decadal_min'][hist_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['hist_decadal_max'][hist_year_idx], precision)}</span></div>
           </div>
         </div>
         `}
@@ -781,23 +783,23 @@ export default class ConusDecadeView extends View {
         <div class="label1">${year} projection</div>
          ${year >= 2000 ? `
            <div class="bg-rcp85 label2" >Higher Emissions</div>
-            <div class="bg-rcp85" style=" grid-column: 1; padding-bottom: 0.25rem; style="display: flex; align-items: center;">
+            <div class="bg-rcp85" style=" grid-column: 1; padding-bottom: 0.25rem; display: flex; align-items: center;">
               <span style="width: 1.25rem; margin: 0 .3rem 0 .3rem; border-top: 0.15rem solid ${rgba(colors.rcp85.line, colors.opacity.proj_line)};"></span>
               <div title="${year} higher emissions weighted mean" class="legend-line" style="font-size: 1.1rem; margin: 0 0 0 .3rem;">${round(chart_data['rcp85_mean'][proj_year_idx], precision)}</div>
             </div>
             
-            <div  class="bg-rcp85" style=" grid-column: 2; padding-bottom: 0.25rem; style="display: flex; align-items: center;">
+            <div  class="bg-rcp85" style=" grid-column: 2; padding-bottom: 0.25rem; display: flex; align-items: center;">
               <span style="width: 1.25rem; margin: 0 .3rem 0 .3rem; border-top: 0.35rem solid ${rgba(colors.rcp85.outerBand, colors.opacity.ann_proj_minmax)};"></span>
               <div title="${year} higher emissions range" class="legend-area" style=" font-size: 0.8rem; margin: 0 0 0 .3rem;"><span>${round(chart_data['rcp85_min'][proj_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp85_max'][proj_year_idx], precision)}</span></div>
             </div>
          
           <div class="bg-rcp45 label2" >Lower Emissions</div>
           
-          <div class="bg-rcp45" style="grid-column: 1;  padding-bottom: 0.25rem; style="display: flex; align-items: center;">
+          <div class="bg-rcp45" style="grid-column: 1;  padding-bottom: 0.25rem; display: flex; align-items: center;">
             <span style="width: 1.25rem; margin: 0 .3rem 0 .3rem; border-top: 0.35rem solid ${rgba(colors.rcp45.line, colors.opacity.proj_line)};"></span>
             <div title="${year} lower emissions weighted mean"  class="legend-line" style="font-size: 1.1rem; margin: 0 0 0 .3rem;">${round(chart_data['rcp45_mean'][proj_year_idx], precision)}</div>
           </div>
-          <div class="bg-rcp45"  style="grid-column: 2;  padding-bottom: 0.25rem; style="display: flex; align-items: center;">
+          <div class="bg-rcp45"  style="grid-column: 2;  padding-bottom: 0.25rem; display: flex; align-items: center;">
             <span style="width: 1.25rem; margin: 0 .3rem 0 .3rem; border-top: 0.35rem solid ${rgba(colors.rcp45.outerBand, colors.opacity.ann_proj_minmax)};"></span>
             <div title="${year} lower emissions range" class="legend-area" style=" font-size: 0.8rem; margin: 0 0 0 .3rem;">${round(chart_data['rcp45_min'][proj_year_idx], precision)}</span><span>&mdash;</span><span>${round(chart_data['rcp45_max'][proj_year_idx], precision)}</div>
           </div>

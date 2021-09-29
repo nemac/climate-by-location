@@ -75,7 +75,8 @@ jQuery(document).ready(function ($) {
       'frequency': frequency || $('#frequency').val(),
       'monthly_timeperiod': monthly_timeperiod || $('#timeperiod').val(),
       'area_id': area_id || $('#other_areas').val() || $('#county').val() || $('#state').val() || $('#ecoregion').val(),
-      'variable':  variable || $('#variable').val()
+      'variable':  variable || $('#variable').val(),
+      'smaller_labels': false
     });
   }
 

@@ -25,12 +25,14 @@ This module relies on the data services provided by the [Applied Climate Informa
         'frequency': 'annual', // One of the strings "annual" or "monthly", indicating which type of data to display. Optional; defaults to "annual".
         'monthly_timeperiod': '2025', //One of the strings "2025", "2050", or "2075", indicating which 30-year period of projection data to show for monthly or seasonal data. Ignored for annual data.
         'unitsystem': 'english', // Unit system to use for data presentation ("english", "metric")
-        'show_legend': false, // Whether or not to show the built-in legend. Defaults to false.
+        'show_legend': false, // Whether to show the built-in legend. Defaults to false.
         'show_historical_observed': true, // Whether or not to show historical observed data if available.
         'show_historical_modeled': true, // Whether or not to show historical modeled data if available.
         'show_projected_rcp45': true, // Whether or not to show projected modeled RCP4.5 data if available.
         'show_projected_rcp85': true, // Whether or not to show projected modeled RCP8.5 data if available.
-        'responsive': true // Whether or not to listen to window resize events and auto-resize the graph. Can only be set on instantiation.
+        'responsive': true, // Whether to listen to window resize events and auto-resize the graph. Can only be set on instantiation.
+        'smaller_labels': false, // Shrink label sizes in the graph for a more compact display. 
+        'font': 'Roboto' // font to use for labels and numbers. Defaults to 'Roboto'.
       });
 ```
 
@@ -128,6 +130,11 @@ Note that outside the contiguous US, some of these variables may be shown differ
 
 
 ## Changelog
+(3.2.1):
+- Rotated hover legend items.
+- Fixed 'font' option.
+- Added 'smaller_labels' option.
+
 (3.2.0):
 - Revamped mouse hover into a more robust "popover", which can also be pinned by clicking the graph directly. No support for AK areas at this time.
 
