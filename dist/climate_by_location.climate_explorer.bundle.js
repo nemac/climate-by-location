@@ -8322,7 +8322,7 @@
         name: 'Historical Observed',
         line: {
           color: colors.hist.line,
-          width: 0.3
+          width: 3
         },
         marker: {
           color: rgba(colors.hist.bar, colors.opacity.hist_obs / 1.5)
