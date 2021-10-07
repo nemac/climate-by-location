@@ -8199,7 +8199,7 @@
         fill: 'none',
         connectgaps: false,
         line: {
-          color: rgba(colors.hist.bar, colors.opacity.hist_obs / 2),
+          color: rgba(colors.hist.bar, colors.opacity.hist_obs / 1.5),
           width: 1,
           opacity: 1,
           dash: 'dot'
@@ -8322,10 +8322,10 @@
         name: 'Historical Observed',
         line: {
           color: colors.hist.line,
-          width: 0.5
+          width: 0.3
         },
         marker: {
-          color: rgba(colors.hist.bar, colors.opacity.hist_obs / 2)
+          color: rgba(colors.hist.bar, colors.opacity.hist_obs / 1.5)
         },
         legendgroup: 'histobs',
         visible: !!show_historical_observed ? true : 'legendonly' // hoverinfo: 'skip'
