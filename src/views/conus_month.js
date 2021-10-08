@@ -275,7 +275,7 @@ export default class ConusMonthView extends View {
           <div class="label1" style="font-size: 0.8rem;">1950-2013 observed</div>
           <div style="grid-column: 1 / span 2; display: flex; align-items: center; width: 50%;">
             
-            <span style="width: 1.25rem; margin: 0 .3rem 0 .3rem; border-top: 0.15rem dashed ${rgba(colors.hist.line, 1)};"></span>
+            <span style="width: 1.25rem; margin: 0 .3rem 0 .3rem; border-top: 0.15rem solid ${rgba(colors.hist.line, 1)};"></span>
             
             <div title="1950-2013 observed" class="legend-line" style=" font-size: 0.8rem; margin: 0 0 0 .3rem;">${round(chart_data['hist_obs'][month_idx], precision)}</div>
           </div>
