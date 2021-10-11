@@ -118,8 +118,8 @@ export default class ClimateByLocationWidget {
       this.element.id = 'climatebylocation-' + Math.floor(Math.random() * Math.floor(100));
     }
     this._styles = [
-      `#${this.element.id} {position: relative;}`,
-      `#${this.element.id} .climate_by_location_view {width: 100%; height: 100%;}`,
+      `#${this.element.id} {position: relative; display: flex; flex-flow: column nowrap;}`,
+      `#${this.element.id} .climate_by_location_view {width: 100%; height: 100%; flex: 1 1 auto;}`,
     ];
     this.view_container = document.createElement('div');
     this.view_container.classList.add('climate_by_location_view');

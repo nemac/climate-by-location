@@ -6592,7 +6592,7 @@
         this.element.id = 'climatebylocation-' + Math.floor(Math.random() * Math.floor(100));
       }
 
-      this._styles = ["#".concat(this.element.id, " {position: relative;}"), "#".concat(this.element.id, " .climate_by_location_view {width: 100%; height: 100%;}")];
+      this._styles = ["#".concat(this.element.id, " {position: relative; display: flex; flex-flow: column nowrap;}"), "#".concat(this.element.id, " .climate_by_location_view {width: 100%; height: 100%; flex: 1 1 auto;}")];
       this.view_container = document.createElement('div');
       this.view_container.classList.add('climate_by_location_view');
       this.element.append(this.view_container);
