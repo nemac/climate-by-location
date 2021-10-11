@@ -155,7 +155,7 @@ export default class ClimateByLocationWidget {
             z-index: 9999;
             display: none;
             position:absolute;
-            background: rgba(252,253,255,0.75);
+            background: rgba(252,253,255,0.825);
             pointer-events: none;
             min-height: ${this.options.smaller_labels? '3' : '3.75'}rem;
             flex-flow: column nowrap;
