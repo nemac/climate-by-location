@@ -6820,7 +6820,7 @@
         this.element.id = 'climatebylocation-' + Math.floor(Math.random() * Math.floor(100));
       }
 
-      this._styles = ["#".concat(this.element.id, " {position: relative;}"), "#".concat(this.element.id, " .climate_by_location_view {width: 100%; height: 100%;}")];
+      this._styles = ["#".concat(this.element.id, " {position: relative; display: flex; flex-flow: column nowrap;}"), "#".concat(this.element.id, " .climate_by_location_view {width: 100%; height: 100%; flex: 1 1 auto;}")];
       this.view_container = document.createElement('div');
       this.view_container.classList.add('climate_by_location_view');
       this.element.append(this.view_container);
@@ -6853,7 +6853,7 @@
     }
 
     _init_popover() {
-      this._styles = [...this._styles, "#".concat(this.element.id, " .hoverlayer .legend {display: none !important;}"), "#".concat(this.element.id, " .climate_by_location_popover {\n            z-index: 9999;\n            display: none;\n            position:absolute;\n            background: rgba(252,253,255,0.75);\n            pointer-events: none;\n            min-height: ").concat(this.options.smaller_labels ? '3' : '3.75', "rem;\n            flex-flow: column nowrap;\n            height: fit-content;\n            width: ").concat(this.options.smaller_labels ? '11.5' : '15', "rem;\n            box-shadow: 2px 1px 5px rgb(0 0 0 / 50%);\n            border: solid 1.3px rgba(0, 0, 0, 0.3);\n            padding: 0.45rem 0.55rem;\n            font-size: ").concat(this.options.smaller_labels ? '0.75' : '1', "rem;\n            font-weight: 500;\n            line-height: ").concat(this.options.smaller_labels ? '1.15' : '1.5', "rem;\n       }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-rcp85 { background-color: ").concat(rgba(this.options.colors.rcp85.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-rcp45 { background-color: ").concat(rgba(this.options.colors.rcp45.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-hist { background: ").concat(rgba(this.options.colors.hist.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .label1 { font-size: 1em; font-weight: 700; line-height: 1.5em; grid-column: 1 / span 2; }"), "#".concat(this.element.id, " .climate_by_location_popover .label2 { font-size: 0.7em; padding-left: 0.3rem; line-height: 1em; grid-column: 1 / span 2; }"), // `#${this.element.id} .climate_by_location_popover .legend-area { margin-left: 0.5rem; border-left-width: 0.4rem; border-left-style: solid;  padding-left: 0.5rem;}`,
+      this._styles = [...this._styles, "#".concat(this.element.id, " .hoverlayer .legend {display: none !important;}"), "#".concat(this.element.id, " .climate_by_location_popover {\n            z-index: 9999;\n            display: none;\n            position:absolute;\n            background: rgba(252,253,255,0.825);\n            pointer-events: none;\n            min-height: ").concat(this.options.smaller_labels ? '3' : '3.75', "rem;\n            flex-flow: column nowrap;\n            height: fit-content;\n            width: ").concat(this.options.smaller_labels ? '11.5' : '15', "rem;\n            box-shadow: 2px 1px 5px rgb(0 0 0 / 50%);\n            border: solid 1.3px rgba(0, 0, 0, 0.3);\n            padding: 0.45rem 0.55rem;\n            font-size: ").concat(this.options.smaller_labels ? '0.75' : '1', "rem;\n            font-weight: 500;\n            line-height: ").concat(this.options.smaller_labels ? '1.15' : '1.5', "rem;\n       }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-rcp85 { background-color: ").concat(rgba(this.options.colors.rcp85.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-rcp45 { background-color: ").concat(rgba(this.options.colors.rcp45.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .bg-hist { background: ").concat(rgba(this.options.colors.hist.outerBand, 0.1), "; }"), "#".concat(this.element.id, " .climate_by_location_popover .label1 { font-size: 1em; font-weight: 700; line-height: 1.5em; grid-column: 1 / span 2; }"), "#".concat(this.element.id, " .climate_by_location_popover .label2 { font-size: 0.7em; padding-left: 0.3rem; line-height: 1em; grid-column: 1 / span 2; }"), // `#${this.element.id} .climate_by_location_popover .legend-area { margin-left: 0.5rem; border-left-width: 0.4rem; border-left-style: solid;  padding-left: 0.5rem;}`,
       // `#${this.element.id} .climate_by_location_popover .legend-line { margin-left: 0.5rem; border-left-width: 0.15rem; border-left-style: solid; padding-left: 0.5rem; }`,
       "#".concat(this.element.id, " .climate_by_location_popover .popover-header { display: flex; flex-flow: row nowrap; align-items: center;}"), "#".concat(this.element.id, ".popover-pinned .climate_by_location_popover { pointer-events: all; background: rgba(252,253,255,0.95); left: 60px !important; top: 15px !important; }"), "#".concat(this.element.id, ".popover-open .climate_by_location_popover { display: flex;   }")];
       this._popover = document.createElement("span");
@@ -8365,7 +8365,7 @@
         chart_data['hist_obs_year'].push(hist_obs_data[i][0]);
         chart_data['hist_obs'].push(round(hist_obs_data[i][1], precision));
 
-        if (1961 <= hist_obs_data[i][0] <= 1990) {
+        if (1961 <= hist_obs_data[i][0] && hist_obs_data[i][0] <= 1990) {
           chart_data['hist_obs_base'].push(round(hist_obs_data[i][1], precision));
         }
       }
@@ -10221,7 +10221,7 @@
         chart_data['hist_obs_year'].push(round(hist_obs_data[i][0], precision));
         chart_data['hist_obs'].push(round(hist_obs_data[i][1], precision));
 
-        if (1961 <= hist_obs_data[i][0] <= 1990) {
+        if (1961 <= hist_obs_data[i][0] && hist_obs_data[i][0] <= 1990) {
           chart_data['hist_obs_base'].push(round(hist_obs_data[i][1], precision));
         }
       }

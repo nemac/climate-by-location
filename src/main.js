@@ -118,8 +118,8 @@ export default class ClimateByLocationWidget {
       this.element.id = 'climatebylocation-' + Math.floor(Math.random() * Math.floor(100));
     }
     this._styles = [
-      `#${this.element.id} {position: relative;}`,
-      `#${this.element.id} .climate_by_location_view {width: 100%; height: 100%;}`,
+      `#${this.element.id} {position: relative; display: flex; flex-flow: column nowrap;}`,
+      `#${this.element.id} .climate_by_location_view {width: 100%; height: 100%; flex: 1 1 auto;}`,
     ];
     this.view_container = document.createElement('div');
     this.view_container.classList.add('climate_by_location_view');
@@ -155,7 +155,7 @@ export default class ClimateByLocationWidget {
             z-index: 9999;
             display: none;
             position:absolute;
-            background: rgba(252,253,255,0.75);
+            background: rgba(252,253,255,0.825);
             pointer-events: none;
             min-height: ${this.options.smaller_labels? '3' : '3.75'}rem;
             flex-flow: column nowrap;
@@ -455,7 +455,7 @@ export default class ClimateByLocationWidget {
     }
     if (Number.isFinite(x_range_min) && Number.isFinite(x_range_max)) {
       window.setTimeout(() => {
-        this.element.dispatchEvent(new CustomEvent('x_axis_range_change', {detail: [x_range_min, x_range_max, get(this.options, ['x_axis_range', 0], x_range_min), get(this.options, ['x_axis_range', 1], x_range_max)]}));
+          this.element.dispatchEvent(new CustomEvent('x_axis_range_change', {detail: [x_range_min, x_range_max, get(this.options, ['x_axis_range', 0], x_range_min), get(this.options, ['x_axis_range', 1], x_range_max)]}));
         this.element.dispatchEvent(new CustomEvent('y_axis_range_change', {detail: [y_range_min, y_range_max, get(this.options, ['y_axis_range', 0], y_range_min), get(this.options, ['y_axis_range', 1], y_range_max)]}));
       });
     }

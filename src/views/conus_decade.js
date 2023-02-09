@@ -362,7 +362,7 @@ export default class ConusDecadeView extends View {
     for (let i = 0; i < hist_obs_data.length; i++) {
       chart_data['hist_obs_year'].push(hist_obs_data[i][0]);
       chart_data['hist_obs'].push(round(hist_obs_data[i][1], precision));
-      if (1961 <= hist_obs_data[i][0] <= 1990) {
+      if (1961 <= hist_obs_data[i][0] && hist_obs_data[i][0] <= 1990) {
         chart_data['hist_obs_base'].push(round(hist_obs_data[i][1], precision));
       }
     }

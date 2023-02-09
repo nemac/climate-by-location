@@ -130,6 +130,10 @@ Note that outside the contiguous US, some of these variables may be shown differ
 
 
 ## Changelog
+(3.2.2):
+- Fixed 1961-1990 historical observed average calculation issue.
+- Minor style / font-sizing changes.
+
 (3.2.1):
 - Rotated hover legend items.
 - Fixed 'font' option.
