@@ -5525,7 +5525,9 @@
       }
     }
 
-    return decadal_values.map(_decadal_values => mean(_decadal_values));
+    const output = decadal_values.map(_decadal_values => mean(_decadal_values));
+    console.log(output);
+    return output;
   }
   function compute_rolling_window_means(data, year_col_idx, stat_col_idx, min_year, max_year, rolling_window_years) {
     //expand the years to be an exact number of rolling windows
@@ -5659,6 +5661,7 @@
   const monthly_variables = ['tmax', 'tmin', 'pcpn'];
   const variables = [{
     id: "tmax",
+    unit: "(°F)",
     title: {
       english: "Average Daily Max Temp",
       metric: "Average Daily Max Temp"
@@ -5698,6 +5701,7 @@
     rounding_precision: 1
   }, {
     id: "tmin",
+    unit: "(°F)",
     title: {
       english: "Average Daily Min Temp",
       metric: "Average Daily Min Temp"
@@ -5737,6 +5741,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmax_gt_50f",
+    unit: "(°F)",
     title: {
       english: "Days per year with max above 50°F",
       metric: "Days per year with max above 10°C"
@@ -5764,6 +5769,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmax_gt_60f",
+    unit: "(°F)",
     title: {
       english: "Days per year with max above 60°F",
       metric: "Days per year with max above 15.5°C"
@@ -5791,6 +5797,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmax_gt_70f",
+    unit: "(°F)",
     title: {
       english: "Days per year with max above 70°F",
       metric: "Days per year with max above 21.1°C"
@@ -5818,6 +5825,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmax_gt_80f",
+    unit: "(°F)",
     title: {
       english: "Days per year with max above 80°F",
       metric: "Days per year with max above 26.6°C"
@@ -5844,6 +5852,7 @@
     supports_area: is_ak_area
   }, {
     id: "days_tmax_gt_90f",
+    unit: "(°F)",
     title: {
       english: "Days per year with max above 90°F",
       metric: "Days per year with max above 32.2°C"
@@ -5871,6 +5880,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmax_gt_95f",
+    unit: "(°F)",
     title: {
       english: "Days per year with max above 95°F",
       metric: "Days per year with max above 35°C"
@@ -5898,6 +5908,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmax_gt_100f",
+    unit: "(°F)",
     title: {
       english: "Days per year with max above 100°F",
       metric: "Days per year with max above 37.7°C"
@@ -5925,6 +5936,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmax_gt_105f",
+    unit: "(°F)",
     title: {
       english: "Days per year with max above 105°F",
       metric: "Days per year with max above 40.5°C"
@@ -5952,6 +5964,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmax_lt_32f",
+    unit: "(°F)",
     title: {
       english: "Days per year with max below 32°F (Icing days)",
       metric: "Days per year with max below 0°C (Icing days)"
@@ -5979,6 +5992,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmax_lt_50f",
+    unit: "(°F)",
     title: {
       english: "Days per year with max below 50°F",
       metric: "Days per year with max below 10°C"
@@ -6006,6 +6020,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmax_lt_65f",
+    unit: "(°F)",
     title: {
       english: "Days per year with max below 65°F",
       metric: "Days per year with max below 18.3°C"
@@ -6033,6 +6048,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmin_lt_32f",
+    unit: "(°F)",
     title: {
       english: "Days per year with min below 32°F (frost days)",
       metric: "Days per year with min below 0°C (frost days)"
@@ -6060,6 +6076,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmin_lt_65f",
+    unit: "(°F)",
     title: {
       english: "Days per year with min below 65°F",
       metric: "Days per year with min below 18.3°C"
@@ -6087,6 +6104,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmin_lt_minus_40f",
+    unit: "(°F)",
     title: {
       english: "Days per year with min below -40°F",
       metric: "Days per year with min below -40°C"
@@ -6114,6 +6132,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmin_gt_60f",
+    unit: "(°F)",
     title: {
       english: "Days per year with min above 60°F",
       metric: "Days per year with min above 15.5°C"
@@ -6147,6 +6166,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmin_gt_75f",
+    unit: "(°F)",
     title: {
       english: "Days per year with min above 75°F",
       metric: "Days per year with min above 23.8°C"
@@ -6180,6 +6200,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmin_gt_80f",
+    unit: "(°F)",
     title: {
       english: "Days per year with min above 80°F",
       metric: "Days per year with min above 26.6°C"
@@ -6213,6 +6234,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmin_gt_90f",
+    unit: "(°F)",
     title: {
       english: "Days per year with min above 90°F",
       metric: "Days per year with min above 32.2°C"
@@ -6246,6 +6268,7 @@
     rounding_precision: 1
   }, {
     id: "hdd_65f",
+    unit: "(°F-days)",
     title: {
       english: "Heating Degree Days",
       metric: "Heating Degree Days"
@@ -6273,6 +6296,7 @@
     rounding_precision: -2
   }, {
     id: "cdd_65f",
+    unit: "(°F-days)",
     title: {
       english: "Cooling Degree Days",
       metric: "Cooling Degree Days"
@@ -6300,6 +6324,7 @@
     rounding_precision: -2
   }, {
     id: "gdd",
+    unit: "(°F-days)",
     title: {
       english: "Growing Degree Days",
       metric: "Growing Degree Days"
@@ -6327,6 +6352,7 @@
     rounding_precision: -2
   }, {
     id: "gddmod",
+    unit: "(°F-days)",
     title: {
       english: "Modified Growing Degree Days",
       metric: "Modified Growing Degree Days"
@@ -6355,6 +6381,7 @@
     rounding_precision: -2
   }, {
     id: "gdd_32f",
+    unit: "(°F-days)",
     title: {
       english: "Thawing Degree Days",
       metric: "Thawing Degree Days"
@@ -6382,6 +6409,7 @@
     rounding_precision: -2
   }, {
     id: "hdd_32f",
+    unit: "(°F-days)",
     title: {
       english: "Freezing Degree Days",
       metric: "Freezing Degree Days"
@@ -6409,6 +6437,7 @@
     rounding_precision: -2
   }, {
     id: "pcpn",
+    unit: "(in.)",
     title: {
       english: "Total Precipitation",
       metric: "Total Precipitation"
@@ -6448,6 +6477,7 @@
     rounding_precision: 2
   }, {
     id: "days_dry_days",
+    unit: "(days/period)",
     title: {
       english: "Dry Days",
       metric: "Dry Days"
@@ -6481,6 +6511,7 @@
     rounding_precision: 1
   }, {
     id: "days_pcpn_gt_0_25in",
+    unit: "(in.)",
     title: {
       english: "Days per year with more than 0.25in precipitation",
       metric: "Days per year with more than 6.35mm precipitation"
@@ -6508,6 +6539,7 @@
     rounding_precision: 1
   }, {
     id: "days_pcpn_gt_1in",
+    unit: "(in.)",
     title: {
       english: "Days per year with more than 1in precip",
       metric: "Days per year with more than 25.3mm precip"
@@ -6535,6 +6567,7 @@
     rounding_precision: 1
   }, {
     id: "days_pcpn_gt_2in",
+    unit: "(in.)",
     title: {
       english: "Days per year with more than 2in precip",
       metric: "Days per year with more than 50.8mm precip"
@@ -6562,6 +6595,7 @@
     rounding_precision: 1
   }, {
     id: "days_pcpn_gt_3in",
+    unit: "(in.)",
     title: {
       english: "Days per year with more than 3in precip",
       metric: "Days per year with more than 76.2mm precip"
@@ -6589,6 +6623,7 @@
     rounding_precision: 1
   }, {
     id: "days_pcpn_gt_4in",
+    unit: "(in.)",
     title: {
       english: "Days per year with more than 4in precip",
       metric: "Days per year with more than 101.6mm precip"
@@ -6616,6 +6651,7 @@
     rounding_precision: 1
   }, {
     id: "days_pcpn_gt_5in",
+    unit: "(in.)",
     title: {
       english: "Days per year with more than 5in precip",
       metric: "Days per year with more than 127mm precip"
@@ -7953,6 +7989,7 @@
       } = this.parent.options;
       const area = this.parent.get_area();
       const variable_config = this.parent.get_variable_config();
+      console.log("variable_config", variable_config);
 
       const _options = Object.assign({
         area,
@@ -8593,17 +8630,17 @@
           ticks: 'outside',
           tickcolor: 'rgb(0,0,0)',
           tickfont: {
-            size: 9,
+            size: 10,
             family: "".concat(font || 'roboto', ", monospace"),
             color: '#494949'
           },
           nticks: 12,
           tickangle: 0,
           title: {
-            text: 'Difference from Observed Average',
+            text: "Difference from Observed Average ".concat(variable_config.unit),
             font: {
               family: 'roboto, monospace',
-              size: 10,
+              size: 12,
               color: '#494949'
             }
           }

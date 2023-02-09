@@ -122,7 +122,11 @@ export function compute_decadal_means(data, year_col_idx, stat_col_idx, min_year
       decadal_values[Math.floor((data[i][year_col_idx] - min_year) / 10)].push(data[i][stat_col_idx]);
     }
   }
-  return decadal_values.map((_decadal_values) => mean(_decadal_values))
+
+  const output = decadal_values.map((_decadal_values) => mean(_decadal_values));
+  console.log(output);
+
+  return output;
 }
 
 export function compute_rolling_window_means(data, year_col_idx, stat_col_idx, min_year, max_year, rolling_window_years) {
