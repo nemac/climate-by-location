@@ -43,7 +43,7 @@
     "babel-polyfill": "^6.26.0",
     "lodash-es": "^4.17.15",
     "node-static": "~0.7.11",
-    "nodemon": "^2.0.4",
+    "nodemon": "^2.0.20",
     "rollup": "^2.23.0",
     "template-literals-cli": "^0.1.7"
   },
