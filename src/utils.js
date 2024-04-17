@@ -124,8 +124,6 @@ export function compute_decadal_means(data, year_col_idx, stat_col_idx, min_year
   }
 
   const output = decadal_values.map((_decadal_values) => mean(_decadal_values));
-  console.log(output);
-
   return output;
 }
 

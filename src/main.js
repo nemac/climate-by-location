@@ -476,17 +476,19 @@ export default class ClimateByLocationWidget {
       linewidth: 1,
       tickcolor: 'rgb(0,0,0)',
       tickfont: {
-        size: this.options.smaller_labels ? 8 : 10,
+        size: this.options.smaller_labels ? 12 : 14,
         family: `${this.options.font || 'roboto'}, serif`,
         color: 'rgb(0,0,0)'
       },
       nticks: this.options.smaller_labels ? 16 : 25,
       tickangle: 0,
+      automargin: true,
       title: {
         text: variable_config['ytitles']['annual'][this.options.unitsystem],
+        standoff: 10,
         font: {
           family: `${this.options.font || 'roboto'}, serif`,
-          size: this.options.smaller_labels ? 10 : 12,
+          size: this.options.smaller_labels ? 15 : 15,
           color: '#494949'
         }
       }
@@ -501,7 +503,12 @@ export default class ClimateByLocationWidget {
         tickformat: "%Y",
         ticklabelmode: "period",
         type: 'date',
-        range: (this.options.x_axis_range || [x_range_min, x_range_max]).map((a) => a + '-01-01')
+        range: (this.options.x_axis_range || [x_range_min, x_range_max]).map((a) => a + '-01-01'),
+        tickfont: {
+          size: this.options.smaller_labels ? 12 : 14,
+          family: `${this.options.font || 'roboto'}, serif`,
+          color: 'rgb(0,0,0)'
+        }
       }
     }
     return {

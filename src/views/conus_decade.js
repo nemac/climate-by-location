@@ -41,7 +41,7 @@ export default class ConusDecadeView extends View {
     const area = this.parent.get_area();
     const variable_config = this.parent.get_variable_config();
 
-    console.log("variable_config", variable_config);
+    console.log("options", this.parent.options);
 
     const _options = Object.assign({area, variable_config}, this.parent.options)
     const [hist_obs_data, hist_mod_data, proj_mod_data] = await Promise.all([
@@ -656,17 +656,19 @@ export default class ConusDecadeView extends View {
             ticks: 'outside',
             tickcolor: 'rgb(0,0,0)',
             tickfont: {
-              size: 10,
+              size: 14,
               family: `${font || 'roboto'}, monospace`,
               color: '#494949'
             },
+            automargin: true,
             nticks: 12,
             tickangle: 0,
             title: {
               text: `Difference from Observed Average ${variable_config.unit}`,
+              standoff: 10,
               font: {
                 family: 'roboto, monospace',
-                size: 12,
+                size: 15,
                 color: '#494949'
               }
             }

@@ -210,7 +210,7 @@ export const variables = [
   },
   {
     id: "days_tmax_gt_90f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with max above 90°F",
       metric: "Days per year with max above 32.2°C"
@@ -240,7 +240,7 @@ export const variables = [
   },
   {
     id: "days_tmax_gt_95f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with max above 95°F",
       metric: "Days per year with max above 35°C"
@@ -270,7 +270,7 @@ export const variables = [
   },
   {
     id: "days_tmax_gt_100f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with max above 100°F",
       metric: "Days per year with max above 37.7°C"
@@ -300,7 +300,7 @@ export const variables = [
   },
   {
     id: "days_tmax_gt_105f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with max above 105°F",
       metric: "Days per year with max above 40.5°C"
@@ -330,7 +330,7 @@ export const variables = [
   },
   {
     id: "days_tmax_lt_32f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with max below 32°F (Icing days)",
       metric: "Days per year with max below 0°C (Icing days)"
@@ -420,7 +420,7 @@ export const variables = [
   },
   {
     id: "days_tmin_lt_32f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with min below 32°F (frost days)",
       metric: "Days per year with min below 0°C (frost days)"
@@ -583,7 +583,7 @@ export const variables = [
   },
   {
     id: "days_tmin_gt_80f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with min above 80°F",
       metric: "Days per year with min above 26.6°C"
@@ -620,7 +620,7 @@ export const variables = [
   },
   {
     id: "days_tmin_gt_90f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with min above 90°F",
       metric: "Days per year with min above 32.2°C"
@@ -877,7 +877,7 @@ export const variables = [
   },
   {
     id: "days_dry_days",
-    unit: "(days/period)",
+    unit: "(days/year)",
     title: {
       english: "Dry Days",
       metric: "Dry Days"
@@ -904,8 +904,8 @@ export const variables = [
     },
     ytitles: {
       annual: {
-        english: "Dry Days (days/period)",
-        metric: "Dry Days (days/period)"
+        english: "Dry Days (days/year)",
+        metric: "Dry Days (days/year)"
       },
 
     },
@@ -946,7 +946,7 @@ export const variables = [
   },
   {
     id: "days_pcpn_gt_1in",
-    unit: "(in.)",
+    unit: "(days)",
     title: {
       english: "Days per year with more than 1in precip",
       metric: "Days per year with more than 25.3mm precip"
@@ -977,7 +977,7 @@ export const variables = [
   },
   {
     id: "days_pcpn_gt_2in",
-    unit: "(in.)",
+    unit: "(days)",
     title: {
       english: "Days per year with more than 2in precip",
       metric: "Days per year with more than 50.8mm precip"
@@ -1009,7 +1009,7 @@ export const variables = [
   },
   {
     id: "days_pcpn_gt_3in",
-    unit: "(in.)",
+    unit: "(days)",
     title: {
       english: "Days per year with more than 3in precip",
       metric: "Days per year with more than 76.2mm precip"

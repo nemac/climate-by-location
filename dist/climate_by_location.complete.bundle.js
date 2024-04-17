@@ -5526,7 +5526,6 @@
     }
 
     const output = decadal_values.map(_decadal_values => mean(_decadal_values));
-    console.log(output);
     return output;
   }
   function compute_rolling_window_means(data, year_col_idx, stat_col_idx, min_year, max_year, rolling_window_years) {
@@ -5852,7 +5851,7 @@
     supports_area: is_ak_area
   }, {
     id: "days_tmax_gt_90f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with max above 90°F",
       metric: "Days per year with max above 32.2°C"
@@ -5880,7 +5879,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmax_gt_95f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with max above 95°F",
       metric: "Days per year with max above 35°C"
@@ -5908,7 +5907,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmax_gt_100f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with max above 100°F",
       metric: "Days per year with max above 37.7°C"
@@ -5936,7 +5935,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmax_gt_105f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with max above 105°F",
       metric: "Days per year with max above 40.5°C"
@@ -5964,7 +5963,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmax_lt_32f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with max below 32°F (Icing days)",
       metric: "Days per year with max below 0°C (Icing days)"
@@ -6048,7 +6047,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmin_lt_32f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with min below 32°F (frost days)",
       metric: "Days per year with min below 0°C (frost days)"
@@ -6200,7 +6199,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmin_gt_80f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with min above 80°F",
       metric: "Days per year with min above 26.6°C"
@@ -6234,7 +6233,7 @@
     rounding_precision: 1
   }, {
     id: "days_tmin_gt_90f",
-    unit: "(°F)",
+    unit: "(days)",
     title: {
       english: "Days per year with min above 90°F",
       metric: "Days per year with min above 32.2°C"
@@ -6477,7 +6476,7 @@
     rounding_precision: 2
   }, {
     id: "days_dry_days",
-    unit: "(days/period)",
+    unit: "(days/year)",
     title: {
       english: "Dry Days",
       metric: "Dry Days"
@@ -6502,8 +6501,8 @@
     },
     ytitles: {
       annual: {
-        english: "Dry Days (days/period)",
-        metric: "Dry Days (days/period)"
+        english: "Dry Days (days/year)",
+        metric: "Dry Days (days/year)"
       }
     },
     supports_frequency: is_annual,
@@ -6539,7 +6538,7 @@
     rounding_precision: 1
   }, {
     id: "days_pcpn_gt_1in",
-    unit: "(in.)",
+    unit: "(days)",
     title: {
       english: "Days per year with more than 1in precip",
       metric: "Days per year with more than 25.3mm precip"
@@ -6567,7 +6566,7 @@
     rounding_precision: 1
   }, {
     id: "days_pcpn_gt_2in",
-    unit: "(in.)",
+    unit: "(days)",
     title: {
       english: "Days per year with more than 2in precip",
       metric: "Days per year with more than 50.8mm precip"
@@ -6595,7 +6594,7 @@
     rounding_precision: 1
   }, {
     id: "days_pcpn_gt_3in",
-    unit: "(in.)",
+    unit: "(days)",
     title: {
       english: "Days per year with more than 3in precip",
       metric: "Days per year with more than 76.2mm precip"
@@ -6711,7 +6710,8 @@
      * @param {number} options.unitsystem - unit system to use for data presentation ("english", "metric")
      * @param {array<number, number>} options.x_axis_range - Sets the range of the x-axis.
      * @param {array<number, number>} options.y_axis_range - Sets the range of the y-axis.
-       * @param {boolean} options.show_legend - Whether to show the built-in legend. Defaults to false.
+    
+     * @param {boolean} options.show_legend - Whether to show the built-in legend. Defaults to false.
      * @param {boolean} options.show_historical_observed - Whether to show historical observed data, if available.
      * @param {boolean} options.show_historical_modeled - Whether to show historical modeled data, if available.
      * @param {boolean} options.show_projected_rcp45 - Whether to show projected modeled RCP4.5 data, if available.
@@ -7188,17 +7188,19 @@
         linewidth: 1,
         tickcolor: 'rgb(0,0,0)',
         tickfont: {
-          size: this.options.smaller_labels ? 8 : 10,
+          size: this.options.smaller_labels ? 12 : 14,
           family: "".concat(this.options.font || 'roboto', ", serif"),
           color: 'rgb(0,0,0)'
         },
         nticks: this.options.smaller_labels ? 16 : 25,
         tickangle: 0,
+        automargin: true,
         title: {
           text: variable_config['ytitles']['annual'][this.options.unitsystem],
+          standoff: 10,
           font: {
             family: "".concat(this.options.font || 'roboto', ", serif"),
-            size: this.options.smaller_labels ? 10 : 12,
+            size: this.options.smaller_labels ? 15 : 15,
             color: '#494949'
           }
         }
@@ -7214,7 +7216,12 @@
           tickformat: "%Y",
           ticklabelmode: "period",
           type: 'date',
-          range: (this.options.x_axis_range || [x_range_min, x_range_max]).map(a => a + '-01-01')
+          range: (this.options.x_axis_range || [x_range_min, x_range_max]).map(a => a + '-01-01'),
+          tickfont: {
+            size: this.options.smaller_labels ? 12 : 14,
+            family: "".concat(this.options.font || 'roboto', ", serif"),
+            color: 'rgb(0,0,0)'
+          }
         };
       }
 
@@ -7989,7 +7996,7 @@
       } = this.parent.options;
       const area = this.parent.get_area();
       const variable_config = this.parent.get_variable_config();
-      console.log("variable_config", variable_config);
+      console.log("options", this.parent.options);
 
       const _options = Object.assign({
         area,
@@ -8630,17 +8637,19 @@
           ticks: 'outside',
           tickcolor: 'rgb(0,0,0)',
           tickfont: {
-            size: 10,
+            size: 14,
             family: "".concat(font || 'roboto', ", monospace"),
             color: '#494949'
           },
+          automargin: true,
           nticks: 12,
           tickangle: 0,
           title: {
             text: "Difference from Observed Average ".concat(variable_config.unit),
+            standoff: 10,
             font: {
               family: 'roboto, monospace',
-              size: 12,
+              size: 15,
               color: '#494949'
             }
           }
