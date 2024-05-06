@@ -7188,11 +7188,13 @@
         linewidth: 1,
         tickcolor: 'rgb(0,0,0)',
         tickfont: {
-          size: this.options.smaller_labels ? 12 : 14,
+          // size: this.options.smaller_labels ? 12 : 14,
+          size: 20,
           family: "".concat(this.options.font || 'roboto', ", serif"),
           color: 'rgb(0,0,0)'
         },
-        nticks: this.options.smaller_labels ? 16 : 25,
+        // nticks: this.options.smaller_labels ? 16 : 25,
+        nticks: 15,
         tickangle: 0,
         automargin: true,
         title: {
@@ -7200,7 +7202,8 @@
           standoff: 10,
           font: {
             family: "".concat(this.options.font || 'roboto', ", serif"),
-            size: this.options.smaller_labels ? 15 : 15,
+            // size: this.options.smaller_labels ? 15 : 15,
+            size: 20,
             color: '#494949'
           }
         }
@@ -7213,12 +7216,14 @@
       if (annual) {
         annual_options = {
           // dtick: "M24",
+          nticks: 10,
           tickformat: "%Y",
           ticklabelmode: "period",
           type: 'date',
           range: (this.options.x_axis_range || [x_range_min, x_range_max]).map(a => a + '-01-01'),
           tickfont: {
-            size: this.options.smaller_labels ? 12 : 14,
+            // size: this.options.smaller_labels ? 12 : 14,
+            size: 20,
             family: "".concat(this.options.font || 'roboto', ", serif"),
             color: 'rgb(0,0,0)'
           }
@@ -8637,19 +8642,19 @@
           ticks: 'outside',
           tickcolor: 'rgb(0,0,0)',
           tickfont: {
-            size: 14,
+            size: 20,
             family: "".concat(font || 'roboto', ", monospace"),
             color: '#494949'
           },
           automargin: true,
-          nticks: 12,
+          nticks: 15,
           tickangle: 0,
           title: {
             text: "Difference from Observed Average ".concat(variable_config.unit),
             standoff: 10,
             font: {
               family: 'roboto, monospace',
-              size: 15,
+              size: 20,
               color: '#494949'
             }
           }

@@ -41,8 +41,6 @@ export default class ConusDecadeView extends View {
     const area = this.parent.get_area();
     const variable_config = this.parent.get_variable_config();
 
-    console.log("options", this.parent.options);
-
     const _options = Object.assign({area, variable_config}, this.parent.options)
     const [hist_obs_data, hist_mod_data, proj_mod_data] = await Promise.all([
       get_historical_observed_livneh_data(_options),
@@ -656,19 +654,19 @@ export default class ConusDecadeView extends View {
             ticks: 'outside',
             tickcolor: 'rgb(0,0,0)',
             tickfont: {
-              size: 14,
+              size: 20,
               family: `${font || 'roboto'}, monospace`,
               color: '#494949'
             },
             automargin: true,
-            nticks: 12,
+            nticks: 15,
             tickangle: 0,
             title: {
               text: `Difference from Observed Average ${variable_config.unit}`,
               standoff: 10,
               font: {
                 family: 'roboto, monospace',
-                size: 15,
+                size: 20,
                 color: '#494949'
               }
             }
@@ -856,8 +854,6 @@ export default class ConusDecadeView extends View {
     const y_max_range = eventdata['yaxis.range[1]'];
     const y4_min_range = eventdata['yaxis4.range[0]'];
     const y4_max_range = eventdata['yaxis4.range[1]'];
-
-    console.log(eventdata);
 
     if (Number.isFinite(y_min_range) && Number.isFinite(y_max_range)) {
       if (y_min_range - offset !== y4_min_range || y_max_range - offset !== y4_max_range) {
